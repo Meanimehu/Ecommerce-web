@@ -262,6 +262,6 @@ All paths are in `Meanimehu/Ecommerce`.
 | --- | --- | --- |
 | Q4-1 | Which host and which shared store to use, chosen against the checklist in section 4 (including the durability guarantees) | Deployment time (owner) |
 | Q4-2 | Are pages after the first of an indexed list indexed, and what is their preferred address | Settled — see Document 5 (D5-07) |
-| Q4-3 | How the sitemap is built and kept up to date for a large catalogue | Document 7 |
-| Q4-4 | Refresh intervals for cached public pages, the size and life of the search cache, and the short lifetimes in section 9 | Document 7 |
+| Q4-3 | How the sitemap is built and kept up to date for a large catalogue | Settled — see Document 7 (D7-03, section 6) |
+| Q4-4 | Refresh intervals for cached public pages, the size and life of the search cache, and the short lifetimes in section 9 | Approach settled — see Document 7 (D7-04, section 7); the intervals are proposed and provisional until validated |
 | Q4-5 | Document 2, section 4 ("Session ended, or the refresh failed") should say that cookies are cleared only on confirmed backend rejection or logout, matching section 9 here. A separate small change to Document 2, if you approve it | Settled — Document 2, section 4 and D2-05 updated 9 Nov 2026 |

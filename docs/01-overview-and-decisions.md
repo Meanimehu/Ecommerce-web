@@ -35,7 +35,7 @@ Roles and what each may do are defined by the backend in `docs/api/api-contract.
 | D-10 | Broad compatibility: Android, iPhone, Windows and Mac; phone, tablet and desktop sizes. Older browsers and devices are not deliberately blocked, and we use graceful fallbacks where practical | Approved |
 | D-11 | Performance comes first on budget Android phones and slow connections | Approved |
 | D-12 | We do not promise full functionality where the technology stack cannot support it. Basic browsing works almost everywhere; interactive features (cart, login, vendor and admin tools) are guaranteed on the main test browsers and are not deliberately blocked elsewhere. If a browser is too old to run them, the site shows a clear message and a basic fallback instead of a blank page | Approved |
-| D-13 | The exact browser support and testing matrix is defined in Document 7 (Conventions), not here | Approved |
+| D-13 | The exact browser support and testing matrix is defined in Document 7 (Conventions, D7-09), not here | Approved |
 | D-14 | No backend changes are needed for the frontend documentation or the first frontend work. Backend changes are made later, when required | Approved |
 | D-15 | All prices are shown in Indian rupees (INR) | Approved (4 Nov 2026) |
 | D-16 | All dates and times are shown in Indian Standard Time (IST) | Approved (4 Nov 2026) |
@@ -81,7 +81,7 @@ Not decided yet. Each is settled in the document shown, or earlier by the owner.
 | # | Question | Settled in |
 | --- | --- | --- |
 | Q-1 | Where the frontend is hosted and how it reaches the backend in each environment | Document 4 |
-| Q-2 | Analytics and error monitoring: whether and which | Document 7 |
+| Q-2 | Analytics and error monitoring: whether and which | Settled for the first release — see Document 7 (D7-05); any later analytics is a new owner decision (Q7-2) |
 | Q-3 | Which pages must be indexed by search engines | Settled — see Document 4 (D4-04) |
 
 ## 8. Working rules
