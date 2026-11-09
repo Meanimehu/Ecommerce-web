@@ -11,7 +11,7 @@ How the frontend is organised and run: its layers, its pages and addresses, lang
 
 | ID | Decision | Status |
 | --- | --- | --- |
-| D4-01 | **Every page has a language prefix, `/en` or `/hi`**, in all three sections (storefront, vendor, admin). The person's choice is remembered for plain visits to the site | Approved (4 Nov 2026) |
+| D4-01 | **Every page has a language prefix, `/en` or `/hi`**, in all three areas (storefront, Vendor area, Admin area). The person's choice is remembered for plain visits to the site | Approved (4 Nov 2026) |
 | D4-02 | **Product pages use a readable name plus the id**, for example `/en/p/<id>/slim-fit-chinos`. The frontend builds the readable part from the title; the id is what is looked up. A wrong or old name part redirects to the correct address. No backend change is needed | Approved (4 Nov 2026). Clarified (route form only): the id and the name are separate path segments, because ids are opaque (Document 3, section 7) |
 | D4-03 | **Hosting is not chosen now.** The app is built to run as a plain, self-contained Node.js server that any suitable host can run, and the host is chosen at deployment time against the checklist in section 4 | Approved (4 Nov 2026) |
 | D4-04 | **Search engines index only the home page, category pages, brand pages and product pages.** Search results, filter and sort combinations, cart, account, login, vendor and admin pages are marked not to be indexed | Approved (4 Nov 2026) |
@@ -29,7 +29,7 @@ The app has these layers. A layer may use only the layer below it, with one exce
 | Layer | Job | May call the backend? |
 | --- | --- | --- |
 | Pages and routes | Decide what is shown at each address; server rendering | Only through the API layer, when rendering on the server (see below) |
-| Screens and features | The screens of each section, their forms and their user flows | No |
+| Screens and features | The screens of each area, their forms and their user flows | No |
 | Browser data layer | TanStack Query in the browser; calls the frontend server's own endpoints | No |
 | Frontend server endpoints | The plain HTTP endpoints the browser calls. They check login, CSRF and role (Document 2), then call the API layer | Only through the API layer |
 | API layer (server only) | The one place that talks to the backend (Document 3) | Yes |
@@ -63,7 +63,7 @@ Because the host is not chosen, the app must meet these, and a host is acceptabl
 
 ## 5. Routes
 
-All paths begin with the language prefix `/{lang}`. This lists sections and the main routes. The screens, and the full route list within each section, are in Document 5.
+All paths begin with the language prefix `/{lang}`. This lists areas and the main routes. The screens, and the full route list within each area, are in Document 5.
 
 | Area | Routes | Notes |
 | --- | --- | --- |
@@ -75,8 +75,8 @@ All paths begin with the language prefix `/{lang}`. This lists sections and the 
 | Login | `/{lang}/login` | Not indexed |
 | Cart | `/{lang}/cart` | Not indexed |
 | Customer account | `/{lang}/account/...` | Not indexed |
-| Vendor section | `/{lang}/vendor/...` | Not indexed |
-| Admin section | `/{lang}/admin/...` | Not indexed |
+| Vendor area | `/{lang}/vendor/...` | Not indexed |
+| Admin area | `/{lang}/admin/...` | Not indexed |
 | Not found, no access, error | Shown in place at the address asked for | Real 404, 403 and 5xx statuses |
 
 **Product addresses (D4-02).**
@@ -251,7 +251,7 @@ All paths are in `Meanimehu/Ecommerce`.
 
 ## 12. Handled in other documents
 
-- Every screen and the route list inside each section: Document 5.
+- Every screen and the route list inside each area: Document 5.
 - Look and feel, error pages' design, and loading states: Document 6.
 - Names of folders and files, environment variable names, refresh intervals, all the lifetimes and limits named above, the sitemap, the browser list, local development setup, the check list for the shared store's guarantees and the automated checks: Document 7.
 

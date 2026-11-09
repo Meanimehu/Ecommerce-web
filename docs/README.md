@@ -22,13 +22,13 @@ Documentation for the web frontend of the multi-vendor fashion marketplace. Docu
 
 | # | Document | File | Status |
 | --- | --- | --- | --- |
-| 1 | Overview and decisions | `01-overview-and-decisions.md` | Draft — pending review and approval |
-| 2 | Login and sessions | `02-login-and-sessions.md` | Not started |
-| 3 | API integration | `03-api-integration.md` | Not started |
-| 4 | Architecture and routes | `04-architecture-and-routes.md` | Not started |
-| 5 | Screens and flows | `05-screens-and-flows.md` | Approved (9 Nov 2026) |
-| 6 | Design system | `06-design-system.md` | Approved (9 Nov 2026), Stage 3 specification; Stages 4 and 5 not started |
+| 1 | Overview and decisions | `01-overview-and-decisions.md` | Merged (PR #2, 4 Nov 2026). Decisions D-01 to D-17 approved. The header still says Draft |
+| 2 | Login and sessions | `02-login-and-sessions.md` | Merged (PR #3, 4 Nov 2026). Decisions D2-01 to D2-04 approved. The header still says Draft |
+| 3 | API integration | `03-api-integration.md` | Merged (PR #4, 4 Nov 2026). Decisions D3-01 to D3-03 approved. The header still says Draft |
+| 4 | Architecture and routes | `04-architecture-and-routes.md` | Merged (PR #5, 4 Nov 2026). D4-01 to D4-04 approved; **D4-05 to D4-08 are still proposed, pending owner approval**. The header still says Draft |
+| 5 | Screens and flows | `05-screens-and-flows.md` | Approved. Merged 4 Nov 2026 (PR #6, D5-01 to D5-11); 9 Nov 2026 updates D5-12 to D5-15 in PR #7 |
+| 6 | Design system | `06-design-system.md` | Approved (9 Nov 2026), Stage 3 specification, in PR #7. Stages 4 and 5 not started |
 | 7 | Conventions (includes the browser support and testing matrix) | `07-conventions.md` | Not started |
 | 8 | Roadmap | `08-roadmap.md` | Not started |
 
-Document 1 is not in the repository yet: it is committed here once approved.
+Status here is the approval and merge state, checked against the merged pull requests and each document's decision table. Documents 1 to 4 were merged on 4 Nov 2026 with their headers still reading "Draft — pending review and approval"; the headers were not changed. Documents 7 and 8 have no file yet.

@@ -5,7 +5,7 @@
 
 ## 1. Purpose
 
-How people log in, stay logged in and log out in the web app, and how the three sections (storefront, vendor, admin) are protected. It covers frontend behaviour only. How login works in the backend, its endpoints, token lifetimes, rules and error codes are in the backend documentation (section 7) and are not repeated here.
+How people log in, stay logged in and log out in the web app, and how the three areas (storefront, Vendor area, Admin area) are protected. It covers frontend behaviour only. How login works in the backend, its endpoints, token lifetimes, rules and error codes are in the backend documentation (section 7) and are not repeated here.
 
 ## 2. Decisions
 
@@ -13,7 +13,7 @@ How people log in, stay logged in and log out in the web app, and how the three 
 | --- | --- | --- |
 | D2-01 | **The frontend server holds the login tokens in cookies (a backend-for-frontend design).** After login, the Next.js server sets the backend tokens as `Secure`, `HttpOnly` cookies in the browser, so browser JavaScript cannot read them. On each request the Next.js server reads the cookies and attaches the appropriate token when it calls the backend for the browser. Tokens never appear in URLs, local storage, page scripts or logs. No backend change is needed. Final hosting and deployment details are settled in Document 4 | Approved (4 Nov 2026) |
 | D2-02 | **A visitor who taps "Add to cart" while logged out is asked to log in, and the add is then completed automatically**, returning them to the same page. The pending add runs only once and handles changed or unavailable products gracefully (section 3) | Approved (4 Nov 2026) |
-| D2-03 | **After login a person returns to the page they asked for.** If there is none: customer to the storefront, vendor to the vendor section, staff to the admin section. A person with more than one section gets a section switcher | Approved (4 Nov 2026) |
+| D2-03 | **After login a person returns to the page they asked for.** If there is none: customer to the storefront, vendor to the Vendor area, staff to the Admin area. A person with more than one area gets an area switcher | Approved (4 Nov 2026) |
 | D2-04 | **One login page for everyone** (customers, vendors and staff). The person's roles decide what they can open | Approved (4 Nov 2026) |
 
 ## 3. Login screens and flow
@@ -44,14 +44,14 @@ The login page is light and works without heavy scripts (D-11). Every message sh
 | Log out | The frontend server asks the backend to end the session, and **clears the cookies even if that request fails** (for example the backend is unreachable). The person always appears logged out in the app. A failed backend request is logged without the token. The account page also offers "log out everywhere" |
 | No access to a screen (wrong role) | A "you don't have access" page. Screens a person cannot use are not shown in the menus |
 
-## 5. Protecting the sections
+## 5. Protecting the areas
 
 | Area | Not logged in | Logged in |
 | --- | --- | --- |
 | Public storefront (browse, search, product pages) | Open to everyone. Rendered on the server and may be cached and shared | Same pages. User-specific parts (name, cart count) are filled in separately after the page loads (see below) |
 | Cart and customer account | Login page, with D2-02 and D2-03 | Open |
-| Vendor section | Login page | Open for vendors; others see the no-access page |
-| Admin section | Login page | Open for staff; each screen is limited to the staff roles allowed for it. The role-to-screen map is in Document 5, taken from the backend API contract |
+| Vendor area | Login page | Open for vendors; others see the no-access page |
+| Admin area | Login page | Open for staff; each screen is limited to the staff roles allowed for it. The role-to-screen map is in Document 5, taken from the backend API contract |
 
 Hiding screens in the app is only for a better experience. The backend decides what is allowed, and the app handles a refusal gracefully.
 
