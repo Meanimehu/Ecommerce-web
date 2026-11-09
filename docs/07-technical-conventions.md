@@ -126,7 +126,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | T7-4 | **Request ID (Document 5, V5-5):** frontend server endpoints include the backend's `requestId` in the error response they send to the browser, so it can be shown and copied. This is a frontend convention and needs no backend feature. It is confirmed only when the first build shows the id reaching the browser; the Copy button stays conditional until then (D5-14) | First build |
 | T7-5 | Sitemap size and splitting (section 6) | First build |
 | T7-6 | Keyboard, screen reader, contrast and focus tests (section 10) | Before release of journeys 1 to 5 |
-| T7-7 | Real vendor photos in the 4:5 complete-photo frames (Document 6, D6-33) | Stage 5 testing |
+| T7-7 | Real vendor photos in the 4:5 complete-photo frames (Document 6, D6-33, D6-62). No real photos exist yet; the design stages used generated garment illustrations. Checked when real photos are available | First build or first real vendor uploads |
 | T7-8 | How the hero product choice is stored (Document 6, D6-61) | Before the hero is built |
 
 ## 14. Open questions
