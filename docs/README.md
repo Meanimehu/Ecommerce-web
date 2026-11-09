@@ -22,13 +22,13 @@ Documentation for the web frontend of the multi-vendor fashion marketplace. Docu
 
 | # | Document | File | Status |
 | --- | --- | --- | --- |
-| 1 | Overview and decisions | `01-overview-and-decisions.md` | Merged (PR #2, 4 Nov 2026). Decisions D-01 to D-17 approved. The header still says Draft |
-| 2 | Login and sessions | `02-login-and-sessions.md` | Merged (PR #3, 4 Nov 2026). Decisions D2-01 to D2-04 approved. The header still says Draft |
-| 3 | API integration | `03-api-integration.md` | Merged (PR #4, 4 Nov 2026). Decisions D3-01 to D3-03 approved. The header still says Draft |
-| 4 | Architecture and routes | `04-architecture-and-routes.md` | Merged (PR #5, 4 Nov 2026). D4-01 to D4-04 approved; **D4-05 to D4-08 are still proposed, pending owner approval**. The header still says Draft |
+| 1 | Overview and decisions | `01-overview-and-decisions.md` | Approved. Decisions D-01 to D-17 approved; merged 4 Nov 2026 (PR #2) |
+| 2 | Login and sessions | `02-login-and-sessions.md` | Approved. Decisions D2-01 to D2-04 approved; merged 4 Nov 2026 (PR #3) |
+| 3 | API integration | `03-api-integration.md` | Approved. Decisions D3-01 to D3-03 approved; merged 4 Nov 2026 (PR #4) |
+| 4 | Architecture and routes | `04-architecture-and-routes.md` | Approved. D4-01 to D4-04 approved 4 Nov 2026 and D4-05 to D4-08 approved 9 Nov 2026; merged 4 Nov 2026 (PR #5), with the 9 Nov approval in PR #8 |
 | 5 | Screens and flows | `05-screens-and-flows.md` | Approved. Merged 4 Nov 2026 (PR #6, D5-01 to D5-11); 9 Nov 2026 updates D5-12 to D5-15 in PR #7 |
 | 6 | Design system | `06-design-system.md` | Approved (9 Nov 2026), Stage 3 specification, in PR #7. Stages 4 and 5 not started |
 | 7 | Conventions (includes the browser support and testing matrix) | `07-conventions.md` | Not started |
 | 8 | Roadmap | `08-roadmap.md` | Not started |
 
-Status here is the approval and merge state, checked against the merged pull requests and each document's decision table. Documents 1 to 4 were merged on 4 Nov 2026 with their headers still reading "Draft — pending review and approval"; the headers were not changed. Documents 7 and 8 have no file yet.
+Status here is the approval and merge state, checked against the merged pull requests and each document's decision table. Document headers match this table. The 9 Nov 2026 approvals (Document 4 decisions D4-05 to D4-08, and the headers of Documents 1 to 4) are in PR #8. Documents 7 and 8 have no file yet.

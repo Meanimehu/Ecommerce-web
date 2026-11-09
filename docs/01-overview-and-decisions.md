@@ -1,6 +1,6 @@
 # 1. Overview and decisions
 
-> **Status: Draft — pending review and approval.**
+> **Status: Approved. Decisions D-01 to D-17 approved; merged 4 Nov 2026 (PR #2).**
 > Documentation only: no frontend code or project setup exists yet.
 
 ## 1. Purpose

@@ -1,6 +1,6 @@
 # 2. Login and sessions
 
-> **Status: Draft — pending review and approval.**
+> **Status: Approved. Decisions D2-01 to D2-04 approved 4 Nov 2026; merged (PR #3).**
 > Follows Document 1 (`01-overview-and-decisions.md`). Documentation only.
 
 ## 1. Purpose

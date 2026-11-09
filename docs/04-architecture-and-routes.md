@@ -1,6 +1,6 @@
 # 4. Architecture and routes
 
-> **Status: Draft — pending review and approval.**
+> **Status: Approved. D4-01 to D4-04 approved 4 Nov 2026; D4-05 to D4-08 approved 9 Nov 2026; merged (PR #5).**
 > Follows Documents 1 to 3. Documentation only.
 
 ## 1. Purpose
@@ -15,12 +15,12 @@ How the frontend is organised and run: its layers, its pages and addresses, lang
 | D4-02 | **Product pages use a readable name plus the id**, for example `/en/p/<id>/slim-fit-chinos`. The frontend builds the readable part from the title; the id is what is looked up. A wrong or old name part redirects to the correct address. No backend change is needed | Approved (4 Nov 2026). Clarified (route form only): the id and the name are separate path segments, because ids are opaque (Document 3, section 7) |
 | D4-03 | **Hosting is not chosen now.** The app is built to run as a plain, self-contained Node.js server that any suitable host can run, and the host is chosen at deployment time against the checklist in section 4 | Approved (4 Nov 2026) |
 | D4-04 | **Search engines index only the home page, category pages, brand pages and product pages.** Search results, filter and sort combinations, cart, account, login, vendor and admin pages are marked not to be indexed | Approved (4 Nov 2026) |
-| D4-05 | **Shared-store durability.** Entries that protect against reuse (refresh-token consumed markers, pending-add used marks) need a store that is persistent, never evicts them, keeps them for as long as the protected cookie can arrive, writes them atomically, and carries a generation id so any loss is detected. If these guarantees cannot be confirmed, refreshing stops (section 4) | **Proposed — pending owner approval** |
-| D4-06 | **Safe refresh coordination and stale requests.** A refresh token that was, or may have been, used is never sent again. A consumed marker is written before the backend call, and an unknown outcome counts as used. The refresh token never goes into the shared store. A request that cannot safely refresh fails alone, without setting or clearing authentication cookies in its own response; clearing after a confirmed rejection or an explicit logout goes through a separate compare-and-clear step, which narrows but cannot fully remove the delayed-response race (section 9) | **Proposed — pending owner approval** |
-| D4-07 | **Cookie security.** Every cookie we set uses the `__Host-` prefix with `Secure`, path `/`, no domain, and `HttpOnly` and `SameSite=Lax` as shown in section 9. Pending-add and after-login cookies are signed. There is no anti-forgery cookie. Logout and a confirmed session end keep the language cookie. Names and numeric lifetimes are set in Document 7 | **Proposed — pending owner approval** |
-| D4-08 | **Pending add runs at most once.** The one-time mark guarantees at most once, not completion. An add whose outcome is unknown is never repeated automatically, and the person is told to check the cart (section 9) | **Proposed — pending owner approval** |
+| D4-05 | **Shared-store durability.** Entries that protect against reuse (refresh-token consumed markers, pending-add used marks) need a store that is persistent, never evicts them, keeps them for as long as the protected cookie can arrive, writes them atomically, and carries a generation id so any loss is detected. If these guarantees cannot be confirmed, refreshing stops (section 4) | Approved (9 Nov 2026) |
+| D4-06 | **Safe refresh coordination and stale requests.** A refresh token that was, or may have been, used is never sent again. A consumed marker is written before the backend call, and an unknown outcome counts as used. The refresh token never goes into the shared store. A request that cannot safely refresh fails alone, without setting or clearing authentication cookies in its own response; clearing after a confirmed rejection or an explicit logout goes through a separate compare-and-clear step, which narrows but cannot fully remove the delayed-response race (section 9) | Approved (9 Nov 2026) |
+| D4-07 | **Cookie security.** Every cookie we set uses the `__Host-` prefix with `Secure`, path `/`, no domain, and `HttpOnly` and `SameSite=Lax` as shown in section 9. Pending-add and after-login cookies are signed. There is no anti-forgery cookie. Logout and a confirmed session end keep the language cookie. Names and numeric lifetimes are set in Document 7 | Approved (9 Nov 2026) |
+| D4-08 | **Pending add runs at most once.** The one-time mark guarantees at most once, not completion. An add whose outcome is unknown is never repeated automatically, and the person is told to check the cart (section 9) | Approved (9 Nov 2026) |
 
-D4-05 to D4-08 are **proposals, not approved decisions.** Sections 4 and 9 describe them in detail and would need revising if any is changed or rejected.
+D4-05 to D4-08 were approved by the owner on 9 Nov 2026, as written. Sections 4 and 9 describe them in detail.
 
 ## 3. Layers
 

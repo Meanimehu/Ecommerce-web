@@ -1,6 +1,6 @@
 # 3. API integration
 
-> **Status: Draft — pending review and approval.**
+> **Status: Approved. Decisions D3-01 to D3-03 approved 4 Nov 2026; merged (PR #4).**
 > Follows Documents 1 and 2. Documentation only.
 
 ## 1. Purpose
