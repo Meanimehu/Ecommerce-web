@@ -99,7 +99,7 @@ A cookie that outlives its backend token is harmless, because the backend reject
 
 ## 12. Starting figures (provisional, not validated)
 
-**Review progress (9 Nov 2026):** the freshness group is kept by the owner as starting points. The groups still to review: timeouts and retries, cached public pages, search, sitemap, and the refresh result.
+**Review progress (9 Nov 2026):** the freshness group and the cache group (public pages, search, sitemap, refresh result) are kept by the owner as starting points. The group still to review: timeouts and retries.
 
 These are **proposals** so the first build has numbers to start from. They are not approved facts, and none has been measured. Each is checked against the real backend and the budget-device and slow-connection profiles of Document 6, section 14, and changed there if needed.
 
@@ -115,10 +115,10 @@ These are **proposals** so the first build has numbers to start from. They are n
 | Freshness: category tree and brands | 10 min (kept by the owner as a starting point, 9 Nov 2026) |
 | Freshness: vendor and admin lists | 30 s (kept by the owner as a starting point, 9 Nov 2026) |
 | Freshness: cart, prices, stock | 0 s at the steps that depend on them (approved rule, Document 3, section 9) |
-| Cached public pages | 60 s to 5 min, with background refresh |
-| Search results | 30 s; suggestions 10 s; at most a few thousand entries |
-| Sitemap | Rebuilt about daily |
-| Refresh result stored | About 10 s |
+| Cached public pages | 60 s to 5 min, with background refresh (kept by the owner as a starting point, 9 Nov 2026) |
+| Search results | 30 s; suggestions 10 s; at most a few thousand entries (kept by the owner as a starting point, 9 Nov 2026) |
+| Sitemap | Rebuilt about daily (kept by the owner as a starting point, 9 Nov 2026) |
+| Refresh result stored | About 10 s (kept by the owner as a starting point, 9 Nov 2026) |
 
 ## 13. Open checks (not validated, nothing invented)
 
@@ -148,3 +148,4 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 2 | 9 Nov 2026 | Marked Approved by mistake and corrected back to Draft: the owner has not reviewed the document as a whole |
 | 3 | 9 Nov 2026 | D7-10 added: keep failure handling simple, with the two messages for a timed-out view and a timed-out save |
 | 4 | 9 Nov 2026 | Freshness figures kept by the owner as provisional starting points |
+| 5 | 9 Nov 2026 | Cache figures (public pages, search, sitemap, refresh result) kept by the owner as provisional starting points |
