@@ -1,6 +1,6 @@
 # 7. Technical conventions
 
-> **Status: Draft — pending review and approval.** Decisions D7-01 to D7-10 were approved by the owner on 9 Nov 2026 (their wording below is the approved approach). The document as a whole has **not** been reviewed or approved. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation.
+> **Status: Approved (9 Nov 2026).** The owner reviewed the decisions D7-01 to D7-10, every group of starting figures and sections 5 to 11, and approved the document as a whole on 9 Nov 2026. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation.
 > Follows Documents 1 to 6. Documentation only; no code is written for this document.
 
 ## 1. Purpose
@@ -150,3 +150,4 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 4 | 9 Nov 2026 | Freshness figures kept by the owner as provisional starting points |
 | 5 | 9 Nov 2026 | Cache figures (public pages, search, sitemap, refresh result) kept by the owner as provisional starting points |
 | 6 | 9 Nov 2026 | Timeout and retry figures kept by the owner as provisional starting points. All starting figures now reviewed |
+| 7 | 9 Nov 2026 | Approved by the owner after review of the decisions, the figures and sections 5 to 11. Figures stay provisional; checks T7-1 to T7-8 and questions Q7-1, Q7-2 stay open |
