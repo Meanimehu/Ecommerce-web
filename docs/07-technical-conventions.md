@@ -1,6 +1,6 @@
 # 7. Technical conventions
 
-> **Status: Draft — pending review and approval.** Decisions D7-01 to D7-09 were approved by the owner on 9 Nov 2026 (their wording below is the approved approach). The document as a whole has **not** been reviewed or approved. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation.
+> **Status: Approved (9 Nov 2026).** The owner reviewed the decisions D7-01 to D7-10, every group of starting figures and sections 5 to 11, and approved the document as a whole on 9 Nov 2026. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation.
 > Follows Documents 1 to 6. Documentation only; no code is written for this document.
 
 ## 1. Purpose
@@ -20,12 +20,14 @@ The technical rules the first build follows, so that Documents 1 to 6 can leave 
 | D7-07 | **Icons: Lucide, used consistently,** as in Document 6 (section 9) | Approved (9 Nov 2026) |
 | D7-08 | **Accessibility testing is automated and manual:** keyboard, screen reader, contrast and focus checks. The target is WCAG 2.2 AA for the five core customer journeys (D-17, D5-09) (section 10) | Approved (9 Nov 2026) |
 | D7-09 | **Browser support:** the current versions of Chrome, Safari, Firefox and Edge on Android, iPhone and desktop, with graceful fallbacks for older browsers (D-10 to D-13) (section 11) | Approved (9 Nov 2026) |
+| D7-10 | **Keep failure handling simple.** Every request has a time limit so the site never waits forever. Only safe viewing requests retry automatically; saves never do. A timed-out **view** shows: "Something went wrong. Please try again." A timed-out **save** is never resent automatically, and shows: "We couldn't confirm your change. Please check before trying again." with the current data reloaded once (D3-03). **No other status-checking or recovery features are added** (section 3) | Approved (9 Nov 2026) |
 
 ## 3. Timeouts (D7-01)
 
 - Every backend call made by the API layer has a timeout. The timeout is chosen **per kind of call**, not one value for all.
 - A timeout is an **unknown outcome** for a data-changing request. It is handled as Document 3, section 6 says: nothing is repeated automatically, the app reloads the affected data and reports what it sees.
 - A refresh-token call is a special case (Document 4, section 9): a timeout there counts as an unknown outcome and never clears cookies (D2-05).
+- **Messages (D7-10):** a view that times out says "Something went wrong. Please try again." A save that times out says "We couldn't confirm your change. Please check before trying again." and the affected data is reloaded once. Nothing else is added: no background status checks and no recovery screens. Both messages exist in English and Hindi in the message catalogue (Document 4, section 6).
 - The starting values are in section 12.
 
 ## 4. Retries and data freshness (D7-01)
@@ -95,26 +97,28 @@ A cookie that outlives its backend token is harmless, because the backend reject
 - The browser list for the build tool's compatibility settings is set from this decision. The exact minimum versions are not decided here and are not claimed.
 - The end-to-end tests run on the engines behind these browsers (Chromium, WebKit, Firefox) at a phone size and a desktop size.
 
-## 12. Starting figures (proposed, provisional, not validated)
+## 12. Starting figures (provisional, not validated)
+
+**Review progress (9 Nov 2026):** all groups of starting figures (timeouts and retries, freshness, cache, search, sitemap, refresh result) have been reviewed and are kept by the owner as starting points. They remain provisional and unvalidated (T7-1).
 
 These are **proposals** so the first build has numbers to start from. They are not approved facts, and none has been measured. Each is checked against the real backend and the budget-device and slow-connection profiles of Document 6, section 14, and changed there if needed.
 
-| Item | Proposed starting value |
+| Item | Starting value (provisional) |
 | --- | --- |
-| Timeout: normal read (lists, product, search) | 8 s |
-| Timeout: write (cart, address, product edit) | 10 s |
-| Timeout: file upload | 60 s |
-| Timeout: login-code request and verify | 10 s |
-| Timeout: refresh-token call | 8 s |
-| Read retries | Up to 2 retries, pauses about 0.5 s then 1.5 s, with a random spread. A "too many requests" answer waits the time the backend gives |
-| Freshness: catalogue and lists | 60 s |
-| Freshness: category tree and brands | 10 min |
-| Freshness: vendor and admin lists | 30 s |
-| Freshness: cart, prices, stock | 0 s at the steps that depend on them |
-| Cached public pages | 60 s to 5 min, with background refresh |
-| Search results | 30 s; suggestions 10 s; at most a few thousand entries |
-| Sitemap | Rebuilt about daily |
-| Refresh result stored | About 10 s |
+| Timeout: normal read (lists, product, search) | 8 s (kept by the owner as a starting point, 9 Nov 2026) |
+| Timeout: write (cart, address, product edit) | 10 s (kept by the owner as a starting point, 9 Nov 2026) |
+| Timeout: file upload | 60 s (kept by the owner as a starting point, 9 Nov 2026) |
+| Timeout: login-code request and verify | 10 s (kept by the owner as a starting point, 9 Nov 2026) |
+| Timeout: refresh-token call | 8 s (kept by the owner as a starting point, 9 Nov 2026) |
+| Read retries | Up to 2 retries, pauses about 0.5 s then 1.5 s, with a random spread. A "too many requests" answer waits the time the backend gives (kept by the owner as a starting point, 9 Nov 2026) |
+| Freshness: catalogue and lists | 60 s (kept by the owner as a starting point, 9 Nov 2026) |
+| Freshness: category tree and brands | 10 min (kept by the owner as a starting point, 9 Nov 2026) |
+| Freshness: vendor and admin lists | 30 s (kept by the owner as a starting point, 9 Nov 2026) |
+| Freshness: cart, prices, stock | 0 s at the steps that depend on them (approved rule, Document 3, section 9) |
+| Cached public pages | 60 s to 5 min, with background refresh (kept by the owner as a starting point, 9 Nov 2026) |
+| Search results | 30 s; suggestions 10 s; at most a few thousand entries (kept by the owner as a starting point, 9 Nov 2026) |
+| Sitemap | Rebuilt about daily (kept by the owner as a starting point, 9 Nov 2026) |
+| Refresh result stored | About 10 s (kept by the owner as a starting point, 9 Nov 2026) |
 
 ## 13. Open checks (not validated, nothing invented)
 
@@ -142,3 +146,8 @@ These are **proposals** so the first build has numbers to start from. They are n
 | --- | --- | --- |
 | 1 | 9 Nov 2026 | First draft: D7-01 to D7-09 approved; starting figures proposed; checks listed |
 | 2 | 9 Nov 2026 | Marked Approved by mistake and corrected back to Draft: the owner has not reviewed the document as a whole |
+| 3 | 9 Nov 2026 | D7-10 added: keep failure handling simple, with the two messages for a timed-out view and a timed-out save |
+| 4 | 9 Nov 2026 | Freshness figures kept by the owner as provisional starting points |
+| 5 | 9 Nov 2026 | Cache figures (public pages, search, sitemap, refresh result) kept by the owner as provisional starting points |
+| 6 | 9 Nov 2026 | Timeout and retry figures kept by the owner as provisional starting points. All starting figures now reviewed |
+| 7 | 9 Nov 2026 | Approved by the owner after review of the decisions, the figures and sections 5 to 11. Figures stay provisional; checks T7-1 to T7-8 and questions Q7-1, Q7-2 stay open |
