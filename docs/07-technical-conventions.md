@@ -1,6 +1,6 @@
 # 7. Technical conventions
 
-> **Status: Draft — pending review and approval.** Decisions D7-01 to D7-09 were approved by the owner on 9 Nov 2026 (their wording below is the approved approach). The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation.
+> **Status: Approved (9 Nov 2026).** Decisions D7-01 to D7-09 and the document as a whole were approved by the owner on 9 Nov 2026. The starting figures in section 12 are approved **as starting points only and remain provisional**: nothing has been measured, and nothing here claims technical validation.
 > Follows Documents 1 to 6. Documentation only; no code is written for this document.
 
 ## 1. Purpose
@@ -141,3 +141,4 @@ These are **proposals** so the first build has numbers to start from. They are n
 | Version | Date | Change |
 | --- | --- | --- |
 | 1 | 9 Nov 2026 | First draft: D7-01 to D7-09 approved; starting figures proposed; checks listed |
+| 2 | 9 Nov 2026 | Approved by the owner; starting figures approved as provisional starting points; open checks T7-1 to T7-8 and Q7-1, Q7-2 unchanged |
