@@ -97,7 +97,9 @@ A cookie that outlives its backend token is harmless, because the backend reject
 - The browser list for the build tool's compatibility settings is set from this decision. The exact minimum versions are not decided here and are not claimed.
 - The end-to-end tests run on the engines behind these browsers (Chromium, WebKit, Firefox) at a phone size and a desktop size.
 
-## 12. Starting figures (proposed, provisional, not validated)
+## 12. Starting figures (provisional, not validated)
+
+**Review progress (9 Nov 2026):** the freshness group is kept by the owner as starting points. The groups still to review: timeouts and retries, cached public pages, search, sitemap, and the refresh result.
 
 These are **proposals** so the first build has numbers to start from. They are not approved facts, and none has been measured. Each is checked against the real backend and the budget-device and slow-connection profiles of Document 6, section 14, and changed there if needed.
 
@@ -109,10 +111,10 @@ These are **proposals** so the first build has numbers to start from. They are n
 | Timeout: login-code request and verify | 10 s |
 | Timeout: refresh-token call | 8 s |
 | Read retries | Up to 2 retries, pauses about 0.5 s then 1.5 s, with a random spread. A "too many requests" answer waits the time the backend gives |
-| Freshness: catalogue and lists | 60 s |
-| Freshness: category tree and brands | 10 min |
-| Freshness: vendor and admin lists | 30 s |
-| Freshness: cart, prices, stock | 0 s at the steps that depend on them |
+| Freshness: catalogue and lists | 60 s (kept by the owner as a starting point, 9 Nov 2026) |
+| Freshness: category tree and brands | 10 min (kept by the owner as a starting point, 9 Nov 2026) |
+| Freshness: vendor and admin lists | 30 s (kept by the owner as a starting point, 9 Nov 2026) |
+| Freshness: cart, prices, stock | 0 s at the steps that depend on them (approved rule, Document 3, section 9) |
 | Cached public pages | 60 s to 5 min, with background refresh |
 | Search results | 30 s; suggestions 10 s; at most a few thousand entries |
 | Sitemap | Rebuilt about daily |
@@ -145,3 +147,4 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 1 | 9 Nov 2026 | First draft: D7-01 to D7-09 approved; starting figures proposed; checks listed |
 | 2 | 9 Nov 2026 | Marked Approved by mistake and corrected back to Draft: the owner has not reviewed the document as a whole |
 | 3 | 9 Nov 2026 | D7-10 added: keep failure handling simple, with the two messages for a timed-out view and a timed-out save |
+| 4 | 9 Nov 2026 | Freshness figures kept by the owner as provisional starting points |
