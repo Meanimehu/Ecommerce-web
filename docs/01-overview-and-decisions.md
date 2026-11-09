@@ -87,7 +87,7 @@ Not decided yet. Each is settled in the document shown, or earlier by the owner.
 ## 8. Working rules
 
 - **No duplication of backend information.** Backend endpoints, request and response details, error codes, validation rules and database structures stay in the backend documentation. Frontend documents link to it by file path or section and cover only frontend requirements, architecture, screens, user flows, UI behaviour and implementation.
-- Every document is marked **Draft — pending review and approval** until the owner approves it.
+- Every document is marked **Draft — pending review and approval** until the owner approves it. Documents 1 to 7 are approved (9 Nov 2026).
 - Documents are written one at a time. Each follows: discuss, clarify, draft, review, revise, approve. The next starts only after explicit approval.
 - Nothing is committed, pushed or merged without the owner's explicit approval.
 - A later document that conflicts with an approved decision stops and asks the owner; it does not change the decision.
