@@ -26,8 +26,8 @@ Documentation for the web frontend of the multi-vendor fashion marketplace. Docu
 | 2 | Login and sessions | `02-login-and-sessions.md` | Not started |
 | 3 | API integration | `03-api-integration.md` | Not started |
 | 4 | Architecture and routes | `04-architecture-and-routes.md` | Not started |
-| 5 | Screens and flows | `05-screens-and-flows.md` | Not started |
-| 6 | Design system | `06-design-system.md` | Not started |
+| 5 | Screens and flows | `05-screens-and-flows.md` | Approved (9 Nov 2026) |
+| 6 | Design system | `06-design-system.md` | Approved (9 Nov 2026), Stage 3 specification; Stages 4 and 5 not started |
 | 7 | Conventions (includes the browser support and testing matrix) | `07-conventions.md` | Not started |
 | 8 | Roadmap | `08-roadmap.md` | Not started |
 

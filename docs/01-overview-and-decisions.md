@@ -14,7 +14,7 @@ One web application for an India-first, multi-vendor fashion marketplace, built 
 | Section | Who uses it | Needs login |
 | --- | --- | --- |
 | **Storefront** | Customers and visitors: browse, search, product pages, cart, own account and addresses | Browsing: no. Cart and account: yes |
-| **Vendor** | Sellers: application and documents, products, stock, sale prices, coupons | Yes |
+| **Vendor** | Vendors: application and documents, products, stock, sale prices, coupons | Yes |
 | **Admin** | Marketplace staff: users, vendor review, product moderation, catalogue lists, coupons and sales, audit log | Yes |
 
 Roles and what each may do are defined by the backend in `docs/api/api-contract.md`. Which role may open which screen is decided in Document 2 (Login and sessions).
