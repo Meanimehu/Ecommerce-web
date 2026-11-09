@@ -1,6 +1,6 @@
 # 7. Technical conventions
 
-> **Status: Draft — pending review and approval.** Decisions D7-01 to D7-09 were approved by the owner on 9 Nov 2026 (their wording below is the approved approach). The document as a whole has **not** been reviewed or approved. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation.
+> **Status: Draft — pending review and approval.** Decisions D7-01 to D7-10 were approved by the owner on 9 Nov 2026 (their wording below is the approved approach). The document as a whole has **not** been reviewed or approved. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation.
 > Follows Documents 1 to 6. Documentation only; no code is written for this document.
 
 ## 1. Purpose
@@ -20,12 +20,14 @@ The technical rules the first build follows, so that Documents 1 to 6 can leave 
 | D7-07 | **Icons: Lucide, used consistently,** as in Document 6 (section 9) | Approved (9 Nov 2026) |
 | D7-08 | **Accessibility testing is automated and manual:** keyboard, screen reader, contrast and focus checks. The target is WCAG 2.2 AA for the five core customer journeys (D-17, D5-09) (section 10) | Approved (9 Nov 2026) |
 | D7-09 | **Browser support:** the current versions of Chrome, Safari, Firefox and Edge on Android, iPhone and desktop, with graceful fallbacks for older browsers (D-10 to D-13) (section 11) | Approved (9 Nov 2026) |
+| D7-10 | **Keep failure handling simple.** Every request has a time limit so the site never waits forever. Only safe viewing requests retry automatically; saves never do. A timed-out **view** shows: "Something went wrong. Please try again." A timed-out **save** is never resent automatically, and shows: "We couldn't confirm your change. Please check before trying again." with the current data reloaded once (D3-03). **No other status-checking or recovery features are added** (section 3) | Approved (9 Nov 2026) |
 
 ## 3. Timeouts (D7-01)
 
 - Every backend call made by the API layer has a timeout. The timeout is chosen **per kind of call**, not one value for all.
 - A timeout is an **unknown outcome** for a data-changing request. It is handled as Document 3, section 6 says: nothing is repeated automatically, the app reloads the affected data and reports what it sees.
 - A refresh-token call is a special case (Document 4, section 9): a timeout there counts as an unknown outcome and never clears cookies (D2-05).
+- **Messages (D7-10):** a view that times out says "Something went wrong. Please try again." A save that times out says "We couldn't confirm your change. Please check before trying again." and the affected data is reloaded once. Nothing else is added: no background status checks and no recovery screens. Both messages exist in English and Hindi in the message catalogue (Document 4, section 6).
 - The starting values are in section 12.
 
 ## 4. Retries and data freshness (D7-01)
@@ -142,3 +144,4 @@ These are **proposals** so the first build has numbers to start from. They are n
 | --- | --- | --- |
 | 1 | 9 Nov 2026 | First draft: D7-01 to D7-09 approved; starting figures proposed; checks listed |
 | 2 | 9 Nov 2026 | Marked Approved by mistake and corrected back to Draft: the owner has not reviewed the document as a whole |
+| 3 | 9 Nov 2026 | D7-10 added: keep failure handling simple, with the two messages for a timed-out view and a timed-out save |
