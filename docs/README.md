@@ -23,11 +23,11 @@ Documentation for the web frontend of the multi-vendor fashion marketplace. Docu
 | # | Document | File | Status |
 | --- | --- | --- | --- |
 | 1 | Overview and decisions | `01-overview-and-decisions.md` | Approved. Decisions D-01 to D-17 approved; merged 4 Nov 2026 (PR #2) |
-| 2 | Login and sessions | `02-login-and-sessions.md` | Approved. Decisions D2-01 to D2-04 approved; merged 4 Nov 2026 (PR #3) |
+| 2 | Login and sessions | `02-login-and-sessions.md` | Approved. Decisions D2-01 to D2-04 approved; merged 4 Nov 2026 (PR #3). D2-05 approved 9 Nov 2026 (cookie clearing) |
 | 3 | API integration | `03-api-integration.md` | Approved. Decisions D3-01 to D3-03 approved; merged 4 Nov 2026 (PR #4) |
-| 4 | Architecture and routes | `04-architecture-and-routes.md` | Approved. D4-01 to D4-04 approved 4 Nov 2026 and D4-05 to D4-08 approved 9 Nov 2026; merged 4 Nov 2026 (PR #5), with the 9 Nov approval in PR #8 |
-| 5 | Screens and flows | `05-screens-and-flows.md` | Approved. Merged 4 Nov 2026 (PR #6, D5-01 to D5-11); 9 Nov 2026 updates D5-12 to D5-15 in PR #7 |
-| 6 | Design system | `06-design-system.md` | Approved (9 Nov 2026), Stage 3 specification, in PR #7. Stages 4 and 5 not started |
+| 4 | Architecture and routes | `04-architecture-and-routes.md` | Approved. D4-01 to D4-04 approved 4 Nov 2026 and D4-05 to D4-09 approved 9 Nov 2026; merged 4 Nov 2026 (PR #5), with the 9 Nov approval in PR #8 |
+| 5 | Screens and flows | `05-screens-and-flows.md` | Approved. Merged 4 Nov 2026 (PR #6, D5-01 to D5-11); 9 Nov 2026 updates D5-12 to D5-16 in PR #7 and the final-decisions PR. Q5-1 deferred, Q5-4 settled; V5-5 open (implementation check) |
+| 6 | Design system | `06-design-system.md` | Approved (9 Nov 2026), Stage 3 specification, revision 8 (D6-57 to D6-60: Dhaaga text wordmark, static hero photo, no View full photo control, banners deferred). Performance figures provisional until validated in Document 7. In PR #7 and the final-decisions PR. Stages 4 and 5 not started |
 | 7 | Conventions (includes the browser support and testing matrix) | `07-conventions.md` | Not started |
 | 8 | Roadmap | `08-roadmap.md` | Not started |
 

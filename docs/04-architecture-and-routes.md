@@ -1,6 +1,6 @@
 # 4. Architecture and routes
 
-> **Status: Approved. D4-01 to D4-04 approved 4 Nov 2026; D4-05 to D4-08 approved 9 Nov 2026; merged (PR #5).**
+> **Status: Approved. D4-01 to D4-04 approved 4 Nov 2026; D4-05 to D4-09 approved 9 Nov 2026; merged (PR #5).**
 > Follows Documents 1 to 3. Documentation only.
 
 ## 1. Purpose
@@ -19,8 +19,9 @@ How the frontend is organised and run: its layers, its pages and addresses, lang
 | D4-06 | **Safe refresh coordination and stale requests.** A refresh token that was, or may have been, used is never sent again. A consumed marker is written before the backend call, and an unknown outcome counts as used. The refresh token never goes into the shared store. A request that cannot safely refresh fails alone, without setting or clearing authentication cookies in its own response; clearing after a confirmed rejection or an explicit logout goes through a separate compare-and-clear step, which narrows but cannot fully remove the delayed-response race (section 9) | Approved (9 Nov 2026) |
 | D4-07 | **Cookie security.** Every cookie we set uses the `__Host-` prefix with `Secure`, path `/`, no domain, and `HttpOnly` and `SameSite=Lax` as shown in section 9. Pending-add and after-login cookies are signed. There is no anti-forgery cookie. Logout and a confirmed session end keep the language cookie. Names and numeric lifetimes are set in Document 7 | Approved (9 Nov 2026) |
 | D4-08 | **Pending add runs at most once.** The one-time mark guarantees at most once, not completion. An add whose outcome is unknown is never repeated automatically, and the person is told to check the cart (section 9) | Approved (9 Nov 2026) |
+| D4-09 | **The New arrivals section of the home page (Document 5, D5-12) shares the home page's cache refresh interval, and cached home-page content is public catalogue data only:** nothing specific to a person or to login. The interval itself is set in Document 7 (Q4-4) | Approved (9 Nov 2026) |
 
-D4-05 to D4-08 were approved by the owner on 9 Nov 2026, as written. Sections 4 and 9 describe them in detail.
+D4-05 to D4-08 were approved by the owner on 9 Nov 2026, as written, and D4-09 on the same date. Sections 4, 7 and 9 describe them in detail.
 
 ## 3. Layers
 
@@ -107,7 +108,7 @@ All paths begin with the language prefix `/{lang}`. This lists areas and the mai
 
 | Page kind | Rendering | Caching |
 | --- | --- | --- |
-| Home, category, brand, product | On the server, for search visibility and fast first delivery | May be cached and shared, refreshed on an interval. Contains nothing about who is logged in (Document 2, section 5) |
+| Home, category, brand, product | On the server, for search visibility and fast first delivery | May be cached and shared, refreshed on an interval. Contains nothing about who is logged in (Document 2, section 5). **The home page's New arrivals section (Document 5, D5-12) is part of the cached home page, uses the same refresh interval, and holds public catalogue data only, never user-specific or login information (D4-09)** |
 | Search results | On the server | Public results only may use a shared cache, under the rules below. Not indexed |
 | Login, cart, account, vendor, admin | On the server for each request, or in the browser after login | Never stored in a shared cache |
 
@@ -201,7 +202,7 @@ The keyed-hash secret is kept, even after a change of secret, for as long as the
    - **Unknown outcome** (timeout, lost answer): store nothing; the token stays consumed; return the **stale-session answer**.
 7. Requests that arrive carrying the old cookies, from other tabs or instances, are handled by step 3: on a success result they use the stored new access token for that one request, **do not set token cookies, and do not refresh**. The browser gets the new cookies from the refreshing request's response.
 
-**When cookies are cleared.** Authentication cookies are cleared only on **explicit logout** or after a **confirmed backend rejection**. A rejection or an explicit logout clears them through the compare-and-clear step below, never in the response of an ordinary request (except the no-script logout fallback described there). In Document 2, section 4 the row "Session ended, or the refresh failed" says "Cookies are cleared", without separating a confirmed rejection from a refresh that could not be attempted safely. This document applies that row to confirmed rejection only, and a refresh that was never made is not a failure of the session. Because the wording is ambiguous, a separate clarification to Document 2 is needed (Q4-5).
+**When cookies are cleared.** Authentication cookies are cleared only on **explicit logout** or after a **confirmed backend rejection**. A rejection or an explicit logout clears them through the compare-and-clear step below, never in the response of an ordinary request (except the no-script logout fallback described there). Document 2, section 4 and D2-05 say the same (updated 9 Nov 2026): a network error, a timeout or an unknown outcome never clears the cookies, and a refresh that was never made is not a failure of the session (Q4-5, settled).
 
 **Compare-and-clear (after a session-ended answer or a logout).** The session-ended answer carries a non-secret *session handle* derived from the marker key (never the token). The screen then calls a dedicated endpoint with that handle. At the moment it processes that call, the server compares the handle with the refresh cookie the browser is **currently** sending. If they match, it clears the authentication and temporary-flow cookies (keeping the language cookie). If they differ, or no refresh cookie is sent, it changes nothing, because the browser now holds a newer session. **Explicit logout uses the same step.** The logout call asks the backend to end the session and changes no cookie. The frontend server derives the session handle locally from the refresh cookie, so it is available whether the backend logout request succeeds or fails, and returns it with its logout answer. The frontend always attempts compare-and-clear after the logout request, including when the backend is unavailable or returns an error. Cookie clearing does not depend on the backend accepting or completing the logout request (a failed backend request is logged without the token, Document 2, section 4). This stops a delayed logout response from clearing the cookies of a newer login. Without scripts the compare-and-clear call does not run. After a rejection the unusable cookies then stay until the next login or logout, which is harmless because the backend rejects them. A no-script logout form has to clear the cookies directly in its own response, which cannot be conditional, so that fallback has the full delayed-response race.
 
@@ -260,7 +261,7 @@ All paths are in `Meanimehu/Ecommerce`.
 | # | Question | Settled in |
 | --- | --- | --- |
 | Q4-1 | Which host and which shared store to use, chosen against the checklist in section 4 (including the durability guarantees) | Deployment time (owner) |
-| Q4-2 | Are pages after the first of an indexed list indexed, and what is their preferred address | Document 5 |
+| Q4-2 | Are pages after the first of an indexed list indexed, and what is their preferred address | Settled — see Document 5 (D5-07) |
 | Q4-3 | How the sitemap is built and kept up to date for a large catalogue | Document 7 |
 | Q4-4 | Refresh intervals for cached public pages, the size and life of the search cache, and the short lifetimes in section 9 | Document 7 |
-| Q4-5 | Document 2, section 4 ("Session ended, or the refresh failed") should say that cookies are cleared only on confirmed backend rejection or logout, matching section 9 here. A separate small change to Document 2, if you approve it | Separate follow-up, after Doc 4 is approved |
+| Q4-5 | Document 2, section 4 ("Session ended, or the refresh failed") should say that cookies are cleared only on confirmed backend rejection or logout, matching section 9 here. A separate small change to Document 2, if you approve it | Settled — Document 2, section 4 and D2-05 updated 9 Nov 2026 |

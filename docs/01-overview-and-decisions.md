@@ -82,7 +82,7 @@ Not decided yet. Each is settled in the document shown, or earlier by the owner.
 | --- | --- | --- |
 | Q-1 | Where the frontend is hosted and how it reaches the backend in each environment | Document 4 |
 | Q-2 | Analytics and error monitoring: whether and which | Document 7 |
-| Q-3 | Which pages must be indexed by search engines | Document 4 |
+| Q-3 | Which pages must be indexed by search engines | Settled — see Document 4 (D4-04) |
 
 ## 8. Working rules
 
