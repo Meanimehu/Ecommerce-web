@@ -99,18 +99,18 @@ A cookie that outlives its backend token is harmless, because the backend reject
 
 ## 12. Starting figures (provisional, not validated)
 
-**Review progress (9 Nov 2026):** the freshness group and the cache group (public pages, search, sitemap, refresh result) are kept by the owner as starting points. The group still to review: timeouts and retries.
+**Review progress (9 Nov 2026):** all groups of starting figures (timeouts and retries, freshness, cache, search, sitemap, refresh result) have been reviewed and are kept by the owner as starting points. They remain provisional and unvalidated (T7-1).
 
 These are **proposals** so the first build has numbers to start from. They are not approved facts, and none has been measured. Each is checked against the real backend and the budget-device and slow-connection profiles of Document 6, section 14, and changed there if needed.
 
-| Item | Proposed starting value |
+| Item | Starting value (provisional) |
 | --- | --- |
-| Timeout: normal read (lists, product, search) | 8 s |
-| Timeout: write (cart, address, product edit) | 10 s |
-| Timeout: file upload | 60 s |
-| Timeout: login-code request and verify | 10 s |
-| Timeout: refresh-token call | 8 s |
-| Read retries | Up to 2 retries, pauses about 0.5 s then 1.5 s, with a random spread. A "too many requests" answer waits the time the backend gives |
+| Timeout: normal read (lists, product, search) | 8 s (kept by the owner as a starting point, 9 Nov 2026) |
+| Timeout: write (cart, address, product edit) | 10 s (kept by the owner as a starting point, 9 Nov 2026) |
+| Timeout: file upload | 60 s (kept by the owner as a starting point, 9 Nov 2026) |
+| Timeout: login-code request and verify | 10 s (kept by the owner as a starting point, 9 Nov 2026) |
+| Timeout: refresh-token call | 8 s (kept by the owner as a starting point, 9 Nov 2026) |
+| Read retries | Up to 2 retries, pauses about 0.5 s then 1.5 s, with a random spread. A "too many requests" answer waits the time the backend gives (kept by the owner as a starting point, 9 Nov 2026) |
 | Freshness: catalogue and lists | 60 s (kept by the owner as a starting point, 9 Nov 2026) |
 | Freshness: category tree and brands | 10 min (kept by the owner as a starting point, 9 Nov 2026) |
 | Freshness: vendor and admin lists | 30 s (kept by the owner as a starting point, 9 Nov 2026) |
@@ -149,3 +149,4 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 3 | 9 Nov 2026 | D7-10 added: keep failure handling simple, with the two messages for a timed-out view and a timed-out save |
 | 4 | 9 Nov 2026 | Freshness figures kept by the owner as provisional starting points |
 | 5 | 9 Nov 2026 | Cache figures (public pages, search, sitemap, refresh result) kept by the owner as provisional starting points |
+| 6 | 9 Nov 2026 | Timeout and retry figures kept by the owner as provisional starting points. All starting figures now reviewed |
