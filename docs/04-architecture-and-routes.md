@@ -1,6 +1,6 @@
 # 4. Architecture and routes
 
-> **Status: Draft — pending review and approval.**
+> **Status: Approved. D4-01 to D4-04 approved 4 Nov 2026; D4-05 to D4-08 approved 9 Nov 2026; merged (PR #5).**
 > Follows Documents 1 to 3. Documentation only.
 
 ## 1. Purpose
@@ -11,16 +11,16 @@ How the frontend is organised and run: its layers, its pages and addresses, lang
 
 | ID | Decision | Status |
 | --- | --- | --- |
-| D4-01 | **Every page has a language prefix, `/en` or `/hi`**, in all three sections (storefront, vendor, admin). The person's choice is remembered for plain visits to the site | Approved (4 Nov 2026) |
+| D4-01 | **Every page has a language prefix, `/en` or `/hi`**, in all three areas (storefront, Vendor area, Admin area). The person's choice is remembered for plain visits to the site | Approved (4 Nov 2026) |
 | D4-02 | **Product pages use a readable name plus the id**, for example `/en/p/<id>/slim-fit-chinos`. The frontend builds the readable part from the title; the id is what is looked up. A wrong or old name part redirects to the correct address. No backend change is needed | Approved (4 Nov 2026). Clarified (route form only): the id and the name are separate path segments, because ids are opaque (Document 3, section 7) |
 | D4-03 | **Hosting is not chosen now.** The app is built to run as a plain, self-contained Node.js server that any suitable host can run, and the host is chosen at deployment time against the checklist in section 4 | Approved (4 Nov 2026) |
 | D4-04 | **Search engines index only the home page, category pages, brand pages and product pages.** Search results, filter and sort combinations, cart, account, login, vendor and admin pages are marked not to be indexed | Approved (4 Nov 2026) |
-| D4-05 | **Shared-store durability.** Entries that protect against reuse (refresh-token consumed markers, pending-add used marks) need a store that is persistent, never evicts them, keeps them for as long as the protected cookie can arrive, writes them atomically, and carries a generation id so any loss is detected. If these guarantees cannot be confirmed, refreshing stops (section 4) | **Proposed — pending owner approval** |
-| D4-06 | **Safe refresh coordination and stale requests.** A refresh token that was, or may have been, used is never sent again. A consumed marker is written before the backend call, and an unknown outcome counts as used. The refresh token never goes into the shared store. A request that cannot safely refresh fails alone, without setting or clearing authentication cookies in its own response; clearing after a confirmed rejection or an explicit logout goes through a separate compare-and-clear step, which narrows but cannot fully remove the delayed-response race (section 9) | **Proposed — pending owner approval** |
-| D4-07 | **Cookie security.** Every cookie we set uses the `__Host-` prefix with `Secure`, path `/`, no domain, and `HttpOnly` and `SameSite=Lax` as shown in section 9. Pending-add and after-login cookies are signed. There is no anti-forgery cookie. Logout and a confirmed session end keep the language cookie. Names and numeric lifetimes are set in Document 7 | **Proposed — pending owner approval** |
-| D4-08 | **Pending add runs at most once.** The one-time mark guarantees at most once, not completion. An add whose outcome is unknown is never repeated automatically, and the person is told to check the cart (section 9) | **Proposed — pending owner approval** |
+| D4-05 | **Shared-store durability.** Entries that protect against reuse (refresh-token consumed markers, pending-add used marks) need a store that is persistent, never evicts them, keeps them for as long as the protected cookie can arrive, writes them atomically, and carries a generation id so any loss is detected. If these guarantees cannot be confirmed, refreshing stops (section 4) | Approved (9 Nov 2026) |
+| D4-06 | **Safe refresh coordination and stale requests.** A refresh token that was, or may have been, used is never sent again. A consumed marker is written before the backend call, and an unknown outcome counts as used. The refresh token never goes into the shared store. A request that cannot safely refresh fails alone, without setting or clearing authentication cookies in its own response; clearing after a confirmed rejection or an explicit logout goes through a separate compare-and-clear step, which narrows but cannot fully remove the delayed-response race (section 9) | Approved (9 Nov 2026) |
+| D4-07 | **Cookie security.** Every cookie we set uses the `__Host-` prefix with `Secure`, path `/`, no domain, and `HttpOnly` and `SameSite=Lax` as shown in section 9. Pending-add and after-login cookies are signed. There is no anti-forgery cookie. Logout and a confirmed session end keep the language cookie. Names and numeric lifetimes are set in Document 7 | Approved (9 Nov 2026) |
+| D4-08 | **Pending add runs at most once.** The one-time mark guarantees at most once, not completion. An add whose outcome is unknown is never repeated automatically, and the person is told to check the cart (section 9) | Approved (9 Nov 2026) |
 
-D4-05 to D4-08 are **proposals, not approved decisions.** Sections 4 and 9 describe them in detail and would need revising if any is changed or rejected.
+D4-05 to D4-08 were approved by the owner on 9 Nov 2026, as written. Sections 4 and 9 describe them in detail.
 
 ## 3. Layers
 
@@ -29,7 +29,7 @@ The app has these layers. A layer may use only the layer below it, with one exce
 | Layer | Job | May call the backend? |
 | --- | --- | --- |
 | Pages and routes | Decide what is shown at each address; server rendering | Only through the API layer, when rendering on the server (see below) |
-| Screens and features | The screens of each section, their forms and their user flows | No |
+| Screens and features | The screens of each area, their forms and their user flows | No |
 | Browser data layer | TanStack Query in the browser; calls the frontend server's own endpoints | No |
 | Frontend server endpoints | The plain HTTP endpoints the browser calls. They check login, CSRF and role (Document 2), then call the API layer | Only through the API layer |
 | API layer (server only) | The one place that talks to the backend (Document 3) | Yes |
@@ -63,7 +63,7 @@ Because the host is not chosen, the app must meet these, and a host is acceptabl
 
 ## 5. Routes
 
-All paths begin with the language prefix `/{lang}`. This lists sections and the main routes. The screens, and the full route list within each section, are in Document 5.
+All paths begin with the language prefix `/{lang}`. This lists areas and the main routes. The screens, and the full route list within each area, are in Document 5.
 
 | Area | Routes | Notes |
 | --- | --- | --- |
@@ -75,8 +75,8 @@ All paths begin with the language prefix `/{lang}`. This lists sections and the 
 | Login | `/{lang}/login` | Not indexed |
 | Cart | `/{lang}/cart` | Not indexed |
 | Customer account | `/{lang}/account/...` | Not indexed |
-| Vendor section | `/{lang}/vendor/...` | Not indexed |
-| Admin section | `/{lang}/admin/...` | Not indexed |
+| Vendor area | `/{lang}/vendor/...` | Not indexed |
+| Admin area | `/{lang}/admin/...` | Not indexed |
 | Not found, no access, error | Shown in place at the address asked for | Real 404, 403 and 5xx statuses |
 
 **Product addresses (D4-02).**
@@ -251,7 +251,7 @@ All paths are in `Meanimehu/Ecommerce`.
 
 ## 12. Handled in other documents
 
-- Every screen and the route list inside each section: Document 5.
+- Every screen and the route list inside each area: Document 5.
 - Look and feel, error pages' design, and loading states: Document 6.
 - Names of folders and files, environment variable names, refresh intervals, all the lifetimes and limits named above, the sitemap, the browser list, local development setup, the check list for the shared store's guarantees and the automated checks: Document 7.
 

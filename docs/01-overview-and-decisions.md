@@ -1,6 +1,6 @@
 # 1. Overview and decisions
 
-> **Status: Draft — pending review and approval.**
+> **Status: Approved. Decisions D-01 to D-17 approved; merged 4 Nov 2026 (PR #2).**
 > Documentation only: no frontend code or project setup exists yet.
 
 ## 1. Purpose
@@ -9,13 +9,13 @@ This document fixes what the web frontend is, what it covers, the decisions alre
 
 ## 2. What we are building
 
-One web application for an India-first, multi-vendor fashion marketplace, built on the existing backend (repository `Meanimehu/Ecommerce`). One application, three sections:
+One web application for an India-first, multi-vendor fashion marketplace, built on the existing backend (repository `Meanimehu/Ecommerce`). One application, three areas:
 
-| Section | Who uses it | Needs login |
+| Area | Who uses it | Needs login |
 | --- | --- | --- |
 | **Storefront** | Customers and visitors: browse, search, product pages, cart, own account and addresses | Browsing: no. Cart and account: yes |
-| **Vendor** | Vendors: application and documents, products, stock, sale prices, coupons | Yes |
-| **Admin** | Marketplace staff: users, vendor review, product moderation, catalogue lists, coupons and sales, audit log | Yes |
+| **Vendor area** | Vendors: application and documents, products, stock, sale prices, coupons | Yes |
+| **Admin area** | Marketplace staff: users, vendor review, product moderation, catalogue lists, coupons and sales, audit log | Yes |
 
 Roles and what each may do are defined by the backend in `docs/api/api-contract.md`. Which role may open which screen is decided in Document 2 (Login and sessions).
 
@@ -23,7 +23,7 @@ Roles and what each may do are defined by the backend in `docs/api/api-contract.
 
 | ID | Decision | Status |
 | --- | --- | --- |
-| D-01 | One Next.js application with React and TypeScript. Storefront, vendor section and admin section all live in it | Approved |
+| D-01 | One Next.js application with React and TypeScript. Storefront, Vendor area and Admin area all live in it | Approved |
 | D-02 | TanStack Query for server data and caching | Approved |
 | D-03 | Tailwind CSS with shadcn/ui for styling and components | Approved |
 | D-04 | React Hook Form with Zod for forms and validation | Approved |
