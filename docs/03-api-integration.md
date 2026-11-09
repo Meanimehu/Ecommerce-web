@@ -108,5 +108,5 @@ All paths are in `Meanimehu/Ecommerce`.
 | # | Question | Settled in |
 | --- | --- | --- |
 | Q3-1 | Timeout, retry count and pause lengths, and how long each kind of data stays fresh | Document 7 |
-| Q3-2 | Numbered pages or "load more" for each list | Document 5 |
+| Q3-2 | Numbered pages or "load more" for each list | Settled — see Document 5 (D5-03) |
 | Q3-3 | Where the generated request types come from, given the OpenAPI description is off in production (a stored copy, or generated from a development or staging backend), and how we notice when it changes | Document 7 |

@@ -1,6 +1,6 @@
 # 2. Login and sessions
 
-> **Status: Approved. Decisions D2-01 to D2-04 approved 4 Nov 2026; merged (PR #3).**
+> **Status: Approved. Decisions D2-01 to D2-04 approved 4 Nov 2026; merged (PR #3). D2-05 approved 9 Nov 2026.**
 > Follows Document 1 (`01-overview-and-decisions.md`). Documentation only.
 
 ## 1. Purpose
@@ -15,6 +15,7 @@ How people log in, stay logged in and log out in the web app, and how the three 
 | D2-02 | **A visitor who taps "Add to cart" while logged out is asked to log in, and the add is then completed automatically**, returning them to the same page. The pending add runs only once and handles changed or unavailable products gracefully (section 3) | Approved (4 Nov 2026) |
 | D2-03 | **After login a person returns to the page they asked for.** If there is none: customer to the storefront, vendor to the Vendor area, staff to the Admin area. A person with more than one area gets an area switcher | Approved (4 Nov 2026) |
 | D2-04 | **One login page for everyone** (customers, vendors and staff). The person's roles decide what they can open | Approved (4 Nov 2026) |
+| D2-05 | **Authentication cookies are cleared only on explicit logout, or when the backend confirms that it rejects the session or the refresh.** A network error, a timeout or an unknown outcome never clears them. The mechanism and the exact answers are in Document 4, section 9 (D4-06, D4-07) | Approved (9 Nov 2026) |
 
 ## 3. Login screens and flow
 
@@ -38,7 +39,8 @@ The login page is light and works without heavy scripts (D-11). Every message sh
 | Normal use | The Next.js server reads the cookies and attaches the access token to each backend call. The browser only talks to the frontend server for anything that needs login |
 | Access token expired | The frontend server swaps the refresh token for a new pair once, stores the new tokens in the cookies, then repeats the call. The person notices nothing |
 | Several requests, tabs or server instances refresh at the same time | Refreshing must be **coordinated per session**: only one refresh runs for a session at a time, **across every frontend server instance that can serve it**, and the others wait for its result and use the new tokens. A second refresh with an already replaced refresh token must never be sent. We do not rely on the backend's retry tolerance (see the backend reference for how refresh tokens are replaced). The mechanism that makes this work across instances is settled in Document 4 |
-| Session ended, or the refresh failed | Cookies are cleared, the person sees a short "please log in again" message, logs in and returns to where they were |
+| Session ended, or the backend confirms it rejects the session or the refresh | Cookies are cleared (through the compare-and-clear step in Document 4, section 9), the person sees a short "please log in again" message, logs in and returns to where they were |
+| A request or refresh that fails without a confirmed backend rejection (network error, timeout, unknown outcome) | Cookies are **not** cleared and the stored login is not removed. What the request itself shows is set in Document 4, section 9 (a temporary error, or a prompt to log in again for that request only) |
 | Account blocked | Cookies are cleared and a clear "account blocked, contact support" message is shown instead of the login form's normal flow |
 | Logged out in another tab | The next call in this tab ends the session as above |
 | Log out | The frontend server asks the backend to end the session, and **clears the cookies even if that request fails** (for example the backend is unreachable). The person always appears logged out in the app. A failed backend request is logged without the token. The account page also offers "log out everywhere" |
@@ -91,7 +93,7 @@ All paths are in `Meanimehu/Ecommerce`.
 
 | # | Question | Settled in |
 | --- | --- | --- |
-| Q2-1 | After a customer's first login, do we ask for their name and email straight away, or later (for example at checkout)? | Document 5 |
-| Q2-2 | Do staff sessions need an idle timeout in the app on top of the backend's limits? | This document, if you want one |
-| Q2-3 | Which browser calls to the backend, if any, go direct rather than through the frontend server (for example public catalogue reads)? | Document 3 |
-| Q2-4 | How we keep a half-filled form when a session ends (vendor product forms in particular) | Document 5 |
+| Q2-1 | After a customer's first login, do we ask for their name and email straight away, or later (for example at checkout)? | Settled — see Document 5 (D5-04) |
+| Q2-2 | Do staff sessions need an idle timeout in the app on top of the backend's limits? | Settled — see Document 5 (D5-06) |
+| Q2-3 | Which browser calls to the backend, if any, go direct rather than through the frontend server (for example public catalogue reads)? | Settled — see Document 3 (D3-03) |
+| Q2-4 | How we keep a half-filled form when a session ends (vendor product forms in particular) | Settled — see Document 5 (D5-05) |
