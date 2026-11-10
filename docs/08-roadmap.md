@@ -32,6 +32,8 @@ Each slice ends with something that can be tried by a person, not just a list of
 | **5. Widen the Admin area** | The rest of what staff do | Users and roles; audit log; catalogue lists; stock history; sales; coupons; coupon requests; role-based menus, "View only" and "no access" states | Slice 2 | Every Admin area screen in Document 5, section 8.3 works for each role that can read it |
 | **6. Launch readiness** | Confidence that it is fit for real customers | See section 6 | Slices 3, 4 and 5 | Every item in section 6 is checked and recorded |
 
+**Slice 2 clarification (10 Nov 2026).** Before vendor product submission is tested in staging, the required catalogue entries must be **created and active** in staging: categories, HSN codes, and any brands, sizes and colours the test products use. GST rates are already available, because the backend migration inserts them. The sample-data command does not run on staging, so an admin creates these entries with the catalogue screens in this slice.
+
 Slices 3, 4 and 5 do not depend on each other, so they can follow in any order or be worked on at the same time. This document does not choose between them.
 
 ## 5. Waiting on others
@@ -87,3 +89,4 @@ Nothing below has been done. Each is a check, not a promise.
 | --- | --- | --- |
 | 1 | 10 Nov 2026 | First draft: D8-01 (vertical slices) and D8-02 (no dates) chosen by the owner; slices, dependencies and launch checks proposed |
 | 2 | 10 Nov 2026 | Q8-1 settled after checking the backend code and docs: Slice 2 now includes the admin catalogue screens a product needs |
+| 3 | 10 Nov 2026 | Slice 2 clarification added: required catalogue entries must exist and be active in staging before product submission is tested. No decision changed; Q8-2 and Q8-3 stay open |
