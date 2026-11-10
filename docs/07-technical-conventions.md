@@ -156,3 +156,27 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 6 | 9 Nov 2026 | Timeout and retry figures kept by the owner as provisional starting points. All starting figures now reviewed |
 | 7 | 9 Nov 2026 | Approved by the owner after review of the decisions, the figures and sections 5 to 11. Figures stay provisional; checks T7-1 to T7-8 and questions Q7-1, Q7-2 stay open |
 | 8 | 10 Nov 2026 | D7-11 added: real-browser checks complete the automated tests; section 11 says WebKit in the test tool is not Safari; T7-9 and Q7-3 added. No other decision changed |
+| 9 | 10 Nov 2026 | Section 16 added: the folder and file names used from Slice 0, as the owner approved (the layout in the implementation plan, section 1.2). Settles the message-catalogue location left by Document 4, section 6. Cookie names are added in Slice 1. No decision changed |
+
+## 16. Names: folders and files
+
+Recorded 10 Nov 2026. Document 4 left the exact folder and file names, and the message catalogue's location, to this document. The owner approved the layout in the implementation plan (section 1.2); these are the names used from Slice 0. **Cookie names** are added here in Slice 1, when the cookies are built.
+
+| What | Where |
+| --- | --- |
+| Pages, all under the language prefix (D4-01) | `src/app/[lang]/` |
+| Our own server endpoints for the browser: one reserved prefix with no language (Document 4, section 3) | `src/app/api/` (addresses `/api/...`) |
+| Language redirect for visits with no prefix (Document 4, section 6) | `src/proxy.ts` |
+| Screens and their flows, one folder per area | `src/features/storefront/`, `src/features/vendor/`, `src/features/admin/`, `src/features/auth/` |
+| Shared components (Document 6, Stage 4) | `src/components/` |
+| Server-only code: the one API layer, login and cookies, the shared store, settings | `src/server/api-layer/`, `src/server/auth/`, `src/server/store/`, `src/server/config.ts` |
+| Response schemas, one folder per backend area (Document 3, D3-01) | `src/schemas/` |
+| Generated request types and the stored OpenAPI description, never edited by hand (D7-02) | `src/generated/backend-api.d.ts`, `src/generated/backend-openapi.json` |
+| **Message catalogue** (Document 4, section 6): one file per language, the same keys in both | `src/messages/en.json`, `src/messages/hi.json` |
+| Shared helpers (language, messages; money, dates and phone numbers from Slice 1) | `src/lib/` |
+| Shared store migrations (D4-10) | `store/migrations/` |
+| Commands (type generation, checks, store tools) | `scripts/` |
+| Tests: unit, store, end to end | `tests/unit/`, `tests/store/`, `tests/e2e/` |
+
+Folders without content yet (`features`, `components`, `api-layer`, `auth`, `schemas`) are created when their first file is written.
+

@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Lint, types, messages, generated types, unit tests, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run check:messages
+      # Regenerates the request types from the stored OpenAPI description and fails on any difference (D7-02).
+      # Noticing a backend change needs a reachable backend (npm run check:types:live); see Document 7, check T7-3.
+      - run: npm run check:types
+      - run: npm test
+      - run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+
+  store-and-e2e:
+    name: Shared store and end-to-end tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: dhaaga_web
+          POSTGRES_PASSWORD: dhaaga_web_pass
+          POSTGRES_DB: dhaaga_web_store
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U dhaaga_web -d dhaaga_web_store"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      APP_ENV: test
+      BACKEND_URL: http://localhost:3000
+      PUBLIC_SITE_URL: http://localhost:3001
+      IMAGE_HOST: http://localhost:9002
+      STORE_DATABASE_URL: postgres://dhaaga_web:dhaaga_web_pass@localhost:5432/dhaaga_web_store
+      STORE_TEST_ADMIN_URL: postgres://dhaaga_web:dhaaga_web_pass@localhost:5432/postgres
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run test:store
+      - run: npm run store:migrate
+      - run: npm run store:check
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

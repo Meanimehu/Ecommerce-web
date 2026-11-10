@@ -1,0 +1,11 @@
+{
+  "site": {
+    "wordmark": "Dhaaga",
+    "title": "Dhaaga",
+    "underConstruction": "Our new site is being built. Please check back soon."
+  },
+  "errors": {
+    "viewTimeout": "Something went wrong. Please try again.",
+    "saveTimeout": "We couldn't confirm your change. Please check before trying again."
+  }
+}

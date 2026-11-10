@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+
+/* Design tokens and components come in Slice 1 (Document 6, approved Stage 4). Only the page ground is set here. */
+:root {
+  --ground: #f6f5f1;
+  --ink: #1d1f24;
+}
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+}
