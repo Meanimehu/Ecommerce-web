@@ -1,6 +1,6 @@
 # 8. Roadmap
 
-> **Status: Approved (10 Nov 2026).** The owner reviewed and approved the document, including D8-01, D8-02, the slices and the Slice 2 clarification. Q8-2 and Q8-3 stay open.
+> **Status: Approved (10 Nov 2026).** The owner reviewed and approved the document, including D8-01, D8-02, the slices and the Slice 2 clarification. Q8-2 to Q8-5 stay open.
 > Follows Documents 1 to 7. Documentation only: no code is written, and no dates are given.
 
 ## 1. Purpose
@@ -34,6 +34,8 @@ Each slice ends with something that can be tried by a person, not just a list of
 
 **Slice 2 clarification (10 Nov 2026).** Before vendor product submission is tested in staging, the required catalogue entries must be **created and active** in staging: categories, HSN codes, and any brands, sizes and colours the test products use. GST rates are already available, because the backend migration inserts them. The sample-data command does not run on staging, so an admin creates these entries with the catalogue screens in this slice.
 
+**Test photos (10 Nov 2026).** Early layout and API work keeps using the plain coloured photos from the backend's sample data. When Slice 2 approaches, the approved garment illustrations are exported as development image files (at least 500 px on the shorter side) and uploaded through the real vendor upload. They are development stand-ins, are never presented as vendor photos (D6-62), and exist only in local and staging data. Real-photo testing (T7-7) stays open.
+
 Slices 3, 4 and 5 do not depend on each other, so they can follow in any order or be worked on at the same time. This document does not choose between them.
 
 ## 5. Waiting on others
@@ -47,6 +49,7 @@ Slices 3, 4 and 5 do not depend on each other, so they can follow in any order o
 | Minimum browser versions (Q7-1) | Owner and first build | Build settings in Slice 0 |
 | Error monitoring after launch (Q7-2) | Owner | Not needed for the first release (D7-05) |
 | Catalogue data on staging: the backend's sample-data command does not run on staging (see section 7, Q8-1), so an admin must create the lists | Admin, using the Slice 2 catalogue screens | Slice 2 |
+| Vendor terms text and its Hindi version | Owner | The terms step of the vendor application (Slice 2). The backend sends only a version label (`requiredTermsVersion`), not the text. No legal wording is written by us (Q8-4, Q8-5) |
 
 ## 6. Launch readiness (Slice 6)
 
@@ -54,7 +57,7 @@ Nothing below has been done. Each is a check, not a promise.
 
 - **Figures validated** on the real backend, on the agreed budget-device and slow-connection profiles (Document 7, T7-1; Document 6 performance figures, T7-2).
 - **Accessibility:** automated checks and the manual keyboard, screen reader, contrast and focus tests for the five core customer journeys (D7-08, T7-6). Contrast of every combination on the approved screens (D6-50).
-- **Browsers:** the current Chrome, Safari, Firefox and Edge on Android, iPhone and desktop (D7-09).
+- **Browsers:** the manual real-browser and real-device checks in D7-11 (the current Chrome, Safari, Firefox and Edge on Android, iPhone and desktop), recorded for each browser and device. The automated tests alone do not count (D7-09, D7-11).
 - **Real vendor photos** in the 4:5 complete-photo frames (D6-62, T7-7).
 - **Request ID** reaching the browser, before the "Copy" button is kept (V5-5, T7-4).
 - **Sitemap size and splitting** (T7-5); the **OpenAPI source** matches production (T7-3).
@@ -68,6 +71,8 @@ Nothing below has been done. Each is a check, not a promise.
 | Q8-1 | Do the backend's test data already include the catalogue lists needed to create a product? | **Settled (10 Nov 2026), checked in the backend code and docs, see below** |
 | Q8-2 | Which of Slices 3, 4 and 5 comes first, or are they worked on together? | Owner, when Slice 2 is done |
 | Q8-3 | Is a staging launch (invited vendors and testers) wanted before the real launch? | Owner |
+| Q8-4 | The vendor terms text: who supplies it, who approves it, and what is shown on staging until then | Owner, later |
+| Q8-5 | Whether the terms also need a Hindi version in the first release | Owner, later |
 
 **Q8-1, what was checked.** Backend repository at its latest `main` (`src/dev-tools/seed-data.ts`, `seed-runner.ts`, `dev-tools-guard.ts`, `personas.ts`, migration `013_create_gst_rates.sql`, `README.md`, `docs/api/reference/area-3a-catalogue.md`, `area-3b-products.md`):
 - **Built into every database:** GST rates only (0, 5, 12, 18 and 28 per cent), inserted by a migration.
@@ -91,3 +96,4 @@ Nothing below has been done. Each is a check, not a promise.
 | 2 | 10 Nov 2026 | Q8-1 settled after checking the backend code and docs: Slice 2 now includes the admin catalogue screens a product needs |
 | 3 | 10 Nov 2026 | Slice 2 clarification added: required catalogue entries must exist and be active in staging before product submission is tested. No decision changed; Q8-2 and Q8-3 stay open |
 | 4 | 10 Nov 2026 | Approved by the owner. Q8-2 and Q8-3 stay open |
+| 5 | 10 Nov 2026 | Settled with the owner: shared store (D4-10), image exception (D3-04), real-browser checks (D7-11), test-photo approach (Slice 2 note). Vendor terms recorded as open (Q8-4, Q8-5). No approved decision changed |
