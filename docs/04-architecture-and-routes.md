@@ -1,6 +1,6 @@
 # 4. Architecture and routes
 
-> **Status: Approved. D4-01 to D4-04 approved 4 Nov 2026; D4-05 to D4-09 approved 9 Nov 2026; D4-10 approved 10 Nov 2026; merged (PR #5).**
+> **Status: Approved. D4-01 to D4-04 approved 4 Nov 2026; D4-05 to D4-09 approved 9 Nov 2026; D4-10 approved 10 Nov 2026; merged (PR #5). Section 4 plain-language note and Q4-1 updated 10 Nov 2026 (no decision changed).**
 > Follows Documents 1 to 3. Documentation only.
 
 ## 1. Purpose
@@ -45,6 +45,8 @@ The app has these layers. A layer may use only the layer below it, with one exce
 ## 4. Hosting requirements (D4-03, D4-05)
 
 Because the host is not chosen, the app must meet these, and a host is acceptable only if it does too.
+
+**Why the frontend has a store, in plain words.** When a login is renewed, the backend gives a new renewal key and the old one dies; if the old key is ever sent again, the backend treats it as stolen and ends the session (backend Area 1). With two tabs open, or the site running on two servers, both can try to renew with the same key at the same moment, and the person would be logged out for no reason. The shared store is the notebook every server can read: a server writes "this key is used" there first, and any other tab or server that sees the note waits for the result instead of sending the dead key. It holds only these notes (scrambled, never the keys themselves) and a few short-lived entries; no products, customers or orders, which all stay in the backend. It is PostgreSQL, in a database used only by the frontend (D4-10).
 
 - **A plain Node.js server**, run as one or more identical instances, with no feature specific to one host.
 - **Stateless instances.** Anything that must be shared between instances goes to the shared store below.
@@ -261,7 +263,7 @@ All paths are in `Meanimehu/Ecommerce`.
 
 | # | Question | Settled in |
 | --- | --- | --- |
-| Q4-1 | Which host and which shared store to use, chosen against the checklist in section 4 (including the durability guarantees) | Deployment time (owner) |
+| Q4-1 | Which host to use, chosen against the checklist in section 4 (including the durability guarantees). The shared store is settled: PostgreSQL in a database used only by the frontend (D4-10) | Host: deployment time (owner). Store: settled (D4-10) |
 | Q4-2 | Are pages after the first of an indexed list indexed, and what is their preferred address | Settled — see Document 5 (D5-07) |
 | Q4-3 | How the sitemap is built and kept up to date for a large catalogue | Settled — see Document 7 (D7-03, section 6) |
 | Q4-4 | Refresh intervals for cached public pages, the size and life of the search cache, and the short lifetimes in section 9 | Approach settled — see Document 7 (D7-04, section 7); the intervals are proposed and provisional until validated |

@@ -1,0 +1,145 @@
+import AxeBuilder from '@axe-core/playwright';
+import { expect, test } from '@playwright/test';
+import { backendLog, freshPhone, logIn, readCode } from './support/login';
+
+/**
+ * Slice 1 "done when" (Document 8): log in by phone code, stay logged in, refresh safely, logout and log out everywhere,
+ * wrong role gets a real 403. Against the real local backend; skipped where it is not running.
+ */
+test.describe('login and sessions', () => {
+  test.skip(!backendLog, 'needs the local backend (E2E_BACKEND_LOG)');
+
+  test('log in, return to the page asked for, stay logged in, log out', async ({ page, context }) => {
+    await page.goto('/en/account');
+    await expect(page).toHaveURL(/\/en\/login$/);
+    expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
+
+    const phone = freshPhone();
+    await logIn(page, phone);
+    await expect(page).toHaveURL(/\/en\/account$/);
+    await expect(page.getByRole('heading', { name: 'Your account' })).toBeVisible();
+    await expect(page.getByText(`+91 ${phone.slice(0, 5)} ${phone.slice(5)}`)).toBeVisible();
+    expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
+
+    // Cookies: __Host-, Secure, HttpOnly, SameSite=Lax, path / (D4-07).
+    const cookies = await context.cookies();
+    for (const name of ['__Host-dhaaga_at', '__Host-dhaaga_rt']) {
+      const cookie = cookies.find((c) => c.name === name);
+      expect(cookie, name).toBeTruthy();
+      expect(cookie).toMatchObject({ secure: true, httpOnly: true, sameSite: 'Lax', path: '/' });
+    }
+    expect(cookies.find((c) => c.name === '__Host-dhaaga_next')).toBeFalsy();
+
+    await page.reload();
+    await expect(page.getByRole('heading', { name: 'Your account' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Log out', exact: true }).click();
+    await expect(page).toHaveURL(/\/en$/);
+    const after = (await context.cookies()).map((c) => c.name);
+    expect(after).not.toContain('__Host-dhaaga_at');
+    expect(after).not.toContain('__Host-dhaaga_rt');
+    await page.goto('/en/account');
+    await expect(page).toHaveURL(/\/en\/login$/);
+  });
+
+  test('an expired access token is refreshed without the person noticing; a used refresh token is never sent again', async ({ page, context }) => {
+    await page.goto('/en/login');
+    await logIn(page, freshPhone());
+    await expect(page).toHaveURL(/\/en$/);
+
+    const before = await context.cookies();
+    const oldRefresh = before.find((c) => c.name === '__Host-dhaaga_rt');
+    await context.clearCookies({ name: '__Host-dhaaga_at' });
+
+    await page.goto('/en/account');
+    await expect(page.getByRole('heading', { name: 'Your account' })).toBeVisible();
+    const after = await context.cookies();
+    const newRefresh = after.find((c) => c.name === '__Host-dhaaga_rt');
+    expect(after.find((c) => c.name === '__Host-dhaaga_at')).toBeTruthy();
+    expect(newRefresh?.value).not.toBe(oldRefresh?.value);
+
+    // Another tab still sending the old refresh cookie: it uses the stored result and never refreshes again.
+    const other = await context.browser()!.newContext({ ignoreHTTPSErrors: true });
+    await other.addCookies([{ ...oldRefresh!, sameSite: 'Lax' }]);
+    const tab = await other.newPage();
+    const answer = await tab.request.get('/api/session');
+    expect(answer.status()).toBe(200);
+    expect((await answer.json()).user).toBeTruthy();
+    expect(answer.headers()['set-cookie'] ?? '').not.toContain('__Host-dhaaga_rt');
+    await other.close();
+  });
+
+  test('log out everywhere asks first, then ends the session', async ({ page }) => {
+    await page.goto('/en/login');
+    await logIn(page, freshPhone());
+    await page.goto('/en/account');
+    await page.getByRole('button', { name: 'Log out everywhere' }).click();
+    await expect(page.getByRole('alertdialog')).toBeVisible();
+    await page.getByRole('alertdialog').getByRole('button', { name: 'Log out everywhere' }).click();
+    await expect(page).toHaveURL(/\/en$/);
+    await page.goto('/en/account');
+    await expect(page).toHaveURL(/\/en\/login$/);
+  });
+
+  test('Hindi login, and a customer gets a real 403 in the Admin area', async ({ page }) => {
+    await page.goto('/hi/login');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'hi');
+    await logIn(page, freshPhone(), { phone: 'मोबाइल नंबर', send: 'कोड भेजें', code: 'कोड', verify: 'लॉग इन करें' });
+    await expect(page).toHaveURL(/\/hi$/);
+    const response = await page.goto('/hi/admin');
+    expect(response?.status()).toBe(403);
+    await expect(page.getByRole('heading', { name: 'आपके पास इस पेज की अनुमति नहीं है' })).toBeVisible();
+  });
+
+  test('a wrong code shows our message next to the field, and the backend wait time drives "Send code again"', async ({ page }) => {
+    const phone = freshPhone();
+    await page.goto('/en/login');
+    await page.getByLabel('Mobile number').fill(phone);
+    await page.getByRole('button', { name: 'Send code' }).click();
+    await readCode(phone);
+    await page.getByLabel('Code', { exact: true }).fill('000000');
+    await page.getByRole('button', { name: 'Log in', exact: true }).click();
+    const alert = page.getByRole('alert').filter({ hasText: "That code isn't right" });
+    await expect(alert).toBeVisible();
+    // The backend's request id reaches the browser, with a Copy button (Document 7, T7-4; Document 5, D5-14).
+    await expect(alert).toContainText(/Reference: [0-9a-f-]{36}/);
+    await expect(alert.getByRole('button', { name: 'Copy' })).toBeVisible();
+    await expect(page.getByLabel('Code', { exact: true })).toHaveAttribute('aria-invalid', 'true');
+    await expect(page.getByRole('button', { name: 'Send code again' })).toBeDisabled();
+    await expect(page.getByText(/You can ask for a new code in \d+ seconds/)).toBeVisible();
+  });
+});
+
+test.describe('protections', () => {
+  test('a change request from another site, or without the token, is refused', async ({ request }) => {
+    const foreign = await request.post('/api/auth/code', { data: { phone: '9000000000' }, headers: { origin: 'https://evil.example' } });
+    expect(foreign.status()).toBe(403);
+    expect((await foreign.json()).error.code).toBe('ORIGIN_INVALID');
+
+    const noToken = await request.post('/api/auth/code', { data: { phone: '9000000000' }, headers: { origin: 'https://localhost:3001' } });
+    expect(noToken.status()).toBe(403);
+    expect((await noToken.json()).error.code).toBe('CSRF_INVALID');
+  });
+
+  test('an after-login page outside our site is never kept', async ({ request }) => {
+    const answer = await request.get('/en/login?next=//evil.example/x', { maxRedirects: 0 });
+    expect(answer.status()).toBe(303);
+    expect(answer.headers()['set-cookie'] ?? '').not.toContain('__Host-dhaaga_next');
+  });
+
+  test('public pages carry no Set-Cookie and do not change with login cookies (Document 2, section 5)', async ({ request }) => {
+    const plain = await request.get('/en');
+    expect(plain.headers()['set-cookie']).toBeUndefined();
+    const withCookie = await request.get('/en', { headers: { cookie: '__Host-dhaaga_at=x; __Host-dhaaga_rt=y' } });
+    expect(withCookie.headers()['set-cookie']).toBeUndefined();
+    expect(await withCookie.text()).toBe(await plain.text());
+  });
+
+  test('the session answer is private and never cached', async ({ request }) => {
+    const answer = await request.get('/api/session');
+    expect(answer.headers()['cache-control']).toContain('no-store');
+    const body = await answer.json();
+    expect(body.user).toBeNull();
+    expect(body.csrfToken).toMatch(/^p\./);
+  });
+});

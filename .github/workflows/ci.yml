@@ -47,7 +47,10 @@ jobs:
     env:
       APP_ENV: test
       BACKEND_URL: http://localhost:3000
-      PUBLIC_SITE_URL: http://localhost:3001
+      PUBLIC_SITE_URL: https://localhost:3001
+      COOKIE_SECRET: ci-only-cookie-secret-ci-only-cookie-secret-0001
+      CSRF_SECRET: ci-only-csrf-secret-ci-only-csrf-secret-000000002
+      STORE_SECRET: ci-only-store-secret-ci-only-store-secret-0000003
       IMAGE_HOST: http://localhost:9002
       STORE_DATABASE_URL: postgres://dhaaga_web:dhaaga_web_pass@localhost:5432/dhaaga_web_store
       STORE_TEST_ADMIN_URL: postgres://dhaaga_web:dhaaga_web_pass@localhost:5432/postgres
@@ -64,6 +67,7 @@ jobs:
       - run: npm run store:check
       - run: npm run build
       - run: npx playwright install --with-deps chromium firefox webkit
+      # Login tests need the real backend (E2E_BACKEND_LOG) and are skipped here; they run locally against it.
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: failure()

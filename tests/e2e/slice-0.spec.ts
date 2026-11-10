@@ -36,7 +36,7 @@ for (const lang of ['en', 'hi'] as const) {
     expect(results.violations).toEqual([]);
   });
 
-  test(`/${lang} stays inside the 300 KB first-load budget (provisional, Document 6 section 14)`, async ({ page }) => {
+  for (const path of [`/${lang}`, `/${lang}/login`]) test(`${path} stays inside the 300 KB first-load budget (provisional, Document 6 section 14)`, async ({ page }) => {
     // Transferred bytes after compression, empty cache; photos and API data are not counted (Document 6, section 14).
     const counted = new Set(['document', 'stylesheet', 'script', 'font']);
     const sizes: Promise<number>[] = [];
@@ -44,9 +44,9 @@ for (const lang of ['en', 'hi'] as const) {
       if (!counted.has(request.resourceType())) return;
       sizes.push(request.sizes().then((s) => s.responseBodySize + s.responseHeadersSize));
     });
-    await page.goto(`/${lang}`, { waitUntil: 'networkidle' });
+    await page.goto(path, { waitUntil: 'networkidle' });
     const total = (await Promise.all(sizes)).reduce((a, b) => a + b, 0);
-    console.log(`/${lang} first load: ${(total / 1024).toFixed(1)} KB`);
+    console.log(`${path} first load: ${(total / 1024).toFixed(1)} KB`);
     expect(total).toBeLessThanOrEqual(300 * 1024);
   });
 }

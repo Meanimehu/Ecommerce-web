@@ -4,8 +4,94 @@
     "title": "Dhaaga",
     "underConstruction": "Our new site is being built. Please check back soon."
   },
+  "nav": {
+    "storefront": "Shop",
+    "account": "Account",
+    "logIn": "Log in",
+    "vendorArea": "Vendor area",
+    "adminArea": "Admin area"
+  },
+  "login": {
+    "title": "Log in",
+    "intro": "Log in or create an account with your mobile number.",
+    "phoneLabel": "Mobile number",
+    "phoneHelp": "We'll send a code to this number by SMS.",
+    "sendCode": "Send code",
+    "sending": "Sending…",
+    "codeLabel": "Code",
+    "codeHelp": "Enter the 6-digit code sent to {phone}.",
+    "verify": "Log in",
+    "verifying": "Checking…",
+    "resendIn": "You can ask for a new code in {seconds} seconds.",
+    "resend": "Send code again",
+    "changeNumber": "Change number",
+    "codeSent": "A new code has been sent."
+  },
+  "account": {
+    "title": "Your account",
+    "phone": "Mobile number",
+    "areas": "Your areas",
+    "logOut": "Log out",
+    "logOutEverywhere": "Log out everywhere",
+    "confirmTitle": "Log out everywhere?",
+    "confirmBody": "You will be logged out on every phone and computer where you use Dhaaga.",
+    "confirmYes": "Log out everywhere",
+    "cancel": "Cancel",
+    "loggingOut": "Logging out…"
+  },
+  "session": {
+    "checking": "Checking your login…",
+    "logInAgain": "Please log in again.",
+    "changed": "Your session changed. Please try again; if it keeps happening, log in again.",
+    "tryShortly": "Something went wrong, please try again shortly.",
+    "blocked": "This account is blocked. Please contact support."
+  },
+  "noAccess": {
+    "title": "You don't have access to this page",
+    "body": "This page is for a different kind of account. If you think this is wrong, contact support.",
+    "home": "Go to the shop"
+  },
+  "areas": {
+    "adminHome": "Admin home",
+    "adminIntro": "Admin screens are added here as they are built.",
+    "vendorHome": "Vendor home",
+    "vendorIntro": "Vendor screens are added here as they are built."
+  },
   "errors": {
     "viewTimeout": "Something went wrong. Please try again.",
-    "saveTimeout": "We couldn't confirm your change. Please check before trying again."
+    "saveTimeout": "We couldn't confirm your change. Please check before trying again.",
+    "tryAgain": "Try again",
+    "requestId": "Reference",
+    "copy": "Copy",
+    "copied": "Copied",
+    "kinds": {
+      "input": "Please check what you entered and try again.",
+      "access": "You don't have access to this.",
+      "conflict": "This couldn't be done right now. Reload the page and try again.",
+      "rateLimit": "Too many tries. Please wait a moment and try again.",
+      "server": "Something went wrong. Please try again.",
+      "network": "We couldn't reach Dhaaga. Check your connection and try again."
+    },
+    "codes": {
+      "VALIDATION_FAILED": "Please check the details and try again.",
+      "UNAUTHORIZED": "Please log in to continue.",
+      "FORBIDDEN": "You don't have access to this.",
+      "PHONE_INVALID": "Enter a 10-digit Indian mobile number.",
+      "OTP_RESEND_WAIT": "Please wait before asking for a new code.",
+      "OTP_RATE_LIMITED": "Too many codes have been asked for. Please try again later.",
+      "OTP_INVALID": "That code isn't right. Check it and try again.",
+      "OTP_LOCKED": "Too many wrong codes. Ask for a new code.",
+      "OTP_EXPIRED": "That code has expired. Ask for a new code.",
+      "SMS_UNAVAILABLE": "We couldn't send the code. Please try again shortly.",
+      "TOKEN_EXPIRED": "Please log in again.",
+      "TOKEN_INVALID": "Please log in again.",
+      "TOKEN_REUSED": "Please log in again.",
+      "SESSION_ENDED": "Please log in again.",
+      "USER_BLOCKED": "This account is blocked. Please contact support.",
+      "CSRF_INVALID": "This page has expired. Reload it and try again.",
+      "ORIGIN_INVALID": "This page has expired. Reload it and try again.",
+      "SESSION_STALE": "Your session changed. Please try again; if it keeps happening, log in again.",
+      "SESSION_TEMPORARY": "Something went wrong, please try again shortly."
+    }
   }
 }

@@ -1,0 +1,485 @@
+{
+  "source": "docs/api/api-contract.md, section 11",
+  "codes": [
+    {
+      "code": "VALIDATION_FAILED",
+      "status": 400
+    },
+    {
+      "code": "UNAUTHORIZED",
+      "status": 401
+    },
+    {
+      "code": "FORBIDDEN",
+      "status": 403
+    },
+    {
+      "code": "PHONE_INVALID",
+      "status": 400
+    },
+    {
+      "code": "OTP_RESEND_WAIT",
+      "status": 429
+    },
+    {
+      "code": "OTP_RATE_LIMITED",
+      "status": 429
+    },
+    {
+      "code": "OTP_INVALID",
+      "status": 400
+    },
+    {
+      "code": "OTP_LOCKED",
+      "status": 429
+    },
+    {
+      "code": "OTP_EXPIRED",
+      "status": 400
+    },
+    {
+      "code": "SMS_UNAVAILABLE",
+      "status": 503
+    },
+    {
+      "code": "TOKEN_EXPIRED",
+      "status": 401
+    },
+    {
+      "code": "TOKEN_INVALID",
+      "status": 401
+    },
+    {
+      "code": "TOKEN_REUSED",
+      "status": 401
+    },
+    {
+      "code": "SESSION_ENDED",
+      "status": 401
+    },
+    {
+      "code": "USER_NOT_FOUND",
+      "status": 404
+    },
+    {
+      "code": "USER_BLOCKED",
+      "status": 403
+    },
+    {
+      "code": "CANNOT_BLOCK_SELF",
+      "status": 409
+    },
+    {
+      "code": "EMAIL_TAKEN",
+      "status": 409
+    },
+    {
+      "code": "ROLE_NOT_FOUND",
+      "status": 404
+    },
+    {
+      "code": "LAST_ADMIN",
+      "status": 409
+    },
+    {
+      "code": "ADDRESS_NOT_FOUND",
+      "status": 404
+    },
+    {
+      "code": "ADDRESS_LIMIT",
+      "status": 409
+    },
+    {
+      "code": "VENDOR_NOT_FOUND",
+      "status": 404
+    },
+    {
+      "code": "VENDOR_EXISTS",
+      "status": 409
+    },
+    {
+      "code": "GSTIN_TAKEN",
+      "status": 409
+    },
+    {
+      "code": "VENDOR_LOCKED",
+      "status": 409
+    },
+    {
+      "code": "VENDOR_STATE_INVALID",
+      "status": 409
+    },
+    {
+      "code": "VENDOR_INCOMPLETE",
+      "status": 409
+    },
+    {
+      "code": "TERMS_VERSION_MISMATCH",
+      "status": 409
+    },
+    {
+      "code": "VENDOR_DOCUMENTS_PENDING",
+      "status": 409
+    },
+    {
+      "code": "VENDOR_ADDRESS_NOT_FOUND",
+      "status": 404
+    },
+    {
+      "code": "VENDOR_ADDRESS_LIMIT",
+      "status": 409
+    },
+    {
+      "code": "DOCUMENT_NOT_FOUND",
+      "status": 404
+    },
+    {
+      "code": "DOCUMENT_REVIEWED",
+      "status": 409
+    },
+    {
+      "code": "DOCUMENT_NOT_SCANNED",
+      "status": 409
+    },
+    {
+      "code": "DOCUMENT_LIMIT",
+      "status": 409
+    },
+    {
+      "code": "FILE_REQUIRED",
+      "status": 400
+    },
+    {
+      "code": "FILE_TOO_LARGE",
+      "status": 413
+    },
+    {
+      "code": "FILE_TYPE_NOT_ALLOWED",
+      "status": 415
+    },
+    {
+      "code": "FILE_UNSAFE",
+      "status": 422
+    },
+    {
+      "code": "FILE_INFECTED",
+      "status": 422
+    },
+    {
+      "code": "FILE_UNAVAILABLE",
+      "status": 410
+    },
+    {
+      "code": "UPLOAD_RATE_LIMITED",
+      "status": 429
+    },
+    {
+      "code": "STORAGE_UNAVAILABLE",
+      "status": 503
+    },
+    {
+      "code": "SCAN_UNAVAILABLE",
+      "status": 503
+    },
+    {
+      "code": "CATEGORY_NOT_FOUND",
+      "status": 404
+    },
+    {
+      "code": "CATEGORY_INVALID",
+      "status": 409
+    },
+    {
+      "code": "ATTRIBUTE_SCHEMA_INVALID",
+      "status": 400
+    },
+    {
+      "code": "TAX_INVALID",
+      "status": 400
+    },
+    {
+      "code": "BRAND_NOT_FOUND",
+      "status": 404
+    },
+    {
+      "code": "DICTIONARY_VALUE_NOT_FOUND",
+      "status": 404
+    },
+    {
+      "code": "SLUG_TAKEN",
+      "status": 409
+    },
+    {
+      "code": "NAME_TAKEN",
+      "status": 409
+    },
+    {
+      "code": "CODE_TAKEN",
+      "status": 409
+    },
+    {
+      "code": "VENDOR_NOT_APPROVED",
+      "status": 409
+    },
+    {
+      "code": "PRODUCT_NOT_FOUND",
+      "status": 404
+    },
+    {
+      "code": "PRODUCT_LIMIT",
+      "status": 409
+    },
+    {
+      "code": "PRODUCT_LOCKED",
+      "status": 409
+    },
+    {
+      "code": "PRODUCT_STATE_INVALID",
+      "status": 409
+    },
+    {
+      "code": "ATTRIBUTES_INVALID",
+      "status": 400
+    },
+    {
+      "code": "PRODUCT_INCOMPLETE",
+      "status": 409
+    },
+    {
+      "code": "VARIANT_NOT_FOUND",
+      "status": 404
+    },
+    {
+      "code": "SKU_TAKEN",
+      "status": 409
+    },
+    {
+      "code": "VARIANT_DUPLICATE",
+      "status": 409
+    },
+    {
+      "code": "VARIANT_LIMIT",
+      "status": 409
+    },
+    {
+      "code": "PRICE_INVALID",
+      "status": 400
+    },
+    {
+      "code": "IMAGE_INVALID",
+      "status": 422
+    },
+    {
+      "code": "IMAGE_LIMIT",
+      "status": 409
+    },
+    {
+      "code": "IMAGE_NOT_FOUND",
+      "status": 404
+    },
+    {
+      "code": "REVIEW_OWN_VENDOR",
+      "status": 403
+    },
+    {
+      "code": "REVIEW_STALE",
+      "status": 409
+    },
+    {
+      "code": "TAX_CONFIRMATION_REQUIRED",
+      "status": 409
+    },
+    {
+      "code": "REVISION_NOT_FOUND",
+      "status": 404
+    },
+    {
+      "code": "REVISION_STATE_INVALID",
+      "status": 409
+    },
+    {
+      "code": "REVISION_NO_CHANGES",
+      "status": 409
+    },
+    {
+      "code": "IMPORT_FILE_INVALID",
+      "status": 400
+    },
+    {
+      "code": "IMPORT_NOT_FOUND",
+      "status": 404
+    },
+    {
+      "code": "IMPORT_STATE_INVALID",
+      "status": 409
+    },
+    {
+      "code": "IMPORT_EXPIRED",
+      "status": 409
+    },
+    {
+      "code": "STOCK_INVALID",
+      "status": 400
+    },
+    {
+      "code": "STOCK_BULK_INVALID",
+      "status": 400
+    },
+    {
+      "code": "INSUFFICIENT_STOCK",
+      "status": 409
+    },
+    {
+      "code": "VARIANT_HAS_STOCK_HISTORY",
+      "status": 409
+    },
+    {
+      "code": "VARIANT_UNAVAILABLE",
+      "status": 409
+    },
+    {
+      "code": "RESERVATION_NOT_FOUND",
+      "status": 404
+    },
+    {
+      "code": "RESERVATION_CONFLICT",
+      "status": 409
+    },
+    {
+      "code": "RESERVATION_STATE_INVALID",
+      "status": 409
+    },
+    {
+      "code": "SALE_PRICE_INVALID",
+      "status": 400
+    },
+    {
+      "code": "SALE_WINDOW_INVALID",
+      "status": 400
+    },
+    {
+      "code": "SALE_OVERLAP",
+      "status": 409
+    },
+    {
+      "code": "SALE_NOT_FOUND",
+      "status": 404
+    },
+    {
+      "code": "SALE_STATE_INVALID",
+      "status": 409
+    },
+    {
+      "code": "PRICE_CONFLICTS_WITH_SALE",
+      "status": 409
+    },
+    {
+      "code": "CART_LINE_LIMIT",
+      "status": 409
+    },
+    {
+      "code": "CART_QUANTITY_LIMIT",
+      "status": 409
+    },
+    {
+      "code": "CART_ITEM_NOT_FOUND",
+      "status": 404
+    },
+    {
+      "code": "COUPON_NOT_FOUND",
+      "status": 404
+    },
+    {
+      "code": "COUPON_CODE_TAKEN",
+      "status": 409
+    },
+    {
+      "code": "COUPON_INVALID",
+      "status": 400
+    },
+    {
+      "code": "COUPON_LOCKED",
+      "status": 409
+    },
+    {
+      "code": "COUPON_LIMIT_BELOW_USAGE",
+      "status": 409
+    },
+    {
+      "code": "COUPON_STATE_INVALID",
+      "status": 409
+    },
+    {
+      "code": "COUPON_TERMS_CHANGED",
+      "status": 409
+    },
+    {
+      "code": "COUPON_NOT_ACTIVE",
+      "status": 409
+    },
+    {
+      "code": "COUPON_PENDING_VENDOR",
+      "status": 409
+    },
+    {
+      "code": "COUPON_NOT_STARTED",
+      "status": 409
+    },
+    {
+      "code": "COUPON_EXPIRED",
+      "status": 409
+    },
+    {
+      "code": "COUPON_MIN_NOT_MET",
+      "status": 409
+    },
+    {
+      "code": "COUPON_USAGE_LIMIT_REACHED",
+      "status": 409
+    },
+    {
+      "code": "COUPON_USER_LIMIT_REACHED",
+      "status": 409
+    },
+    {
+      "code": "COUPON_NOT_APPLICABLE",
+      "status": 409
+    },
+    {
+      "code": "COUPON_NO_DISCOUNT",
+      "status": 409
+    },
+    {
+      "code": "COUPON_REDEMPTION_CONFLICT",
+      "status": 409
+    },
+    {
+      "code": "COUPON_RECLAIM_LIMIT_REACHED",
+      "status": 409
+    },
+    {
+      "code": "COUPON_REQUEST_NOT_FOUND",
+      "status": 404
+    },
+    {
+      "code": "COUPON_REQUEST_INVALID",
+      "status": 400
+    },
+    {
+      "code": "COUPON_REQUEST_PRODUCT_INVALID",
+      "status": 400
+    },
+    {
+      "code": "COUPON_REQUEST_STATE_INVALID",
+      "status": 409
+    },
+    {
+      "code": "COUPON_REQUEST_LIMIT",
+      "status": 409
+    },
+    {
+      "code": "COUPON_REQUEST_SELF_REVIEW",
+      "status": 403
+    }
+  ]
+}
