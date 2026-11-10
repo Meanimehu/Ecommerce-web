@@ -1,6 +1,6 @@
 # 7. Technical conventions
 
-> **Status: Approved (9 Nov 2026).** The owner reviewed the decisions D7-01 to D7-10, every group of starting figures and sections 5 to 11, and approved the document as a whole on 9 Nov 2026. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation.
+> **Status: Approved (9 Nov 2026).** The owner reviewed the decisions D7-01 to D7-10, every group of starting figures and sections 5 to 11, and approved the document as a whole on 9 Nov 2026. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation. D7-11 was approved on 10 Nov 2026.
 > Follows Documents 1 to 6. Documentation only; no code is written for this document.
 
 ## 1. Purpose
@@ -21,6 +21,7 @@ The technical rules the first build follows, so that Documents 1 to 6 can leave 
 | D7-08 | **Accessibility testing is automated and manual:** keyboard, screen reader, contrast and focus checks. The target is WCAG 2.2 AA for the five core customer journeys (D-17, D5-09) (section 10) | Approved (9 Nov 2026) |
 | D7-09 | **Browser support:** the current versions of Chrome, Safari, Firefox and Edge on Android, iPhone and desktop, with graceful fallbacks for older browsers (D-10 to D-13) (section 11) | Approved (9 Nov 2026) |
 | D7-10 | **Keep failure handling simple.** Every request has a time limit so the site never waits forever. Only safe viewing requests retry automatically; saves never do. A timed-out **view** shows: "Something went wrong. Please try again." A timed-out **save** is never resent automatically, and shows: "We couldn't confirm your change. Please check before trying again." with the current data reloaded once (D3-03). **No other status-checking or recovery features are added** (section 3) | Approved (9 Nov 2026) |
+| D7-11 | **Real-browser checks complete the automated tests.** The automated end-to-end tests are a regression safety net and do not by themselves show support for a browser. Before launch, the actual current Chrome, Safari, Firefox and Edge are checked by hand on real Android and iPhone devices and on desktop, for login, the five core customer journeys and the vendor product form. Each result is recorded. A browser and device is described as supported only where it was actually checked (section 11) | Approved (10 Nov 2026) |
 
 ## 3. Timeouts (D7-01)
 
@@ -95,7 +96,8 @@ A cookie that outlives its backend token is harmless, because the backend reject
 - **Supported and tested:** the current stable versions of Chrome, Safari, Firefox and Edge on Android, iPhone and desktop. "Current" means the latest stable release at the time of testing.
 - **Older browsers:** not deliberately blocked. Basic browsing works almost everywhere; if a browser cannot run the interactive features, the site shows a clear message and a basic fallback instead of a blank page (D-12).
 - The browser list for the build tool's compatibility settings is set from this decision. The exact minimum versions are not decided here and are not claimed.
-- The end-to-end tests run on the engines behind these browsers (Chromium, WebKit, Firefox) at a phone size and a desktop size.
+- The automated end-to-end tests run on Chromium, WebKit and Firefox at a phone size and a desktop size, and on installed Google Chrome and Microsoft Edge where available. They catch regressions. **WebKit in the test tool is not Safari itself**, so these tests are not evidence of Safari support (D7-11).
+- **Manual real-browser checks** are done in Slice 6 on the real browsers and devices (D7-11). Which devices are used is open (Q7-3).
 
 ## 12. Starting figures (provisional, not validated)
 
@@ -132,6 +134,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | T7-6 | Keyboard, screen reader, contrast and focus tests (section 10) | Before release of journeys 1 to 5 |
 | T7-7 | Real vendor photos in the 4:5 complete-photo frames (Document 6, D6-33, D6-62). No real photos exist yet; the design stages used generated garment illustrations. Checked when real photos are available | First build or first real vendor uploads |
 | T7-8 | How the hero product choice is stored (Document 6, D6-61) | Before the hero is built |
+| T7-9 | Real-browser and real-device checks (D7-11): login, journeys 1 to 5 and the vendor product form. Results recorded | Slice 6 |
 
 ## 14. Open questions
 
@@ -139,6 +142,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | --- | --- | --- |
 | Q7-1 | Exact minimum browser versions for the build tool's compatibility settings | First build, with the owner |
 | Q7-2 | Whether an error-monitoring service is wanted after the first release | Owner, later |
+| Q7-3 | Which real devices and browser versions are used for the manual checks (D7-11). Document 6 names a budget Android phone and slow-connection profile, but no specific devices | Owner, before Slice 6 |
 
 ## 15. Revision history
 
@@ -151,3 +155,4 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 5 | 9 Nov 2026 | Cache figures (public pages, search, sitemap, refresh result) kept by the owner as provisional starting points |
 | 6 | 9 Nov 2026 | Timeout and retry figures kept by the owner as provisional starting points. All starting figures now reviewed |
 | 7 | 9 Nov 2026 | Approved by the owner after review of the decisions, the figures and sections 5 to 11. Figures stay provisional; checks T7-1 to T7-8 and questions Q7-1, Q7-2 stay open |
+| 8 | 10 Nov 2026 | D7-11 added: real-browser checks complete the automated tests; section 11 says WebKit in the test tool is not Safari; T7-9 and Q7-3 added. No other decision changed |

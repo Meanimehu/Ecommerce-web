@@ -1,6 +1,6 @@
 # 4. Architecture and routes
 
-> **Status: Approved. D4-01 to D4-04 approved 4 Nov 2026; D4-05 to D4-09 approved 9 Nov 2026; merged (PR #5).**
+> **Status: Approved. D4-01 to D4-04 approved 4 Nov 2026; D4-05 to D4-09 approved 9 Nov 2026; D4-10 approved 10 Nov 2026; merged (PR #5).**
 > Follows Documents 1 to 3. Documentation only.
 
 ## 1. Purpose
@@ -20,6 +20,7 @@ How the frontend is organised and run: its layers, its pages and addresses, lang
 | D4-07 | **Cookie security.** Every cookie we set uses the `__Host-` prefix with `Secure`, path `/`, no domain, and `HttpOnly` and `SameSite=Lax` as shown in section 9. Pending-add and after-login cookies are signed. There is no anti-forgery cookie. Logout and a confirmed session end keep the language cookie. Names and numeric lifetimes are set in Document 7 | Approved (9 Nov 2026) |
 | D4-08 | **Pending add runs at most once.** The one-time mark guarantees at most once, not completion. An add whose outcome is unknown is never repeated automatically, and the person is told to check the cart (section 9) | Approved (9 Nov 2026) |
 | D4-09 | **The New arrivals section of the home page (Document 5, D5-12) shares the home page's cache refresh interval, and cached home-page content is public catalogue data only:** nothing specific to a person or to login. The interval itself is set in Document 7 (Q4-4) | Approved (9 Nov 2026) |
+| D4-10 | **The shared store for the security-critical entries is PostgreSQL, in a separate database used only by the frontend.** It holds the consumed-token markers and the pending-add "already used" marks (section 4). It is never the backend's database and the backend never reads it. The checklist in section 4 stays the acceptance test and is checked in every environment. Restoring the database from a backup must first start a new generation id (section 9, "Store generation"), so a restore is never mistaken for an intact store. Disposable entries (locks, short-lived results, cached public data) may use the same database or a separate area (section 4). This settles which product the store is; D4-05 and D4-06 are unchanged | Approved (10 Nov 2026) |
 
 D4-05 to D4-08 were approved by the owner on 9 Nov 2026, as written, and D4-09 on the same date. Sections 4, 7 and 9 describe them in detail.
 
@@ -47,7 +48,7 @@ Because the host is not chosen, the app must meet these, and a host is acceptabl
 
 - **A plain Node.js server**, run as one or more identical instances, with no feature specific to one host.
 - **Stateless instances.** Anything that must be shared between instances goes to the shared store below.
-- **A shared store** reachable by all instances, for coordination and shared data (sections 7 and 9). It never holds a refresh token or a password-like secret. The only credential it ever holds is a newly issued access token, encrypted and kept for a few seconds (section 9). Its entries fall into two classes with **different durability needs**, and the store must satisfy both:
+- **A shared store** reachable by all instances, for coordination and shared data (sections 7 and 9). It never holds a refresh token or a password-like secret. The only credential it ever holds is a newly issued access token, encrypted and kept for a few seconds (section 9). Its entries fall into two classes with **different durability needs**, and the store must satisfy both: The product is PostgreSQL in a frontend-only database (D4-10).
   - **Security-critical entries: must not be lost or evicted early.** These are the "consumed" markers of refresh tokens (they stop a used refresh token from ever being sent again) and the "already used" marks of pending adds. Losing one early could let a used token or a one-time action be repeated. The store must therefore provide, for this class:
     - **Persistence:** a write is acknowledged only once it is durable, and entries survive a restart or failover of the store.
     - **No eviction:** these entries are never removed to free memory. When the store is full it **refuses new writes** instead of evicting. Capacity is monitored and an alert is raised well before it is full.

@@ -1,6 +1,6 @@
 # 3. API integration
 
-> **Status: Approved. Decisions D3-01 to D3-03 approved 4 Nov 2026; merged (PR #4).**
+> **Status: Approved. Decisions D3-01 to D3-03 approved 4 Nov 2026; merged (PR #4). D3-04 approved 10 Nov 2026.**
 > Follows Documents 1 and 2. Documentation only.
 
 ## 1. Purpose
@@ -14,6 +14,7 @@ How the frontend talks to the backend: where the calls are made, how responses a
 | D3-01 | **Request types are generated; response shapes are written by hand.** Request types come from the backend's OpenAPI description. Response shapes are written once as Zod schemas, taken from the API reference pages, because the OpenAPI description does not describe responses | Approved (4 Nov 2026) |
 | D3-02 | **A response that does not match its schema is strict in tests and development, lenient in production.** Tests and development fail with a clear message. In production the app keeps working with the data it can use, and the mismatch is reported to us | Approved (4 Nov 2026) |
 | D3-03 | **All backend calls go through the frontend server, public reads included.** The browser never calls the backend directly. This settles open question Q2-3 of Document 2 | Approved (4 Nov 2026) |
+| D3-04 | **Image-loading exception to D3-03.** Public product photos that the backend has approved are loaded by the browser directly from the public photo host, using the web addresses the backend sends (`coverUrl`, `thumbUrl`, `images[].urls`). This is the **only** exception: no API call, private photo preview or vendor document is loaded this way, and all of them stay behind the frontend server (D3-03, section 10). The photo host's address is configuration for each environment, and pages may load images only from it | Approved (10 Nov 2026) |
 
 ## 3. Where calls are made
 
@@ -86,6 +87,7 @@ How the frontend talks to the backend: where the calls are made, how responses a
 - **Quick checks in the browser:** file type and size are checked before upload for fast feedback, from one shared configuration copied from the backend limits (section 11). The backend is always the authority, and the app handles its refusal.
 - Uploads show progress, can be cancelled, and are not retried automatically (section 6).
 - **Private files** (vendor documents) are downloaded through the frontend server with the person's token, never by a public address.
+- **Public photos are the one exception to "files go through the frontend server" (D3-04).** Approved public product photos are plain web addresses on the public photo host, which the browser loads directly. Photos that are not yet approved, and vendor documents, are private and are fetched only through the frontend server with the person's token.
 
 ## 11. Backend documentation used (not repeated here)
 
