@@ -75,3 +75,33 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  docker:
+    name: Docker setup (images build, store starts and passes its checks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the production image
+        run: docker build --target runtime -t dhaaga-web:ci .
+      - name: Build the development image
+        run: docker compose build web store-migrate
+      - name: Start the store and run its migrations
+        run: docker compose up -d store && docker compose run --rm store-migrate
+      - name: Store checklist (Document 4, section 4)
+        run: docker compose run --rm -e STORE_DATABASE_URL=postgres://dhaaga_web:dhaaga_web_pass@store:5432/dhaaga_web_store store-migrate npx tsx scripts/store-check.ts
+      - name: Unit and store tests inside Docker
+        run: |
+          docker compose run --rm --no-deps store-migrate npm test
+          docker compose run --rm --no-deps -e STORE_TEST_ADMIN_URL=postgres://dhaaga_web:dhaaga_web_pass@store:5432/postgres store-migrate npm run test:store
+      - name: Production container starts and answers its health check
+        run: |
+          docker run -d --name web-ci --network dhaaga-web_default -p 3001:3001 --env-file .env.example \
+            -e STORE_DATABASE_URL=postgres://dhaaga_web:dhaaga_web_pass@store:5432/dhaaga_web_store dhaaga-web:ci
+          for i in $(seq 1 30); do curl -fs http://127.0.0.1:3001/api/health | grep -q '"store":{"ok":true' && break; sleep 2; done
+          curl -fs http://127.0.0.1:3001/api/health
+          curl -fs http://127.0.0.1:3001/api/health | grep -q '"store":{"ok":true'
+      - if: always()
+        run: docker logs web-ci 2>&1 | tail -30 || true
+      - if: always()
+        run: docker compose down -v
+

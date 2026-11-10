@@ -8,29 +8,40 @@ One Next.js application for the storefront, the Vendor area and the Admin area o
 servers, logout and "log out everywhere", the no-access page, English and Hindi messages. Design tokens and the Stage 4
 components follow in part 2 (Document 8).
 
-## What you need
+## Running it (Docker only)
 
-- Node.js 22 (`.nvmrc`) and npm
-- `mkcert`, run `mkcert -install` once: the local site always runs over HTTPS (Document 7, section 17.1)
-- PostgreSQL for the shared store: `docker compose up -d store` (port 5433), or any PostgreSQL 16 or newer
-- The backend running locally (its README) for login and for generating request types. Its SMS is a mock: the login
-  code is printed in the backend's log
-
-## First run
+Only Docker is needed on your machine: no Node.js, no PostgreSQL, no mkcert. Same approach as the backend.
 
 ```bash
-npm ci
-cp .env.example .env.local          # then put your own secrets in it (openssl rand -hex 32)
-docker compose up -d store          # the frontend's own database, never the backend's
-npm run store:migrate
-npm run store:check                 # must say "Store ok"
-npm run dev                         # https://localhost:3001 (the backend uses 3000)
+# 1. Start the backend with its own docker compose (backend README). Its API answers on http://localhost:3000.
+# 2. Then, in this folder:
+docker compose up --build            # store database + its migrations + the web app
+# open https://localhost:3001
 ```
 
-`npm run build && npm start` runs the production server over plain HTTP on 127.0.0.1:3001; in staging and production the
-host provides HTTPS in front of it.
+- **The first time, your browser warns about the certificate.** It is made inside the container for `localhost` only.
+  Choose to continue, or trust `certificates/localhost.pem` once in your system to stop the warning.
+- **Saved changes reload at once**: your project folder is mounted into the container.
+- **Secrets**: the placeholder values in `.env.example` work locally. To use your own, copy it to `.env.local`.
+- **Login codes**: the backend's SMS is a mock, the code is in its log: `docker compose logs -f api` in the backend folder.
+- **After changing `package.json`**: `docker compose build web` (dependencies live inside the image).
+- **Stop**: `docker compose down` (keeps data). **Start clean**: `docker compose down -v` (deletes the store data).
+
+**Running a command** (tests, checks) inside Docker:
+
+```bash
+docker compose run --rm web npm test
+docker compose run --rm web npm run check
+docker compose run --rm -e STORE_TEST_ADMIN_URL=postgres://dhaaga_web:dhaaga_web_pass@store:5432/postgres web npm run test:store
+docker compose run --rm web npm run gen:types       # needs the backend running
+```
+
+**Production image** (for hosting later, D4-03): `docker build --target runtime -t dhaaga-web .` It is the plain
+Node.js server on port 3001; the host provides HTTPS in front of it.
 
 ## Commands
+
+Run these with `docker compose run --rm web <command>`, or directly if you have Node.js 22.
 
 | Command | What it does |
 | --- | --- |

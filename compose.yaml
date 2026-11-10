@@ -1,6 +1,10 @@
-# The frontend's own shared store for local development (Document 4, D4-10): PostgreSQL in a database used ONLY by the
-# frontend. It is a separate service on port 5433, never the backend's database on 5432.
-#   docker compose up -d store       then: npm run store:migrate && npm run store:check
+# Runs the frontend for local development: its own database (the shared store), a one-off migration job, and the
+# web app with hot reload over HTTPS. Only Docker is needed on your machine.
+#   1. Start the backend first, with its own docker compose (backend README). Its API answers on port 3000.
+#   2. docker compose up --build        then open https://localhost:3001
+# The store is the frontend's own PostgreSQL, never the backend's (Document 4, D4-10).
+name: dhaaga-web
+
 services:
   store:
     image: postgres:18
@@ -12,6 +16,7 @@ services:
       POSTGRES_DB: dhaaga_web_store
     # Durability settings the store checklist requires. They are PostgreSQL's defaults, written out so nobody turns them off.
     command: ['postgres', '-c', 'fsync=on', '-c', 'synchronous_commit=on', '-c', 'full_page_writes=on']
+    # Bound to this machine only, on 5433 so it never clashes with the backend's database on 5432.
     ports:
       - '127.0.0.1:5433:5432'
     volumes:
@@ -20,7 +25,49 @@ services:
       test: ['CMD-SHELL', 'pg_isready -U dhaaga_web -d dhaaga_web_store']
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+
+  # Runs once and exits: applies the store migrations. The web app starts only after it succeeds.
+  store-migrate:
+    build: { context: ., target: tools }
+    image: dhaaga-web-tools
+    container_name: dhaaga_web_store_migrate
+    restart: 'no'
+    command: ['npx', 'tsx', 'scripts/store-migrate.ts']
+    environment:
+      STORE_DATABASE_URL: postgres://dhaaga_web:dhaaga_web_pass@store:5432/dhaaga_web_store
+    depends_on:
+      store:
+        condition: service_healthy
+
+  # The web app in development mode. Your project folder is mounted, so a saved change reloads at once.
+  web:
+    build: { context: ., target: dev }
+    image: dhaaga-web-dev
+    container_name: dhaaga_web
+    restart: unless-stopped
+    env_file:
+      - path: .env.example
+      - path: .env.local
+        required: false
+    environment:
+      # Inside Docker: the store by its service name; the backend through your machine, where its compose publishes 3000.
+      STORE_DATABASE_URL: postgres://dhaaga_web:dhaaga_web_pass@store:5432/dhaaga_web_store
+      BACKEND_URL: http://host.docker.internal:3000
+      PUBLIC_SITE_URL: https://localhost:3001
+      # File changes from Mac and Windows folders reach the container reliably this way.
+      WATCHPACK_POLLING: 'true'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '127.0.0.1:3001:3001'
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      store-migrate:
+        condition: service_completed_successfully
 
 volumes:
   store_data:
