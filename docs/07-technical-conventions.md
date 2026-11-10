@@ -162,6 +162,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 8 | 10 Nov 2026 | D7-11 added: real-browser checks complete the automated tests; section 11 says WebKit in the test tool is not Safari; T7-9 and Q7-3 added. No other decision changed |
 | 9 | 10 Nov 2026 | Section 16 added: the folder and file names used from Slice 0, as the owner approved (the layout in the implementation plan, section 1.2). Settles the message-catalogue location left by Document 4, section 6. Cookie names are added in Slice 1. No decision changed |
 | 10 | 10 Nov 2026 | D7-12 to D7-15 and sections 17 to 19 added: local HTTPS, cookie names and lifetimes, refresh timings (provisional), anti-forgery before login, components through the shadcn/ui tool, error messages slice by slice. Settles the open points left by Document 4, section 9. No earlier decision changed |
+| 11 | 10 Nov 2026 | Section 17.1: the certificate is set up by `npm run dev` itself; local setup with Node.js and the store's own database in the backend's PostgreSQL. No decision changed |
 
 ## 16. Names: folders and files
 
@@ -192,7 +193,8 @@ Recorded 10 Nov 2026. Document 4 (section 9) left the local Secure-cookie setup,
 ### 17.1 Local HTTPS
 
 - The local site runs at **`https://localhost:3001`**, so the `__Host-` cookie rules (D4-07) work locally the same way in every browser, including Safari.
-- `npm run dev` uses Next.js's built-in development HTTPS with a locally trusted certificate made by `mkcert`. Each developer runs `mkcert -install` once. The certificate files are never committed.
+- `npm run dev` uses Next.js's built-in development HTTPS. The first time, Next.js downloads `mkcert` and makes a locally trusted certificate by itself; the computer may ask for its password once. The certificate files are never committed.
+- **Local setup:** the frontend runs with Node.js, not in Docker. Its shared store (D4-10) is its own database, `dhaaga_web_store`, inside the backend's PostgreSQL container, so nothing else is installed. The store check refuses the backend's own database.
 - In staging and production, the host provides HTTPS. The app itself does not handle certificates.
 - `PUBLIC_SITE_URL` is `https://localhost:3001` locally. The origin check (Document 2, section 6) compares data-changing requests with it.
 
