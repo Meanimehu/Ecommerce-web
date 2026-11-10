@@ -1,6 +1,6 @@
 # 8. Roadmap
 
-> **Status: Draft — pending review and approval.** D8-01 and D8-02 were chosen by the owner on 10 Nov 2026. The slices and "done when" lines below are my proposal and have not been reviewed.
+> **Status: Approved (10 Nov 2026).** The owner reviewed and approved the document, including D8-01, D8-02, the slices and the Slice 2 clarification. Q8-2 and Q8-3 stay open.
 > Follows Documents 1 to 7. Documentation only: no code is written, and no dates are given.
 
 ## 1. Purpose
@@ -90,3 +90,4 @@ Nothing below has been done. Each is a check, not a promise.
 | 1 | 10 Nov 2026 | First draft: D8-01 (vertical slices) and D8-02 (no dates) chosen by the owner; slices, dependencies and launch checks proposed |
 | 2 | 10 Nov 2026 | Q8-1 settled after checking the backend code and docs: Slice 2 now includes the admin catalogue screens a product needs |
 | 3 | 10 Nov 2026 | Slice 2 clarification added: required catalogue entries must exist and be active in staging before product submission is tested. No decision changed; Q8-2 and Q8-3 stay open |
+| 4 | 10 Nov 2026 | Approved by the owner. Q8-2 and Q8-3 stay open |
