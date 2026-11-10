@@ -91,7 +91,7 @@ test.describe('login and sessions', () => {
     await expect(page.getByRole('heading', { name: 'आपके पास इस पेज की अनुमति नहीं है' })).toBeVisible();
   });
 
-  test('a wrong code shows our message next to the field, and the backend wait time drives "Send code again"', async ({ page }) => {
+  test('a wrong code shows our message under the field and in a summary that takes focus; the backend wait drives "Send code again"', async ({ page }) => {
     const phone = freshPhone();
     await page.goto('/en/login');
     await page.getByLabel('Mobile number').fill(phone);
@@ -99,14 +99,43 @@ test.describe('login and sessions', () => {
     await readCode(phone);
     await page.getByLabel('Code', { exact: true }).fill('000000');
     await page.getByRole('button', { name: 'Log in', exact: true }).click();
-    const alert = page.getByRole('alert').filter({ hasText: "That code isn't right" });
-    await expect(alert).toBeVisible();
-    // The backend's request id reaches the browser, with a Copy button (Document 7, T7-4; Document 5, D5-14).
-    await expect(alert).toContainText(/Reference: [0-9a-f-]{36}/);
-    await expect(alert.getByRole('button', { name: 'Copy' })).toBeVisible();
-    await expect(page.getByLabel('Code', { exact: true })).toHaveAttribute('aria-invalid', 'true');
+    const code = page.getByLabel('Code', { exact: true });
+    await expect(code).toHaveAttribute('aria-invalid', 'true');
+    await expect(code).toHaveAccessibleDescription(/That code isn't right/);
+    const summary = page.getByRole('alert').filter({ hasText: 'Fix 1 thing to continue' });
+    await expect(summary).toBeFocused();
+    await summary.getByRole('link', { name: /That code isn't right/ }).click();
+    await expect(code).toBeFocused();
     await expect(page.getByRole('button', { name: 'Send code again' })).toBeDisabled();
     await expect(page.getByText(/You can ask for a new code in \d+ seconds/)).toBeVisible();
+  });
+});
+
+test.describe('form checks (D-04, D6-25; no backend needed)', () => {
+  test('checked when leaving the field, cleared while typing a valid value, summary with focus on submit', async ({ page }) => {
+    await page.goto('/en/login');
+    const phone = page.getByLabel('Mobile number');
+    await phone.fill('123');
+    await expect(phone).not.toHaveAttribute('aria-invalid', 'true');
+    await phone.blur();
+    await expect(phone).toHaveAttribute('aria-invalid', 'true');
+    await expect(phone).toHaveAccessibleDescription(/Enter a 10-digit mobile number/);
+    await phone.fill('9876543210');
+    await expect(phone).not.toHaveAttribute('aria-invalid', 'true');
+
+    await phone.fill('');
+    await page.getByRole('button', { name: 'Send code' }).click();
+    const summary = page.getByRole('alert').filter({ hasText: 'Fix 1 thing to continue' });
+    await expect(summary).toBeFocused();
+    await expect(summary.getByRole('link', { name: 'Enter your mobile number.' })).toBeVisible();
+    expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
+  });
+
+  test('Hindi messages for the same checks', async ({ page }) => {
+    await page.goto('/hi/login');
+    await page.getByRole('button', { name: 'कोड भेजें' }).click();
+    await expect(page.getByRole('alert').filter({ hasText: 'आगे बढ़ने के लिए 1 चीज़ ठीक करें' })).toBeFocused();
+    await expect(page.getByLabel('मोबाइल नंबर')).toHaveAccessibleDescription(/अपना मोबाइल नंबर लिखें/);
   });
 });
 

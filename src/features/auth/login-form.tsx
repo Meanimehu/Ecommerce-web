@@ -1,45 +1,48 @@
 'use client';
 
-import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useState } from 'react';
+import { ErrorSummary } from '@/components/form/error-summary';
+import { applyServerError } from '@/components/form/server-errors';
+import { TextField } from '@/components/form/text-field';
+import { useAppForm } from '@/components/form/use-app-form';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { getSession, send } from '@/lib/client/api';
+import { send } from '@/lib/client/api';
+import { useSession } from '@/lib/client/session';
 import { AppError, fill, messageFor } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
-import { ErrorMessage } from '../common/error-message';
+import { CodeSchema, PhoneSchema, type CodeInput, type PhoneInput } from '@/schemas/forms/login';
 
 /**
- * Login by phone code (Document 2, section 3; Document 5, section 6.4). One login page for everyone (D2-04). Phone
- * first, then one code field with autocomplete="one-time-code". The wait before "Send code again" comes from the
- * backend. It never says whether an account exists.
+ * Login by phone code (Document 2, section 3; Document 5, section 6.4). One login page for everyone (D2-04).
+ * Phone first, then one code field with autocomplete="one-time-code" (D6-24). The wait before "Send code again" comes
+ * from the backend. It never says whether an account exists. Forms: React Hook Form with Zod (D-04); server data:
+ * TanStack Query (D-02).
  */
-type Step = 'phone' | 'code';
+const IDS = { phone: 'login-phone', code: 'login-code' } as const;
+const asAppError = (error: unknown): AppError => (error instanceof AppError ? error : new AppError({ code: 'NETWORK', status: 0 }));
 
 export function LoginForm({ lang }: { lang: Locale }) {
   const t = getMessages(lang);
   const queryClient = useQueryClient();
-  const ids = { phone: useId(), phoneHelp: useId(), code: useId(), codeHelp: useId(), error: useId() };
-  const [step, setStep] = useState<Step>('phone');
+  const session = useSession();
+  const phoneForm = useAppForm<PhoneInput, { phone: string }>(PhoneSchema, { phone: '' });
+  const codeForm = useAppForm<CodeInput, { code: string }>(CodeSchema, { code: '' });
+  const [step, setStep] = useState<'phone' | 'code'>('phone');
   const [phone, setPhone] = useState('');
-  const [code, setCode] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<AppError | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [resendAt, setResendAt] = useState(0);
   const [now, setNow] = useState(() => Date.now());
-  const codeRef = useRef<HTMLInputElement>(null);
+  const [phoneFocus, setPhoneFocus] = useState(0);
+  const [codeFocus, setCodeFocus] = useState(0);
 
-  // Fetch the anti-forgery token for this page; clear a session the backend has already ended.
+  // A session the backend has already ended is cleared by compare-and-clear (Document 4, section 9).
+  const sessionError = session.error instanceof AppError ? session.error : null;
   useEffect(() => {
-    getSession().catch(async (problem: unknown) => {
-      const handle = problem instanceof AppError ? problem.details?.handle : undefined;
-      if (typeof handle === 'string') await send('/api/session/clear', { handle }).catch(() => undefined);
-      if (problem instanceof AppError && problem.code === 'USER_BLOCKED') setError(problem);
-    });
-  }, []);
+    const handle = sessionError?.details?.handle;
+    if (typeof handle === 'string') void send('/api/session/clear', { handle }).catch(() => undefined);
+  }, [sessionError]);
 
   useEffect(() => {
     if (resendAt <= now) return;
@@ -48,51 +51,87 @@ export function LoginForm({ lang }: { lang: Locale }) {
   }, [resendAt, now]);
 
   useEffect(() => {
-    if (step === 'code') codeRef.current?.focus();
+    if (step === 'code') document.getElementById(IDS.code)?.focus();
   }, [step]);
 
   const waitSeconds = Math.max(0, Math.ceil((resendAt - now) / 1000));
+  const startWait = useCallback((seconds: number) => {
+    const at = Date.now();
+    setResendAt(at + seconds * 1000);
+    setNow(at);
+  }, []);
 
-  async function requestCode(again: boolean) {
-    setBusy(true);
-    setError(null);
-    setNotice(null);
-    try {
-      const answer = await send<{ resendAfterSeconds: number }>('/api/auth/code', { phone });
-      setResendAt(Date.now() + answer.resendAfterSeconds * 1000);
-      setNow(Date.now());
-      setStep('code');
-      if (again) setNotice(t.login.codeSent);
-    } catch (problem) {
-      const failure = problem instanceof AppError ? problem : new AppError({ code: 'NETWORK', status: 0 });
-      if (failure.code === 'OTP_RESEND_WAIT') {
-        const seconds = Number(failure.details?.retryAfterSeconds);
-        if (Number.isFinite(seconds)) setResendAt(Date.now() + seconds * 1000);
-        setNow(Date.now());
-        setStep('code');
-      }
-      setError(failure);
-    } finally {
-      setBusy(false);
-    }
-  }
+  const requestCode = useMutation({
+    mutationFn: (value: string) => send<{ resendAfterSeconds: number }>('/api/auth/code', { phone: value }),
+  });
+  const verify = useMutation({
+    mutationFn: (code: string) => send<{ destination: string }>('/api/auth/verify', { phone, code, lang }),
+  });
 
-  async function verify() {
-    setBusy(true);
-    setError(null);
-    setNotice(null);
-    try {
-      const answer = await send<{ destination: string }>('/api/auth/verify', { phone, code, lang });
-      queryClient.clear();
-      window.location.assign(answer.destination);
-    } catch (problem) {
-      setError(problem instanceof AppError ? problem : new AppError({ code: 'NETWORK', status: 0 }));
-      setBusy(false);
-    }
-  }
+  const onPhone = phoneForm.handleSubmit(
+    (values) => {
+      requestCode.mutate(values.phone, {
+        onSuccess: (answer) => {
+          setPhone(values.phone);
+          startWait(answer.resendAfterSeconds);
+          setNotice(null);
+          setStep('code');
+        },
+        onError: (raw) => {
+          const error = asAppError(raw);
+          if (error.code === 'OTP_RESEND_WAIT') {
+            // A code was sent a moment ago: go to the code step and show the wait (not a mistake by the person).
+            setPhone(values.phone);
+            const seconds = Number(error.details?.retryAfterSeconds);
+            if (Number.isFinite(seconds)) startWait(seconds);
+            setNotice(messageFor(error, t));
+            setStep('code');
+            return;
+          }
+          applyServerError(phoneForm, error, t, { codes: { PHONE_INVALID: 'phone' } });
+          setPhoneFocus((n) => n + 1);
+        },
+      });
+    },
+    () => setPhoneFocus((n) => n + 1),
+  );
 
-  const errorText = error ? messageFor(error, t) : null;
-  const fieldError = error && ['PHONE_INVALID', 'OTP_INVALID', 'OTP_EXPIRED', 'OTP_LOCKED'].includes(error.code);
+  const onCode = codeForm.handleSubmit(
+    (values) => {
+      verify.mutate(values.code, {
+        onSuccess: (answer) => {
+          queryClient.clear();
+          // A full page load on purpose: the next page is rendered on the server with the new cookies.
+          window.location.assign(answer.destination);
+        },
+        onError: (raw) => {
+          applyServerError(codeForm, asAppError(raw), t, { codes: { OTP_INVALID: 'code', OTP_EXPIRED: 'code', OTP_LOCKED: 'code' } });
+          setCodeFocus((n) => n + 1);
+        },
+      });
+    },
+    () => setCodeFocus((n) => n + 1),
+  );
+
+  const resend = () => {
+    codeForm.clearErrors();
+    requestCode.mutate(phone, {
+      onSuccess: (answer) => {
+        startWait(answer.resendAfterSeconds);
+        setNotice(t.login.codeSent);
+      },
+      onError: (raw) => {
+        const error = asAppError(raw);
+        const seconds = Number(error.details?.retryAfterSeconds);
+        if (error.code === 'OTP_RESEND_WAIT' && Number.isFinite(seconds)) startWait(seconds);
+        applyServerError(codeForm, error, t);
+        setCodeFocus((n) => n + 1);
+      },
+    });
+  };
+
+  const blocked = sessionError?.code === 'USER_BLOCKED';
+  const busy = requestCode.isPending || verify.isPending;
 
   return (
     <div className="space-y-6">
@@ -101,94 +140,64 @@ export function LoginForm({ lang }: { lang: Locale }) {
         <p className="text-sm">{t.login.intro}</p>
       </div>
 
+      {blocked ? (
+        <p role="alert" className="text-sm">
+          {t.session.blocked}
+        </p>
+      ) : null}
+
       {step === 'phone' ? (
-        <form
-          className="space-y-4"
-          noValidate
-          onSubmit={(event) => {
-            event.preventDefault();
-            if (!busy) void requestCode(false);
-          }}
-        >
-          <div className="space-y-2">
-            <Label htmlFor={ids.phone}>{t.login.phoneLabel}</Label>
-            <Input
-              id={ids.phone}
-              name="phone"
-              type="tel"
-              inputMode="numeric"
-              autoComplete="tel-national"
-              value={phone}
-              onChange={(event) => setPhone(event.target.value)}
-              aria-describedby={`${ids.phoneHelp}${fieldError ? ` ${ids.error}` : ''}`}
-              aria-invalid={fieldError ? true : undefined}
-              required
-            />
-            <p id={ids.phoneHelp} className="text-sm">
-              {t.login.phoneHelp}
-            </p>
-          </div>
-          {errorText ? (
-            <div id={ids.error}>
-              <ErrorMessage text={errorText} requestId={error?.requestId} t={t} />
-            </div>
-          ) : null}
-          <Button type="submit" disabled={busy || phone.trim() === ''}>
-            {busy ? t.login.sending : t.login.sendCode}
+        <form className="space-y-4" noValidate onSubmit={(event) => void onPhone(event)}>
+          <ErrorSummary form={phoneForm} fieldIds={{ phone: IDS.phone }} t={t} requestId={asRequestId(requestCode.error)} focusSignal={phoneFocus} />
+          <TextField
+            form={phoneForm}
+            name="phone"
+            id={IDS.phone}
+            label={t.login.phoneLabel}
+            description={t.login.phoneHelp}
+            t={t}
+            inputProps={{ type: 'tel', inputMode: 'numeric', autoComplete: 'tel-national' }}
+          />
+          <Button type="submit" disabled={busy}>
+            {requestCode.isPending ? t.login.sending : t.login.sendCode}
           </Button>
         </form>
       ) : (
-        <form
-          className="space-y-4"
-          noValidate
-          onSubmit={(event) => {
-            event.preventDefault();
-            if (!busy) void verify();
-          }}
-        >
-          <div className="space-y-2">
-            <Label htmlFor={ids.code}>{t.login.codeLabel}</Label>
-            <Input
-              ref={codeRef}
-              id={ids.code}
-              name="code"
-              type="text"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              maxLength={12}
-              value={code}
-              onChange={(event) => setCode(event.target.value.replace(/\s/g, ''))}
-              aria-describedby={`${ids.codeHelp}${fieldError ? ` ${ids.error}` : ''}`}
-              aria-invalid={fieldError ? true : undefined}
-              required
-            />
-            <p id={ids.codeHelp} className="text-sm">
-              {fill(t.login.codeHelp, { phone })}
-            </p>
-          </div>
-          {errorText ? (
-            <div id={ids.error}>
-              <ErrorMessage text={errorText} requestId={error?.requestId} t={t} />
-            </div>
-          ) : null}
+        <form className="space-y-4" noValidate onSubmit={(event) => void onCode(event)}>
+          <ErrorSummary
+            form={codeForm}
+            fieldIds={{ code: IDS.code }}
+            t={t}
+            requestId={asRequestId(verify.error ?? requestCode.error)}
+            focusSignal={codeFocus}
+          />
+          <TextField
+            form={codeForm}
+            name="code"
+            id={IDS.code}
+            label={t.login.codeLabel}
+            description={fill(t.login.codeHelp, { phone })}
+            t={t}
+            inputProps={{ type: 'text', inputMode: 'numeric', autoComplete: 'one-time-code', maxLength: 12 }}
+          />
           <p role="status" className="text-sm">
             {notice}
           </p>
           <div className="flex flex-wrap items-center gap-3">
-            <Button type="submit" disabled={busy || code === ''}>
-              {busy ? t.login.verifying : t.login.verify}
+            <Button type="submit" disabled={busy}>
+              {verify.isPending ? t.login.verifying : t.login.verify}
             </Button>
-            <Button type="button" variant="outline" disabled={busy || waitSeconds > 0} onClick={() => void requestCode(true)}>
+            <Button type="button" variant="outline" disabled={busy || waitSeconds > 0} onClick={resend}>
               {t.login.resend}
             </Button>
             <Button
               type="button"
               variant="link"
               onClick={() => {
-                setStep('phone');
-                setCode('');
-                setError(null);
+                codeForm.reset();
+                phoneForm.clearErrors();
                 setNotice(null);
+                setStep('phone');
               }}
             >
               {t.login.changeNumber}
@@ -199,4 +208,8 @@ export function LoginForm({ lang }: { lang: Locale }) {
       )}
     </div>
   );
+}
+
+function asRequestId(error: unknown): string | undefined {
+  return error instanceof AppError ? error.requestId : undefined;
 }

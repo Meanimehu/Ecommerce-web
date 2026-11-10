@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { LanguageSwitch } from '@/features/common/language-switch';
+import { NeedsScript } from '@/features/common/needs-script';
 import type { Locale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
 
@@ -22,7 +23,10 @@ export function AreaShell({ lang, area, children }: { lang: Locale; area: 'vendo
           <LanguageSwitch lang={lang} />
         </div>
       </header>
-      <main className="px-4 py-6">{children}</main>
+      <main className="px-4 py-6">
+        <NeedsScript t={t} />
+        {children}
+      </main>
     </div>
   );
 }

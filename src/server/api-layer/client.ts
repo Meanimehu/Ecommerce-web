@@ -96,14 +96,17 @@ async function callOnce<S extends z.ZodType | null>(options: CallOptions<S>): Pr
     if (!parsed.success) {
       throw new AppError({ code: response.status >= 500 ? 'SERVER_ERROR' : 'UNKNOWN_ERROR', status: response.status, requestId, outcomeUnknown: changesData && response.status >= 500 });
     }
-    const { code, details } = parsed.data.error;
+    const { code, details, message } = parsed.data.error;
+    const fields = Array.isArray(details) ? details : undefined;
     // Backend gap B1: details may carry a database constraint name. It is never used or passed on.
-    const cleanDetails = details ? Object.fromEntries(Object.entries(details).filter(([k]) => k !== 'constraint')) : undefined;
+    const cleanDetails = details && !Array.isArray(details) ? Object.fromEntries(Object.entries(details).filter(([k]) => k !== 'constraint')) : undefined;
     throw new AppError({
       code,
       status: response.status,
       requestId: parsed.data.error.requestId ?? requestId,
       details: cleanDetails,
+      fields,
+      backendMessage: serverConfig.isProduction ? undefined : message,
       outcomeUnknown: changesData && response.status >= 500,
     });
   }

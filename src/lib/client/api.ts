@@ -41,6 +41,8 @@ async function parseError(response: Response, changesData: boolean): Promise<App
     status: response.status,
     requestId: typeof error.requestId === 'string' ? error.requestId : undefined,
     details,
+    fields: Array.isArray(error.fields) ? (error.fields as AppError['fields']) : undefined,
+    backendMessage: typeof error.backendMessage === 'string' ? error.backendMessage : undefined,
     outcomeUnknown: Boolean(error.outcomeUnknown) || (changesData && response.status >= 500 && response.status !== 503),
   });
 }

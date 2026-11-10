@@ -20,7 +20,12 @@ export function fail(code: string, status: number, extra: Record<string, unknown
 export function fromAppError(error: unknown): NextResponse {
   if (error instanceof AppError) {
     const status = error.status === 0 ? (error.code === 'TIMEOUT' ? 504 : 502) : error.status;
-    return fail(error.code, status, { details: error.details, outcomeUnknown: error.outcomeUnknown }, error.requestId ?? randomUUID());
+    return fail(
+      error.code,
+      status,
+      { details: error.details, fields: error.fields, backendMessage: error.backendMessage, outcomeUnknown: error.outcomeUnknown },
+      error.requestId ?? randomUUID(),
+    );
   }
   console.error(JSON.stringify({ event: 'unexpected_error', message: error instanceof Error ? error.message : String(error) }));
   return fail('SERVER_ERROR', 500);

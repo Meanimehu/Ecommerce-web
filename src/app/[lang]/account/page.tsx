@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { LogoutButtons } from '@/features/auth/logout-buttons';
 import { requireUser } from '@/features/auth/require-user';
 import { LanguageSwitch } from '@/features/common/language-switch';
+import { NeedsScript } from '@/features/common/needs-script';
 import { getMessages } from '@/lib/messages';
 import { formatPhone } from '@/lib/phone';
 import { isStaff } from '@/schemas/auth';
@@ -31,6 +32,7 @@ export default async function AccountPage({ params }: { params: Promise<{ lang: 
         </a>
         <LanguageSwitch lang={lang} />
       </header>
+      <NeedsScript t={t} />
       <h1 className="text-2xl font-semibold">{t.account.title}</h1>
       <dl className="space-y-1">
         <dt className="text-sm">{t.account.phone}</dt>
