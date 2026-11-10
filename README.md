@@ -8,40 +8,35 @@ One Next.js application for the storefront, the Vendor area and the Admin area o
 servers, logout and "log out everywhere", the no-access page, English and Hindi messages. Design tokens and the Stage 4
 components follow in part 2 (Document 8).
 
-## Running it (Docker only)
+## Running it
 
-Only Docker is needed on your machine: no Node.js, no PostgreSQL, no mkcert. Same approach as the backend.
+You need **Node.js 22** and the **backend running** (its own Docker setup). Nothing else is installed: the frontend's
+store is its own database inside the backend's PostgreSQL container.
 
-```bash
-# 1. Start the backend with its own docker compose (backend README). Its API answers on http://localhost:3000.
-# 2. Then, in this folder:
-docker compose up --build            # store database + its migrations + the web app
-# open https://localhost:3001
-```
-
-- **The first time, your browser warns about the certificate.** It is made inside the container for `localhost` only.
-  Choose to continue, or trust `certificates/localhost.pem` once in your system to stop the warning.
-- **Saved changes reload at once**: your project folder is mounted into the container.
-- **Secrets**: inside Docker the placeholder values in `.env.example` are used; they are fine on your own machine only.
-- **Login codes**: the backend's SMS is a mock, the code is in its log: `docker compose logs -f api` in the backend folder.
-- **After changing `package.json`**: `docker compose build web` (dependencies live inside the image).
-- **Stop**: `docker compose down` (keeps data). **Start clean**: `docker compose down -v` (deletes the store data).
-
-**Running a command** (tests, checks) inside Docker:
+**First time**
 
 ```bash
-docker compose run --rm web npm test
-docker compose run --rm web npm run check
-docker compose run --rm -e STORE_TEST_ADMIN_URL=postgres://dhaaga_web:dhaaga_web_pass@store:5432/postgres web npm run test:store
-docker compose run --rm web npm run gen:types       # needs the backend running
+# 1. Backend folder (Ecommerce): start it, then create the frontend's own database inside its PostgreSQL
+docker compose up -d --build
+docker compose exec postgres psql -U marketplace -d marketplace_db -c "CREATE DATABASE dhaaga_web_store;"
+
+# 2. This folder (Ecommerce-web)
+npm ci
+cp .env.example .env.local      # if you changed DB_USER or DB_PASSWORD in the backend's .env, change them in STORE_DATABASE_URL too
+npm run store:migrate           # creates the store tables
+npm run store:check             # must say "Store ok"
+npm run dev                     # https://localhost:3001
 ```
 
-**Production image** (for hosting later, D4-03): `docker build --target runtime -t dhaaga-web .` It is the plain
-Node.js server on port 3001; the host provides HTTPS in front of it.
+**Every later day**: start the backend (`docker compose up -d` in its folder), then `npm run dev` here.
+
+- `npm run dev` serves **https://localhost:3001** (Document 7, section 17.1). The first time, Next.js sets up a local
+  certificate with mkcert by itself; your Mac may ask for your password once to trust it.
+- **Login codes**: the backend's SMS is a mock; the code is in its log: `docker compose logs api | grep "MOCK SMS"` in
+  the backend folder.
+- The store database is separate from the backend's own database (`marketplace_db`), as Document 4 (D4-10) requires.
 
 ## Commands
-
-Run these with `docker compose run --rm web <command>`, or directly if you have Node.js 22.
 
 | Command | What it does |
 | --- | --- |
@@ -49,7 +44,7 @@ Run these with `docker compose run --rm web <command>`, or directly if you have 
 | `npm run build` / `npm start` | Production build and server (`PORT`, default 3001; `BIND_HOST`, default 127.0.0.1) |
 | `npm run lint` / `npm run typecheck` | ESLint and TypeScript |
 | `npm test` | Unit tests (Vitest) |
-| `npm run test:store` | Store tests against a real PostgreSQL. Needs `STORE_TEST_ADMIN_URL` (a role that may create databases); each run uses a throwaway database |
+| `npm run test:store` | Store tests against a real PostgreSQL. Needs `STORE_TEST_ADMIN_URL`, for example `postgres://marketplace:marketplace_pass@localhost:5432/postgres`; each run creates and drops its own throwaway database |
 | `npm run test:e2e` | End-to-end tests (Playwright) over HTTPS on Chromium, Firefox and WebKit at phone and desktop sizes. A regression safety net only: real browsers and devices are checked by hand (Document 7, D7-11). Login tests run when `E2E_BACKEND_LOG` points at the local backend's log |
 | `npm run gen:types` | Fetches the backend's OpenAPI description, stores it in `src/generated/` and regenerates the request types |
 | `npm run check:types` | Fails if the generated request types differ from the stored description (CI) |
