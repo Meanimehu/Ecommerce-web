@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { LoginForm } from '@/features/auth/login-form';
 import { LanguageSwitch } from '@/features/common/language-switch';
+import { NeedsScript } from '@/features/common/needs-script';
 import { isLocale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
 
@@ -25,6 +26,7 @@ export default async function LoginPage({ params }: { params: Promise<{ lang: st
         </a>
         <LanguageSwitch lang={lang} />
       </header>
+      <NeedsScript t={t} />
       <LoginForm lang={lang} />
     </main>
   );

@@ -7,11 +7,21 @@ import type { Messages } from './messages';
 /** Codes the frontend itself produces (not from the backend). */
 export const FRONTEND_CODES = ['TIMEOUT', 'NETWORK', 'CSRF_INVALID', 'ORIGIN_INVALID', 'SESSION_STALE', 'SESSION_TEMPORARY', 'RESPONSE_MISMATCH'] as const;
 
+/** One backend field error (VALIDATION_FAILED): the backend's field name and its messages. */
+export interface FieldError {
+  field: string;
+  messages: string[];
+}
+
 export interface AppErrorShape {
   code: string;
   status: number;
   requestId?: string;
   details?: Record<string, unknown>;
+  /** Field errors from VALIDATION_FAILED (Document 5, section 10). */
+  fields?: FieldError[];
+  /** The backend's own text. Carried only outside production, as a development fallback (Document 5, section 10). */
+  backendMessage?: string;
   /** True when a data-changing request may or may not have happened (timeout, lost connection). */
   outcomeUnknown?: boolean;
 }
@@ -21,6 +31,8 @@ export class AppError extends Error implements AppErrorShape {
   readonly status: number;
   readonly requestId?: string;
   readonly details?: Record<string, unknown>;
+  readonly fields?: FieldError[];
+  readonly backendMessage?: string;
   readonly outcomeUnknown?: boolean;
 
   constructor(shape: AppErrorShape) {
@@ -30,11 +42,9 @@ export class AppError extends Error implements AppErrorShape {
     this.status = shape.status;
     this.requestId = shape.requestId;
     this.details = shape.details;
+    this.fields = shape.fields;
+    this.backendMessage = shape.backendMessage;
     this.outcomeUnknown = shape.outcomeUnknown;
-  }
-
-  toJSON(): AppErrorShape {
-    return { code: this.code, status: this.status, requestId: this.requestId, details: this.details, outcomeUnknown: this.outcomeUnknown };
   }
 }
 
@@ -49,11 +59,16 @@ export function kindOf(error: AppErrorShape): ErrorKind {
   return 'server';
 }
 
-/** Our own text for an error (D-09; Document 7, D7-10 for timeouts). */
+/**
+ * Our own text for an error (D-09; Document 7, D7-10 for timeouts). Unknown codes get the general message for their
+ * kind; outside production the backend's text is shown instead, to spot missing messages (Document 5, section 10).
+ */
 export function messageFor(error: AppErrorShape, messages: Messages): string {
   if (error.code === 'TIMEOUT') return error.outcomeUnknown ? messages.errors.saveTimeout : messages.errors.viewTimeout;
   const byCode = (messages.errors.codes as Record<string, string>)[error.code];
-  return byCode ?? messages.errors.kinds[kindOf(error)];
+  if (byCode) return byCode;
+  if (error.backendMessage && process.env.NODE_ENV !== 'production') return error.backendMessage;
+  return messages.errors.kinds[kindOf(error)];
 }
 
 /** Puts values into a message such as "Sent to {phone}". */

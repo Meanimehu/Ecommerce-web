@@ -93,5 +93,28 @@
       "SESSION_STALE": "Your session changed. Please try again; if it keeps happening, log in again.",
       "SESSION_TEMPORARY": "Something went wrong, please try again shortly."
     }
+  },
+  "languageNames": {
+    "en": "English",
+    "hi": "हिन्दी"
+  },
+  "form": {
+    "summaryOne": "Fix 1 thing to continue",
+    "summaryMany": "Fix {count} things to continue",
+    "unknownField": "{field}: please check this and try again."
+  },
+  "validation": {
+    "phoneRequired": "Enter your mobile number.",
+    "phoneShape": "Enter a 10-digit mobile number.",
+    "codeRequired": "Enter the code we sent you.",
+    "codeShape": "Enter the 6-digit code."
+  },
+  "noScript": {
+    "interactive": "This page needs JavaScript. Turn it on in your browser settings, or use a newer browser."
+  },
+  "errorPage": {
+    "title": "Something went wrong",
+    "body": "This page couldn't be shown. Please try again.",
+    "home": "Go to the shop"
   }
 }

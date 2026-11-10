@@ -1,7 +1,6 @@
 'use client';
 
-import { useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,30 +26,27 @@ import { ErrorMessage } from '../common/error-message';
 export function LogoutButtons({ lang }: { lang: Locale }) {
   const t = getMessages(lang);
   const queryClient = useQueryClient();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<AppError | null>(null);
-
-  async function logOut(everywhere: boolean) {
-    setBusy(true);
-    setError(null);
-    try {
+  // Ask the backend to end the session, then compare-and-clear the cookies (Document 2, section 4; D-02).
+  const logOut = useMutation({
+    mutationFn: async (everywhere: boolean) => {
       const { handle } = await send<{ handle: string | null }>(everywhere ? '/api/auth/logout-all' : '/api/auth/logout');
       if (handle) await send('/api/session/clear', { handle });
+    },
+    onSuccess: () => {
       queryClient.clear();
       forgetCsrf();
-      // A full page load on purpose: the next page is rendered on the server with the changed cookies.
+      // A full page load on purpose: the next page is rendered on the server without the cookies.
       // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.assign(`/${lang}`);
-    } catch (problem) {
-      setError(problem instanceof AppError ? problem : new AppError({ code: 'NETWORK', status: 0 }));
-      setBusy(false);
-    }
-  }
+    },
+  });
+  const busy = logOut.isPending || logOut.isSuccess;
+  const error = logOut.error ? (logOut.error instanceof AppError ? logOut.error : new AppError({ code: 'NETWORK', status: 0 })) : null;
 
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap gap-3">
-        <Button type="button" disabled={busy} onClick={() => void logOut(false)}>
+        <Button type="button" disabled={busy} onClick={() => logOut.mutate(false)}>
           {busy ? t.account.loggingOut : t.account.logOut}
         </Button>
         <AlertDialog>
@@ -66,7 +62,7 @@ export function LogoutButtons({ lang }: { lang: Locale }) {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>{t.account.cancel}</AlertDialogCancel>
-              <AlertDialogAction onClick={() => void logOut(true)}>{t.account.confirmYes}</AlertDialogAction>
+              <AlertDialogAction onClick={() => logOut.mutate(true)}>{t.account.confirmYes}</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

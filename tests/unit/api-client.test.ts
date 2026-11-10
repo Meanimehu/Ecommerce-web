@@ -57,6 +57,16 @@ describe('the backend client (Document 3; D7-01, D7-10)', () => {
     expect(error.details).toEqual({ field: 'code' });
   });
 
+  it('reads the field list of VALIDATION_FAILED (api-contract.md, section 3)', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      json(400, { error: { code: 'VALIDATION_FAILED', message: 'Request validation failed', details: [{ field: 'email', messages: ['email must be an email'] }], requestId: 'r' } }),
+    );
+    const error = (await callBackend({ method: 'POST', path: '/x', kind: 'save', schema: Schema, fetchImpl, sleep: noSleep }).catch((e: unknown) => e)) as AppError;
+    expect(error.code).toBe('VALIDATION_FAILED');
+    expect(error.fields).toEqual([{ field: 'email', messages: ['email must be an email'] }]);
+    expect(error.details).toBeUndefined();
+  });
+
   it('a response that does not match its schema is never passed on (D3-02)', async () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const fetchImpl = vi.fn().mockResolvedValue(json(200, { ok: 'yes', secret: 'data' }));

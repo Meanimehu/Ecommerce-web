@@ -1,65 +1,65 @@
 'use client';
 
+import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { getSession, send } from '@/lib/client/api';
+import { send } from '@/lib/client/api';
+import { useSession } from '@/lib/client/session';
 import { AppError } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
 
 /**
  * Shown by a page whose access token is missing or expired. A page render cannot set cookies, so the browser asks
- * GET /api/session, which refreshes safely and sets the new cookies; then the page renders again (Document 4,
- * section 9). Session ended: compare-and-clear, then login. Temporary or stale: a message, and the person stays.
+ * GET /api/session (a TanStack query, D-02), which refreshes safely and sets the new cookies; then the page renders
+ * again (Document 4, section 9). Session ended: compare-and-clear, then login. Temporary or stale: a message, and the
+ * person stays.
  */
 export function SessionCheck({ lang, path }: { lang: Locale; path: string }) {
   const t = getMessages(lang);
   const router = useRouter();
-  const [problem, setProblem] = useState<'temporary' | 'stale' | 'blocked' | null>(null);
+  const session = useSession();
+  const clear = useMutation({ mutationFn: (handle: string) => send('/api/session/clear', { handle }) });
+  const error = useMemo(
+    () => (session.error instanceof AppError ? session.error : session.error ? new AppError({ code: 'NETWORK', status: 0 }) : null),
+    [session.error],
+  );
+  const clearSession = clear.mutate;
 
   useEffect(() => {
-    let cancelled = false;
-    // A full page load on purpose: the next page is rendered on the server with the changed cookies.
-    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-    const toLogin = () => window.location.assign(`/${lang}/login?next=${encodeURIComponent(path)}`);
-    getSession()
-      .then((answer) => {
-        if (cancelled) return;
-        if (answer.user) router.refresh();
-        else toLogin();
-      })
-      .catch(async (error: unknown) => {
-        if (cancelled) return;
-        const failure = error instanceof AppError ? error : null;
-        const handle = failure?.details?.handle;
-        if (failure && (failure.code === 'SESSION_ENDED' || failure.code === 'USER_BLOCKED')) {
-          if (typeof handle === 'string') await send('/api/session/clear', { handle }).catch(() => undefined);
-          if (failure.code === 'USER_BLOCKED') setProblem('blocked');
-          else toLogin();
-          return;
-        }
-        setProblem(failure?.code === 'SESSION_STALE' ? 'stale' : 'temporary');
-      });
-    return () => {
-      cancelled = true;
+    const toLogin = () => {
+      // A full page load on purpose: the login page is rendered on the server with the current cookies.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+      window.location.assign(`/${lang}/login?next=${encodeURIComponent(path)}`);
     };
-  }, [lang, path, router]);
+    if (session.data) {
+      if (session.data.user) router.refresh();
+      else toLogin();
+      return;
+    }
+    if (error && (error.code === 'SESSION_ENDED' || error.code === 'USER_BLOCKED')) {
+      const handle = error.details?.handle;
+      const done = () => (error.code === 'SESSION_ENDED' ? toLogin() : undefined);
+      if (typeof handle === 'string') clearSession(handle, { onSettled: done });
+      else done();
+    }
+  }, [session.data, error, lang, path, router, clearSession]);
 
-  if (!problem) {
+  if (!error || error.code === 'SESSION_ENDED') {
     return (
       <p role="status" className="p-4 text-sm">
         {t.session.checking}
       </p>
     );
   }
-  const text = problem === 'blocked' ? t.session.blocked : problem === 'stale' ? t.session.changed : t.session.tryShortly;
+  const text = error.code === 'USER_BLOCKED' ? t.session.blocked : error.code === 'SESSION_STALE' ? t.session.changed : t.session.tryShortly;
   return (
     <div role="alert" className="space-y-3 p-4">
       <p>{text}</p>
       <div className="flex gap-3">
-        {problem !== 'blocked' ? (
-          <Button type="button" onClick={() => window.location.reload()}>
+        {error.code !== 'USER_BLOCKED' ? (
+          <Button type="button" onClick={() => void session.refetch()}>
             {t.errors.tryAgain}
           </Button>
         ) : null}
