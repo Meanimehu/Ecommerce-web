@@ -46,10 +46,9 @@ services:
     image: dhaaga-web-dev
     container_name: dhaaga_web
     restart: unless-stopped
+    # The placeholder values in .env.example are fine on your own machine (simple form, so every Compose version reads it).
     env_file:
-      - path: .env.example
-      - path: .env.local
-        required: false
+      - .env.example
     environment:
       # Inside Docker: the store by its service name; the backend through your machine, where its compose publishes 3000.
       STORE_DATABASE_URL: postgres://dhaaga_web:dhaaga_web_pass@store:5432/dhaaga_web_store

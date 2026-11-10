@@ -22,7 +22,7 @@ docker compose up --build            # store database + its migrations + the web
 - **The first time, your browser warns about the certificate.** It is made inside the container for `localhost` only.
   Choose to continue, or trust `certificates/localhost.pem` once in your system to stop the warning.
 - **Saved changes reload at once**: your project folder is mounted into the container.
-- **Secrets**: the placeholder values in `.env.example` work locally. To use your own, copy it to `.env.local`.
+- **Secrets**: inside Docker the placeholder values in `.env.example` are used; they are fine on your own machine only.
 - **Login codes**: the backend's SMS is a mock, the code is in its log: `docker compose logs -f api` in the backend folder.
 - **After changing `package.json`**: `docker compose build web` (dependencies live inside the image).
 - **Stop**: `docker compose down` (keeps data). **Start clean**: `docker compose down -v` (deletes the store data).
