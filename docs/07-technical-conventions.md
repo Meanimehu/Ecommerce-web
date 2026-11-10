@@ -1,6 +1,6 @@
 # 7. Technical conventions
 
-> **Status: Approved (9 Nov 2026).** The owner reviewed the decisions D7-01 to D7-10, every group of starting figures and sections 5 to 11, and approved the document as a whole on 9 Nov 2026. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation. D7-11 was approved on 10 Nov 2026.
+> **Status: Approved (9 Nov 2026).** The owner reviewed the decisions D7-01 to D7-10, every group of starting figures and sections 5 to 11, and approved the document as a whole on 9 Nov 2026. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation. D7-11 to D7-15 were approved on 10 Nov 2026.
 > Follows Documents 1 to 6. Documentation only; no code is written for this document.
 
 ## 1. Purpose
@@ -22,6 +22,10 @@ The technical rules the first build follows, so that Documents 1 to 6 can leave 
 | D7-09 | **Browser support:** the current versions of Chrome, Safari, Firefox and Edge on Android, iPhone and desktop, with graceful fallbacks for older browsers (D-10 to D-13) (section 11) | Approved (9 Nov 2026) |
 | D7-10 | **Keep failure handling simple.** Every request has a time limit so the site never waits forever. Only safe viewing requests retry automatically; saves never do. A timed-out **view** shows: "Something went wrong. Please try again." A timed-out **save** is never resent automatically, and shows: "We couldn't confirm your change. Please check before trying again." with the current data reloaded once (D3-03). **No other status-checking or recovery features are added** (section 3) | Approved (9 Nov 2026) |
 | D7-11 | **Real-browser checks complete the automated tests.** The automated end-to-end tests are a regression safety net and do not by themselves show support for a browser. Before launch, the actual current Chrome, Safari, Firefox and Edge are checked by hand on real Android and iPhone devices and on desktop, for login, the five core customer journeys and the vendor product form. Each result is recorded. A browser and device is described as supported only where it was actually checked (section 11) | Approved (10 Nov 2026) |
+| D7-12 | **Local HTTPS and cookie names.** The local site runs over HTTPS. Cookie names and the lifetimes Document 4 left open are fixed in section 17. The access cookie follows the backend token's actual expiry; the refresh cookie's 30 days is only the browser cookie's lifetime, and the backend alone decides whether the token is valid | Approved (10 Nov 2026) |
+| D7-13 | **Anti-forgery before login.** Before login there is no session to tie the token to. The token is short-lived and signed, issued by the frontend server through a same-origin read request, kept in memory by the browser and sent in a request header; the server verifies it and checks the exact `Origin`. After login it is tied to the person's login session, as Document 2 requires. No anti-forgery cookie and no backend change (section 17.4) | Approved (10 Nov 2026) |
+| D7-14 | **Components come from the shadcn/ui tool** (D-03), added into `src/components/ui/` and styled with the Document 6 tokens to the approved Stage 4 look (section 18) | Approved (10 Nov 2026) |
+| D7-15 | **Error messages are written slice by slice.** Each slice adds English and Hindi messages for the backend error codes its screens can show; by launch every code in the backend's catalogue has one (section 19) | Approved (10 Nov 2026) |
 
 ## 3. Timeouts (D7-01)
 
@@ -157,6 +161,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 7 | 9 Nov 2026 | Approved by the owner after review of the decisions, the figures and sections 5 to 11. Figures stay provisional; checks T7-1 to T7-8 and questions Q7-1, Q7-2 stay open |
 | 8 | 10 Nov 2026 | D7-11 added: real-browser checks complete the automated tests; section 11 says WebKit in the test tool is not Safari; T7-9 and Q7-3 added. No other decision changed |
 | 9 | 10 Nov 2026 | Section 16 added: the folder and file names used from Slice 0, as the owner approved (the layout in the implementation plan, section 1.2). Settles the message-catalogue location left by Document 4, section 6. Cookie names are added in Slice 1. No decision changed |
+| 10 | 10 Nov 2026 | D7-12 to D7-15 and sections 17 to 19 added: local HTTPS, cookie names and lifetimes, refresh timings (provisional), anti-forgery before login, components through the shadcn/ui tool, error messages slice by slice. Settles the open points left by Document 4, section 9. No earlier decision changed |
 
 ## 16. Names: folders and files
 
@@ -180,3 +185,54 @@ Recorded 10 Nov 2026. Document 4 left the exact folder and file names, and the m
 
 Folders without content yet (`features`, `components`, `api-layer`, `auth`, `schemas`) are created when their first file is written.
 
+## 17. Local HTTPS and cookies (D7-12, D7-13)
+
+Recorded 10 Nov 2026. Document 4 (section 9) left the local Secure-cookie setup, the cookie names and some lifetimes to this document. The owner chose local HTTPS on 10 Nov 2026.
+
+### 17.1 Local HTTPS
+
+- The local site runs at **`https://localhost:3001`**, so the `__Host-` cookie rules (D4-07) work locally the same way in every browser, including Safari.
+- `npm run dev` uses Next.js's built-in development HTTPS with a locally trusted certificate made by `mkcert`. Each developer runs `mkcert -install` once. The certificate files are never committed.
+- In staging and production, the host provides HTTPS. The app itself does not handle certificates.
+- `PUBLIC_SITE_URL` is `https://localhost:3001` locally. The origin check (Document 2, section 6) compares data-changing requests with it.
+
+### 17.2 Cookie names and lifetimes
+
+Every cookie uses the `__Host-` prefix, `Secure`, `HttpOnly`, `SameSite=Lax`, path `/` and no domain (D4-07).
+
+| Cookie | Name | Lifetime |
+| --- | --- | --- |
+| Access token | `__Host-dhaaga_at` | Follows the backend token's actual expiry (the `expiresIn` it sends). Today that is 24 hours; if the backend changes it, the cookie follows |
+| Refresh token | `__Host-dhaaga_rt` | 30 days is only the browser cookie's lifetime (D7-04 upper limit). The backend alone decides whether the refresh token is still valid, including ending staff tokens after 12 hours. A cookie that outlives its token is harmless: the backend rejects the token and the person logs in again |
+| Pending add to cart | `__Host-dhaaga_pa` | 15 minutes, signed |
+| After-login page | `__Host-dhaaga_next` | 15 minutes, signed |
+| Language | `__Host-dhaaga_lang` | 1 year |
+
+### 17.3 Refresh timings (provisional, like section 12)
+
+| Item | Starting value |
+| --- | --- |
+| Refresh lock | 10 s, a little longer than the 8 s refresh timeout |
+| A second request waits for another refresh | Up to 9 s |
+| Used-token marks kept | 31 days: the 30-day refresh lifetime plus a 1-day margin |
+
+### 17.4 Anti-forgery before login (D7-13)
+
+- **Before login** (asking for a code, checking the code): the frontend server issues a short-lived, signed token through a same-origin read request. The browser keeps it in memory and sends it in a request header. The server verifies the token and checks that the request's `Origin` exactly matches our site. `SameSite=Lax` stays an additional safeguard. No anti-forgery cookie and no backend change are introduced.
+- **After login:** the token is tied to the person's login session, as Document 2 requires.
+- The approved security requirements in Documents 2 and 4 stay as they are. This only describes how they are met before login.
+
+## 18. Components: shadcn/ui (D7-14)
+
+- D-03 (Tailwind CSS with shadcn/ui) is unchanged. This section records how it is used.
+- Components are added with the shadcn/ui tool, which copies their source code into **`src/components/ui/`**. From then on they are our own code.
+- Each one is styled with the Document 6 tokens to match the approved Stage 4 component page. Components built from them for this app live in `src/components/`.
+- Components are not taken from any other library or source.
+- The tool downloads from `ui.shadcn.com`, so that site must be reachable from wherever components are added.
+
+## 19. Error messages by slice (D7-15)
+
+- Each slice writes English and Hindi messages for the backend error codes its screens can show, in the message catalogue (Document 4, section 6). Slice 1 writes the login, session and general messages.
+- The check of Document 3, section 5 fails when a built screen can show a code that has no message. By launch (Slice 6) it covers every code in the backend's error catalogue (`docs/api/api-contract.md`, section 11).
+- Unknown codes always fall back to a general message chosen by the kind of failure (Document 3, section 5).
+- Hindi messages are drafts until reviewed by someone who writes Hindi (Document 8, section 6).
