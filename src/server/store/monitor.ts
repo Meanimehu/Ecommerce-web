@@ -2,6 +2,7 @@ import 'server-only';
 import { serverConfig } from '../config';
 import { checkStore, type StoreCheckResult } from './check';
 import { storePool } from './pool';
+import { cleanupExpired } from './refresh-store';
 
 /**
  * Checks the store at start-up and regularly (Document 4, section 4). The last result is what later slices read before
@@ -27,8 +28,15 @@ export async function runStoreCheck(): Promise<StoreCheckResult> {
     if (result.ok) console.info(JSON.stringify({ event: 'store_check', ok: true, generationId: result.generationId }));
     else console.error(JSON.stringify({ event: 'store_check', ok: false, problems: result.problems }));
   }
+  // Entries whose own expiry has passed are removed at most once an hour (Document 7, section 17.3).
+  if (pool && result.ok && Date.now() - lastCleanup > 3600_000) {
+    lastCleanup = Date.now();
+    await cleanupExpired(pool).catch((error: unknown) => console.error(JSON.stringify({ event: 'store_cleanup_failed', message: String(error) })));
+  }
   return result;
 }
+
+let lastCleanup = 0;
 
 export function startStoreMonitor(): void {
   if (state.__dhaagaStore?.timer) return;

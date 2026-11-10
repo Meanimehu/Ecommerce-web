@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { notFound } from 'next/navigation';
 import { isLocale, LOCALES } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
+import { Providers } from './providers';
 import '../globals.css';
 
 // Only /en and /hi exist (Document 4, D4-01). Any other first segment is a real 404.
@@ -26,7 +27,9 @@ export default async function LanguageLayout({ children, params }: Props) {
   if (!isLocale(lang)) notFound();
   return (
     <html lang={lang}>
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

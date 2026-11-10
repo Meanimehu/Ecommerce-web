@@ -4,27 +4,31 @@ One Next.js application for the storefront, the Vendor area and the Admin area o
 [`Meanimehu/Ecommerce`](https://github.com/Meanimehu/Ecommerce). The decisions behind everything here are in
 [`docs/`](docs/README.md) (Documents 1 to 8).
 
-**Status: Slice 0 (Setup).** A blank page in English and Hindi, a health check, the shared store and the automatic
-checks. No screens yet (Document 8).
+**Status: Slice 1 (Foundations), part 1: login and sessions.** Login by phone code, cookies, safe refresh across
+servers, logout and "log out everywhere", the no-access page, English and Hindi messages. Design tokens and the Stage 4
+components follow in part 2 (Document 8).
 
 ## What you need
 
 - Node.js 22 (`.nvmrc`) and npm
+- `mkcert`, run `mkcert -install` once: the local site always runs over HTTPS (Document 7, section 17.1)
 - PostgreSQL for the shared store: `docker compose up -d store` (port 5433), or any PostgreSQL 16 or newer
-- For generating request types only: the backend running locally (its README), with its API docs at `/api/docs-json`
+- The backend running locally (its README) for login and for generating request types. Its SMS is a mock: the login
+  code is printed in the backend's log
 
 ## First run
 
 ```bash
 npm ci
-cp .env.example .env.local          # then adjust if your setup differs
+cp .env.example .env.local          # then put your own secrets in it (openssl rand -hex 32)
 docker compose up -d store          # the frontend's own database, never the backend's
 npm run store:migrate
 npm run store:check                 # must say "Store ok"
-npm run dev                         # http://localhost:3001 (the backend uses 3000)
+npm run dev                         # https://localhost:3001 (the backend uses 3000)
 ```
 
-`npm run build && npm start` runs the production server (a plain, self-contained Node.js server, Document 4, D4-03).
+`npm run build && npm start` runs the production server over plain HTTP on 127.0.0.1:3001; in staging and production the
+host provides HTTPS in front of it.
 
 ## Commands
 
@@ -35,11 +39,12 @@ npm run dev                         # http://localhost:3001 (the backend uses 30
 | `npm run lint` / `npm run typecheck` | ESLint and TypeScript |
 | `npm test` | Unit tests (Vitest) |
 | `npm run test:store` | Store tests against a real PostgreSQL. Needs `STORE_TEST_ADMIN_URL` (a role that may create databases); each run uses a throwaway database |
-| `npm run test:e2e` | End-to-end tests (Playwright) on Chromium, Firefox and WebKit at phone and desktop sizes. A regression safety net only: real browsers and devices are checked by hand (Document 7, D7-11) |
+| `npm run test:e2e` | End-to-end tests (Playwright) over HTTPS on Chromium, Firefox and WebKit at phone and desktop sizes. A regression safety net only: real browsers and devices are checked by hand (Document 7, D7-11). Login tests run when `E2E_BACKEND_LOG` points at the local backend's log |
 | `npm run gen:types` | Fetches the backend's OpenAPI description, stores it in `src/generated/` and regenerates the request types |
 | `npm run check:types` | Fails if the generated request types differ from the stored description (CI) |
 | `npm run check:types:live` | Fails if the backend's description changed since it was stored |
-| `npm run check:messages` | Fails if English and Hindi messages differ in keys or have empty text |
+| `npm run check:messages` | Fails if English and Hindi messages differ in keys or have empty text, or a backend error code the built screens can show has no message (D7-15) |
+| `npm run gen:error-codes -- --from <backend>/docs/api/api-contract.md` | Stores the backend's error-code list in `src/generated/` |
 | `npm run store:migrate` / `store:check` | Applies the store's migrations; runs the store checklist (Document 4, section 4) |
 | `npm run store:new-generation -- --reason "..."` | Starts a new store generation. See below |
 | `npm run check` | Lint, types, messages, generated types and unit tests together |
