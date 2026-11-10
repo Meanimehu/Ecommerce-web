@@ -31,3 +31,24 @@ export async function logIn(page: Page, phone: string, labels = { phone: 'Mobile
   await page.getByRole('button', { name: labels.verify, exact: true }).click();
   await page.waitForURL((url) => !url.pathname.endsWith('/login'));
 }
+
+/** Calls the backend directly, as staff, for test set-up only (for example blocking a test user). */
+const backendUrl = process.env.E2E_BACKEND_URL ?? 'http://localhost:3000';
+
+export async function backendLogin(phone: string): Promise<string> {
+  const request = await fetch(`${backendUrl}/api/v1/auth/otp/request`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ phone }) });
+  if (!request.ok && request.status !== 429) throw new Error(`code request failed: ${request.status}`);
+  const code = await readCode(phone);
+  const verify = await fetch(`${backendUrl}/api/v1/auth/otp/verify`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ phone, code }) });
+  if (!verify.ok) throw new Error(`verify failed: ${verify.status}`);
+  return ((await verify.json()) as { accessToken: string }).accessToken;
+}
+
+export async function blockUser(adminToken: string, phone: string): Promise<void> {
+  const auth = { authorization: `Bearer ${adminToken}`, 'content-type': 'application/json' };
+  const found = await fetch(`${backendUrl}/api/v1/admin/users?phone=${phone}`, { headers: auth });
+  const user = ((await found.json()) as { items: { id: string }[] }).items[0];
+  if (!user) throw new Error(`no user ${phone}`);
+  const blocked = await fetch(`${backendUrl}/api/v1/admin/users/${user.id}/block`, { method: 'POST', headers: auth, body: JSON.stringify({ reason: 'End-to-end test of the blocked-account message' }) });
+  if (!blocked.ok) throw new Error(`block failed: ${blocked.status}`);
+}

@@ -9,6 +9,7 @@ import { useAppForm } from '@/components/form/use-app-form';
 import { Button } from '@/components/ui/button';
 import { send } from '@/lib/client/api';
 import { useSession } from '@/lib/client/session';
+import { NOTICE_EVENT, takeSessionNotice, type SessionNotice } from '@/lib/client/session-end';
 import { AppError, fill, messageFor } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
@@ -26,7 +27,8 @@ const asAppError = (error: unknown): AppError => (error instanceof AppError ? er
 export function LoginForm({ lang }: { lang: Locale }) {
   const t = getMessages(lang);
   const queryClient = useQueryClient();
-  const session = useSession();
+  // Fetches this page's anti-forgery token (D7-13); a session the backend has ended is handled in session-end.ts.
+  useSession();
   const phoneForm = useAppForm<PhoneInput, { phone: string }>(PhoneSchema, { phone: '' });
   const codeForm = useAppForm<CodeInput, { code: string }>(CodeSchema, { code: '' });
   const [step, setStep] = useState<'phone' | 'code'>('phone');
@@ -37,12 +39,17 @@ export function LoginForm({ lang }: { lang: Locale }) {
   const [phoneFocus, setPhoneFocus] = useState(0);
   const [codeFocus, setCodeFocus] = useState(0);
 
-  // A session the backend has already ended is cleared by compare-and-clear (Document 4, section 9).
-  const sessionError = session.error instanceof AppError ? session.error : null;
+  // After a session ended, session-end.ts leaves a notice for this page: "Please log in again", or the blocked message.
+  const [sessionNotice, setSessionNotice] = useState<SessionNotice | null>(null);
   useEffect(() => {
-    const handle = sessionError?.details?.handle;
-    if (typeof handle === 'string') void send('/api/session/clear', { handle }).catch(() => undefined);
-  }, [sessionError]);
+    const read = () => {
+      const notice = takeSessionNotice();
+      if (notice) setSessionNotice(notice);
+    };
+    read();
+    window.addEventListener(NOTICE_EVENT, read);
+    return () => window.removeEventListener(NOTICE_EVENT, read);
+  }, []);
 
   useEffect(() => {
     if (resendAt <= now) return;
@@ -130,8 +137,17 @@ export function LoginForm({ lang }: { lang: Locale }) {
     });
   };
 
-  const blocked = sessionError?.code === 'USER_BLOCKED';
   const busy = requestCode.isPending || verify.isPending;
+
+  // Account blocked: the message instead of the login form's normal flow (Document 2, section 4).
+  if (sessionNotice === 'blocked') {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-2xl font-semibold">{t.login.title}</h1>
+        <p role="alert">{t.session.blocked}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -140,9 +156,9 @@ export function LoginForm({ lang }: { lang: Locale }) {
         <p className="text-sm">{t.login.intro}</p>
       </div>
 
-      {blocked ? (
-        <p role="alert" className="text-sm">
-          {t.session.blocked}
+      {sessionNotice === 'ended' ? (
+        <p role="status" className="text-sm">
+          {t.session.logInAgain}
         </p>
       ) : null}
 

@@ -12,6 +12,12 @@ describe('login checks: only cheap and certain ones (Document 5, section 10; D6-
     expect(PhoneSchema.safeParse({ phone: '' }).error?.issues[0]?.message).toBe('validation.phoneRequired');
     expect(PhoneSchema.safeParse({ phone: '12345' }).error?.issues[0]?.message).toBe('validation.phoneShape');
   });
+  it('accepts the common ways of writing an Indian mobile (Document 2, section 3), the shapes the backend reads', () => {
+    for (const phone of ['9876543210', '09876543210', '919876543210', '+919876543210', '+91 98765-43210', '98765 43210']) {
+      expect(PhoneSchema.safeParse({ phone }).success, phone).toBe(true);
+    }
+    expect(PhoneSchema.safeParse({ phone: '+449876543210' }).success).toBe(false);
+  });
   it('accepts ten digits, with or without +91 and spaces, and sends them without spaces', () => {
     expect(PhoneSchema.parse({ phone: '98765 43210' }).phone).toBe('9876543210');
     expect(PhoneSchema.parse({ phone: '+91 98765 43210' }).phone).toBe('+919876543210');

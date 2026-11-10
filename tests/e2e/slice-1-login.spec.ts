@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { backendLog, freshPhone, logIn, readCode } from './support/login';
+import { backendLog, backendLogin, blockUser, freshPhone, logIn, readCode } from './support/login';
 
 /**
  * Slice 1 "done when" (Document 8): log in by phone code, stay logged in, refresh safely, logout and log out everywhere,
@@ -108,6 +108,59 @@ test.describe('login and sessions', () => {
     await expect(code).toBeFocused();
     await expect(page.getByRole('button', { name: 'Send code again' })).toBeDisabled();
     await expect(page.getByText(/You can ask for a new code in \d+ seconds/)).toBeVisible();
+  });
+});
+
+test.describe('session ends (Document 2, section 4)', () => {
+  test.skip(!backendLog, 'needs the local backend (E2E_BACKEND_LOG)');
+  test.setTimeout(90_000);
+
+  test('ended elsewhere: the next page clears the cookies and says "Please log in again", then returns the person', async ({ page, context }) => {
+    const phone = freshPhone();
+    await page.goto('/en/login');
+    await logIn(page, phone);
+    // End the session at the backend without touching this browser's cookies (as a logout in another tab would).
+    const { csrfToken } = (await (await page.request.get('/api/session')).json()) as { csrfToken: string };
+    expect((await page.request.post('/api/auth/logout', { headers: { origin: 'https://localhost:3001', 'x-dhaaga-csrf': csrfToken } })).status()).toBe(200);
+    expect((await context.cookies()).map((c) => c.name)).toContain('__Host-dhaaga_rt');
+
+    await page.goto('/en/account');
+    await expect(page).toHaveURL(/\/en\/login$/);
+    await expect(page.getByRole('status').filter({ hasText: 'Please log in again.' })).toBeVisible();
+    expect((await context.cookies()).map((c) => c.name)).not.toContain('__Host-dhaaga_rt');
+    // The backend sends a new code to the same number only after its 30-second wait (OTP_RESEND_WAIT).
+    await page.waitForTimeout(31_000);
+    await logIn(page, phone);
+    await expect(page).toHaveURL(/\/en\/account$/);
+  });
+
+  test('blocked: the blocked message instead of the login form', async ({ page }) => {
+    const phone = freshPhone();
+    await page.goto('/en/login');
+    await logIn(page, phone);
+    await blockUser(await backendLogin(process.env.E2E_ADMIN_PHONE ?? '9000000001'), phone);
+
+    await page.goto('/en/account');
+    await expect(page).toHaveURL(/\/en\/login$/);
+    await expect(page.getByText('Please log in again.')).toBeVisible();
+    // Logging in again (after the backend's 30-second wait for a new code): USER_BLOCKED, and the form gives way.
+    await page.waitForTimeout(31_000);
+    await page.getByLabel('Mobile number').fill(phone);
+    await page.getByRole('button', { name: 'Send code' }).click();
+    await expect(page.getByLabel('Code', { exact: true })).toBeFocused();
+    await page.getByLabel('Code', { exact: true }).fill(await readCode(phone));
+    await page.getByRole('button', { name: 'Log in', exact: true }).click();
+    await expect(page.getByRole('alert').filter({ hasText: 'This account is blocked. Please contact support.' })).toBeVisible();
+    await expect(page.getByLabel('Code', { exact: true })).toHaveCount(0);
+  });
+
+  test('a logged-in page is never stored in a shared cache (Document 2, section 5)', async ({ page }) => {
+    await page.goto('/en/login');
+    await logIn(page, freshPhone());
+    const response = await page.goto('/en/account');
+    const cacheControl = response?.headers()['cache-control'] ?? '';
+    expect(cacheControl).toMatch(/private|no-store/);
+    expect(cacheControl).not.toMatch(/s-maxage|public/);
   });
 });
 
