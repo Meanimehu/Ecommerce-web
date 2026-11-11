@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import { applyServerError, resolveMessage } from '@/components/form/form';
+import { applyServerError, resolveMessage } from '@/hooks/use-app-form';
 import { AppError } from '@/lib/errors';
 import { getMessages } from '@/lib/i18n';
-import { CodeSchema, PhoneSchema } from '@/schemas/forms/login';
+import { CodeSchema, PhoneSchema } from '@/types/auth';
 
 const t = getMessages('en');
 

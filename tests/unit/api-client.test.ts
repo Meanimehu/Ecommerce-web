@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import { AppError, messageFor } from '@/lib/errors';
 import { getMessages } from '@/lib/i18n';
-import { callBackend } from '@/server/api-layer/client';
+import { callBackend } from '@/api/client';
 
 const json = (status: number, body: unknown, headers: Record<string, string> = {}) =>
   new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', ...headers } });

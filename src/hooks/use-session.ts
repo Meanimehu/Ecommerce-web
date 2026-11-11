@@ -3,10 +3,13 @@
 import { useQuery, type QueryClient } from '@tanstack/react-query';
 import { AppError } from '@/lib/errors';
 import { isLocale } from '@/lib/i18n';
-import { getSession, type SessionAnswer } from './api';
+import { get } from '@/lib/http';
+import type { SessionAnswer } from '@/types/auth';
 
 /** Who is logged in (D-02; Document 4, section 9). Never cached across people. */
 export const SESSION_QUERY_KEY = ['session'] as const;
+
+const getSession = () => get<SessionAnswer>('/api/session');
 
 export function useSession() {
   return useQuery({ queryKey: SESSION_QUERY_KEY, queryFn: getSession, staleTime: 60_000, retry: false });

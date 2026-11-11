@@ -3,8 +3,8 @@ import type { z } from 'zod';
 import { AppError } from '@/lib/errors';
 import { headers } from 'next/headers';
 import { isIP } from 'node:net';
-import { BackendErrorSchema } from '@/schemas/error';
-import { serverConfig } from '../config';
+import { BackendErrorSchema } from '@/types/error';
+import { serverConfig } from '@/lib/config';
 
 /**
  * The one place that talks to the backend (Document 3, section 3). Request-specific timeouts, automatic retries for

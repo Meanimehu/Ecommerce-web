@@ -2,7 +2,7 @@ import 'server-only';
 import { randomUUID } from 'node:crypto';
 import { NextResponse, type NextRequest } from 'next/server';
 import { AppError } from '@/lib/errors';
-import { serverConfig } from '../config';
+import { serverConfig } from '@/lib/config';
 import { COOKIE, cookieOptions, LIFETIME_SECONDS } from './cookies';
 import type { Failure, NewCookies } from './session';
 

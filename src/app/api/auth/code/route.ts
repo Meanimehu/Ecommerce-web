@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
-import * as authApi from '@/server/api-layer/accounts';
-import { fail, fromAppError, guardChange, ok, readJson } from '@/server/auth/http';
+import * as authApi from '@/api/auth';
+import { fail, fromAppError, guardChange, ok, readJson } from '@/middleware/responses';
 
 /** POST /api/auth/code: asks the backend to send a login code (area-1-accounts.md, POST /auth/otp/request). */
 const Body = z.object({ phone: z.string().trim().min(1).max(20) });

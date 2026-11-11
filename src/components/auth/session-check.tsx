@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { endsSession, useSession } from '@/lib/client/session';
+import { endsSession, useSession } from '@/hooks/use-session';
 import { AppError } from '@/lib/errors';
 import { getMessages, type Locale } from '@/lib/i18n';
 
@@ -11,7 +11,7 @@ import { getMessages, type Locale } from '@/lib/i18n';
  * Shown by a page whose access token is missing or expired. A page render cannot set cookies, so the browser asks
  * GET /api/session (a TanStack query, D-02), which refreshes safely and sets the new cookies; then the page renders
  * again (Document 4, section 9). Session ended or blocked: handled in one place for every screen
- * (lib/client/session.ts). No clear answer: a message, and the person stays.
+ * (hooks/use-session.ts). No clear answer: a message, and the person stays.
  */
 export function SessionCheck({ lang, path }: { lang: Locale; path: string }) {
   const t = getMessages(lang);

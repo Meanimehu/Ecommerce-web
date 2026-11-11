@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { send } from '@/lib/client/api';
+import { send } from '@/lib/http';
 import { getMessages, type Locale } from '@/lib/i18n';
 
 /**

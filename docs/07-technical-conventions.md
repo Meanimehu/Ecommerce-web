@@ -184,7 +184,7 @@ Recorded 10 Nov 2026; **layout changed by the owner on 11 Nov 2026** to folders 
 | `tests/unit/`, `tests/e2e/` | Tests |
 
 - **The same area name is used in every folder** (`components/cart/`, `hooks/use-cart.ts`, `api/cart.ts`, `types/cart.ts`), so everything about one area is easy to find.
-- **`src/api/` and `src/middleware/` are server only.** Their files are marked so the build fails if code for the browser imports them; login tokens never reach the browser.
+- **`src/api/` and `src/middleware/` are server only.** The files that call the backend or handle tokens are marked so the build fails if code for the browser imports them, so login tokens never reach the browser. `middleware/cookies.ts` is also used by `src/proxy.ts`, so it is not marked; it holds only cookie names and settings and the signing of the short-lived cookies.
 - A folder is created when its first file is written. A plain guide to every file is in `docs/code-map.md`.
 
 ## 17. Local HTTPS and cookies (D7-12, D7-13)
