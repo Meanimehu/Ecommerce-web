@@ -222,7 +222,7 @@ export function LoginForm({ lang }: { lang: Locale }) {
               {t.login.changeNumber}
             </Button>
           </div>
-          {waitSeconds > 0 ? <p className="text-sm">{fill(t.login.resendIn, { seconds: waitSeconds })}</p> : null}
+          {waitSeconds > 0 ? <p className="text-sm">{waitSeconds === 1 ? t.login.resendInOne : fill(t.login.resendIn, { seconds: waitSeconds })}</p> : null}
         </form>
       )}
     </div>

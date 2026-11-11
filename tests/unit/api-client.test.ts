@@ -98,6 +98,10 @@ describe('Document 3 alignment', () => {
     expect(error.details?.retryAfterSeconds).toBe(42);
     expect(messageFor(error, getMessages('en'))).toBe('Too many requests. Please wait a moment and try again. Please try again in 42 seconds.');
     expect(messageFor({ ...error, details: { retryAfterSeconds: 600 } }, getMessages('hi'))).toContain('कृपया 10 मिनट बाद फिर कोशिश करें।');
+    // One, not "1 minutes" (Document 6, writing for the interface).
+    expect(messageFor({ ...error, details: { retryAfterSeconds: 54 } }, getMessages('en'))).toContain('Please try again in 54 seconds.');
+    expect(messageFor({ ...error, details: { retryAfterSeconds: 60 } }, getMessages('en'))).toContain('Please try again in 1 minute.');
+    expect(messageFor({ ...error, details: { retryAfterSeconds: 1 } }, getMessages('en'))).toContain('Please try again in 1 second.');
   });
 
   it('a lost connection on a change is an unknown outcome: never "failed" (section 6, D7-10)', () => {

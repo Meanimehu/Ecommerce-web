@@ -23,6 +23,7 @@
     "verify": "Log in",
     "verifying": "Checking…",
     "resendIn": "You can ask for a new code in {seconds} seconds.",
+    "resendInOne": "You can ask for a new code in 1 second.",
     "resend": "Send code again",
     "changeNumber": "Change number",
     "codeSent": "A new code has been sent."
@@ -61,6 +62,8 @@
     "saveTimeout": "We couldn't confirm your change. Please check before trying again.",
     "waitSeconds": "Please try again in {seconds} seconds.",
     "waitMinutes": "Please try again in {minutes} minutes.",
+    "waitSecond": "Please try again in 1 second.",
+    "waitMinute": "Please try again in 1 minute.",
     "tryAgain": "Try again",
     "requestId": "Reference",
     "copy": "Copy",
