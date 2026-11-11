@@ -1,16 +1,30 @@
 @import 'tailwindcss';
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
-/* shadcn/ui components carry dark: styles. They apply only under a .dark class, which is never set: no dark scheme (D6-29). */
+/* Fonts: Outfit (Latin and all digits) and Noto Sans Devanagari (Hindi), loaded in src/lib/fonts.ts (Document 6, 5.4). */
+
+/* shadcn/ui components carry dark: styles. They apply only under a .dark class, which is never set: light theme only
+   (D6-05, D6-29). */
 @custom-variant dark (&:is(.dark *));
 
+/* Hover styles only where the device has any input that can hover, never by screen width (Document 6, 8.1, D6-46). */
+@custom-variant hover {
+  @media (any-hover: hover) {
+    &:hover {
+      @slot;
+    }
+  }
+}
+
 /*
- * Colours from Document 6, section 4 (approved Kora tokens), connected to the slots shadcn/ui components use
- * (Document 7, section 18). No dark scheme (D6-29). Type, spacing and shapes follow with the Stage 4 components.
+ * Document 6 design tokens (approved Kora, section 4 to 6). A token is used for the role in its name.
+ * Tailwind names: bg-surface, bg-page, bg-sunken, border-line, border-control, text-ink, text-ink-2, text-muted-foreground
+ * (Kora "muted" text), text-madder, and success/warning/error/info with -fill and -edge. Breakpoints are Tailwind's own:
+ * sm 640 (compact/medium), md 768 (type and table threshold, 7.1a), lg 1024 (expanded), xl 1280 (wide).
  */
 :root {
-  /* Document 6, 4.1-4.5: the tokens themselves */
+  /* 4.1 Neutrals */
   --kora-surface: #fbfaf7;
   --kora-page: #f2f1ec;
   --kora-sunken: #e9e7df;
@@ -19,18 +33,29 @@
   --kora-ink: #2b2c30;
   --kora-ink-2: #46484e;
   --kora-muted: #5e6066;
+  /* 4.2 Brand */
   --kora-madder: #9b2d30;
   --kora-madder-hover: #832528;
   --kora-madder-press: #6d1f22;
+  /* 4.3 Semantic: text and icon, fill, edge (edges are decoration only) */
   --kora-success: #26683a;
   --kora-success-fill: #e1eedf;
+  --kora-success-edge: #8fbc95;
   --kora-warning: #7c4a00;
   --kora-warning-fill: #fbebc8;
+  --kora-warning-edge: #d2a24a;
   --kora-error: #c0310f;
   --kora-error-fill: #fde6df;
+  --kora-error-edge: #e08a73;
+  --kora-error-hover: #a52a0d;
   --kora-info: #1f5a8c;
   --kora-info-fill: #e0eaf4;
+  --kora-info-edge: #8eb0d0;
+  /* 4.4 Sale, 4.5 Scrim */
   --kora-sale: #e3a21a;
+  --kora-scrim: rgb(43 44 48 / 0.55);
+  /* 4.5 Focus ring: 2 px surface halo inside, 2 px ink ring outside */
+  --kora-ring: 0 0 0 2px var(--kora-surface), 0 0 0 4px var(--kora-ink);
 
   /* shadcn/ui slots, mapped to the tokens above */
   --background: var(--kora-page);
@@ -40,7 +65,7 @@
   --popover: var(--kora-surface);
   --popover-foreground: var(--kora-ink);
   --primary: var(--kora-madder);
-  --primary-foreground: var(--kora-surface);
+  --primary-foreground: #fff;
   --secondary: var(--kora-surface);
   --secondary-foreground: var(--kora-ink);
   --muted: var(--kora-sunken);
@@ -51,41 +76,39 @@
   --border: var(--kora-line);
   --input: var(--kora-control);
   --ring: var(--kora-ink);
-  --chart-1: var(--kora-ink);
-  --chart-2: var(--kora-ink-2);
-  --chart-3: var(--kora-muted);
-  --chart-4: var(--kora-control);
-  --chart-5: var(--kora-line);
-  --radius: 0.625rem;
-  --sidebar: var(--kora-surface);
-  --sidebar-foreground: var(--kora-ink);
-  --sidebar-primary: var(--kora-madder);
-  --sidebar-primary-foreground: var(--kora-surface);
-  --sidebar-accent: var(--kora-sunken);
-  --sidebar-accent-foreground: var(--kora-ink);
-  --sidebar-border: var(--kora-line);
-  --sidebar-ring: var(--kora-ink);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius: 4px;
 }
 
 @theme inline {
+  --font-sans: var(--font-outfit), var(--font-devanagari), system-ui, sans-serif;
   --font-heading: var(--font-sans);
-  --font-sans: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
+
+  --color-surface: var(--kora-surface);
+  --color-page: var(--kora-page);
+  --color-sunken: var(--kora-sunken);
+  --color-line: var(--kora-line);
+  --color-control: var(--kora-control);
+  --color-ink: var(--kora-ink);
+  --color-ink-2: var(--kora-ink-2);
+  --color-madder: var(--kora-madder);
+  --color-madder-hover: var(--kora-madder-hover);
+  --color-madder-press: var(--kora-madder-press);
+  --color-success: var(--kora-success);
+  --color-success-fill: var(--kora-success-fill);
+  --color-success-edge: var(--kora-success-edge);
+  --color-warning: var(--kora-warning);
+  --color-warning-fill: var(--kora-warning-fill);
+  --color-warning-edge: var(--kora-warning-edge);
+  --color-error: var(--kora-error);
+  --color-error-fill: var(--kora-error-fill);
+  --color-error-edge: var(--kora-error-edge);
+  --color-error-hover: var(--kora-error-hover);
+  --color-info: var(--kora-info);
+  --color-info-fill: var(--kora-info-fill);
+  --color-info-edge: var(--kora-info-edge);
+  --color-sale: var(--kora-sale);
+  --color-scrim: var(--kora-scrim);
+
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -104,23 +127,117 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* 6.2 Shape: radius-1 images, cards, panels, tables; radius-2 buttons, inputs, chips; radius-3 dialogs, menus */
+  --radius-1: 2px;
+  --radius-2: 4px;
+  --radius-3: 8px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 4px;
+  --radius-xl: 8px;
+
+  --shadow-overlay: 0 8px 24px rgb(43 44 48 / 0.16);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
+    @apply border-border;
   }
   html {
-    @apply font-sans;
+    @apply bg-page font-sans text-ink;
+    color-scheme: light;
+  }
+  body {
+    @apply bg-page text-ink;
+    font-size: 16px;
+    line-height: 24px;
+  }
+  /* 5.3 Hindi: looser lines, never letter spacing */
+  :lang(hi) {
+    line-height: 28px;
+    letter-spacing: 0;
+  }
+  a {
+    color: var(--kora-madder);
+  }
+
+  /* 4.5 and 11: one focus ring on every focusable element, never removed. In forced colours a real outline. */
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--kora-ring);
+  }
+  @media (forced-colors: active) {
+    :focus-visible {
+      outline: 2px solid CanvasText;
+      outline-offset: 2px;
+    }
+  }
+
+  /* 13: under reduced motion every slide, fade and the spinner become instant or still. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/*
+ * 5.2 Type scale with one step at 768 px (md), and 5.3 Hindi: Display and H1 at 85 %, H2 at 90 %, line height at least
+ * 1.35 times the size, no letter spacing, weight 500 at most.
+ */
+@layer components {
+  .type-display,
+  .type-h1,
+  .type-h2,
+  .type-h3,
+  .type-h4 {
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .type-display { font-size: 36px; line-height: 42px; }
+  .type-h1 { font-size: 30px; line-height: 38px; }
+  .type-h2 { font-size: 24px; line-height: 32px; }
+  .type-h3 { font-size: 20px; line-height: 28px; }
+  .type-h4 { font-size: 18px; line-height: 26px; }
+  @media (min-width: 768px) {
+    .type-display { font-size: 56px; line-height: 60px; }
+    .type-h1 { font-size: 44px; line-height: 52px; }
+    .type-h2 { font-size: 30px; line-height: 38px; }
+    .type-h3 { font-size: 22px; line-height: 30px; }
+  }
+  .type-small { font-size: 14px; line-height: 20px; }
+  .type-caption { font-size: 12px; line-height: 16px; }
+  .type-label { font-size: 14px; line-height: 20px; font-weight: 500; }
+
+  :lang(hi) .type-display,
+  :lang(hi) .type-h1,
+  :lang(hi) .type-h2,
+  :lang(hi) .type-h3,
+  :lang(hi) .type-h4 {
+    letter-spacing: 0;
+  }
+  :lang(hi) .type-display { font-size: 30.6px; line-height: 42px; }
+  :lang(hi) .type-h1 { font-size: 25.5px; line-height: 36px; }
+  :lang(hi) .type-h2 { font-size: 21.6px; line-height: 30px; }
+  :lang(hi) .type-h3 { line-height: 28px; }
+  :lang(hi) .type-h4 { line-height: 26px; }
+  @media (min-width: 768px) {
+    :lang(hi) .type-display { font-size: 47.6px; line-height: 66px; }
+    :lang(hi) .type-h1 { font-size: 37.4px; line-height: 52px; }
+    :lang(hi) .type-h2 { font-size: 27px; line-height: 38px; }
+    :lang(hi) .type-h3 { line-height: 30px; }
+  }
+  :lang(hi) .type-small,
+  :lang(hi) .type-label { line-height: 22px; }
+
+  /* 6.3 Stitch line: decoration only, never over a photo; vendor and admin only under the page title and on empty boxes */
+  .stitch-bottom {
+    border-bottom: 2px dashed var(--kora-line);
   }
 }

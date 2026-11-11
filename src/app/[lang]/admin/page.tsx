@@ -7,8 +7,8 @@ export default async function AdminHome({ params }: { params: Promise<{ lang: st
   if (!isLocale(lang)) notFound();
   const t = getMessages(lang);
   return (
-    <div className="space-y-2">
-      <h1 className="text-2xl font-semibold">{t.areas.adminHome}</h1>
+    <div className="grid max-w-[72ch] gap-2">
+      <h1 className="type-h2 text-ink stitch-bottom pb-3">{t.areas.adminHome}</h1>
       <p>{t.areas.adminIntro}</p>
     </div>
   );

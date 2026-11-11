@@ -3,7 +3,7 @@
 import { CircleAlert } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { FieldValues, UseFormReturn } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
+import { Reference } from '@/components/common/error-message';
 import { fill } from '@/lib/errors';
 import type { Messages } from '@/lib/i18n';
 import { resolveMessage } from '@/hooks/use-app-form';
@@ -56,17 +56,24 @@ export function ErrorSummary<TValues extends FieldValues>({
   if (!visible) return null;
   const heading = count === 1 ? t.form.summaryOne : fill(t.form.summaryMany, { count });
   return (
-    <div ref={ref} tabIndex={-1} role="alert" aria-labelledby="error-summary-heading" className="space-y-2 rounded-md border-2 border-destructive p-3 outline-none focus-visible:ring-2">
-      <h2 id="error-summary-heading" className="flex items-center gap-2 font-semibold">
-        <CircleAlert aria-hidden="true" className="size-4" />
+    <div
+      ref={ref}
+      tabIndex={-1}
+      role="alert"
+      aria-labelledby="error-summary-heading"
+      className="flex items-start gap-3 rounded-1 border border-error-edge bg-error-fill px-4 py-3.5"
+    >
+      <CircleAlert aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-error" />
+      <div className="grid min-w-0 flex-1 gap-1">
+      <h2 id="error-summary-heading" className="font-medium text-error">
         {heading}
       </h2>
-      <ul className="list-disc space-y-1 ps-6 text-sm">
+      <ul className="list-disc space-y-1 ps-5 type-small text-ink">
         {fieldEntries.map((entry) => (
           <li key={entry.id}>
             <a
               href={`#${entry.id}`}
-              className="underline underline-offset-4"
+              className="text-madder underline underline-offset-4 hover:text-madder-hover"
               onClick={(event) => {
                 event.preventDefault();
                 document.getElementById(entry.id)?.focus();
@@ -81,15 +88,9 @@ export function ErrorSummary<TValues extends FieldValues>({
         ))}
       </ul>
       {requestId && rootEntries.length > 0 ? (
-        <p className="flex flex-wrap items-center gap-2 text-xs">
-          <span>
-            {t.errors.requestId}: <span className="font-mono">{requestId}</span>
-          </span>
-          <Button type="button" variant="outline" size="sm" onClick={() => void navigator.clipboard?.writeText(requestId).then(() => setCopiedFor(requestId))}>
-            {copiedFor === requestId ? t.errors.copied : t.errors.copy}
-          </Button>
-        </p>
+        <Reference requestId={requestId} copied={copiedFor === requestId} onCopy={() => setCopiedFor(requestId)} t={t} />
       ) : null}
+      </div>
     </div>
   );
 }

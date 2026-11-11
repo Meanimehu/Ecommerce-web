@@ -12,21 +12,22 @@
     "adminArea": "Admin area"
   },
   "login": {
-    "title": "Log in",
-    "intro": "Log in or create an account with your mobile number.",
+    "title": "Log in or sign up",
     "phoneLabel": "Mobile number",
-    "phoneHelp": "We'll send a code to this number by SMS.",
+    "phoneHelp": "We send a one-time code by SMS.",
     "sendCode": "Send code",
     "sending": "Sending…",
-    "codeLabel": "Code",
-    "codeHelp": "Enter the 6-digit code sent to {phone}.",
-    "verify": "Log in",
+    "codeLabel": "One-time code",
+    "codeHelp": "6 digits. Paste or autofill works.",
+    "verify": "Verify and log in",
     "verifying": "Checking…",
     "resendIn": "You can ask for a new code in {seconds} seconds.",
     "resendInOne": "You can ask for a new code in 1 second.",
-    "resend": "Send code again",
+    "resend": "Resend code",
     "changeNumber": "Change number",
-    "codeSent": "A new code has been sent."
+    "codeSent": "A new code has been sent.",
+    "codeTitle": "Enter the code we sent",
+    "sentTo": "Sent to {phone}"
   },
   "account": {
     "title": "Your account",
@@ -35,10 +36,12 @@
     "logOut": "Log out",
     "logOutEverywhere": "Log out everywhere",
     "confirmTitle": "Log out everywhere?",
-    "confirmBody": "You will be logged out on every phone and computer where you use Dhaaga.",
+    "confirmBody": "You will need to log in again on every device.",
     "confirmYes": "Log out everywhere",
     "cancel": "Cancel",
-    "loggingOut": "Logging out…"
+    "loggingOut": "Logging out…",
+    "sessions": "Log out",
+    "logOutEverywhereHelp": "This ends your login on every device, including this one."
   },
   "session": {
     "checking": "Checking your login…",
@@ -119,6 +122,11 @@
   "errorPage": {
     "title": "Something went wrong",
     "body": "This page couldn't be shown. Please try again.",
+    "home": "Go to the shop"
+  },
+  "notFound": {
+    "title": "This page was not found",
+    "body": "It may have moved, or the address may be wrong.",
     "home": "Go to the shop"
   }
 }

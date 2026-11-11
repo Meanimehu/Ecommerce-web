@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { LoginForm } from '@/components/auth/login-form';
-import { LanguageSwitch } from '@/components/common/language-switch';
 import { NeedsScript } from '@/components/common/needs-script';
+import { SiteHeader } from '@/components/common/site-header';
 import { getMessages, isLocale } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
@@ -12,21 +12,18 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
   return { title: isLocale(lang) ? getMessages(lang).login.title : undefined, robots: { index: false, follow: false } };
 }
 
-/** One login page for everyone (Document 2, D2-04; Document 5, section 6.4). Not indexed (D4-04). */
+/** One login page for everyone (Document 2, D2-04; Document 5, section 6.4; approved Stage 5). Not indexed (D4-04). */
 export default async function LoginPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   const t = getMessages(lang);
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col gap-8 px-4 py-8">
-      <header className="flex items-center justify-between">
-        <a href={`/${lang}`} className="text-xl font-semibold">
-          {t.site.wordmark}
-        </a>
-        <LanguageSwitch lang={lang} />
-      </header>
-      <NeedsScript t={t} />
-      <LoginForm lang={lang} />
-    </main>
+    <>
+      <SiteHeader lang={lang} />
+      <main className="mx-auto grid w-full max-w-[452px] gap-4 px-4 py-8 sm:py-12">
+        <NeedsScript t={t} />
+        <LoginForm lang={lang} />
+      </main>
+    </>
   );
 }

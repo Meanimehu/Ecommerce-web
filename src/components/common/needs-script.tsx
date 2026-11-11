@@ -1,3 +1,4 @@
+import { Banner } from '@/components/ui/banner';
 import type { Messages } from '@/lib/i18n';
 
 /**
@@ -7,7 +8,7 @@ import type { Messages } from '@/lib/i18n';
 export function NeedsScript({ t }: { t: Messages }) {
   return (
     <noscript>
-      <p className="rounded-md border p-3 text-sm">{t.noScript.interactive}</p>
+      <Banner tone="warning">{t.noScript.interactive}</Banner>
     </noscript>
   );
 }

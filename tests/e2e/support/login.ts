@@ -23,7 +23,7 @@ export async function readCode(phone: string): Promise<string> {
   throw new Error(`No login code for ${phone} in ${backendLog}`);
 }
 
-export async function logIn(page: Page, phone: string, labels = { phone: 'Mobile number', send: 'Send code', code: 'Code', verify: 'Log in' }) {
+export async function logIn(page: Page, phone: string, labels = { phone: 'Mobile number', send: 'Send code', code: 'One-time code', verify: 'Verify and log in' }) {
   await page.getByLabel(labels.phone).fill(phone);
   await page.getByRole('button', { name: labels.send }).click();
   await expect(page.getByLabel(labels.code, { exact: true })).toBeFocused();
