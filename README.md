@@ -42,7 +42,7 @@ npm run dev                     # https://localhost:3001
 | `npm run build` / `npm start` | Production build and server (`PORT`, default 3001; `BIND_HOST`, default 127.0.0.1) |
 | `npm run lint` / `npm run typecheck` | ESLint and TypeScript |
 | `npm test` | Unit tests (Vitest) |
-| `npm run test:e2e` | End-to-end tests (Playwright) over HTTPS on Chromium, Firefox and WebKit at phone and desktop sizes. A regression safety net only: real browsers and devices are checked by hand (Document 7, D7-11). Login tests run when `E2E_BACKEND_LOG` points at the local backend's log |
+| `npm run test:e2e` | End-to-end tests (Playwright) over HTTPS on Chromium, Firefox and WebKit at phone and desktop sizes, plus the installed Chrome and Edge when `E2E_INSTALLED_BROWSERS` is set (CI). A regression safety net only: real browsers and devices are checked by hand (Document 7, D7-11). Login tests run when `E2E_BACKEND_LOG` points at the local backend's log |
 | `npm run gen:types` | Fetches the backend's OpenAPI description, stores it in `src/types/generated/` and regenerates the request types |
 | `npm run check:types` | Fails if the generated request types differ from the stored description (CI) |
 | `npm run check:types:live` | Fails if the backend's description changed since it was stored |
