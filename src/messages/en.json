@@ -19,7 +19,8 @@
     "becomeVendor": "Become a vendor",
     "breadcrumbs": "Breadcrumbs",
     "admin": {
-      "vendors": "Vendor review"
+      "vendors": "Vendor review",
+      "catalogue": "Catalogue lists"
     }
   },
   "login": {
@@ -136,7 +137,16 @@
       "VENDOR_INCOMPLETE": "Something is still missing. Check the list and try again.",
       "VENDOR_DOCUMENTS_PENDING": "This vendor cannot be approved yet.",
       "NOT_FOUND": "This was not found.",
-      "UPLOAD_CANCELLED": "Upload cancelled."
+      "UPLOAD_CANCELLED": "Upload cancelled.",
+      "CODE_TAKEN": "This code already exists.",
+      "NAME_TAKEN": "This name is already used.",
+      "SLUG_TAKEN": "This address name is already used.",
+      "TAX_INVALID": "Choose an HSN code and GST rate that are active.",
+      "CATEGORY_INVALID": "This parent cannot be used: it would make a loop or go deeper than 4 levels.",
+      "CATEGORY_NOT_FOUND": "This category was not found. Reload the page.",
+      "BRAND_NOT_FOUND": "This brand was not found. Reload the page.",
+      "DICTIONARY_VALUE_NOT_FOUND": "This entry was not found. Reload the page.",
+      "ATTRIBUTE_SCHEMA_INVALID": "Some attributes need fixing."
     }
   },
   "languageNames": {
@@ -159,7 +169,9 @@
     "required": "Fill this in.",
     "choose": "Choose one.",
     "pincodeShape": "Enter a 6-digit pin code.",
-    "reasonRequired": "Write a reason."
+    "reasonRequired": "Write a reason.",
+    "wholeNumber": "Enter a whole number.",
+    "hexShape": "Enter a colour like #1A1A1A, or leave it empty."
   },
   "noScript": {
     "interactive": "This page needs JavaScript. Turn it on in your browser settings, or use a newer browser."
@@ -401,6 +413,109 @@
       "terms_acceptance": "The vendor terms were not accepted",
       "document": "{document}: missing, or the newest file is not approved",
       "fileNotClean": "{document}: the approved file has not passed the malware check"
+    }
+  },
+  "catalogue": {
+    "title": "Catalogue lists",
+    "listsLabel": "Catalogue lists",
+    "lists": {
+      "categories": "Categories",
+      "hsn-codes": "HSN codes",
+      "brands": "Brands",
+      "sizes": "Sizes",
+      "colours": "Colours"
+    },
+    "add": {
+      "categories": "Add category",
+      "hsn-codes": "Add HSN code",
+      "brands": "Add brand",
+      "sizes": "Add size",
+      "colours": "Add colour"
+    },
+    "editTitle": "Edit",
+    "edit": "Edit",
+    "save": "Save",
+    "saved": "Saved",
+    "active": "Active",
+    "switchedOff": "Switched off",
+    "switchOff": "Switch off",
+    "switchOn": "Switch on",
+    "switchedOffDone": "{name} switched off",
+    "switchedOnDone": "{name} switched on",
+    "none": "None",
+    "empty": "Nothing here yet",
+    "emptyText": "Add the first entry with the button above.",
+    "emptyFiltered": "Nothing matches. Try another status or clear the search.",
+    "codesNeverChange": "Codes never change. To replace a code, add a new one and switch the old one off.",
+    "categoryNote": "Switching a category off hides it and everything under it from customers. Its products stay as they are.",
+    "filters": {
+      "status": "Status",
+      "all": "All",
+      "search": "Search",
+      "show": "Show results"
+    },
+    "columns": {
+      "code": "Code",
+      "name": "Name",
+      "status": "Status",
+      "description": "Description",
+      "defaultGst": "Default GST rate",
+      "slug": "Address name",
+      "label": "Label",
+      "sizeGroup": "Size group",
+      "sortOrder": "Order",
+      "hex": "Colour value",
+      "attributes": "Attributes",
+      "defaultTax": "Default HSN code and GST rate",
+      "actions": "Actions"
+    },
+    "sizeGroups": {
+      "apparel": "Clothing",
+      "footwear": "Footwear",
+      "other": "Other"
+    },
+    "attributeTypes": {
+      "text": "Text",
+      "number": "Number",
+      "choice": "Choice from a list"
+    },
+    "attributeProblem": "Attribute {number}: check its key, label, type and options.",
+    "attributeInParent": "The key {key} is already used by a parent category. Use another key.",
+    "fields": {
+      "code": "Code",
+      "codeFixed": "A code cannot be changed.",
+      "hsnCode": "HSN code",
+      "hsnCodeHelp": "4, 6 or 8 digits.",
+      "description": "Description",
+      "defaultGst": "Default GST rate",
+      "defaultHsn": "Default HSN code",
+      "name": "Name",
+      "slug": "Address name",
+      "slugHelp": "Used in the web address: lower-case letters, digits and hyphens. Made from the name when left empty.",
+      "label": "Label",
+      "sizeCodeHelp": "Up to 12 letters, digits or . _ / -",
+      "colourCodeHelp": "Up to 20 letters, digits, _ or -",
+      "sizeGroup": "Size group",
+      "sortOrder": "Order",
+      "sortOrderHelp": "Smaller numbers come first.",
+      "hex": "Colour value",
+      "hexHelp": "For example #1A1A1A.",
+      "parent": "Parent category",
+      "parentHelp": "Categories go up to 4 levels deep.",
+      "topLevel": "None (top level)",
+      "attributes": "Attributes",
+      "attributesHelp": "What vendors must describe for products in this category and its sub-categories. Up to 30.",
+      "addAttribute": "Add attribute",
+      "removeAttribute": "Remove attribute",
+      "attributeNumber": "Attribute {number}",
+      "attributeKey": "Key",
+      "attributeKeyHelp": "Lower-case letters, digits and _, starting with a letter. For example sleeve_length.",
+      "attributeLabel": "Label",
+      "attributeType": "Type",
+      "attributeOptions": "Options",
+      "attributeOptionsHelp": "One option per line, up to 50.",
+      "attributeRequired": "Vendors must give a value",
+      "attributeFilterable": "Customers can filter by it"
     }
   }
 }

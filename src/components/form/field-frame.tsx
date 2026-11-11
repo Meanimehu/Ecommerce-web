@@ -2,7 +2,7 @@
 
 import { CircleAlert } from 'lucide-react';
 import type { ReactNode } from 'react';
-import type { FieldValues, Path, UseFormReturn } from 'react-hook-form';
+import { get, type FieldValues, type Path, type UseFormReturn } from 'react-hook-form';
 import { resolveMessage } from '@/hooks/use-app-form';
 import type { Messages } from '@/lib/i18n';
 
@@ -36,7 +36,7 @@ export function FieldFrame<TValues extends FieldValues>({
   t: Messages;
   children: (ids: FieldIds) => ReactNode;
 }) {
-  const error = form.formState.errors[name];
+  const error = get(form.formState.errors, name) as { message?: unknown } | undefined;
   const errorText = error ? resolveMessage(typeof error.message === 'string' ? error.message : undefined, t) : '';
   const descriptionId = description ? `${id}-description` : undefined;
   const errorId = error ? `${id}-error` : undefined;

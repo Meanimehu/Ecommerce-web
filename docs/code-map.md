@@ -75,6 +75,7 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `[lang]/account/page.tsx` | Account: log out, log out everywhere, the areas this person may open |
 | `[lang]/admin/layout.tsx`, `page.tsx` | Admin area frame (any staff role) and its home with the screens this person's roles can use |
 | `[lang]/admin/vendors/…` | Vendor review: the list, and one application (admin only) |
+| `[lang]/admin/catalogue/[list]` | Catalogue lists: categories, HSN codes, brands, sizes, colours (admin only) |
 | `[lang]/vendor/layout.tsx` | Vendor area: never indexed, always rendered for the person |
 | `[lang]/vendor/apply/page.tsx` | Become a vendor: open to anyone logged in |
 | `[lang]/vendor/(app)/…` | Every other vendor page: needs a vendor in any status (the `(app)` folder groups them, it is not in the address) |
@@ -85,6 +86,7 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `api/session` | Who is logged in; renews the login when needed |
 | `api/vendors/…` | The person's own vendor application: details, addresses, documents (upload and view), submit |
 | `api/admin/vendors/…` | Vendor review: list, one vendor, its documents, and the decisions |
+| `api/admin/catalogue/[list]/…` | The catalogue lists: read, add, change (and switch off or on) |
 | `api/language` | Remembers the language choice |
 | `api/health` | Health check for the hosting |
 | `globals.css` | The Document 6 design tokens: colours, type scale (with the Hindi rules), radius, focus ring, reduced motion, hover only where a device can hover |
@@ -107,6 +109,9 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `vendor/vendor-status.tsx` | The vendor status chip, and which statuses can be changed |
 | `admin/vendor-list.tsx` | Vendor review list with its filters and pages |
 | `admin/vendor-review.tsx` | One application: details, addresses, documents and the decisions |
+| `admin/catalogue-screen.tsx` | Catalogue lists: the list tabs and one table pattern (status, Edit, Switch off or on, Add) |
+| `admin/catalogue-forms.tsx` | The add and change forms of HSN codes, brands, sizes and colours, and the frame they share |
+| `admin/category-form.tsx` | The category form with its attributes |
 | `form/field-frame.tsx` | What every field shares: label, "(optional)", the error under it, help text |
 | `form/text-field.tsx`, `select-field.tsx`, `textarea-field.tsx` | A labelled input, select and text area with their errors |
 | `form/error-summary.tsx` | The summary at the top of a form that takes focus |
@@ -136,6 +141,7 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `use-login.ts` | `useRequestCode`, `useVerify` |
 | `use-logout.ts` | `useLogout` |
 | `use-app-form.ts` | `useAppForm` (React Hook Form with Zod), `applyServerError` (backend errors under the right field), message keys |
+| `use-catalogue.ts` | The catalogue lists: `useCatalogueList`, `useSaveCatalogueItem`, active GST rates and HSN codes |
 | `use-vendor.ts` | The own application (`useMyVendor` and its changes, document upload) and the admin review (`useVendorList`, `useVendor`, `useVendorDecision`) |
 
 ### `api/` — calls to the backend (server only)
@@ -145,6 +151,7 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `client.ts` | `callBackend`: time limits, retries for reads only, every answer checked against its shape, the customer's address passed on; streamed uploads; `openBackendFile` for private files |
 | `auth.ts` | The login and session calls of backend Area 1 |
 | `vendor.ts` | Backend Area 2: the vendor application and the admin review |
+| `catalogue.ts` | Backend Area 3a, admin: the catalogue lists |
 
 ### `middleware/` — login and request handling (server only)
 
@@ -165,13 +172,14 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `lib/uploads.ts` | Upload limits copied from the backend, for a quick check before sending |
 | `lib/i18n.ts` | The two languages, choosing one, and `getMessages` for the English and Hindi text |
 | `lib/errors.ts` | `AppError`, and `messageFor`: our own message for any error |
-| `utils/format.ts` | Dates and times in IST, rupees, phone numbers |
+| `utils/format.ts` | Dates and times in IST, rupees, phone numbers, GST rates |
 | `utils/cn.ts` | The class-name helper the shadcn/ui tool expects |
 | `utils/url.ts` | Addresses with their query (`withQuery`), page numbers, picking list filters |
 | `utils/message-checks.ts` | What `npm run check:messages` checks (not used by the site) |
 | `types/auth.ts` | User, login and session answers, the phone and code forms |
 | `types/error.ts` | The backend's error answer |
 | `types/common.ts` | Shapes every area shares: a page of a list, a reason |
+| `types/catalogue.ts` | Backend Area 3a lists (GST rate, HSN code, category with attributes, brand, size, colour), their forms, tree order |
 | `types/vendor.ts` | Backend Area 2 answers (vendor, address, document, admin views) and the application forms |
 | `types/generated/` | Request types, the OpenAPI description and the error-code list, made by `npm run gen:types` and `gen:error-codes`; never edited |
 

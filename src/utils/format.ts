@@ -48,3 +48,8 @@ export function formatPhone(phone: string): string {
   const match = /^\+91(\d{5})(\d{5})$/.exec(phone);
   return match ? `+91 ${match[1]} ${match[2]}` : phone;
 }
+
+/** A GST rate: the backend sends whole basis points (1,200 is 12%). */
+export function formatRate(bps: number): string {
+  return `${bps / 100}%`;
+}

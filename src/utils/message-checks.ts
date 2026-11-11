@@ -48,6 +48,16 @@ export const BACKEND_CODES_IN_USE = [
   'UPLOAD_RATE_LIMITED',
   'STORAGE_UNAVAILABLE',
   'SCAN_UNAVAILABLE',
+  // admin catalogue lists (Area 3a): Slice 2b
+  'CODE_TAKEN',
+  'NAME_TAKEN',
+  'SLUG_TAKEN',
+  'TAX_INVALID',
+  'CATEGORY_INVALID',
+  'CATEGORY_NOT_FOUND',
+  'BRAND_NOT_FOUND',
+  'DICTIONARY_VALUE_NOT_FOUND',
+  'ATTRIBUTE_SCHEMA_INVALID',
 ] as const;
 
 /** Codes from the backend's framework, not in its catalogue (api-contract.md, section 3), that a built screen can show. */

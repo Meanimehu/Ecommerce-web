@@ -14,7 +14,10 @@ export function vendorNav(lang: Locale, t: Messages, hasVendor: boolean): NavIte
 }
 
 /** Admin screens and the roles that can read them (Document 5, section 8.3). */
-export const ADMIN_SCREENS = [{ key: 'vendors', path: 'vendors', roles: ['admin'], icon: 'vendors' }] as const;
+export const ADMIN_SCREENS = [
+  { key: 'vendors', path: 'vendors', roles: ['admin'], icon: 'vendors' },
+  { key: 'catalogue', path: 'catalogue', roles: ['admin'], icon: 'catalogue' },
+] as const;
 
 export function adminScreens(roles: readonly string[]) {
   return ADMIN_SCREENS.filter((screen) => screen.roles.some((role) => roles.includes(role)));
