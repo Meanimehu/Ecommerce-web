@@ -2,6 +2,7 @@ import 'server-only';
 import type { z } from 'zod';
 import { AppError } from '@/lib/errors';
 import { BackendErrorSchema } from '@/schemas/error';
+import { clientAddress } from '../client-address';
 import { serverConfig } from '../config';
 
 /**
@@ -28,6 +29,8 @@ export interface CallOptions<S extends z.ZodType | null> {
   schema: S;
   fetchImpl?: typeof fetch;
   sleep?: (ms: number) => Promise<void>;
+  /** For tests only; normally read from the incoming request. null sends none. */
+  clientAddress?: string | null;
 }
 
 export interface CallResult<T> {
@@ -74,6 +77,9 @@ async function callOnce<S extends z.ZodType | null>(options: CallOptions<S>): Pr
   const headers: Record<string, string> = { accept: 'application/json' };
   if (options.token) headers.authorization = `Bearer ${options.token}`;
   if (options.body !== undefined) headers['content-type'] = 'application/json';
+  // The customer's address, so the backend's per-address limits count each customer (Document 3, section 3).
+  const address = options.clientAddress === undefined ? await clientAddress() : options.clientAddress;
+  if (address) headers['x-forwarded-for'] = address;
 
   let response: Response;
   try {

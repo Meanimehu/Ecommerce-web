@@ -30,6 +30,13 @@ export const serverConfig = {
   get siteOrigin(): string {
     return new URL(required('PUBLIC_SITE_URL')).origin;
   },
+  /**
+   * Header in which the hosting's front door gives the customer's address, for example "x-forwarded-for". Empty locally.
+   * Set per host in staging and production (Document 4, section 4).
+   */
+  get clientAddressHeader(): string | undefined {
+    return process.env.CLIENT_ADDRESS_HEADER?.trim().toLowerCase() || undefined;
+  },
   get storeDatabaseUrl(): string | undefined {
     return process.env.STORE_DATABASE_URL || undefined;
   },

@@ -1,6 +1,6 @@
 # 3. API integration
 
-> **Status: Approved. Decisions D3-01 to D3-03 approved 4 Nov 2026; merged (PR #4). D3-04 approved 10 Nov 2026.**
+> **Status: Approved. Decisions D3-01 to D3-03 approved 4 Nov 2026; merged (PR #4). D3-04 approved 10 Nov 2026. Section 3: the customer's address added 11 Nov 2026 (owner approved).**
 > Follows Documents 1 and 2. Documentation only.
 
 ## 1. Purpose
@@ -24,6 +24,7 @@ How the frontend talks to the backend: where the calls are made, how responses a
 - **Tokens** are attached by this layer from the cookies (Document 2). Calls that need no login send no token.
 - Because the browser never calls the backend, the app does not depend on the backend's allowed-browser-origin (CORS) setting.
 - Each call has a timeout. The values are set in Document 7.
+- **The customer's address is passed on.** The backend limits requests per client address (a general limit, and login codes per hour; API contract, section 7). Because every call comes from the frontend server, the layer adds the customer's address in `X-Forwarded-For`, taken only from the header the hosting's front door adds (its last entry, a real IP address), never from what the browser sends. The backend reads it only with `TRUST_PROXY=true`, which is set in staging and production (Document 4, section 4). Locally nothing is forwarded.
 
 ## 4. Typing and checking responses
 
