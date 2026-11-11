@@ -33,6 +33,19 @@ export async function answerAsUser<T>(
   }
 }
 
+/**
+ * A public read (the storefront catalogue): no login, the same answer for everyone, so it may be kept for a while by
+ * the browser (Document 4, section 7; Document 7, section 12 freshness). It never sets a cookie (Document 2, section 5).
+ */
+export async function answerPublic<T>(call: () => Promise<CallResult<T>>, maxAgeSeconds: number): Promise<NextResponse> {
+  try {
+    const { data, status } = await call();
+    return NextResponse.json(data, { status, headers: { 'Cache-Control': `public, max-age=${maxAgeSeconds}` } });
+  } catch (error) {
+    return fromAppError(error);
+  }
+}
+
 /** A JSON object body, or null for anything else. The backend checks the fields (it refuses unknown ones). */
 export async function jsonObject(request: NextRequest): Promise<Record<string, unknown> | null> {
   const body = await readJson(request);

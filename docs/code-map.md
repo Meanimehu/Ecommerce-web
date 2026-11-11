@@ -76,9 +76,11 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `[lang]/admin/layout.tsx`, `page.tsx` | Admin area frame (any staff role) and its home with the screens this person's roles can use |
 | `[lang]/admin/vendors/…` | Vendor review: the list, and one application (admin only) |
 | `[lang]/admin/catalogue/[list]` | Catalogue lists: categories, HSN codes, brands, sizes, colours (admin only) |
+| `[lang]/admin/moderation/…` | Product moderation: the queue and one product (moderator, admin) |
 | `[lang]/vendor/layout.tsx` | Vendor area: never indexed, always rendered for the person |
 | `[lang]/vendor/apply/page.tsx` | Become a vendor: open to anyone logged in |
 | `[lang]/vendor/(app)/…` | Every other vendor page: needs a vendor in any status (the `(app)` folder groups them, it is not in the address) |
+| `[lang]/vendor/(app)/products/…` | My products, add a product, one product |
 | `[lang]/error.tsx`, `forbidden.tsx`, `global-error.tsx` | Error page, "no access" page (real 403), last-resort error page |
 | `global-not-found.tsx` | "Not found" with a real 404, in English and Hindi together (the pages sit under a language segment, so Next.js uses one global page) |
 | `api/auth/code`, `api/auth/verify` | Ask for a login code; check it and log in |
@@ -87,6 +89,10 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `api/vendors/…` | The person's own vendor application: details, addresses, documents (upload and view), submit |
 | `api/admin/vendors/…` | Vendor review: list, one vendor, its documents, and the decisions |
 | `api/admin/catalogue/[list]/…` | The catalogue lists: read, add, change (and switch off or on) |
+| `api/catalogue/dictionaries` | What the product form offers |
+| `api/catalogue/categories` | The public category tree |
+| `api/vendors/me/products/…` | The vendor's products: details, variants, photos (upload, order, description, private view), submit |
+| `api/moderation/products/…` | Moderation: queue, one product, its photos, approve or reject |
 | `api/language` | Remembers the language choice |
 | `api/health` | Health check for the hosting |
 | `globals.css` | The Document 6 design tokens: colours, type scale (with the Hindi rules), radius, focus ring, reduced motion, hover only where a device can hover |
@@ -112,6 +118,13 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `admin/catalogue-screen.tsx` | Catalogue lists: the list tabs and one table pattern (status, Edit, Switch off or on, Add) |
 | `admin/catalogue-forms.tsx` | The add and change forms of HSN codes, brands, sizes and colours, and the frame they share |
 | `admin/category-form.tsx` | The category form with its attributes |
+| `admin/moderation-queue.tsx`, `moderation-review.tsx` | The moderation queue, and one product with the decision |
+| `product/product-list.tsx` | My products: filters, table, numbered pages |
+| `product/product-editor.tsx` | One product: the five steps while it can change, otherwise its summary |
+| `product/product-basics.tsx`, `product-attributes.tsx`, `product-variants.tsx`, `product-photos.tsx`, `product-review.tsx` | The five steps |
+| `product/product-summary.tsx` | A product the vendor cannot change right now, read-only |
+| `product/product-status.tsx`, `product-steps.ts` | The product status chip; the step names and which step fixes each missing item |
+| `product/photo-frame.tsx` | A product photo in its 4:5 frame, or "Photo unavailable" |
 | `form/field-frame.tsx` | What every field shares: label, "(optional)", the error under it, help text |
 | `form/text-field.tsx`, `select-field.tsx`, `textarea-field.tsx` | A labelled input, select and text area with their errors |
 | `form/error-summary.tsx` | The summary at the top of a form that takes focus |
@@ -141,6 +154,8 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `use-login.ts` | `useRequestCode`, `useVerify` |
 | `use-logout.ts` | `useLogout` |
 | `use-app-form.ts` | `useAppForm` (React Hook Form with Zod), `applyServerError` (backend errors under the right field), message keys |
+| `use-product.ts` | The vendor's products: the form guide, list, one product and every change to it |
+| `use-moderation.ts` | The moderation queue, one product, the decision, the public category tree |
 | `use-catalogue.ts` | The catalogue lists: `useCatalogueList`, `useSaveCatalogueItem`, active GST rates and HSN codes |
 | `use-vendor.ts` | The own application (`useMyVendor` and its changes, document upload) and the admin review (`useVendorList`, `useVendor`, `useVendorDecision`) |
 
@@ -151,7 +166,9 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `client.ts` | `callBackend`: time limits, retries for reads only, every answer checked against its shape, the customer's address passed on; streamed uploads; `openBackendFile` for private files |
 | `auth.ts` | The login and session calls of backend Area 1 |
 | `vendor.ts` | Backend Area 2: the vendor application and the admin review |
-| `catalogue.ts` | Backend Area 3a, admin: the catalogue lists |
+| `catalogue.ts` | Backend Area 3a: the admin catalogue lists, and the public category tree |
+| `product.ts` | Backend Area 3b: the vendor's products, variants and photos |
+| `moderation.ts` | Backend Area 3b: moderation |
 
 ### `middleware/` — login and request handling (server only)
 
@@ -160,7 +177,7 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `session.ts` | Who a request is (`asUser`, `getViewer`), renewing the login (`refreshSession`), logout, where to go after login |
 | `responses.ts` | Answers and errors of our endpoints, setting and clearing cookies, the forgery check |
 | `cookies.ts` | Cookie names, lifetimes and settings, and the signed after-login cookie. Also used by `proxy.ts` |
-| `endpoint.ts` | What every endpoint for the browser does: `answerAsUser` (forgery check, run as the person, renew the login, answer), `uploadFrom` (a streamed upload), `fileAsUser` (a private file) |
+| `endpoint.ts` | What every endpoint for the browser does: `answerAsUser` (forgery check, run as the person, renew the login, answer), `answerPublic` (a public read), `uploadFrom` (a streamed upload), `fileAsUser` (a private file) |
 
 ### `lib/`, `utils/`, `types/`
 
@@ -169,7 +186,7 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `lib/config.ts` | Settings read from the environment (`.env.local`), server only |
 | `lib/fonts.ts` | Outfit and Noto Sans Devanagari, from our own site, each loaded only for the characters it covers |
 | `lib/http.ts` | Browser calls to our endpoints: `get`, `send`, `patch`, `put`, `remove` and `upload` (with progress and Cancel), with the time limit, the forgery label and one error shape |
-| `lib/uploads.ts` | Upload limits copied from the backend, for a quick check before sending |
+| `lib/uploads.ts` | Upload limits copied from the backend, for a quick check before sending; the photo sizes |
 | `lib/i18n.ts` | The two languages, choosing one, and `getMessages` for the English and Hindi text |
 | `lib/errors.ts` | `AppError`, and `messageFor`: our own message for any error |
 | `utils/format.ts` | Dates and times in IST, rupees, phone numbers, GST rates |
@@ -180,6 +197,7 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `types/error.ts` | The backend's error answer |
 | `types/common.ts` | Shapes every area shares: a page of a list, a reason |
 | `types/catalogue.ts` | Backend Area 3a lists (GST rate, HSN code, category with attributes, brand, size, colour), their forms, tree order |
+| `types/product.ts` | Backend Area 3b answers (product, variant, photo, form guide, moderation), the product forms, rupees to paise |
 | `types/vendor.ts` | Backend Area 2 answers (vendor, address, document, admin views) and the application forms |
 | `types/generated/` | Request types, the OpenAPI description and the error-code list, made by `npm run gen:types` and `gen:error-codes`; never edited |
 
@@ -189,7 +207,7 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | --- | --- |
 | `scripts/` | `gen-types`, `gen-error-codes`, `check-messages`, and copying files after a build |
 | `tests/unit/` | Fast tests of the helpers (Vitest) |
-| `tests/e2e/` | Browser tests against the real backend (Playwright) |
+| `tests/e2e/` | Browser tests against the real backend (Playwright); `fixtures/` holds the garment illustrations used as test photos |
 
 ## To change something, look here
 

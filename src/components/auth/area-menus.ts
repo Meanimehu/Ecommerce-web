@@ -9,6 +9,7 @@ export function vendorNav(lang: Locale, t: Messages, hasVendor: boolean): NavIte
   const base = `/${lang}/vendor`;
   return [
     ...(hasVendor ? [{ href: base, label: t.nav.vendorHome, icon: 'home' as const, exact: true }] : []),
+    ...(hasVendor ? [{ href: `${base}/products`, label: t.nav.products, icon: 'products' as const }] : []),
     { href: `${base}/apply`, label: t.nav.application, icon: 'application' },
   ];
 }
@@ -17,6 +18,7 @@ export function vendorNav(lang: Locale, t: Messages, hasVendor: boolean): NavIte
 export const ADMIN_SCREENS = [
   { key: 'vendors', path: 'vendors', roles: ['admin'], icon: 'vendors' },
   { key: 'catalogue', path: 'catalogue', roles: ['admin'], icon: 'catalogue' },
+  { key: 'moderation', path: 'moderation', roles: ['moderator', 'admin'], icon: 'moderation' },
 ] as const;
 
 export function adminScreens(roles: readonly string[]) {

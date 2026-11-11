@@ -27,3 +27,8 @@ export function formatSize(bytes: number): string {
   if (bytes >= MB) return `${(bytes / MB).toFixed(1)} MB`;
   return `${Math.max(1, Math.round(bytes / 1024))} KB`;
 }
+
+/** The stored photo sizes (area-3b-products.md, section 4); anything else asks for the medium one. */
+export function photoSize(value: string | null): 'thumb' | 'medium' | 'large' {
+  return value === 'thumb' || value === 'large' ? value : 'medium';
+}
