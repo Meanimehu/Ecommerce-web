@@ -40,6 +40,8 @@ jobs:
       COOKIE_SECRET: ci-only-cookie-secret-ci-only-cookie-secret-0001
       IMAGE_HOST: http://localhost:9002
       NEXT_TELEMETRY_DISABLED: '1'
+      # The runner has Google Chrome and Microsoft Edge installed; test them too (Document 7, section 11).
+      E2E_INSTALLED_BROWSERS: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

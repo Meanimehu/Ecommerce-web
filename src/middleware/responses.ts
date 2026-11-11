@@ -8,15 +8,19 @@ import type { Failure, NewCookies } from './session';
 
 /** Helpers for our own endpoints: answers, errors, cookies and the forgery check. */
 
-/** Responses of our own endpoints: personal, never cached (Document 2, section 5). Errors carry the request id (T7-4). */
+/**
+ * Responses of our own endpoints: personal, never cached (Document 2, section 5). An error carries a request id only
+ * when it is a real one someone can look up: the backend's, or one written to our own log (D5-14; T7-4). Errors our
+ * server decides by itself (wrong origin, a malformed request, "try again") carry none.
+ */
 const PRIVATE = { 'Cache-Control': 'private, no-store' };
 
 export function ok(body: unknown, status = 200): NextResponse {
   return NextResponse.json(body, { status, headers: PRIVATE });
 }
 
-export function fail(code: string, status: number, extra: Record<string, unknown> = {}, requestId: string = randomUUID()): NextResponse {
-  return NextResponse.json({ error: { code, requestId, ...extra } }, { status, headers: PRIVATE });
+export function fail(code: string, status: number, extra: Record<string, unknown> = {}, requestId?: string): NextResponse {
+  return NextResponse.json({ error: { code, ...(requestId ? { requestId } : {}), ...extra } }, { status, headers: PRIVATE });
 }
 
 export function fromAppError(error: unknown): NextResponse {
@@ -26,11 +30,12 @@ export function fromAppError(error: unknown): NextResponse {
       error.code,
       status,
       { details: error.details, fields: error.fields, backendMessage: error.backendMessage, outcomeUnknown: error.outcomeUnknown },
-      error.requestId ?? randomUUID(),
+      error.requestId,
     );
   }
-  console.error(JSON.stringify({ event: 'unexpected_error', message: error instanceof Error ? error.message : String(error) }));
-  return fail('SERVER_ERROR', 500);
+  const requestId = randomUUID();
+  console.error(JSON.stringify({ event: 'unexpected_error', requestId, message: error instanceof Error ? error.message : String(error) }));
+  return fail('SERVER_ERROR', 500, {}, requestId);
 }
 
 /**

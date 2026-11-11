@@ -6,6 +6,8 @@ import { defineConfig, devices } from '@playwright/test';
  * They run over HTTPS (Document 7, section 17.1) through a test-only front on https://localhost:3001.
  *
  * PW_CHROMIUM_EXECUTABLE (optional) points Chromium at an already installed browser.
+ * E2E_INSTALLED_BROWSERS (optional) also runs the installed Google Chrome and Microsoft Edge (Document 7, section 11);
+ * CI sets it, because its machines have both.
  * E2E_BACKEND_LOG (optional) is the local backend's log file; login tests read the mock SMS code from it and are
  * skipped without it.
  */
@@ -24,9 +26,16 @@ export default defineConfig({
   projects: [
     { name: 'chromium-phone', use: { ...devices['Pixel 7'], ...chromium } },
     { name: 'chromium-desktop', use: { ...devices['Desktop Chrome'], ...chromium } },
+    { name: 'firefox-phone', use: { browserName: 'firefox', viewport: { width: 412, height: 915 }, hasTouch: true } },
     { name: 'firefox-desktop', use: { ...devices['Desktop Firefox'] } },
     { name: 'webkit-phone', use: { ...devices['iPhone 15'] } },
     { name: 'webkit-desktop', use: { ...devices['Desktop Safari'] } },
+    ...(process.env.E2E_INSTALLED_BROWSERS
+      ? [
+          { name: 'chrome-desktop', use: { ...devices['Desktop Chrome'], channel: 'chrome' } },
+          { name: 'edge-desktop', use: { ...devices['Desktop Edge'], channel: 'msedge' } },
+        ]
+      : []),
   ],
   webServer: process.env.E2E_BASE_URL
     ? undefined

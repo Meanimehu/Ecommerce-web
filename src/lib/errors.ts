@@ -76,7 +76,10 @@ export function messageFor(error: AppErrorShape, messages: Messages): string {
 function withWait(text: string, error: AppErrorShape, messages: Messages): string {
   const seconds = Number(error.details?.retryAfterSeconds);
   if (!Number.isFinite(seconds) || seconds <= 0) return text;
-  const wait = seconds < 60 ? fill(messages.errors.waitSeconds, { seconds: Math.ceil(seconds) }) : fill(messages.errors.waitMinutes, { minutes: Math.ceil(seconds / 60) });
+  const secs = Math.ceil(seconds);
+  const mins = Math.ceil(seconds / 60);
+  const e = messages.errors;
+  const wait = secs < 60 ? (secs === 1 ? e.waitSecond : fill(e.waitSeconds, { seconds: secs })) : mins === 1 ? e.waitMinute : fill(e.waitMinutes, { minutes: mins });
   return `${text} ${wait}`;
 }
 

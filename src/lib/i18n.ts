@@ -13,8 +13,8 @@ export function isLocale(value: string | undefined | null): value is Locale {
 }
 
 /**
- * The language for a visit with no prefix (Document 4, section 6): the remembered choice, else the browser's preference,
- * else English. The remembered choice arrives with the language switcher in Slice 1, so only the last two apply for now.
+ * The language from the browser's preference, else English. For a visit with no prefix, `proxy.ts` first uses the
+ * remembered choice (the language cookie) and only then this (Document 4, section 6).
  */
 export function pickLocale(acceptLanguage: string | null | undefined): Locale {
   if (!acceptLanguage) return DEFAULT_LOCALE;

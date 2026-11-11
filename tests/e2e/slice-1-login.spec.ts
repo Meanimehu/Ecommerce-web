@@ -107,7 +107,10 @@ test.describe('login and sessions', () => {
     await page.getByRole('button', { name: 'Send code' }).click();
     await readCode(phone);
     await page.getByLabel('Code', { exact: true }).fill('000000');
+    const answer = page.waitForResponse((r) => r.url().endsWith('/api/auth/verify'));
     await page.getByRole('button', { name: 'Log in', exact: true }).click();
+    // The backend's request id reaches the browser (T7-4), so it can be shown with "Copy" where a screen shows one (D5-14).
+    expect((await (await answer).json()).error.requestId).toMatch(/^[0-9a-f-]{36}$/);
     const code = page.getByLabel('Code', { exact: true });
     await expect(code).toHaveAttribute('aria-invalid', 'true');
     await expect(code).toHaveAccessibleDescription(/That code isn't right/);
@@ -201,6 +204,18 @@ test.describe('form checks (D-04, D6-25; no backend needed)', () => {
 });
 
 test.describe('protections', () => {
+  test.describe('without scripts (or before they load on a slow phone)', () => {
+    test.use({ javaScriptEnabled: false });
+    test('sending the login form never puts the phone number in the address', async ({ page }) => {
+      await page.goto('/en/login');
+      await page.getByLabel('Mobile number').fill('9876543210');
+      await page.getByRole('button', { name: 'Send code' }).click();
+      await page.waitForLoadState();
+      expect(page.url()).not.toContain('9876543210');
+      await expect(page).toHaveURL(/\/en\/login$/);
+    });
+  });
+
   test('a change request from another site, or without our header, is refused (D7-13)', async ({ request }) => {
     const foreign = await request.post('/api/auth/code', { data: { phone: '9000000000' }, headers: { origin: 'https://evil.example' } });
     expect(foreign.status()).toBe(403);
