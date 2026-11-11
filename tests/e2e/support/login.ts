@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { expect, type Page } from '@playwright/test';
+import { expect, test, type Browser, type BrowserContext, type Page } from '@playwright/test';
 
 /**
  * Login through the real login page against the local backend. The backend's SMS is a mock that writes the code to
@@ -57,4 +57,26 @@ export async function blockUser(adminToken: string, phone: string): Promise<void
   if (!user) throw new Error(`no user ${phone}`);
   const blocked = await fetch(`${backendUrl}/api/v1/admin/users/${user.id}/block`, { method: 'POST', headers: auth, body: JSON.stringify({ reason: 'End-to-end test of the blocked-account message' }) });
   if (!blocked.ok) throw new Error(`block failed: ${blocked.status}`);
+}
+
+/**
+ * A page logged in as this person, in its own browser context. The login is done once per phone number and test run
+ * (the backend allows one code every 30 seconds per number), then reused: the session cookies are copied.
+ */
+const sessions = new Map<string, Awaited<ReturnType<BrowserContext['storageState']>>>();
+const HINDI = { phone: 'मोबाइल नंबर', send: 'कोड भेजें', code: 'वन-टाइम कोड', verify: 'पुष्टि करें और लॉग इन करें' };
+
+export async function pageAs(browser: Browser, phone: string, path: string): Promise<Page> {
+  const known = sessions.get(phone);
+  // The same screen size and device as the test's own project.
+  const use = test.info().project.use;
+  const device = { viewport: use.viewport, userAgent: use.userAgent, deviceScaleFactor: use.deviceScaleFactor, isMobile: use.isMobile, hasTouch: use.hasTouch, baseURL: use.baseURL };
+  const context = await browser.newContext({ ...device, ignoreHTTPSErrors: true, ...(known ? { storageState: known } : {}) });
+  const page = await context.newPage();
+  await page.goto(path);
+  if (!known) {
+    await logIn(page, phone, path.startsWith('/hi') ? HINDI : undefined);
+    sessions.set(phone, await context.storageState());
+  }
+  return page;
 }

@@ -5,7 +5,7 @@
 import type { Messages } from './i18n';
 
 /** Codes the frontend itself produces (not from the backend). */
-export const FRONTEND_CODES = ['TIMEOUT', 'NETWORK', 'CSRF_INVALID', 'ORIGIN_INVALID', 'SESSION_TEMPORARY', 'RESPONSE_MISMATCH'] as const;
+export const FRONTEND_CODES = ['TIMEOUT', 'NETWORK', 'CSRF_INVALID', 'ORIGIN_INVALID', 'SESSION_TEMPORARY', 'RESPONSE_MISMATCH', 'UPLOAD_CANCELLED'] as const;
 
 /** One backend field error (VALIDATION_FAILED): the backend's field name and its messages. */
 export interface FieldError {
@@ -86,4 +86,14 @@ function withWait(text: string, error: AppErrorShape, messages: Messages): strin
 /** Puts values into a message such as "Sent to {phone}". */
 export function fill(text: string, values: Record<string, string | number>): string {
   return text.replace(/\{(\w+)\}/g, (whole, key: string) => (key in values ? String(values[key]) : whole));
+}
+
+/** Any thrown value as an AppError (something that is not one counts as a lost connection). */
+export function toAppError(error: unknown): AppError {
+  return error instanceof AppError ? error : new AppError({ code: 'NETWORK', status: 0 });
+}
+
+/** The reference number of a failed call, when a real one reached the browser (D5-14). */
+export function requestIdOf(error: unknown): string | undefined {
+  return error instanceof AppError ? error.requestId : undefined;
 }

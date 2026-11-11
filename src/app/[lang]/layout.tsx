@@ -28,7 +28,7 @@ export default async function LanguageLayout({ children, params }: Props) {
   return (
     <html lang={lang} className={`${outfit.variable} ${outfitExtended.variable} ${notoDevanagari.variable}`}>
       <body>
-        <Providers>{children}</Providers>
+        <Providers dismissLabel={getMessages(lang).toast.dismiss}>{children}</Providers>
       </body>
     </html>
   );

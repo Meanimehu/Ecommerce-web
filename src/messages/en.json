@@ -9,7 +9,18 @@
     "account": "Account",
     "logIn": "Log in",
     "vendorArea": "Vendor area",
-    "adminArea": "Admin area"
+    "adminArea": "Admin area",
+    "menu": "Menu",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "vendorHome": "Home",
+    "adminHome": "Home",
+    "application": "Application",
+    "becomeVendor": "Become a vendor",
+    "breadcrumbs": "Breadcrumbs",
+    "admin": {
+      "vendors": "Vendor review"
+    }
   },
   "login": {
     "title": "Log in or sign up",
@@ -56,9 +67,11 @@
   },
   "areas": {
     "adminHome": "Admin home",
-    "adminIntro": "Admin screens are added here as they are built.",
+    "adminIntro": "Screens you can use with your roles.",
     "vendorHome": "Vendor home",
-    "vendorIntro": "Vendor screens are added here as they are built."
+    "vendorIntro": "Your vendor screens are listed in the menu.",
+    "noScreens": "You do not have access to any admin screen",
+    "noScreensText": "Your account has a staff role that has no screens here. Ask an admin if this is wrong."
   },
   "errors": {
     "viewTimeout": "Something went wrong. Please try again.",
@@ -98,7 +111,32 @@
       "CSRF_INVALID": "This page has expired. Reload it and try again.",
       "ORIGIN_INVALID": "This page has expired. Reload it and try again.",
       "SESSION_TEMPORARY": "Something went wrong, please try again shortly.",
-      "TOO_MANY_REQUESTS": "Too many requests. Please wait a moment and try again."
+      "TOO_MANY_REQUESTS": "Too many requests. Please wait a moment and try again.",
+      "VENDOR_NOT_FOUND": "No vendor application was found.",
+      "VENDOR_EXISTS": "You already have a vendor application.",
+      "GSTIN_TAKEN": "This GSTIN is already used by another vendor.",
+      "VENDOR_LOCKED": "The application cannot be changed in its current status.",
+      "VENDOR_ADDRESS_LIMIT": "You can keep up to 5 addresses. Remove one to add another.",
+      "VENDOR_ADDRESS_NOT_FOUND": "This address was not found. Reload the page.",
+      "FILE_REQUIRED": "Choose one file to upload.",
+      "FILE_TOO_LARGE": "This file is too large. Choose a smaller file.",
+      "FILE_TYPE_NOT_ALLOWED": "This type of file is not accepted. Choose another file.",
+      "FILE_UNSAFE": "This PDF has active content and cannot be accepted. Save it as a plain PDF and try again.",
+      "FILE_INFECTED": "This file did not pass the safety check. Choose another file.",
+      "DOCUMENT_LIMIT": "You have reached the limit of stored files.",
+      "UPLOAD_RATE_LIMITED": "Too many uploads. Please wait and try again later.",
+      "STORAGE_UNAVAILABLE": "File storage is not available right now. Please try again shortly.",
+      "SCAN_UNAVAILABLE": "The file check is not available right now. Please try again shortly.",
+      "DOCUMENT_NOT_FOUND": "This document was not found. Reload the page.",
+      "DOCUMENT_REVIEWED": "This document has already been reviewed. Upload a new file instead.",
+      "DOCUMENT_NOT_SCANNED": "This file has not passed the malware check yet.",
+      "FILE_UNAVAILABLE": "This file is not available.",
+      "VENDOR_STATE_INVALID": "This cannot be done in the vendor's current status. Reload the page.",
+      "TERMS_VERSION_MISMATCH": "The vendor terms have changed. Read them again and agree to submit.",
+      "VENDOR_INCOMPLETE": "Something is still missing. Check the list and try again.",
+      "VENDOR_DOCUMENTS_PENDING": "This vendor cannot be approved yet.",
+      "NOT_FOUND": "This was not found.",
+      "UPLOAD_CANCELLED": "Upload cancelled."
     }
   },
   "languageNames": {
@@ -108,13 +146,20 @@
   "form": {
     "summaryOne": "Fix 1 thing to continue",
     "summaryMany": "Fix {count} things to continue",
-    "unknownField": "{field}: please check this and try again."
+    "unknownField": "{field}: please check this and try again.",
+    "optional": "(optional)",
+    "choose": "Choose",
+    "characters": "{count} of {max} characters"
   },
   "validation": {
     "phoneRequired": "Enter your mobile number.",
     "phoneShape": "Enter a 10-digit mobile number.",
     "codeRequired": "Enter the code we sent you.",
-    "codeShape": "Enter the 6-digit code."
+    "codeShape": "Enter the 6-digit code.",
+    "required": "Fill this in.",
+    "choose": "Choose one.",
+    "pincodeShape": "Enter a 6-digit pin code.",
+    "reasonRequired": "Write a reason."
   },
   "noScript": {
     "interactive": "This page needs JavaScript. Turn it on in your browser settings, or use a newer browser."
@@ -128,5 +173,234 @@
     "title": "This page was not found",
     "body": "It may have moved, or the address may be wrong.",
     "home": "Go to the shop"
+  },
+  "common": {
+    "cancel": "Cancel"
+  },
+  "toast": {
+    "dismiss": "Dismiss"
+  },
+  "states": {
+    "loading": "Loading",
+    "loadFailed": "This could not be loaded."
+  },
+  "table": {
+    "pages": "Pages",
+    "pageOf": "Page {page} of {pages}, {total} in total",
+    "page": "Page",
+    "previous": "Previous page",
+    "next": "Next page"
+  },
+  "vendor": {
+    "applyTitle": "Become a vendor",
+    "applyIntro": "Sell on Dhaaga. You need your business details, a pickup address and your documents. We save as you go.",
+    "statusTitle": "Application status",
+    "status": {
+      "draft": "Draft",
+      "submitted": "Waiting for review",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "suspended": "Suspended"
+    },
+    "statusText": {
+      "none": "You have not started an application yet.",
+      "draft": "Finish your application. What is missing is listed on the last step.",
+      "submitted": "We have your application. It is read-only while it is reviewed.",
+      "approved": "Your application is approved. You can start adding products.",
+      "rejected": "Your application was sent back. Read the reason, fix it and submit again.",
+      "suspended": "Your vendor account is suspended. Your products stay readable and nothing can be changed."
+    },
+    "start": "Start your application",
+    "continue": "Continue your application",
+    "editResubmit": "Edit and resubmit",
+    "goHome": "Go to vendor home",
+    "reasonTitle": "Reason from the reviewer",
+    "steps": {
+      "label": "Application steps",
+      "details": "Business details",
+      "address": "Pickup address",
+      "documents": "Documents",
+      "review": "Review and submit",
+      "done": "complete",
+      "short": {
+        "details": "Business",
+        "address": "Pickup",
+        "documents": "Docs",
+        "review": "Review"
+      }
+    },
+    "stepOf": "Step {step} of {count}: {name}",
+    "continueStep": "Continue",
+    "fields": {
+      "legalName": "Legal name",
+      "legalNameHelp": "As on your PAN or GST registration.",
+      "displayName": "Shop name",
+      "displayNameHelp": "The name customers see.",
+      "gstin": "GSTIN",
+      "gstinHelp": "15 characters, for example 29ABCDE1234F1Z5. Leave it empty if you have none.",
+      "sellerType": "Seller type",
+      "contactEmail": "Contact email"
+    },
+    "sellerTypes": {
+      "individual": "Individual",
+      "proprietorship": "Proprietorship",
+      "partnership": "Partnership",
+      "llp": "Limited liability partnership (LLP)",
+      "private_limited": "Private limited company",
+      "other": "Other"
+    },
+    "saveLater": "Save and come back later",
+    "saveContinue": "Save and continue",
+    "saved": "Saved",
+    "address": {
+      "heading": "Pickup and return addresses",
+      "types": {
+        "pickup": "Pickup address",
+        "return": "Return address"
+      },
+      "type": "Address type",
+      "line1": "Address line 1",
+      "line2": "Address line 2",
+      "city": "City",
+      "state": "State",
+      "pincode": "Pin code",
+      "contactPhone": "Contact phone",
+      "add": "Add an address",
+      "editTitle": "Edit address",
+      "edit": "Edit",
+      "remove": "Remove",
+      "save": "Save address",
+      "saved": "Address saved",
+      "none": "No address yet",
+      "noneText": "Add the address where the courier collects your orders.",
+      "removeTitle": "Remove this address?",
+      "removeBody": "{address} will be removed from your application.",
+      "removed": "Address removed"
+    },
+    "documents": {
+      "types": {
+        "pan": "PAN card",
+        "gst_certificate": "GST certificate",
+        "address_proof": "Address proof",
+        "other": "Other document"
+      },
+      "required": "required",
+      "needed": "Needed",
+      "notAdded": "Not added yet",
+      "status": {
+        "pending": "Pending review",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "add": "Add file",
+      "replace": "Replace",
+      "remove": "Remove",
+      "view": "View",
+      "uploading": "Uploading {percent}%",
+      "uploaded": "{document} uploaded",
+      "help": "One file at a time: PDF, JPEG or PNG, up to 5 MB. The backend checks each file. Files are private.",
+      "rejectedReason": "Reason: {reason}",
+      "removeTitle": "Remove this document?",
+      "removeBody": "{name} will be removed.",
+      "removed": "Document removed",
+      "uploadUnknown": "We could not confirm the upload. Check the list before trying again."
+    },
+    "review": {
+      "missingOne": "1 thing is missing",
+      "missingMany": "{count} things are missing",
+      "fixFirst": "Fix these to submit.",
+      "ready": "Everything needed is here.",
+      "goToStep": "Go to this step",
+      "isMissing": "missing",
+      "isDone": "done",
+      "items": {
+        "seller_type": "Seller type",
+        "contact_email": "Contact email",
+        "pickup_address": "Pickup address",
+        "document:pan": "Document: PAN card",
+        "document:gst_certificate": "Document: GST certificate"
+      },
+      "termsTitle": "Vendor terms",
+      "termsDemo": "Demo text — not the real vendor terms",
+      "termsDemoBody": "The real vendor terms will replace this text.",
+      "termsVersion": "Terms version: {version}",
+      "accept": "I have read and agree to the vendor terms",
+      "submit": "Submit application",
+      "submitting": "Submitting…",
+      "submitHelp": "Submit turns on when nothing is missing and the terms are accepted. The backend decides in the end.",
+      "submitted": "Application submitted",
+      "termsChanged": "The vendor terms have changed. Read them again and agree to submit."
+    }
+  },
+  "adminVendors": {
+    "title": "Vendor review",
+    "application": "Application",
+    "filters": {
+      "status": "Status",
+      "allStatuses": "All statuses",
+      "documents": "Documents waiting",
+      "any": "Any",
+      "yes": "Yes",
+      "no": "No",
+      "search": "Search",
+      "searchHelp": "Name, GSTIN, or 3 or more digits of the phone number",
+      "show": "Show results",
+      "clear": "Clear filters"
+    },
+    "columns": {
+      "vendor": "Vendor",
+      "status": "Status",
+      "legalName": "Legal name",
+      "phone": "Owner's phone",
+      "documents": "Documents waiting",
+      "submitted": "Submitted"
+    },
+    "empty": "No vendors match",
+    "emptyText": "Try another status or clear the search.",
+    "notGiven": "Not given",
+    "ownerPhone": "Owner's phone",
+    "submittedAt": "Submitted",
+    "terms": "Terms version accepted",
+    "statusReason": "Reason given",
+    "addresses": "Addresses",
+    "noAddresses": "No addresses yet.",
+    "documents": "Documents",
+    "noDocuments": "No documents yet.",
+    "onRecord": "on record",
+    "viewFile": "View file",
+    "approveDoc": "Approve",
+    "rejectDoc": "Reject",
+    "rejectDocTitle": "Reject the {document}?",
+    "rejectDocBody": "The vendor reads your reason and can upload a new file.",
+    "rejectDocConfirm": "Reject document",
+    "docApproved": "Document approved",
+    "docRejected": "Document rejected",
+    "decision": "Decision",
+    "approve": "Approve vendor",
+    "reject": "Reject",
+    "suspend": "Suspend",
+    "unsuspend": "Unsuspend",
+    "rejectTitle": "Reject {name}?",
+    "rejectBody": "The application goes back to the vendor with your reason. They can fix it and submit again.",
+    "rejectConfirm": "Reject application",
+    "suspendTitle": "Suspend {name}?",
+    "suspendBody": "Their products stop showing at once and they cannot change anything until the suspension is lifted. They read your reason.",
+    "suspendConfirm": "Suspend vendor",
+    "reasonLabel": "Reason (the vendor can read it)",
+    "approved": "Vendor approved",
+    "rejected": "Application rejected",
+    "suspended": "Vendor suspended",
+    "unsuspended": "Suspension lifted",
+    "decisionHelp": "The backend decides whether a status change is allowed.",
+    "waitingForVendor": "Nothing to decide until the vendor submits the application.",
+    "outstandingTitle": "This vendor cannot be approved yet",
+    "outstanding": {
+      "seller_type": "Seller type is missing",
+      "contact_email": "Contact email is missing",
+      "pickup_address": "A pickup address is missing",
+      "terms_acceptance": "The vendor terms were not accepted",
+      "document": "{document}: missing, or the newest file is not approved",
+      "fileNotClean": "{document}: the approved file has not passed the malware check"
+    }
   }
 }

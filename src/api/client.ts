@@ -5,6 +5,7 @@ import { headers } from 'next/headers';
 import { isIP } from 'node:net';
 import { BackendErrorSchema } from '@/types/error';
 import { serverConfig } from '@/lib/config';
+import { withQuery, type Query } from '@/utils/url';
 
 /**
  * The one place that talks to the backend (Document 3, section 3). Request-specific timeouts, automatic retries for
@@ -23,9 +24,13 @@ export interface CallOptions<S extends z.ZodType | null> {
   method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   /** Path under the backend's /api/v1, for example "/auth/otp/request". */
   path: string;
+  /** Query values for a read; empty values are left out. */
+  query?: Query;
   kind: CallKind;
   token?: string;
   body?: unknown;
+  /** A file upload passed on as it arrives, never held whole in memory (Document 3, section 10). Sent once only. */
+  upload?: UploadBody;
   /** Zod schema of a successful body; null when the backend answers with no body (204). */
   schema: S;
   fetchImpl?: typeof fetch;
@@ -53,6 +58,13 @@ async function clientAddress(): Promise<string | undefined> {
     // Outside a request (for example a build step): nothing to pass on.
     return undefined;
   }
+}
+
+export interface UploadBody {
+  stream: ReadableStream<Uint8Array>;
+  /** The browser's own multipart/form-data header, with its boundary. */
+  contentType: string;
+  contentLength?: string;
 }
 
 export interface CallResult<T> {
@@ -93,58 +105,12 @@ export async function callBackend<S extends z.ZodType | null>(options: CallOptio
 }
 
 async function callOnce<S extends z.ZodType | null>(options: CallOptions<S>): Promise<CallResult<S extends z.ZodType ? z.infer<S> : null>> {
-  const doFetch = options.fetchImpl ?? fetch;
   const changesData = options.method !== 'GET';
-  const url = `${serverConfig.backendUrl}/api/v1${options.path}`;
-  const headers: Record<string, string> = { accept: 'application/json' };
-  if (options.token) headers.authorization = `Bearer ${options.token}`;
-  if (options.body !== undefined) headers['content-type'] = 'application/json';
-  // The customer's address, so the backend's per-address limits count each customer (Document 3, section 3).
-  const address = options.clientAddress === undefined ? await clientAddress() : options.clientAddress;
-  if (address) headers['x-forwarded-for'] = address;
-
-  let response: Response;
-  try {
-    response = await doFetch(url, {
-      method: options.method,
-      headers,
-      body: options.body === undefined ? undefined : JSON.stringify(options.body),
-      signal: AbortSignal.timeout(TIMEOUT_MS[options.kind]),
-      cache: 'no-store',
-    });
-  } catch (error) {
-    const timedOut = error instanceof DOMException && (error.name === 'TimeoutError' || error.name === 'AbortError');
-    throw new AppError({ code: timedOut ? 'TIMEOUT' : 'NETWORK', status: 0, outcomeUnknown: changesData });
-  }
-
+  const response = await send(options, changesData);
   const requestId = response.headers.get('x-request-id') ?? undefined;
-  // "Too many requests": the wait the backend gives, from details or its headers (api-contract.md, sections 3 and 7).
-  const waitHeader = Number(response.headers.get('retry-after') ?? response.headers.get('x-ratelimit-reset'));
   const text = await response.text().catch(() => '');
   const json = text ? safeJson(text) : undefined;
-
-  if (!response.ok) {
-    const parsed = BackendErrorSchema.safeParse(json);
-    if (!parsed.success) {
-      throw new AppError({ code: response.status >= 500 ? 'SERVER_ERROR' : 'UNKNOWN_ERROR', status: response.status, requestId, outcomeUnknown: changesData && response.status >= 500 });
-    }
-    const { code, details, message } = parsed.data.error;
-    const fields = Array.isArray(details) ? details : undefined;
-    // Backend gap B1: details may carry a database constraint name. It is never used or passed on.
-    let cleanDetails = details && !Array.isArray(details) ? Object.fromEntries(Object.entries(details).filter(([k]) => k !== 'constraint')) : undefined;
-    if (response.status === 429 && cleanDetails?.retryAfterSeconds === undefined && Number.isFinite(waitHeader) && waitHeader > 0) {
-      cleanDetails = { ...cleanDetails, retryAfterSeconds: waitHeader };
-    }
-    throw new AppError({
-      code,
-      status: response.status,
-      requestId: parsed.data.error.requestId ?? requestId,
-      details: cleanDetails,
-      fields,
-      backendMessage: serverConfig.isProduction ? undefined : message,
-      outcomeUnknown: changesData && response.status >= 500,
-    });
-  }
+  if (!response.ok) throw errorFrom(response, json, changesData);
 
   if (options.schema === null) return { data: null as never, status: response.status, requestId };
   const checked = options.schema.safeParse(json);
@@ -162,6 +128,73 @@ async function callOnce<S extends z.ZodType | null>(options: CallOptions<S>): Pr
     });
   }
   return { data: checked.data as never, status: response.status, requestId };
+}
+
+async function send(options: CallOptions<z.ZodType | null>, changesData: boolean): Promise<Response> {
+  const doFetch = options.fetchImpl ?? fetch;
+  const url = `${serverConfig.backendUrl}/api/v1${withQuery(options.path, options.query)}`;
+  const headers: Record<string, string> = { accept: 'application/json' };
+  if (options.token) headers.authorization = `Bearer ${options.token}`;
+  if (options.body !== undefined) headers['content-type'] = 'application/json';
+  if (options.upload) {
+    headers['content-type'] = options.upload.contentType;
+    if (options.upload.contentLength) headers['content-length'] = options.upload.contentLength;
+  }
+  // The customer's address, so the backend's per-address limits count each customer (Document 3, section 3).
+  const address = options.clientAddress === undefined ? await clientAddress() : options.clientAddress;
+  if (address) headers['x-forwarded-for'] = address;
+  try {
+    return await doFetch(url, {
+      method: options.method,
+      headers,
+      body: options.upload ? options.upload.stream : options.body === undefined ? undefined : JSON.stringify(options.body),
+      signal: AbortSignal.timeout(TIMEOUT_MS[options.kind]),
+      cache: 'no-store',
+      // A streamed request body (Node.js needs this to send a stream).
+      ...(options.upload ? { duplex: 'half' } : {}),
+    } as RequestInit);
+  } catch (error) {
+    const timedOut = error instanceof DOMException && (error.name === 'TimeoutError' || error.name === 'AbortError');
+    throw new AppError({ code: timedOut ? 'TIMEOUT' : 'NETWORK', status: 0, outcomeUnknown: changesData });
+  }
+}
+
+/** One AppError from a backend error answer (api-contract.md, section 3). */
+function errorFrom(response: Response, json: unknown, changesData: boolean): AppError {
+  const requestId = response.headers.get('x-request-id') ?? undefined;
+  // "Too many requests": the wait the backend gives, from details or its headers (api-contract.md, sections 3 and 7).
+  const waitHeader = Number(response.headers.get('retry-after') ?? response.headers.get('x-ratelimit-reset'));
+  const parsed = BackendErrorSchema.safeParse(json);
+  if (!parsed.success) {
+    return new AppError({ code: response.status >= 500 ? 'SERVER_ERROR' : 'UNKNOWN_ERROR', status: response.status, requestId, outcomeUnknown: changesData && response.status >= 500 });
+  }
+  const { code, details, message } = parsed.data.error;
+  const fields = Array.isArray(details) ? details : undefined;
+  // Backend gap B1: details may carry a database constraint name. It is never used or passed on.
+  let cleanDetails = details && !Array.isArray(details) ? Object.fromEntries(Object.entries(details).filter(([k]) => k !== 'constraint')) : undefined;
+  if (response.status === 429 && cleanDetails?.retryAfterSeconds === undefined && Number.isFinite(waitHeader) && waitHeader > 0) {
+    cleanDetails = { ...cleanDetails, retryAfterSeconds: waitHeader };
+  }
+  return new AppError({
+    code,
+    status: response.status,
+    requestId: parsed.data.error.requestId ?? requestId,
+    details: cleanDetails,
+    fields,
+    backendMessage: serverConfig.isProduction ? undefined : message,
+    outcomeUnknown: changesData && response.status >= 500,
+  });
+}
+
+/**
+ * A private file from the backend (a vendor document, a photo not yet approved), passed on to the browser as it arrives
+ * (Document 3, section 10). Returns the backend's answer when it is a file; an error answer becomes an AppError.
+ */
+export async function openBackendFile(options: { path: string; token: string; fetchImpl?: typeof fetch }): Promise<Response> {
+  const response = await send({ method: 'GET', path: options.path, kind: 'upload', token: options.token, schema: null, fetchImpl: options.fetchImpl }, false);
+  if (response.ok) return response;
+  const text = await response.text().catch(() => '');
+  throw errorFrom(response, text ? safeJson(text) : undefined, false);
 }
 
 function safeJson(text: string): unknown {

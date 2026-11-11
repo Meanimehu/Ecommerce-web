@@ -1,5 +1,6 @@
 import 'server-only';
 import { cookies } from 'next/headers';
+import { cache } from 'react';
 import type { NextRequest } from 'next/server';
 import { AppError } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
@@ -70,7 +71,7 @@ export type AsUser<T> = { ok: true; value: T; newCookies?: NewCookies } | ({ ok:
  * session is refreshed once and the call repeated: the backend refused it before doing anything, so repeating is safe.
  * The caller sets `newCookies` in its answer.
  */
-export async function asUser<T>(auth: AuthCookies, call: (token: string) => Promise<T>): Promise<AsUser<T>> {
+export async function asUser<T>(auth: AuthCookies, call: (token: string) => Promise<T>, options: { once?: boolean } = {}): Promise<AsUser<T>> {
   let token = auth.access;
   let newCookies: NewCookies | undefined;
 
@@ -83,7 +84,9 @@ export async function asUser<T>(auth: AuthCookies, call: (token: string) => Prom
     return null;
   };
 
-  if (!token) {
+  // A call that can be sent only once (a streamed upload) is never repeated, so it starts with a token that will not
+  // expire on the way.
+  if (!token || (options.once && expiresWithin(token, 60))) {
     const failure = await refresh();
     if (failure) return { ok: false, ...failure };
   }
@@ -93,6 +96,7 @@ export async function asUser<T>(auth: AuthCookies, call: (token: string) => Prom
     } catch (error) {
       if (!(error instanceof AppError)) throw error;
       const expired = error.code === 'TOKEN_EXPIRED' || error.code === 'TOKEN_INVALID';
+      if (expired && options.once) return { ok: false, outcome: 'temporary' };
       if (expired && !newCookies) {
         const failure = await refresh();
         if (failure) return { ok: false, ...failure };
@@ -106,25 +110,42 @@ export async function asUser<T>(auth: AuthCookies, call: (token: string) => Prom
 }
 
 /**
+ * True when the access token's own expiry time is less than `seconds` away. The token is only read, never trusted:
+ * the backend checks it. A token that cannot be read counts as expiring.
+ */
+export function expiresWithin(token: string, seconds: number): boolean {
+  try {
+    const payload = JSON.parse(Buffer.from(token.split('.')[1] ?? '', 'base64url').toString('utf8')) as { exp?: unknown };
+    return typeof payload.exp !== 'number' || payload.exp * 1000 - Date.now() < seconds * 1000;
+  } catch {
+    return true;
+  }
+}
+
+/**
  * Who is looking at a server-rendered page. A page render cannot set cookies, so it never refreshes: when the access
  * token is missing or expired it answers "needs-refresh", and the page lets the browser call GET /api/session, which
  * refreshes and sets the new cookies (Document 4, section 9).
  */
-export type Viewer = { state: 'anonymous' } | { state: 'needs-refresh' } | { state: 'user'; user: User } | { state: 'unavailable' };
+export type Viewer = { state: 'anonymous' } | { state: 'needs-refresh' } | { state: 'user'; user: User; token: string } | { state: 'unavailable' };
 
-export async function getViewer(): Promise<Viewer> {
+/**
+ * Asked once per page render, however many layouts and pages ask (React cache). The token is for this server's own
+ * backend calls while rendering; it is never put into the page.
+ */
+export const getViewer = cache(async (): Promise<Viewer> => {
   const jar = await cookies();
   const access = jar.get(COOKIE.access)?.value;
   const refresh = jar.get(COOKIE.refresh)?.value;
   if (!access) return refresh ? { state: 'needs-refresh' } : { state: 'anonymous' };
   try {
     const { data } = await authApi.getMe(access);
-    return { state: 'user', user: data };
+    return { state: 'user', user: data, token: access };
   } catch (error) {
     if (error instanceof AppError && (error.status === 401 || error.code === 'USER_BLOCKED')) return { state: 'needs-refresh' };
     return { state: 'unavailable' };
   }
-}
+});
 
 /** Where a person goes after login when they asked for no page (Document 2, D2-03). */
 export function defaultDestination(roles: readonly string[], lang: Locale): string {

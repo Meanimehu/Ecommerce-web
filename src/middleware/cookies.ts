@@ -78,3 +78,6 @@ export function unsign<T>(value: string | undefined): T | null {
     return null;
   }
 }
+
+/** The request header in which proxy.ts gives a page render its own address (path and query). */
+export const PATH_HEADER = 'x-dhaaga-path';
