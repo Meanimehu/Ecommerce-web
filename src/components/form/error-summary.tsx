@@ -6,7 +6,7 @@ import type { FieldValues, UseFormReturn } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { fill } from '@/lib/errors';
 import type { Messages } from '@/lib/i18n';
-import { resolveMessage } from './form';
+import { resolveMessage } from '@/hooks/use-app-form';
 
 /**
  * The error summary at the top of a form (Document 5, section 10; Document 6, section 9). It lists every error after a

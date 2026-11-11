@@ -1,10 +1,10 @@
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { isLocale } from '@/lib/i18n';
-import * as authApi from '@/server/api-layer/accounts';
-import { COOKIE, cookieOptions, decodeNext } from '@/server/auth/cookies';
-import { fail, fromAppError, guardChange, ok, readJson, setSessionCookies } from '@/server/auth/http';
-import { defaultDestination } from '@/server/auth/session';
+import * as authApi from '@/api/auth';
+import { COOKIE, cookieOptions, decodeNext } from '@/middleware/cookies';
+import { fail, fromAppError, guardChange, ok, readJson, setSessionCookies } from '@/middleware/responses';
+import { defaultDestination } from '@/middleware/session';
 
 /**
  * POST /api/auth/verify: checks the code with the backend and, on success, sets the login cookies (Document 2,

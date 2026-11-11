@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import { LanguageSwitch } from '@/features/common/language-switch';
-import { NeedsScript } from '@/features/common/needs-script';
+import { LanguageSwitch } from '@/components/common/language-switch';
+import { NeedsScript } from '@/components/common/needs-script';
 import { getMessages, type Locale } from '@/lib/i18n';
 
 /** The top bar of the Vendor and Admin areas, naming the area (Document 5, D5-15). The full shell comes with Stage 4. */

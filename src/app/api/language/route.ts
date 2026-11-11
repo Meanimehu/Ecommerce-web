@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
-import { COOKIE, cookieOptions, LIFETIME_SECONDS } from '@/server/auth/cookies';
-import { fail, guardChange, ok, readJson } from '@/server/auth/http';
+import { COOKIE, cookieOptions, LIFETIME_SECONDS } from '@/middleware/cookies';
+import { fail, guardChange, ok, readJson } from '@/middleware/responses';
 
 /** POST /api/language: remembers the person's language choice (Document 4, section 6). Only when they use the switcher. */
 const Body = z.object({ lang: z.enum(['en', 'hi']) });

@@ -2,7 +2,7 @@
 
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
-import { endSession, endsSession } from '@/lib/client/session';
+import { endSession, endsSession } from '@/hooks/use-session';
 import { AppError } from '@/lib/errors';
 
 /**

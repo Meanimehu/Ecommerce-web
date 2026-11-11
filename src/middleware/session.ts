@@ -3,10 +3,10 @@ import { cookies } from 'next/headers';
 import type { NextRequest } from 'next/server';
 import { AppError } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
-import { isStaff, type User } from '@/schemas/accounts';
-import * as authApi from '../api-layer/accounts';
+import { isStaff, type User } from '@/types/auth';
+import * as authApi from '@/api/auth';
 import { COOKIE } from './cookies';
-import { clearSessionCookies, guardChange, ok } from './http';
+import { clearSessionCookies, guardChange, ok } from './responses';
 
 /**
  * Who a request is, and keeping them logged in (Document 2, section 4; Document 4, section 9, D4-11).

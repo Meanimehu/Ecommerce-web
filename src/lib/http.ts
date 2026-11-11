@@ -1,5 +1,4 @@
 import { AppError } from '@/lib/errors';
-import type { User } from '@/schemas/accounts';
 
 /**
  * Browser calls to our own server (Document 3, D3-03: the browser never calls the backend). Every request has a time
@@ -8,11 +7,6 @@ import type { User } from '@/schemas/accounts';
  */
 const TIMEOUT_MS = 20_000;
 const FORGERY_HEADER = { 'x-dhaaga-csrf': '1' };
-
-export interface SessionAnswer {
-  /** The User of Area 1, as checked by the server against UserSchema; the type is inferred from that schema. */
-  user: User | null;
-}
 
 async function parseError(response: Response, changesData: boolean): Promise<AppError> {
   const body = (await response.json().catch(() => null)) as { error?: Record<string, unknown> } | null;
@@ -48,7 +42,8 @@ async function request<T>(method: 'GET' | 'POST', path: string, body?: unknown):
   return (await response.json()) as T;
 }
 
-export const getSession = (): Promise<SessionAnswer> => request<SessionAnswer>('GET', '/api/session');
+/** A read. Safe to repeat. */
+export const get = <T>(path: string): Promise<T> => request<T>('GET', path);
 
 /** A data-changing request. Never repeated automatically. */
 export const send = <T>(path: string, body: unknown = {}): Promise<T> => request<T>('POST', path, body);

@@ -1,16 +1,16 @@
 'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { ErrorSummary } from '@/components/form/error-summary';
-import { applyServerError, useAppForm } from '@/components/form/form';
+import { applyServerError, useAppForm } from '@/hooks/use-app-form';
 import { TextField } from '@/components/form/text-field';
 import { Button } from '@/components/ui/button';
-import { send } from '@/lib/client/api';
-import { NOTICE_EVENT, reloadSession, takeSessionNotice, type SessionNotice } from '@/lib/client/session';
+import { useRequestCode, useVerify } from '@/hooks/use-login';
+import { NOTICE_EVENT, reloadSession, takeSessionNotice, type SessionNotice } from '@/hooks/use-session';
 import { AppError, fill } from '@/lib/errors';
 import { getMessages, type Locale } from '@/lib/i18n';
-import { CodeSchema, PhoneSchema, type CodeInput, type PhoneInput } from '@/schemas/forms/login';
+import { CodeSchema, PhoneSchema, type CodeInput, type PhoneInput } from '@/types/auth';
 
 /**
  * Login by phone code (Document 2, section 3; Document 5, section 6.4). One login page for everyone (D2-04).
@@ -34,7 +34,7 @@ export function LoginForm({ lang }: { lang: Locale }) {
   const [phoneFocus, setPhoneFocus] = useState(0);
   const [codeFocus, setCodeFocus] = useState(0);
 
-  // After a session ended, lib/client/session.ts leaves a notice for this page: "Please log in again", or the blocked message.
+  // After a session ended, hooks/use-session.ts leaves a notice for this page: "Please log in again", or the blocked message.
   const [sessionNotice, setSessionNotice] = useState<SessionNotice | null>(null);
   useEffect(() => {
     const read = () => {
@@ -63,12 +63,8 @@ export function LoginForm({ lang }: { lang: Locale }) {
     setNow(at);
   }, []);
 
-  const requestCode = useMutation({
-    mutationFn: (value: string) => send<{ resendAfterSeconds: number }>('/api/auth/code', { phone: value }),
-  });
-  const verify = useMutation({
-    mutationFn: (code: string) => send<{ destination: string }>('/api/auth/verify', { phone, code, lang }),
-  });
+  const requestCode = useRequestCode();
+  const verify = useVerify();
 
   const onPhone = phoneForm.handleSubmit(
     (values) => {
@@ -100,7 +96,7 @@ export function LoginForm({ lang }: { lang: Locale }) {
 
   const onCode = codeForm.handleSubmit(
     (values) => {
-      verify.mutate(values.code, {
+      verify.mutate({ phone, code: values.code, lang }, {
         onSuccess: (answer) => {
           queryClient.clear();
           // A full page load on purpose: the next page is rendered on the server with the new cookies.

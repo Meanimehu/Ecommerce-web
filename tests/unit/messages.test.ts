@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { compareCatalogues } from '@/lib/message-checks';
+import { compareCatalogues } from '@/utils/message-checks';
 import en from '@/messages/en.json';
 import hi from '@/messages/hi.json';
 

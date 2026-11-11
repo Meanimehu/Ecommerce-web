@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
-import { LogoutButtons } from '@/features/auth/logout-buttons';
-import { requireUser } from '@/features/auth/require-user';
-import { LanguageSwitch } from '@/features/common/language-switch';
-import { NeedsScript } from '@/features/common/needs-script';
+import { LogoutButtons } from '@/components/auth/logout-buttons';
+import { requireUser } from '@/components/auth/require-user';
+import { LanguageSwitch } from '@/components/common/language-switch';
+import { NeedsScript } from '@/components/common/needs-script';
 import { getMessages } from '@/lib/i18n';
-import { formatPhone } from '@/lib/format';
-import { isStaff } from '@/schemas/accounts';
+import { formatPhone } from '@/utils/format';
+import { isStaff } from '@/types/auth';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { robots: { index: false, follow: false } };
