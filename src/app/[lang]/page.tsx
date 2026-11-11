@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
-import { isLocale } from '@/lib/i18n';
-import { getMessages } from '@/lib/messages';
+import { getMessages, isLocale } from '@/lib/i18n';
 
 /** Slice 0: a blank page that proves the app builds, runs and deploys. The storefront home is built in Slice 3. */
 export default async function Home({ params }: { params: Promise<{ lang: string }> }) {

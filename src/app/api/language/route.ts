@@ -7,7 +7,7 @@ import { fail, guardChange, ok, readJson } from '@/server/auth/http';
 const Body = z.object({ lang: z.enum(['en', 'hi']) });
 
 export async function POST(request: NextRequest) {
-  const refused = guardChange(request, 'session-or-pre-login');
+  const refused = guardChange(request);
   if (refused) return refused;
   const body = Body.safeParse(await readJson(request));
   if (!body.success) return fail('VALIDATION_FAILED', 400);

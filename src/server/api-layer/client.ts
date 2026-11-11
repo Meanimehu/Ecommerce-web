@@ -1,8 +1,9 @@
 import 'server-only';
 import type { z } from 'zod';
 import { AppError } from '@/lib/errors';
+import { headers } from 'next/headers';
+import { isIP } from 'node:net';
 import { BackendErrorSchema } from '@/schemas/error';
-import { clientAddress } from '../client-address';
 import { serverConfig } from '../config';
 
 /**
@@ -31,6 +32,27 @@ export interface CallOptions<S extends z.ZodType | null> {
   sleep?: (ms: number) => Promise<void>;
   /** For tests only; normally read from the incoming request. null sends none. */
   clientAddress?: string | null;
+}
+
+/**
+ * The customer's address, so the backend's per-address limits count each customer, not this server (Document 3,
+ * section 3; Document 4, section 4). Taken only from the header the hosting's front door adds (CLIENT_ADDRESS_HEADER):
+ * its last entry, and only if it is a real IP address. What the browser itself sends earlier in the header is ignored.
+ */
+export function pickClientAddress(headerValue: string | null | undefined): string | undefined {
+  const last = (headerValue ?? '').split(',').map((part) => part.trim()).filter(Boolean).at(-1);
+  return last && isIP(last) ? last : undefined;
+}
+
+async function clientAddress(): Promise<string | undefined> {
+  const name = serverConfig.clientAddressHeader;
+  if (!name) return undefined;
+  try {
+    return pickClientAddress((await headers()).get(name));
+  } catch {
+    // Outside a request (for example a build step): nothing to pass on.
+    return undefined;
+  }
 }
 
 export interface CallResult<T> {

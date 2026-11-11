@@ -3,45 +3,32 @@ import type { User } from '@/schemas/accounts';
 
 /**
  * Browser calls to our own server (Document 3, D3-03: the browser never calls the backend). Every request has a time
- * limit; saves are never repeated automatically (D7-01, D7-10). The anti-forgery token comes from GET /api/session,
- * lives in memory only, and goes in the X-Dhaaga-CSRF header (Document 4, section 9; D7-13).
+ * limit; saves are never repeated automatically (D7-01, D7-10). Every change carries our fixed header, which another
+ * site cannot add (Document 7, section 17.3).
  */
 const TIMEOUT_MS = 20_000;
-const TOKEN_MAX_AGE_MS = 10 * 60_000;
-
-let csrf: { token: string; at: number } | null = null;
-
-export function rememberCsrf(token: unknown): void {
-  if (typeof token === 'string' && token) csrf = { token, at: Date.now() };
-}
-
-export function forgetCsrf(): void {
-  csrf = null;
-}
+const FORGERY_HEADER = { 'x-dhaaga-csrf': '1' };
 
 export interface SessionAnswer {
   /** The User of Area 1, as checked by the server against UserSchema; the type is inferred from that schema. */
   user: User | null;
-  csrfToken: string;
 }
 
 async function parseError(response: Response, changesData: boolean): Promise<AppError> {
   const body = (await response.json().catch(() => null)) as { error?: Record<string, unknown> } | null;
   const error = body?.error ?? {};
-  rememberCsrf(error.csrfToken);
-  const details = { ...((error.details as Record<string, unknown> | undefined) ?? {}), ...(error.handle ? { handle: error.handle } : {}) };
   return new AppError({
     code: typeof error.code === 'string' ? error.code : response.status >= 500 ? 'SERVER_ERROR' : 'UNKNOWN_ERROR',
     status: response.status,
     requestId: typeof error.requestId === 'string' ? error.requestId : undefined,
-    details,
+    details: (error.details as Record<string, unknown> | undefined) ?? {},
     fields: Array.isArray(error.fields) ? (error.fields as AppError['fields']) : undefined,
     backendMessage: typeof error.backendMessage === 'string' ? error.backendMessage : undefined,
     outcomeUnknown: Boolean(error.outcomeUnknown) || (changesData && response.status >= 500 && response.status !== 503),
   });
 }
 
-async function request<T>(method: 'GET' | 'POST', path: string, body?: unknown, headers: Record<string, string> = {}): Promise<T> {
+async function request<T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T> {
   const changesData = method !== 'GET';
   let response: Response;
   try {
@@ -49,7 +36,7 @@ async function request<T>(method: 'GET' | 'POST', path: string, body?: unknown, 
       method,
       credentials: 'same-origin',
       cache: 'no-store',
-      headers: { accept: 'application/json', ...(body === undefined ? {} : { 'content-type': 'application/json' }), ...headers },
+      headers: { accept: 'application/json', ...(body === undefined ? {} : { 'content-type': 'application/json' }), ...(changesData ? FORGERY_HEADER : {}) },
       body: body === undefined ? undefined : JSON.stringify(body),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
@@ -61,25 +48,7 @@ async function request<T>(method: 'GET' | 'POST', path: string, body?: unknown, 
   return (await response.json()) as T;
 }
 
-export async function getSession(): Promise<SessionAnswer> {
-  const answer = await request<SessionAnswer>('GET', '/api/session');
-  rememberCsrf(answer.csrfToken);
-  return answer;
-}
-
-async function csrfToken(): Promise<string> {
-  if (!csrf || Date.now() - csrf.at > TOKEN_MAX_AGE_MS) {
-    try {
-      await getSession();
-    } catch (error) {
-      // A session problem still carries a pre-login token (for logging in again, or compare-and-clear).
-      if (!csrf) throw error;
-    }
-  }
-  return csrf?.token ?? '';
-}
+export const getSession = (): Promise<SessionAnswer> => request<SessionAnswer>('GET', '/api/session');
 
 /** A data-changing request. Never repeated automatically. */
-export async function send<T>(path: string, body: unknown = {}): Promise<T> {
-  return request<T>('POST', path, body, { 'x-dhaaga-csrf': await csrfToken() });
-}
+export const send = <T>(path: string, body: unknown = {}): Promise<T> => request<T>('POST', path, body);

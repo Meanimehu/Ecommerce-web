@@ -44,6 +44,12 @@ export async function backendLogin(phone: string): Promise<string> {
   return ((await verify.json()) as { accessToken: string }).accessToken;
 }
 
+/** Ends a session at the backend without touching the browser's cookies (as a logout in another tab would). */
+export async function backendLogout(accessToken: string): Promise<void> {
+  const answer = await fetch(`${backendUrl}/api/v1/auth/logout`, { method: 'POST', headers: { authorization: `Bearer ${accessToken}` } });
+  if (answer.status !== 204) throw new Error(`logout failed: ${answer.status}`);
+}
+
 export async function blockUser(adminToken: string, phone: string): Promise<void> {
   const auth = { authorization: `Bearer ${adminToken}`, 'content-type': 'application/json' };
   const found = await fetch(`${backendUrl}/api/v1/admin/users?phone=${phone}`, { headers: auth });

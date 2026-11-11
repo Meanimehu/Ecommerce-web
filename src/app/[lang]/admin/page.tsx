@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
-import { isLocale } from '@/lib/i18n';
-import { getMessages } from '@/lib/messages';
+import { getMessages, isLocale } from '@/lib/i18n';
 
 /** Admin home (Document 5, section 8.3). Its links arrive with the admin screens from Slice 2. */
 export default async function AdminHome({ params }: { params: Promise<{ lang: string }> }) {

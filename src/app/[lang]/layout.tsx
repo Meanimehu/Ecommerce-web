@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { notFound } from 'next/navigation';
-import { isLocale, LOCALES } from '@/lib/i18n';
-import { getMessages } from '@/lib/messages';
+import { getMessages, isLocale, LOCALES } from '@/lib/i18n';
 import { Providers } from './providers';
 import '../globals.css';
 

@@ -42,7 +42,6 @@
   "session": {
     "checking": "Checking your login…",
     "logInAgain": "Please log in again.",
-    "changed": "Your session changed. Please try again; if it keeps happening, log in again.",
     "tryShortly": "Something went wrong, please try again shortly.",
     "blocked": "This account is blocked. Please contact support."
   },
@@ -92,7 +91,6 @@
       "USER_BLOCKED": "This account is blocked. Please contact support.",
       "CSRF_INVALID": "This page has expired. Reload it and try again.",
       "ORIGIN_INVALID": "This page has expired. Reload it and try again.",
-      "SESSION_STALE": "Your session changed. Please try again; if it keeps happening, log in again.",
       "SESSION_TEMPORARY": "Something went wrong, please try again shortly.",
       "TOO_MANY_REQUESTS": "Too many requests. Please wait a moment and try again."
     }

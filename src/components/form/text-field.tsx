@@ -5,9 +5,9 @@ import type { ComponentProps } from 'react';
 import type { FieldValues, Path, UseFormReturn } from 'react-hook-form';
 import { Field, FieldDescription, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import type { Messages } from '@/lib/messages';
+import type { Messages } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import { resolveMessage } from './messages';
+import { resolveMessage } from './form';
 
 /**
  * A labelled text field (Document 6, sections 8.3 and 9). Its error sits directly under it with an icon and text, is

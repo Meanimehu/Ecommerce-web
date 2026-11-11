@@ -1,6 +1,32 @@
-import type { FieldValues, Path, UseFormReturn } from 'react-hook-form';
+'use client';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, type DefaultValues, type FieldValues, type Path, type UseFormReturn } from 'react-hook-form';
+import type { z } from 'zod';
 import { fill, messageFor, type AppError } from '@/lib/errors';
-import type { Messages } from '@/lib/messages';
+import type { Messages } from '@/lib/i18n';
+
+/** The form basics every form uses: the form itself, server errors in the right place, and message keys. */
+
+/**
+ * Every form: React Hook Form with a Zod schema (D-04). Timing follows D6-25: a field is checked when the person leaves
+ * it, never a first-time error while typing; once shown, an error clears as soon as the value is valid; the whole form
+ * is checked again on submit. Focus after a failed submit goes to the error summary, not to a field (Document 5,
+ * section 10), so the form never moves focus to a field by itself.
+ * The schema checks only what is cheap and certain (a missing value, a wrong shape); content rules are the backend's.
+ */
+export function useAppForm<TValues extends FieldValues, TOutput extends FieldValues = TValues>(
+  schema: z.ZodType<TOutput, TValues>,
+  defaultValues: DefaultValues<TValues>,
+) {
+  return useForm<TValues, unknown, TOutput>({
+    resolver: zodResolver(schema),
+    defaultValues,
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
+    shouldFocusError: false,
+  });
+}
 
 /**
  * Puts a backend error where Document 5, section 10 and Document 6, section 9 say it belongs:
@@ -39,4 +65,17 @@ export function applyServerError<TValues extends FieldValues>(
   const field = map.codes?.[error.code];
   if (field) form.setError(field, { type: 'server', message: messageFor(error, t) });
   else form.setError('root.server', { type: 'server', message: messageFor(error, t) });
+}
+
+/**
+ * Schema rules carry a message key such as "validation.phoneRequired", never text, so the same schema serves English
+ * and Hindi (D-08). Anything else (a server message already in the person's language) is shown as it is.
+ */
+export function resolveMessage(message: string | undefined, t: Messages): string {
+  if (!message) return '';
+  if (message.startsWith('validation.')) {
+    const text = (t.validation as Record<string, string>)[message.slice('validation.'.length)];
+    if (text) return text;
+  }
+  return message;
 }

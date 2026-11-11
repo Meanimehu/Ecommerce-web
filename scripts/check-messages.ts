@@ -1,8 +1,7 @@
 /** Fails when the English and Hindi message files differ in keys, or hold empty or non-text values (Document 4, section 6). */
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { BACKEND_CODES_IN_USE, FRAMEWORK_CODES_WITH_MESSAGES, FRONTEND_CODES_WITH_MESSAGES } from '../src/lib/error-codes-in-use';
-import { compareCatalogues } from '../src/lib/message-keys';
+import { BACKEND_CODES_IN_USE, compareCatalogues, FRAMEWORK_CODES_WITH_MESSAGES, FRONTEND_CODES_WITH_MESSAGES } from '../src/lib/message-checks';
 
 const dir = fileURLToPath(new URL('../src/messages/', import.meta.url));
 const [en, hi] = await Promise.all(['en.json', 'hi.json'].map(async (f) => JSON.parse(await readFile(dir + f, 'utf8')) as unknown));

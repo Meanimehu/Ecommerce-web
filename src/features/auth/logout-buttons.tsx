@@ -13,26 +13,21 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { forgetCsrf, send } from '@/lib/client/api';
-import { reloadSession } from '@/lib/client/reconcile';
+import { send } from '@/lib/client/api';
+import { reloadSession } from '@/lib/client/session';
 import { AppError, messageFor } from '@/lib/errors';
-import type { Locale } from '@/lib/i18n';
-import { getMessages } from '@/lib/messages';
+import { getMessages, type Locale } from '@/lib/i18n';
 import { ErrorMessage } from '../common/error-message';
 
 /**
- * "Log out" and "Log out everywhere" (Document 2, section 4; Document 5, section 6.5). The backend is asked to end the
- * session; then compare-and-clear removes the cookies even if the backend could not be reached.
+ * "Log out" and "Log out everywhere" (Document 2, section 4; Document 5, section 6.5). Our server asks the backend to
+ * end the session and clears the cookies in its answer, even if the backend could not be reached.
  */
 export function LogoutButtons({ lang }: { lang: Locale }) {
   const t = getMessages(lang);
   const queryClient = useQueryClient();
-  // Ask the backend to end the session, then compare-and-clear the cookies (Document 2, section 4; D-02).
   const logOut = useMutation({
-    mutationFn: async (everywhere: boolean) => {
-      const { handle } = await send<{ handle: string | null }>(everywhere ? '/api/auth/logout-all' : '/api/auth/logout');
-      if (handle) await send('/api/session/clear', { handle });
-    },
+    mutationFn: (everywhere: boolean) => send(everywhere ? '/api/auth/logout-all' : '/api/auth/logout'),
     onSuccess: () => leave(),
     onError: async (raw) => {
       // Unknown outcome: look at the session once, and go by what is there (Document 3, section 6).
@@ -45,7 +40,6 @@ export function LogoutButtons({ lang }: { lang: Locale }) {
 
   function leave() {
     queryClient.clear();
-    forgetCsrf();
     // A full page load on purpose: the next page is rendered on the server without the cookies.
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.assign(`/${lang}`);

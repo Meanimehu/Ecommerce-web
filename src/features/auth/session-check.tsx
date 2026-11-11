@@ -3,17 +3,15 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { useSession } from '@/lib/client/session';
-import { endsSession } from '@/lib/client/session-end';
+import { endsSession, useSession } from '@/lib/client/session';
 import { AppError } from '@/lib/errors';
-import type { Locale } from '@/lib/i18n';
-import { getMessages } from '@/lib/messages';
+import { getMessages, type Locale } from '@/lib/i18n';
 
 /**
  * Shown by a page whose access token is missing or expired. A page render cannot set cookies, so the browser asks
  * GET /api/session (a TanStack query, D-02), which refreshes safely and sets the new cookies; then the page renders
- * again (Document 4, section 9). Session ended or blocked: handled in one place for every screen (session-end.ts).
- * Temporary or stale: a message, and the person stays.
+ * again (Document 4, section 9). Session ended or blocked: handled in one place for every screen
+ * (lib/client/session.ts). No clear answer: a message, and the person stays.
  */
 export function SessionCheck({ lang, path }: { lang: Locale; path: string }) {
   const t = getMessages(lang);
@@ -41,7 +39,7 @@ export function SessionCheck({ lang, path }: { lang: Locale; path: string }) {
   }
   return (
     <div role="alert" className="space-y-3 p-4">
-      <p>{error.code === 'SESSION_STALE' ? t.session.changed : t.session.tryShortly}</p>
+      <p>{t.session.tryShortly}</p>
       <div className="flex gap-3">
         <Button type="button" onClick={() => void session.refetch()}>
           {t.errors.tryAgain}

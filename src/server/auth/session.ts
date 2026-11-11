@@ -1,103 +1,85 @@
 import 'server-only';
+import { cookies } from 'next/headers';
 import type { NextRequest } from 'next/server';
 import { AppError } from '@/lib/errors';
+import type { Locale } from '@/lib/i18n';
+import { isStaff, type User } from '@/schemas/accounts';
 import * as authApi from '../api-layer/accounts';
-import { serverConfig } from '../config';
-import { storePool } from '../store/pool';
-import { storeStatus } from '../store/monitor';
-import { COOKIE, decodeRefreshCookie, type RefreshCookie } from './cookies';
-import { b64url, deriveKey, hmac, randomId } from './crypto';
-import { refreshSession, sessionHandle, type RefreshKeys } from './refresh';
+import { COOKIE } from './cookies';
+import { clearSessionCookies, guardChange, ok } from './http';
 
-/** Who a request is, refreshing when needed (Document 2, section 4; Document 4, section 9). Route handlers only. */
+/**
+ * Who a request is, and keeping them logged in (Document 2, section 4; Document 4, section 9, D4-11).
+ * There is no store: this server runs at most one refresh per refresh token at a time, and tabs or servers that
+ * refresh at the same moment are covered by the backend, which accepts a just-replaced refresh token again within
+ * 10 seconds (area-1-accounts.md, refresh).
+ */
+
 export interface AuthCookies {
   access?: string;
-  refresh: RefreshCookie | null;
+  refresh?: string;
 }
 
 export function readAuth(request: NextRequest): AuthCookies {
-  return { access: request.cookies.get(COOKIE.access)?.value || undefined, refresh: decodeRefreshCookie(request.cookies.get(COOKIE.refresh)?.value) };
+  return { access: request.cookies.get(COOKIE.access)?.value || undefined, refresh: request.cookies.get(COOKIE.refresh)?.value || undefined };
 }
-
-export function refreshKeys(): RefreshKeys {
-  const marker = [deriveKey(serverConfig.storeSecret, 'marker')];
-  const previous = serverConfig.storeSecretPrevious;
-  if (previous) marker.push(deriveKey(previous, 'marker'));
-  return { marker, result: deriveKey(serverConfig.storeSecret, 'result'), handle: deriveKey(serverConfig.storeSecret, 'handle') };
-}
-
-/** The login id the anti-forgery token is tied to (D7-13). */
-export function loginIdOf(auth: AuthCookies): string | null {
-  if (auth.refresh) return auth.refresh.l;
-  return auth.access ? `access:${b64url(hmac(deriveKey(serverConfig.storeSecret, 'login-id'), auth.access))}` : null;
-}
-
-/** Non-secret handle for compare-and-clear (Document 4, section 9). */
-export function handleOf(auth: AuthCookies): string | null {
-  if (auth.refresh) return sessionHandle(refreshKeys(), auth.refresh.t);
-  return auth.access ? b64url(hmac(refreshKeys().handle, `access:${auth.access}`)) : null;
-}
-
-const HOLDER = `web-${process.pid}-${randomId()}`;
 
 export interface NewCookies {
   accessToken: string;
   expiresIn: number;
-  refresh: RefreshCookie;
+  refreshToken: string;
 }
 
-export type Failure =
-  | { outcome: 'anonymous' }
-  | { outcome: 'temporary' }
-  | { outcome: 'stale'; handle: string | null }
-  | { outcome: 'ended'; reason: 'session' | 'blocked'; handle: string | null };
+/** Why a request could not run as the person: not logged in, a problem on our side ("try again"), or session over. */
+export type Failure = { outcome: 'anonymous' } | { outcome: 'temporary' } | { outcome: 'ended'; reason: 'session' | 'blocked' };
+
+export type Refreshed = { ok: true; cookies: NewCookies } | ({ ok: false } & Failure);
+
+/** Backend answers to a refresh that confirm the session is over (area-1-accounts.md, POST /auth/refresh). */
+const ENDED_CODES = new Set(['SESSION_ENDED', 'TOKEN_REUSED']);
+
+/** Refreshes running on this server, by refresh token, so requests that arrive together share one refresh. */
+const running = new Map<string, Promise<Refreshed>>();
+
+export function refreshSession(
+  refreshToken: string,
+  backendRefresh: (token: string) => Promise<{ accessToken: string; refreshToken: string; expiresIn: number }> = async (token) =>
+    (await authApi.refreshTokens({ refreshToken: token })).data,
+): Promise<Refreshed> {
+  const already = running.get(refreshToken);
+  if (already) return already;
+  const attempt = (async (): Promise<Refreshed> => {
+    try {
+      const fresh = await backendRefresh(refreshToken);
+      return { ok: true, cookies: { accessToken: fresh.accessToken, expiresIn: fresh.expiresIn, refreshToken: fresh.refreshToken } };
+    } catch (error) {
+      if (error instanceof AppError && ENDED_CODES.has(error.code)) return { ok: false, outcome: 'ended', reason: 'session' };
+      if (error instanceof AppError && error.code === 'USER_BLOCKED') return { ok: false, outcome: 'ended', reason: 'blocked' };
+      // No clear answer (timeout, network, backend error): nobody is logged out (D2-05).
+      return { ok: false, outcome: 'temporary' };
+    }
+  })().finally(() => running.delete(refreshToken));
+  running.set(refreshToken, attempt);
+  return attempt;
+}
 
 export type AsUser<T> = { ok: true; value: T; newCookies?: NewCookies } | ({ ok: false } & Failure);
-
-async function refreshFor(auth: AuthCookies): Promise<{ token: string; newCookies?: NewCookies } | Failure> {
-  if (!auth.refresh) return auth.access ? { outcome: 'ended', reason: 'session', handle: handleOf(auth) } : { outcome: 'anonymous' };
-  const db = storePool();
-  if (!db) return { outcome: 'temporary' };
-  const refresh = auth.refresh;
-  const out = await refreshSession(refresh, {
-    db,
-    storeOk: () => storeStatus().ok,
-    backendRefresh: async (token) => (await authApi.refreshTokens({ refreshToken: token })).data,
-    keys: refreshKeys(),
-    holder: HOLDER,
-  });
-  switch (out.kind) {
-    case 'refreshed':
-      return {
-        token: out.accessToken,
-        newCookies: { accessToken: out.accessToken, expiresIn: out.expiresIn, refresh: { t: out.refreshToken, g: out.generationId, l: refresh.l } },
-      };
-    case 'reused':
-      return { token: out.accessToken };
-    case 'temporary':
-      return { outcome: 'temporary' };
-    case 'stale':
-      return { outcome: 'stale', handle: out.handle };
-    case 'ended':
-      return { outcome: 'ended', reason: out.reason, handle: out.handle };
-  }
-}
 
 /**
  * Runs a backend call with the person's access token. If the token is missing or the backend says it has expired, the
  * session is refreshed once and the call repeated: the backend refused it before doing anything, so repeating is safe.
+ * The caller sets `newCookies` in its answer.
  */
 export async function asUser<T>(auth: AuthCookies, call: (token: string) => Promise<T>): Promise<AsUser<T>> {
   let token = auth.access;
   let newCookies: NewCookies | undefined;
-  let refreshed = false;
 
   const refresh = async (): Promise<Failure | null> => {
-    refreshed = true;
-    const got = await refreshFor(auth);
-    if ('outcome' in got) return got;
-    token = got.token;
-    newCookies = got.newCookies;
+    if (!auth.refresh) return token ? { outcome: 'ended', reason: 'session' } : { outcome: 'anonymous' };
+    const result = await refreshSession(auth.refresh);
+    if (!result.ok) return result;
+    token = result.cookies.accessToken;
+    newCookies = result.cookies;
     return null;
   };
 
@@ -110,16 +92,65 @@ export async function asUser<T>(auth: AuthCookies, call: (token: string) => Prom
       return { ok: true, value: await call(token as string), newCookies };
     } catch (error) {
       if (!(error instanceof AppError)) throw error;
-      if ((error.code === 'TOKEN_EXPIRED' || error.code === 'TOKEN_INVALID') && !refreshed) {
+      const expired = error.code === 'TOKEN_EXPIRED' || error.code === 'TOKEN_INVALID';
+      if (expired && !newCookies) {
         const failure = await refresh();
         if (failure) return { ok: false, ...failure };
         continue;
       }
-      if (error.code === 'SESSION_ENDED' || error.code === 'TOKEN_EXPIRED' || error.code === 'TOKEN_INVALID') {
-        return { ok: false, outcome: 'ended', reason: 'session', handle: handleOf(auth) };
-      }
-      if (error.code === 'USER_BLOCKED') return { ok: false, outcome: 'ended', reason: 'blocked', handle: handleOf(auth) };
+      if (expired || error.code === 'SESSION_ENDED') return { ok: false, outcome: 'ended', reason: 'session' };
+      if (error.code === 'USER_BLOCKED') return { ok: false, outcome: 'ended', reason: 'blocked' };
       throw error;
     }
   }
+}
+
+/**
+ * Who is looking at a server-rendered page. A page render cannot set cookies, so it never refreshes: when the access
+ * token is missing or expired it answers "needs-refresh", and the page lets the browser call GET /api/session, which
+ * refreshes and sets the new cookies (Document 4, section 9).
+ */
+export type Viewer = { state: 'anonymous' } | { state: 'needs-refresh' } | { state: 'user'; user: User } | { state: 'unavailable' };
+
+export async function getViewer(): Promise<Viewer> {
+  const jar = await cookies();
+  const access = jar.get(COOKIE.access)?.value;
+  const refresh = jar.get(COOKIE.refresh)?.value;
+  if (!access) return refresh ? { state: 'needs-refresh' } : { state: 'anonymous' };
+  try {
+    const { data } = await authApi.getMe(access);
+    return { state: 'user', user: data };
+  } catch (error) {
+    if (error instanceof AppError && (error.status === 401 || error.code === 'USER_BLOCKED')) return { state: 'needs-refresh' };
+    return { state: 'unavailable' };
+  }
+}
+
+/** Where a person goes after login when they asked for no page (Document 2, D2-03). */
+export function defaultDestination(roles: readonly string[], lang: Locale): string {
+  if (isStaff(roles)) return `/${lang}/admin`;
+  if (roles.includes('vendor_owner')) return `/${lang}/vendor`;
+  return `/${lang}`;
+}
+
+/**
+ * Logout and "log out everywhere" (Document 2, section 4). The backend is asked to end the session (its logout needs a
+ * valid access token, so the session is refreshed first when needed). The cookies are cleared in this answer whether
+ * or not the backend could be reached; a failed backend request is logged without the token.
+ */
+export async function logoutRoute(request: NextRequest, everywhere: boolean) {
+  const refused = guardChange(request);
+  if (refused) return refused;
+  const auth = readAuth(request);
+  if (auth.access || auth.refresh) {
+    try {
+      const result = await asUser(auth, (token) => (everywhere ? authApi.logoutEverywhere(token) : authApi.logout(token)));
+      if (!result.ok && result.outcome === 'temporary') console.warn(JSON.stringify({ event: 'logout_backend_unconfirmed', everywhere }));
+    } catch (error) {
+      console.warn(JSON.stringify({ event: 'logout_backend_failed', code: error instanceof AppError ? error.code : 'unknown', everywhere }));
+    }
+  }
+  const response = ok({ loggedOut: true });
+  clearSessionCookies(response);
+  return response;
 }

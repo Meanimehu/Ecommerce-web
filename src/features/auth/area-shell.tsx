@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react';
 import { LanguageSwitch } from '@/features/common/language-switch';
 import { NeedsScript } from '@/features/common/needs-script';
-import type { Locale } from '@/lib/i18n';
-import { getMessages } from '@/lib/messages';
+import { getMessages, type Locale } from '@/lib/i18n';
 
 /** The top bar of the Vendor and Admin areas, naming the area (Document 5, D5-15). The full shell comes with Stage 4. */
 export function AreaShell({ lang, area, children }: { lang: Locale; area: 'vendor' | 'admin'; children: ReactNode }) {

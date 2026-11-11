@@ -1,4 +1,4 @@
-import type { Messages } from '@/lib/messages';
+import type { Messages } from '@/lib/i18n';
 
 /**
  * Login, account and the vendor and admin tools need JavaScript. Where it cannot run, the page says so plainly instead
