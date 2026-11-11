@@ -1,6 +1,6 @@
 # 7. Technical conventions
 
-> **Status: Approved (9 Nov 2026).** The owner reviewed the decisions D7-01 to D7-10, every group of starting figures and sections 5 to 11, and approved the document as a whole on 9 Nov 2026. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation. D7-11 to D7-15 were approved on 10 Nov 2026. On 11 Nov 2026 the owner approved removing the frontend store and simplifying forgery protection: D7-13 changed, the refresh timings removed (section 17).
+> **Status: Approved (9 Nov 2026).** The owner reviewed the decisions D7-01 to D7-10, every group of starting figures and sections 5 to 11, and approved the document as a whole on 9 Nov 2026. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation. D7-11 to D7-15 were approved on 10 Nov 2026. On 11 Nov 2026 the owner approved removing the frontend store and simplifying forgery protection: D7-13 changed, the refresh timings removed (section 17). The same day the owner chose a new folder layout (section 16).
 > Follows Documents 1 to 6. Documentation only; no code is written for this document.
 
 ## 1. Purpose
@@ -161,27 +161,31 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 10 | 10 Nov 2026 | D7-12 to D7-15 and sections 17 to 19 added: local HTTPS, cookie names and lifetimes, refresh timings (provisional), anti-forgery before login, components through the shadcn/ui tool, error messages slice by slice. Settles the open points left by Document 4, section 9. No earlier decision changed |
 | 11 | 10 Nov 2026 | Section 17.1: the certificate is set up by `npm run dev` itself; local setup with Node.js and the store's own database in the backend's PostgreSQL. No decision changed |
 | 12 | 11 Nov 2026 | Owner approved: the frontend store is removed (Document 4, D4-11), so the refresh timings (old 17.3), the marker and result lifetimes (section 7), the stored-result figure (section 12) and the store folders (section 16) are gone. D7-13 changed to the Origin check plus a fixed header; old 17.4 is now 17.3 |
+| 13 | 11 Nov 2026 | Section 16: the owner chose folders by kind of code (`app`, `components`, `hooks`, `api`, `middleware`, `lib`, `utils`, `types`), with the same area name in each. No decision changed |
 
 ## 16. Names: folders and files
 
-Recorded 10 Nov 2026. Document 4 left the exact folder and file names, and the message catalogue's location, to this document. The owner approved the layout in the implementation plan (section 1.2); these are the names used from Slice 0. **Cookie names** are added here in Slice 1, when the cookies are built.
+Recorded 10 Nov 2026; **layout changed by the owner on 11 Nov 2026** to folders by kind of code, which is easier to recognise. Document 4 left the exact folder and file names, and the message catalogue's location, to this document.
 
-| What | Where |
+| Folder | What goes in it |
 | --- | --- |
-| Pages, all under the language prefix (D4-01) | `src/app/[lang]/` |
-| Our own server endpoints for the browser: one reserved prefix with no language (Document 4, section 3) | `src/app/api/` (addresses `/api/...`) |
-| Language redirect for visits with no prefix (Document 4, section 6) | `src/proxy.ts` |
-| Screens and their flows, one folder per area | `src/features/storefront/`, `src/features/vendor/`, `src/features/admin/`, `src/features/auth/` |
-| Shared components (Document 6, Stage 4) | `src/components/` |
-| Server-only code: the one API layer, login and cookies, settings | `src/server/api-layer/`, `src/server/auth/`, `src/server/config.ts` |
-| Response schemas, one folder per backend area (Document 3, D3-01) | `src/schemas/` |
-| Generated request types and the stored OpenAPI description, never edited by hand (D7-02) | `src/generated/backend-api.d.ts`, `src/generated/backend-openapi.json` |
-| **Message catalogue** (Document 4, section 6): one file per language, the same keys in both | `src/messages/en.json`, `src/messages/hi.json` |
-| Shared helpers (language, messages; money, dates and phone numbers from Slice 1) | `src/lib/` |
-| Commands (type generation, checks) | `scripts/` |
-| Tests: unit, end to end | `tests/unit/`, `tests/e2e/` |
+| `src/app/` | Routing and layouts. Pages under the language prefix in `src/app/[lang]/` (D4-01); our own endpoints for the browser in `src/app/api/` (addresses `/api/...`, Document 4, section 3). Next.js fixes these names |
+| `src/proxy.ts` | The page middleware: the language redirect for visits with no prefix (Document 4, section 6) and keeping the after-login page. Next.js fixes this file name |
+| `src/components/` | Reusable UI: `ui/` for the shadcn/ui components (D7-14), `form/`, `common/`, and one subfolder per area for its screens (`auth/`, later `cart/`, `catalogue/`, `vendor/`, `admin/`) |
+| `src/hooks/` | Reusable logic: TanStack Query hooks (D-02), one file per area (`use-<area>.ts`), and the form hook (D-04) |
+| `src/api/` | Backend handlers, **server only**: the one place that calls the backend (Document 3): `client.ts` and one file per backend area. Not to be confused with `src/app/api/`, our own endpoints |
+| `src/middleware/` | Login and request handling, **server only**: running a call as the person and renewing the login (Document 4, section 9), cookies, the answers of our endpoints and the forgery check (section 17.3) |
+| `src/lib/` | Configs and integrations: settings read from the environment, the browser's call helper, languages and the message catalogue, errors |
+| `src/utils/` | Helper functions: money, dates and phone numbers, the class-name helper, the lists the message check uses |
+| `src/types/` | TypeScript types and the Zod schemas they come from, one file per backend area (Document 3, D3-01), forms included |
+| `src/types/generated/` | Generated request types, the stored OpenAPI description and the error-code list, never edited by hand (D7-02) |
+| `src/messages/` | **Message catalogue** (Document 4, section 6): `en.json` and `hi.json`, the same keys in both |
+| `scripts/` | Commands (type generation, checks) |
+| `tests/unit/`, `tests/e2e/` | Tests |
 
-Folders without content yet (`features`, `components`, `api-layer`, `auth`, `schemas`) are created when their first file is written.
+- **The same area name is used in every folder** (`components/cart/`, `hooks/use-cart.ts`, `api/cart.ts`, `types/cart.ts`), so everything about one area is easy to find.
+- **`src/api/` and `src/middleware/` are server only.** Their files are marked so the build fails if code for the browser imports them; login tokens never reach the browser.
+- A folder is created when its first file is written. A plain guide to every file is in `docs/code-map.md`.
 
 ## 17. Local HTTPS and cookies (D7-12, D7-13)
 
