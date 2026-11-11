@@ -1,6 +1,6 @@
 # 7. Technical conventions
 
-> **Status: Approved (9 Nov 2026).** The owner reviewed the decisions D7-01 to D7-10, every group of starting figures and sections 5 to 11, and approved the document as a whole on 9 Nov 2026. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation. D7-11 to D7-15 were approved on 10 Nov 2026.
+> **Status: Approved (9 Nov 2026).** The owner reviewed the decisions D7-01 to D7-10, every group of starting figures and sections 5 to 11, and approved the document as a whole on 9 Nov 2026. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation. D7-11 to D7-15 were approved on 10 Nov 2026. On 11 Nov 2026 the owner approved removing the frontend store and simplifying forgery protection: D7-13 changed, the refresh timings removed (section 17).
 > Follows Documents 1 to 6. Documentation only; no code is written for this document.
 
 ## 1. Purpose
@@ -23,7 +23,7 @@ The technical rules the first build follows, so that Documents 1 to 6 can leave 
 | D7-10 | **Keep failure handling simple.** Every request has a time limit so the site never waits forever. Only safe viewing requests retry automatically; saves never do. A timed-out **view** shows: "Something went wrong. Please try again." A timed-out **save** is never resent automatically, and shows: "We couldn't confirm your change. Please check before trying again." with the current data reloaded once (D3-03). **No other status-checking or recovery features are added** (section 3) | Approved (9 Nov 2026) |
 | D7-11 | **Real-browser checks complete the automated tests.** The automated end-to-end tests are a regression safety net and do not by themselves show support for a browser. Before launch, the actual current Chrome, Safari, Firefox and Edge are checked by hand on real Android and iPhone devices and on desktop, for login, the five core customer journeys and the vendor product form. Each result is recorded. A browser and device is described as supported only where it was actually checked (section 11) | Approved (10 Nov 2026) |
 | D7-12 | **Local HTTPS and cookie names.** The local site runs over HTTPS. Cookie names and the lifetimes Document 4 left open are fixed in section 17. The access cookie follows the backend token's actual expiry; the refresh cookie's 30 days is only the browser cookie's lifetime, and the backend alone decides whether the token is valid | Approved (10 Nov 2026) |
-| D7-13 | **Anti-forgery before login.** Before login there is no session to tie the token to. The token is short-lived and signed, issued by the frontend server through a same-origin read request, kept in memory by the browser and sent in a request header; the server verifies it and checks the exact `Origin`. After login it is tied to the person's login session, as Document 2 requires. No anti-forgery cookie and no backend change (section 17.4) | Approved (10 Nov 2026) |
+| D7-13 | **Forgery protection, the same before and after login:** the exact `Origin` check, our fixed request header and `SameSite=Lax` cookies. No token, no anti-forgery cookie and no backend change (section 17.3) | Approved (10 Nov 2026). Changed 11 Nov 2026 (owner approved): the signed token was removed |
 | D7-14 | **Components come from the shadcn/ui tool** (D-03), added into `src/components/ui/` and styled with the Document 6 tokens to the approved Stage 4 look (section 18) | Approved (10 Nov 2026) |
 | D7-15 | **Error messages are written slice by slice.** Each slice adds English and Hindi messages for the backend error codes its screens can show; by launch every code in the backend's catalogue has one (section 19) | Approved (10 Nov 2026) |
 
@@ -69,8 +69,6 @@ The technical rules the first build follows, so that Documents 1 to 6 can leave 
 | --- | --- |
 | Cookie holding the access token | Never lives longer than the access token's 24 hours |
 | Cookie holding the refresh token | Never lives longer than the refresh token's lifetime for that account: 30 days for customers, 12 hours for staff (the longer figure is the upper limit for a single cookie rule; the backend decides the real expiry and rejects anything past it) |
-| Consumed-token markers (Document 4, section 9) | At least the longest refresh lifetime (30 days) plus a margin, and never evicted earlier |
-| Short-lived refresh results and locks | A few seconds; locks a little longer than the refresh call's timeout (section 12) |
 | Cached public pages (home, category, brand, product) | A short interval, refreshed in the background. **New arrivals shares the home page's interval** and holds public catalogue data only (D4-09) |
 | Search results and suggestions | Shorter than pages; suggestions shorter again; the cache is bounded in size (Document 4, section 7) |
 
@@ -124,7 +122,6 @@ These are **proposals** so the first build has numbers to start from. They are n
 | Cached public pages | 60 s to 5 min, with background refresh (kept by the owner as a starting point, 9 Nov 2026) |
 | Search results | 30 s; suggestions 10 s; at most a few thousand entries (kept by the owner as a starting point, 9 Nov 2026) |
 | Sitemap | Rebuilt about daily (kept by the owner as a starting point, 9 Nov 2026) |
-| Refresh result stored | About 10 s (kept by the owner as a starting point, 9 Nov 2026) |
 
 ## 13. Open checks (not validated, nothing invented)
 
@@ -163,6 +160,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 9 | 10 Nov 2026 | Section 16 added: the folder and file names used from Slice 0, as the owner approved (the layout in the implementation plan, section 1.2). Settles the message-catalogue location left by Document 4, section 6. Cookie names are added in Slice 1. No decision changed |
 | 10 | 10 Nov 2026 | D7-12 to D7-15 and sections 17 to 19 added: local HTTPS, cookie names and lifetimes, refresh timings (provisional), anti-forgery before login, components through the shadcn/ui tool, error messages slice by slice. Settles the open points left by Document 4, section 9. No earlier decision changed |
 | 11 | 10 Nov 2026 | Section 17.1: the certificate is set up by `npm run dev` itself; local setup with Node.js and the store's own database in the backend's PostgreSQL. No decision changed |
+| 12 | 11 Nov 2026 | Owner approved: the frontend store is removed (Document 4, D4-11), so the refresh timings (old 17.3), the marker and result lifetimes (section 7), the stored-result figure (section 12) and the store folders (section 16) are gone. D7-13 changed to the Origin check plus a fixed header; old 17.4 is now 17.3 |
 
 ## 16. Names: folders and files
 
@@ -175,14 +173,13 @@ Recorded 10 Nov 2026. Document 4 left the exact folder and file names, and the m
 | Language redirect for visits with no prefix (Document 4, section 6) | `src/proxy.ts` |
 | Screens and their flows, one folder per area | `src/features/storefront/`, `src/features/vendor/`, `src/features/admin/`, `src/features/auth/` |
 | Shared components (Document 6, Stage 4) | `src/components/` |
-| Server-only code: the one API layer, login and cookies, the shared store, settings | `src/server/api-layer/`, `src/server/auth/`, `src/server/store/`, `src/server/config.ts` |
+| Server-only code: the one API layer, login and cookies, settings | `src/server/api-layer/`, `src/server/auth/`, `src/server/config.ts` |
 | Response schemas, one folder per backend area (Document 3, D3-01) | `src/schemas/` |
 | Generated request types and the stored OpenAPI description, never edited by hand (D7-02) | `src/generated/backend-api.d.ts`, `src/generated/backend-openapi.json` |
 | **Message catalogue** (Document 4, section 6): one file per language, the same keys in both | `src/messages/en.json`, `src/messages/hi.json` |
 | Shared helpers (language, messages; money, dates and phone numbers from Slice 1) | `src/lib/` |
-| Shared store migrations (D4-10) | `store/migrations/` |
-| Commands (type generation, checks, store tools) | `scripts/` |
-| Tests: unit, store, end to end | `tests/unit/`, `tests/store/`, `tests/e2e/` |
+| Commands (type generation, checks) | `scripts/` |
+| Tests: unit, end to end | `tests/unit/`, `tests/e2e/` |
 
 Folders without content yet (`features`, `components`, `api-layer`, `auth`, `schemas`) are created when their first file is written.
 
@@ -194,7 +191,7 @@ Recorded 10 Nov 2026. Document 4 (section 9) left the local Secure-cookie setup,
 
 - The local site runs at **`https://localhost:3001`**, so the `__Host-` cookie rules (D4-07) work locally the same way in every browser, including Safari.
 - `npm run dev` uses Next.js's built-in development HTTPS. The first time, Next.js downloads `mkcert` and makes a locally trusted certificate by itself; the computer may ask for its password once. The certificate files are never committed.
-- **Local setup:** the frontend runs with Node.js, not in Docker. Its shared store (D4-10) is its own database, `dhaaga_web_store`, inside the backend's PostgreSQL container, so nothing else is installed. The store check refuses the backend's own database.
+- **Local setup:** the frontend runs with Node.js, not in Docker, and needs only the backend running. It has no database of its own.
 - In staging and production, the host provides HTTPS. The app itself does not handle certificates.
 - `PUBLIC_SITE_URL` is `https://localhost:3001` locally. The origin check (Document 2, section 6) compares data-changing requests with it.
 
@@ -210,19 +207,12 @@ Every cookie uses the `__Host-` prefix, `Secure`, `HttpOnly`, `SameSite=Lax`, pa
 | After-login page | `__Host-dhaaga_next` | 15 minutes, signed |
 | Language | `__Host-dhaaga_lang` | 1 year |
 
-### 17.3 Refresh timings (provisional, like section 12)
+### 17.3 Forgery protection (D7-13)
 
-| Item | Starting value |
-| --- | --- |
-| Refresh lock | 10 s, a little longer than the 8 s refresh timeout |
-| A second request waits for another refresh | Up to 9 s |
-| Used-token marks kept | 31 days: the 30-day refresh lifetime plus a 1-day margin |
-
-### 17.4 Anti-forgery before login (D7-13)
-
-- **Before login** (asking for a code, checking the code): the frontend server issues a short-lived, signed token through a same-origin read request. The browser keeps it in memory and sends it in a request header. The server verifies the token and checks that the request's `Origin` exactly matches our site. `SameSite=Lax` stays an additional safeguard. No anti-forgery cookie and no backend change are introduced.
-- **After login:** the token is tied to the person's login session, as Document 2 requires.
-- The approved security requirements in Documents 2 and 4 stay as they are. This only describes how they are met before login.
+- Every data-changing request to our `/api/...` endpoints must have an `Origin` header exactly equal to `PUBLIC_SITE_URL`, and must carry the header `X-Dhaaga-CSRF: 1`. Anything else is refused before any work is done.
+- Why this is enough: a page on another site cannot send that header to us. The browser asks our server first, and our server never allows other sites. A plain HTML form cannot add headers at all. `SameSite=Lax` also keeps our cookies off requests that other sites start.
+- The same rule applies before and after login. There is no token, no anti-forgery cookie, no secret for it and no backend change.
+- Read-only requests do not need it and must never change data (Document 2, section 6).
 
 ## 18. Components: shadcn/ui (D7-14)
 
