@@ -6,7 +6,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   // forbidden() for a real 403 "no access" page (Document 4, section 5; Document 2, section 5).
-  experimental: { authInterrupts: true },
+  // globalNotFound: one "not found" page, because the pages sit under a language segment (Document 4, section 10).
+  experimental: { authInterrupts: true, globalNotFound: true },
 };
 
 export default nextConfig;

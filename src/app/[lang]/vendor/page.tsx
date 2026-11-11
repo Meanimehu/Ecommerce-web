@@ -7,8 +7,8 @@ export default async function VendorHome({ params }: { params: Promise<{ lang: s
   if (!isLocale(lang)) notFound();
   const t = getMessages(lang);
   return (
-    <div className="space-y-2">
-      <h1 className="text-2xl font-semibold">{t.areas.vendorHome}</h1>
+    <div className="grid max-w-[72ch] gap-2">
+      <h1 className="type-h2 text-ink stitch-bottom pb-3">{t.areas.vendorHome}</h1>
       <p>{t.areas.vendorIntro}</p>
     </div>
   );

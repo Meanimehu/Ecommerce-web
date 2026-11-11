@@ -1,8 +1,11 @@
+import { CircleAlert } from 'lucide-react';
 import { forbidden, notFound, redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { getMessages, isLocale, type Locale } from '@/lib/i18n';
 import type { User } from '@/types/auth';
 import { getViewer } from '@/middleware/session';
+import { StateBlock } from '@/components/common/state-block';
+import { Button } from '@/components/ui/button';
 import { SessionCheck } from './session-check';
 
 /**
@@ -24,9 +27,15 @@ export async function requireUser(
     const t = getMessages(lang);
     return {
       render: (
-        <div role="alert" className="p-4">
-          <p>{t.session.tryShortly}</p>
-        </div>
+        <main role="alert" className="mx-auto grid w-full max-w-[640px] px-4 py-12">
+          <StateBlock icon={CircleAlert} title={t.errorPage.title} text={t.session.tryShortly}>
+            <Button asChild>
+              <a href={path} className="no-underline">
+                {t.errors.tryAgain}
+              </a>
+            </Button>
+          </StateBlock>
+        </main>
       ),
     };
   }

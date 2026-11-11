@@ -1,15 +1,17 @@
 'use client';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { ErrorSummary } from '@/components/form/error-summary';
 import { applyServerError, useAppForm } from '@/hooks/use-app-form';
 import { TextField } from '@/components/form/text-field';
+import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { useRequestCode, useVerify } from '@/hooks/use-login';
 import { NOTICE_EVENT, reloadSession, takeSessionNotice, type SessionNotice } from '@/hooks/use-session';
 import { AppError, fill } from '@/lib/errors';
 import { getMessages, type Locale } from '@/lib/i18n';
+import { formatPhone } from '@/utils/format';
 import { CodeSchema, PhoneSchema, type CodeInput, type PhoneInput } from '@/types/auth';
 
 /**
@@ -145,88 +147,112 @@ export function LoginForm({ lang }: { lang: Locale }) {
   // Account blocked: the message instead of the login form's normal flow (Document 2, section 4).
   if (sessionNotice === 'blocked') {
     return (
-      <div className="space-y-4">
-        <h1 className="text-2xl font-semibold">{t.login.title}</h1>
-        <p role="alert">{t.session.blocked}</p>
-      </div>
+      <Card>
+        <h1 className="type-h2 text-ink">{t.login.title}</h1>
+        <Banner tone="error" role="alert">
+          {t.session.blocked}
+        </Banner>
+      </Card>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold">{t.login.title}</h1>
-        <p className="text-sm">{t.login.intro}</p>
-      </div>
-
+    <div className="grid w-full gap-4">
       {sessionNotice === 'ended' ? (
-        <p role="status" className="text-sm">
+        <Banner tone="info" role="status">
           {t.session.logInAgain}
-        </p>
+        </Banner>
       ) : null}
 
-      {step === 'phone' ? (
-        <form method="post" className="space-y-4" noValidate onSubmit={(event) => void onPhone(event)}>
-          <ErrorSummary form={phoneForm} fieldIds={{ phone: IDS.phone }} t={t} requestId={asRequestId(requestCode.error)} focusSignal={phoneFocus} />
-          <TextField
-            form={phoneForm}
-            name="phone"
-            id={IDS.phone}
-            label={t.login.phoneLabel}
-            description={t.login.phoneHelp}
-            t={t}
-            inputProps={{ type: 'tel', inputMode: 'numeric', autoComplete: 'tel-national' }}
-          />
-          <Button type="submit" disabled={busy}>
-            {requestCode.isPending ? t.login.sending : t.login.sendCode}
-          </Button>
-        </form>
-      ) : (
-        <form method="post" className="space-y-4" noValidate onSubmit={(event) => void onCode(event)}>
-          <ErrorSummary
-            form={codeForm}
-            fieldIds={{ code: IDS.code }}
-            t={t}
-            requestId={asRequestId(verify.error ?? requestCode.error)}
-            focusSignal={codeFocus}
-          />
-          <TextField
-            form={codeForm}
-            name="code"
-            id={IDS.code}
-            label={t.login.codeLabel}
-            description={fill(t.login.codeHelp, { phone })}
-            t={t}
-            inputProps={{ type: 'text', inputMode: 'numeric', autoComplete: 'one-time-code', maxLength: 12 }}
-          />
-          <p role="status" className="text-sm">
-            {notice}
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
-            <Button type="submit" disabled={busy}>
-              {verify.isPending ? t.login.verifying : t.login.verify}
+      <Card>
+        {step === 'phone' ? (
+          <form method="post" className="grid gap-5" noValidate onSubmit={(event) => void onPhone(event)}>
+            <h1 className="type-h2 text-ink">{t.login.title}</h1>
+            <ErrorSummary form={phoneForm} fieldIds={{ phone: IDS.phone }} t={t} requestId={asRequestId(requestCode.error)} focusSignal={phoneFocus} />
+            <TextField
+              form={phoneForm}
+              name="phone"
+              id={IDS.phone}
+              label={t.login.phoneLabel}
+              description={t.login.phoneHelp}
+              prefix="+91"
+              t={t}
+              inputProps={{ type: 'tel', inputMode: 'numeric', autoComplete: 'tel-national' }}
+            />
+            <Button type="submit" className="w-full" loading={requestCode.isPending} disabled={busy}>
+              {requestCode.isPending ? t.login.sending : t.login.sendCode}
             </Button>
-            <Button type="button" variant="outline" disabled={busy || waitSeconds > 0} onClick={resend}>
-              {t.login.resend}
-            </Button>
-            <Button
-              type="button"
-              variant="link"
-              onClick={() => {
-                codeForm.reset();
-                phoneForm.clearErrors();
-                setNotice(null);
-                setStep('phone');
-              }}
-            >
-              {t.login.changeNumber}
-            </Button>
-          </div>
-          {waitSeconds > 0 ? <p className="text-sm">{waitSeconds === 1 ? t.login.resendInOne : fill(t.login.resendIn, { seconds: waitSeconds })}</p> : null}
-        </form>
-      )}
+          </form>
+        ) : (
+          <form method="post" className="grid gap-5" noValidate onSubmit={(event) => void onCode(event)}>
+            <div className="grid gap-1">
+              <h1 className="type-h2 text-ink">{t.login.codeTitle}</h1>
+              <p className="flex flex-wrap items-center gap-x-1 type-small text-ink-2">
+                <span>{fill(t.login.sentTo, { phone: displayPhone(phone) })}</span>
+                <span aria-hidden="true">·</span>
+                <Button
+                  type="button"
+                  variant="quiet"
+                  size="small"
+                  className="underline underline-offset-4"
+                  onClick={() => {
+                    codeForm.reset();
+                    phoneForm.clearErrors();
+                    setNotice(null);
+                    setStep('phone');
+                  }}
+                >
+                  {t.login.changeNumber}
+                </Button>
+              </p>
+            </div>
+            <ErrorSummary
+              form={codeForm}
+              fieldIds={{ code: IDS.code }}
+              t={t}
+              requestId={asRequestId(verify.error ?? requestCode.error)}
+              focusSignal={codeFocus}
+            />
+            <TextField
+              form={codeForm}
+              name="code"
+              id={IDS.code}
+              label={t.login.codeLabel}
+              description={t.login.codeHelp}
+              t={t}
+              inputProps={{ type: 'text', inputMode: 'numeric', autoComplete: 'one-time-code', maxLength: 12, className: 'tracking-[0.2em]' }}
+            />
+            {/* Always present, so a new notice is announced (Document 6, section 11, status messages). */}
+            <div role="status">{notice ? <Banner tone="info">{notice}</Banner> : null}</div>
+            <div className="grid gap-3">
+              <Button type="submit" className="w-full" loading={verify.isPending} disabled={busy}>
+                {verify.isPending ? t.login.verifying : t.login.verify}
+              </Button>
+              <Button type="button" variant="secondary" className="w-full" disabled={busy || waitSeconds > 0} onClick={resend}>
+                {t.login.resend}
+              </Button>
+              {waitSeconds > 0 ? (
+                <p className="text-center type-small text-muted-foreground">
+                  {waitSeconds === 1 ? t.login.resendInOne : fill(t.login.resendIn, { seconds: waitSeconds })}
+                </p>
+              ) : null}
+            </div>
+          </form>
+        )}
+      </Card>
     </div>
   );
+}
+
+/** The card the login steps sit on (approved Stage 5): surface, hairline, radius-1. */
+function Card({ children }: { children: ReactNode }) {
+  return <div className="grid w-full gap-5 rounded-1 border border-line bg-surface p-5 sm:p-6">{children}</div>;
+}
+
+/** The number as it was typed, shown in the Document 6 phone format when it is a plain ten-digit number. */
+function displayPhone(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(-10);
+  return digits.length === 10 ? formatPhone(`+91${digits}`) : value;
 }
 
 function asRequestId(error: unknown): string | undefined {

@@ -93,32 +93,32 @@ test.describe('login and sessions', () => {
   test('Hindi login, and a customer gets a real 403 in the Admin area', async ({ page }) => {
     await page.goto('/hi/login');
     await expect(page.locator('html')).toHaveAttribute('lang', 'hi');
-    await logIn(page, freshPhone(), { phone: 'मोबाइल नंबर', send: 'कोड भेजें', code: 'कोड', verify: 'लॉग इन करें' });
+    await logIn(page, freshPhone(), { phone: 'मोबाइल नंबर', send: 'कोड भेजें', code: 'वन-टाइम कोड', verify: 'पुष्टि करें और लॉग इन करें' });
     await expect(page).toHaveURL(/\/hi$/);
     const response = await page.goto('/hi/admin');
     expect(response?.status()).toBe(403);
     await expect(page.getByRole('heading', { name: 'आपके पास इस पेज की अनुमति नहीं है' })).toBeVisible();
   });
 
-  test('a wrong code shows our message under the field and in a summary that takes focus; the backend wait drives "Send code again"', async ({ page }) => {
+  test('a wrong code shows our message under the field and in a summary that takes focus; the backend wait drives "Resend code"', async ({ page }) => {
     const phone = freshPhone();
     await page.goto('/en/login');
     await page.getByLabel('Mobile number').fill(phone);
     await page.getByRole('button', { name: 'Send code' }).click();
     await readCode(phone);
-    await page.getByLabel('Code', { exact: true }).fill('000000');
+    await page.getByLabel('One-time code', { exact: true }).fill('000000');
     const answer = page.waitForResponse((r) => r.url().endsWith('/api/auth/verify'));
-    await page.getByRole('button', { name: 'Log in', exact: true }).click();
+    await page.getByRole('button', { name: 'Verify and log in', exact: true }).click();
     // The backend's request id reaches the browser (T7-4), so it can be shown with "Copy" where a screen shows one (D5-14).
     expect((await (await answer).json()).error.requestId).toMatch(/^[0-9a-f-]{36}$/);
-    const code = page.getByLabel('Code', { exact: true });
+    const code = page.getByLabel('One-time code', { exact: true });
     await expect(code).toHaveAttribute('aria-invalid', 'true');
     await expect(code).toHaveAccessibleDescription(/That code isn't right/);
     const summary = page.getByRole('alert').filter({ hasText: 'Fix 1 thing to continue' });
     await expect(summary).toBeFocused();
     await summary.getByRole('link', { name: /That code isn't right/ }).click();
     await expect(code).toBeFocused();
-    await expect(page.getByRole('button', { name: 'Send code again' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Resend code' })).toBeDisabled();
     await expect(page.getByText(/You can ask for a new code in \d+ seconds/)).toBeVisible();
   });
 });
@@ -158,11 +158,11 @@ test.describe('session ends (Document 2, section 4)', () => {
     await page.waitForTimeout(31_000);
     await page.getByLabel('Mobile number').fill(phone);
     await page.getByRole('button', { name: 'Send code' }).click();
-    await expect(page.getByLabel('Code', { exact: true })).toBeFocused();
-    await page.getByLabel('Code', { exact: true }).fill(await readCode(phone));
-    await page.getByRole('button', { name: 'Log in', exact: true }).click();
+    await expect(page.getByLabel('One-time code', { exact: true })).toBeFocused();
+    await page.getByLabel('One-time code', { exact: true }).fill(await readCode(phone));
+    await page.getByRole('button', { name: 'Verify and log in', exact: true }).click();
     await expect(page.getByRole('alert').filter({ hasText: 'This account is blocked. Please contact support.' })).toBeVisible();
-    await expect(page.getByLabel('Code', { exact: true })).toHaveCount(0);
+    await expect(page.getByLabel('One-time code', { exact: true })).toHaveCount(0);
   });
 
   test('a logged-in page is never stored in a shared cache (Document 2, section 5)', async ({ page }) => {

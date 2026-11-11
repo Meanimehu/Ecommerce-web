@@ -34,6 +34,8 @@ Each slice ends with something that can be tried by a person, not just a list of
 
 **Slice 2 clarification (10 Nov 2026).** Before vendor product submission is tested in staging, the required catalogue entries must be **created and active** in staging: categories, HSN codes, and any brands, sizes and colours the test products use. GST rates are already available, because the backend migration inserts them. The sample-data command does not run on staging, so an admin creates these entries with the catalogue screens in this slice.
 
+**Slice 1 components (11 Nov 2026).** The owner chose to build in Slice 1 only the shared components the existing screens use: buttons, text fields, dialog, banners, skeleton, the error and no-access blocks, the headers. Every other Stage 4 component (chips, product card, tables, toasts, sheets, filters, pickers, the staff side menu) is built in the slice whose screen first needs it, to the approved Stage 4 look. The design tokens and fonts are complete in Slice 1.
+
 **Test photos (10 Nov 2026).** Early layout and API work keeps using the plain coloured photos from the backend's sample data. When Slice 2 approaches, the approved garment illustrations are exported as development image files (at least 500 px on the shorter side) and uploaded through the real vendor upload. They are development stand-ins, are never presented as vendor photos (D6-62), and exist only in local and staging data. Real-photo testing (T7-7) stays open.
 
 Slices 3, 4 and 5 do not depend on each other, so they can follow in any order or be worked on at the same time. This document does not choose between them.
@@ -98,3 +100,4 @@ Nothing below has been done. Each is a check, not a promise.
 | 4 | 10 Nov 2026 | Approved by the owner. Q8-2 and Q8-3 stay open |
 | 5 | 10 Nov 2026 | Settled with the owner: shared store (D4-10), image exception (D3-04), real-browser checks (D7-11), test-photo approach (Slice 2 note). Vendor terms recorded as open (Q8-4, Q8-5). No approved decision changed |
 | 6 | 11 Nov 2026 | Owner approved removing the frontend store (Document 4, D4-11): Slice 0 no longer includes it, and Slice 1's refresh check says what is actually tested |
+| 7 | 11 Nov 2026 | Slice 1 components: only those the existing screens use; the rest come with the slice that first needs them (owner decision) |

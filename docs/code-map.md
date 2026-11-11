@@ -75,12 +75,13 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `[lang]/account/page.tsx` | Account: log out, log out everywhere, the areas this person may open |
 | `[lang]/admin/…`, `[lang]/vendor/…` | Admin and Vendor areas (placeholders; the layout checks the role) |
 | `[lang]/error.tsx`, `forbidden.tsx`, `global-error.tsx` | Error page, "no access" page (real 403), last-resort error page |
+| `global-not-found.tsx` | "Not found" with a real 404, in English and Hindi together (the pages sit under a language segment, so Next.js uses one global page) |
 | `api/auth/code`, `api/auth/verify` | Ask for a login code; check it and log in |
 | `api/auth/logout`, `api/auth/logout-all` | Log out here; log out everywhere |
 | `api/session` | Who is logged in; renews the login when needed |
 | `api/language` | Remembers the language choice |
 | `api/health` | Health check for the hosting |
-| `globals.css` | Colours and base styles (Document 6 tokens) |
+| `globals.css` | The Document 6 design tokens: colours, type scale (with the Hindi rules), radius, focus ring, reduced motion, hover only where a device can hover |
 
 ### `components/` — UI
 
@@ -90,10 +91,18 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `auth/require-user.tsx` | Guard for pages that need login or a role |
 | `auth/session-check.tsx` | Shown while the browser renews an expired login |
 | `auth/logout-buttons.tsx` | "Log out" and "Log out everywhere" |
-| `auth/area-shell.tsx` | Frame of the Admin and Vendor areas |
+| `auth/area-shell.tsx` | Top bar of the Admin and Vendor areas: wordmark, area label with its icon, language, account |
 | `form/text-field.tsx`, `form/error-summary.tsx` | A labelled input with its error; the summary at the top that takes focus |
-| `common/language-switch.tsx`, `error-message.tsx`, `needs-script.tsx` | Language switch, an error with its reference number, the no-script notice |
-| `ui/…` | Components copied in by the shadcn/ui tool (D7-14) |
+| `common/site-header.tsx`, `wordmark.tsx` | The storefront header (wordmark and language switch for now) and the Dhaaga wordmark |
+| `common/language-switch.tsx` | The other language's name with a globe icon |
+| `common/error-message.tsx` | An error banner with its reference number and Copy, when a real one exists |
+| `common/state-block.tsx` | Whole-screen states: error, no access, not found |
+| `common/needs-script.tsx` | The "needs JavaScript" notice |
+| `ui/button.tsx` | Primary, secondary, quiet, destructive and destructive-confirm buttons; large, default and small; loading state |
+| `ui/input.tsx` | The text input |
+| `ui/alert-dialog.tsx` | The confirmation dialog |
+| `ui/banner.tsx` | Information, success, warning and error banners |
+| `ui/skeleton.tsx` | Static loading shapes |
 
 ### `hooks/` — logic for the screens
 
@@ -124,6 +133,7 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | File | What it does |
 | --- | --- |
 | `lib/config.ts` | Settings read from the environment (`.env.local`), server only |
+| `lib/fonts.ts` | Outfit and Noto Sans Devanagari, from our own site, each loaded only for the characters it covers |
 | `lib/http.ts` | Browser calls to our endpoints: `get` and `send`, with the time limit, the forgery label and one error shape |
 | `lib/i18n.ts` | The two languages, choosing one, and `getMessages` for the English and Hindi text |
 | `lib/errors.ts` | `AppError`, and `messageFor`: our own message for any error |
@@ -147,6 +157,7 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | I want to… | Files |
 | --- | --- |
 | Change a text on screen | `messages/en.json` and `hi.json` (both) |
+| Change a colour, size or type style | `app/globals.css` (tokens) or the component in `components/ui/` |
 | Change what a backend error says | `errors.codes` in the same two files |
 | Change a form's checks | Its schema in `types/<area>.ts` |
 | Add a backend call | `api/<area>.ts`, with its answer shape in `types/<area>.ts` |

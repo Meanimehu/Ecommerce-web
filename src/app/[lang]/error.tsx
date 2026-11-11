@@ -1,12 +1,14 @@
 'use client';
 
+import { CircleAlert } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useEffect } from 'react';
+import { StateBlock } from '@/components/common/state-block';
 import { Button } from '@/components/ui/button';
 import { getMessages, isLocale } from '@/lib/i18n';
 
 /**
- * When a page fails, a clear message and a way on, never a blank page (D-12; Document 6, section 10).
+ * When a page fails: what failed, "Try again", and a way on, never a blank page (D-12; Document 6, section 10).
  * The error itself goes to the console only; no details are shown to the person.
  */
 export default function PageError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
@@ -15,17 +17,17 @@ export default function PageError({ error, reset }: { error: Error & { digest?: 
   const t = getMessages(lang);
   useEffect(() => console.error(error), [error]);
   return (
-    <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center gap-4 px-4">
-      <h1 className="text-2xl font-semibold">{t.errorPage.title}</h1>
-      <p>{t.errorPage.body}</p>
-      <div className="flex flex-wrap gap-3">
+    <main className="mx-auto grid w-full max-w-[640px] px-4 py-12">
+      <StateBlock icon={CircleAlert} title={t.errorPage.title} text={t.errorPage.body}>
         <Button type="button" onClick={reset}>
           {t.errors.tryAgain}
         </Button>
-        <Button asChild variant="outline">
-          <a href={`/${lang}`}>{t.errorPage.home}</a>
+        <Button asChild variant="secondary">
+          <a href={`/${lang}`} className="no-underline">
+            {t.errorPage.home}
+          </a>
         </Button>
-      </div>
+      </StateBlock>
     </main>
   );
 }

@@ -83,6 +83,7 @@ A cookie that outlives its backend token is harmless, because the backend reject
 
 ## 9. Fonts and icons (D7-06, D7-07)
 
+- **How (Slice 1, 11 Nov 2026):** the font files come from the `@fontsource/outfit` and `@fontsource/noto-sans-devanagari` packages and are served from our own site through Next.js's local font loader (`src/lib/fonts.ts`). Each file declares its character range. Outfit Latin shows a size-matched fallback until it arrives; it is not preloaded, because Firefox downloaded preloaded fonts twice. Outfit's extended Latin (it holds the rupee sign) and Noto Sans Devanagari are fetched only when a page shows such characters. That is how D6-21 (second script only when needed) is met.
 - **Fonts:** Outfit (Latin text and all numbers) and Noto Sans Devanagari (Hindi). Only the weights Document 6 uses are loaded: Outfit 400, 500, 600 and Noto Sans Devanagari 400, 500 (D6-06). Only the character ranges each page needs are loaded (Latin, and Devanagari when the language is Hindi). The fonts are served from our own site, not a third party. The 150 KB font budget (Document 6, section 14) stays provisional.
 - **Icons:** Lucide only, as inline vector icons imported one by one so that unused icons are not shipped. One stroke width and one size scale (Document 6, section 6). No second icon set and no icon fonts.
 
@@ -128,7 +129,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | # | Check | When |
 | --- | --- | --- |
 | T7-1 | Every figure in section 12 against the real backend and the agreed budget-device and slow-connection profiles | First working build |
-| T7-2 | Document 6 performance figures (LCP, INP, CLS, 300 KB, 150 KB, 100 KB per area) | First working build |
+| T7-2 | Document 6 performance figures (LCP, INP, CLS, 300 KB, 150 KB, 100 KB per area). **First measurement (11 Nov 2026, Slice 1, transferred, empty cache):** English home 225 KB and English login 273 KB, both within 300 KB; plus 53 KB for the Hindi font on English pages, loaded on demand because the language switch shows "हिन्दी" (Document 6, 5.4: not counted in the total, how to count it is open). Hindi home 278 KB, within. **Hindi login 375 KB, over the 300 KB** (Document 6, section 14, item 3: fonts take 146 KB on Hindi pages, the login page's scripts about 220 KB). Owner decision needed; the end-to-end test reports this page without judging it until then | First working build; Hindi login open |
 | T7-3 | OpenAPI source: which staging address, and whether it matches production (section 5) | First build |
 | T7-4 | **Request ID (Document 5, V5-5): confirmed 11 Nov 2026.** Our server endpoints include the backend's `requestId` in the error response they send to the browser; an end-to-end test checks it. Errors our server decides by itself carry none, so no made-up number is ever shown (D5-14) | Done |
 | T7-5 | Sitemap size and splitting (section 6) | First build |
@@ -162,6 +163,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 11 | 10 Nov 2026 | Section 17.1: the certificate is set up by `npm run dev` itself; local setup with Node.js and the store's own database in the backend's PostgreSQL. No decision changed |
 | 12 | 11 Nov 2026 | Owner approved: the frontend store is removed (Document 4, D4-11), so the refresh timings (old 17.3), the marker and result lifetimes (section 7), the stored-result figure (section 12) and the store folders (section 16) are gone. D7-13 changed to the Origin check plus a fixed header; old 17.4 is now 17.3 |
 | 13 | 11 Nov 2026 | Section 16: the owner chose folders by kind of code (`app`, `components`, `hooks`, `api`, `middleware`, `lib`, `utils`, `types`), with the same area name in each. No decision changed |
+| 14 | 11 Nov 2026 | Slice 1 part 2: how the fonts are loaded (section 9); first page-size measurements recorded in T7-2, with the Hindi login page over the provisional 300 KB for the owner to decide |
 
 ## 16. Names: folders and files
 

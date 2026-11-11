@@ -2,7 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
+import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { endsSession, useSession } from '@/hooks/use-session';
 import { AppError } from '@/lib/errors';
 import { getMessages, type Locale } from '@/lib/i18n';
@@ -31,23 +33,37 @@ export function SessionCheck({ lang, path }: { lang: Locale; path: string }) {
   }, [session.data, lang, path, router]);
 
   if (!error || endsSession(error)) {
+    // Loading: a static skeleton in the shape of a page, announced as a status (Document 6, section 10).
     return (
-      <p role="status" className="p-4 text-sm">
-        {t.session.checking}
-      </p>
+      <div className="mx-auto grid w-full max-w-[1200px] gap-4 px-4 py-8 sm:px-6 lg:px-8">
+        <p role="status" className="sr-only">
+          {t.session.checking}
+        </p>
+        <Skeleton className="h-10 w-2/3 max-w-[420px]" />
+        <Skeleton className="h-32 w-full max-w-[520px]" />
+        <Skeleton className="h-32 w-full max-w-[520px]" />
+      </div>
     );
   }
   return (
-    <div role="alert" className="space-y-3 p-4">
-      <p>{t.session.tryShortly}</p>
-      <div className="flex gap-3">
-        <Button type="button" onClick={() => void session.refetch()}>
-          {t.errors.tryAgain}
-        </Button>
-        <Button asChild variant="outline">
-          <a href={`/${lang}/login`}>{t.nav.logIn}</a>
-        </Button>
-      </div>
+    <div className="mx-auto grid w-full max-w-[640px] px-4 py-12">
+      <Banner
+        tone="error"
+        role="alert"
+        title={t.session.tryShortly}
+        action={
+          <div className="flex flex-wrap gap-3">
+            <Button type="button" onClick={() => void session.refetch()}>
+              {t.errors.tryAgain}
+            </Button>
+            <Button asChild variant="secondary">
+              <a href={`/${lang}/login`} className="no-underline">
+                {t.nav.logIn}
+              </a>
+            </Button>
+          </div>
+        }
+      />
     </div>
   );
 }
