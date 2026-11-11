@@ -2,8 +2,9 @@ import localFont from 'next/font/local';
 
 /**
  * Outfit for Latin text and every digit (Document 6, 5.1; D6-06, D6-07; Document 7, section 9), served from our own site
- * from the published npm package. Latin is preloaded on every page with a size-matched fallback so text does not jump
- * when the font arrives. Its extended Latin set (it holds the rupee sign) is loaded by the browser only when such a
+ * from the published npm package, with a size-matched fallback so text does not jump when the font arrives. It is not
+ * preloaded: Firefox did not reuse the preloaded files and downloaded each one twice (about 41 KB more, seen in CI).
+ * The browser starts the download as soon as it reads the page's styles. Its extended Latin set (it holds the rupee sign) is loaded by the browser only when such a
  * character is on the page. Hindi text uses Noto Sans Devanagari, loaded the same way (globals.css).
  * Next.js needs every value here written out literally, and a font-family set here must match the exported name.
  */
@@ -15,6 +16,7 @@ export const outfit = localFont({
   ],
   variable: '--font-outfit',
   display: 'swap',
+  preload: false,
   declarations: [
     { prop: 'font-family', value: 'Outfit' },
     {
