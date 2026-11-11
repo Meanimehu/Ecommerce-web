@@ -1,6 +1,6 @@
 import 'server-only';
 import type { NextRequest } from 'next/server';
-import * as authApi from '../api-layer/auth';
+import * as authApi from '../api-layer/accounts';
 import { guardChange, ok } from './http';
 import { asUser, handleOf, readAuth } from './session';
 

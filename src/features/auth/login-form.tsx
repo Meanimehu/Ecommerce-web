@@ -8,9 +8,10 @@ import { TextField } from '@/components/form/text-field';
 import { useAppForm } from '@/components/form/use-app-form';
 import { Button } from '@/components/ui/button';
 import { send } from '@/lib/client/api';
+import { reloadSession } from '@/lib/client/reconcile';
 import { useSession } from '@/lib/client/session';
 import { NOTICE_EVENT, takeSessionNotice, type SessionNotice } from '@/lib/client/session-end';
-import { AppError, fill, messageFor } from '@/lib/errors';
+import { AppError, fill } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
 import { CodeSchema, PhoneSchema, type CodeInput, type PhoneInput } from '@/schemas/forms/login';
@@ -91,7 +92,7 @@ export function LoginForm({ lang }: { lang: Locale }) {
             setPhone(values.phone);
             const seconds = Number(error.details?.retryAfterSeconds);
             if (Number.isFinite(seconds)) startWait(seconds);
-            setNotice(messageFor(error, t));
+            setNotice(t.errors.codes.OTP_RESEND_WAIT);
             setStep('code');
             return;
           }
@@ -111,8 +112,19 @@ export function LoginForm({ lang }: { lang: Locale }) {
           // A full page load on purpose: the next page is rendered on the server with the new cookies.
           window.location.assign(answer.destination);
         },
-        onError: (raw) => {
-          applyServerError(codeForm, asAppError(raw), t, { codes: { OTP_INVALID: 'code', OTP_EXPIRED: 'code', OTP_LOCKED: 'code' } });
+        onError: async (raw) => {
+          const error = asAppError(raw);
+          if (error.outcomeUnknown) {
+            // Unknown outcome: look at the session once, and go by what is there (Document 3, section 6).
+            const answer = await reloadSession(queryClient);
+            if (answer?.user) {
+              // A full page load on purpose: the account page is rendered on the server with the new cookies.
+              // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+              window.location.assign(`/${lang}/account`);
+              return;
+            }
+          }
+          applyServerError(codeForm, error, t, { codes: { OTP_INVALID: 'code', OTP_EXPIRED: 'code', OTP_LOCKED: 'code' } });
           setCodeFocus((n) => n + 1);
         },
       });

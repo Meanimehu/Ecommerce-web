@@ -88,3 +88,29 @@ describe('the backend client (Document 3; D7-01, D7-10)', () => {
     expect(messageFor({ code: 'OTP_INVALID', status: 400 }, t)).toBe(t.errors.codes.OTP_INVALID);
   });
 });
+
+describe('Document 3 alignment', () => {
+  it('"too many requests" uses the backend wait from its headers, and the message says how long (section 5)', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ error: { code: 'TOO_MANY_REQUESTS', message: 'x', requestId: 'r' } }), { status: 429, headers: { 'x-ratelimit-reset': '42' } }),
+    );
+    const error = (await callBackend({ method: 'POST', path: '/x', kind: 'save', schema: Schema, fetchImpl, sleep: noSleep }).catch((e: unknown) => e)) as AppError;
+    expect(error.details?.retryAfterSeconds).toBe(42);
+    expect(messageFor(error, getMessages('en'))).toBe('Too many requests. Please wait a moment and try again. Please try again in 42 seconds.');
+    expect(messageFor({ ...error, details: { retryAfterSeconds: 600 } }, getMessages('hi'))).toContain('कृपया 10 मिनट बाद फिर कोशिश करें।');
+  });
+
+  it('a lost connection on a change is an unknown outcome: never "failed" (section 6, D7-10)', () => {
+    expect(messageFor({ code: 'NETWORK', status: 0, outcomeUnknown: true }, getMessages('en'))).toBe("We couldn't confirm your change. Please check before trying again.");
+    expect(messageFor({ code: 'NETWORK', status: 0 }, getMessages('en'))).toBe("We couldn't reach Dhaaga. Check your connection and try again.");
+  });
+
+  it('a schema mismatch says exactly what is wrong outside production (D3-02)', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const fetchImpl = vi.fn().mockResolvedValue(json(200, { ok: 'no' }));
+    const error = (await callBackend({ method: 'GET', path: '/me', kind: 'view', schema: Schema, fetchImpl, sleep: noSleep }).catch((e: unknown) => e)) as AppError;
+    expect(messageFor(error, getMessages('en'))).toBe('The answer of GET /me does not match its schema (fields: ok).');
+    expect(fetchImpl).toHaveBeenCalledTimes(1); // never retried
+    spy.mockRestore();
+  });
+});

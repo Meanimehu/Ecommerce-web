@@ -23,5 +23,8 @@ export const BACKEND_CODES_IN_USE = [
   'USER_BLOCKED',
 ] as const;
 
+/** Codes from the backend's framework, not in its catalogue (api-contract.md, section 3), that a built screen can show. */
+export const FRAMEWORK_CODES_WITH_MESSAGES = ['TOO_MANY_REQUESTS'] as const;
+
 /** Frontend codes that need their own message (the others use the general messages by kind). */
 export const FRONTEND_CODES_WITH_MESSAGES = ['CSRF_INVALID', 'ORIGIN_INVALID', 'SESSION_STALE', 'SESSION_TEMPORARY'] as const;

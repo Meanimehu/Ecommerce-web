@@ -64,11 +64,20 @@ export function kindOf(error: AppErrorShape): ErrorKind {
  * kind; outside production the backend's text is shown instead, to spot missing messages (Document 5, section 10).
  */
 export function messageFor(error: AppErrorShape, messages: Messages): string {
-  if (error.code === 'TIMEOUT') return error.outcomeUnknown ? messages.errors.saveTimeout : messages.errors.viewTimeout;
+  // A change whose outcome is unknown (timeout or lost connection): never "failed", never "done" (D7-10; Document 3, section 6).
+  if ((error.code === 'TIMEOUT' || error.code === 'NETWORK') && error.outcomeUnknown) return messages.errors.saveTimeout;
+  if (error.code === 'TIMEOUT') return messages.errors.viewTimeout;
   const byCode = (messages.errors.codes as Record<string, string>)[error.code];
-  if (byCode) return byCode;
-  if (error.backendMessage && process.env.NODE_ENV !== 'production') return error.backendMessage;
-  return messages.errors.kinds[kindOf(error)];
+  const base = byCode ?? (error.backendMessage && process.env.NODE_ENV !== 'production' ? error.backendMessage : messages.errors.kinds[kindOf(error)]);
+  return error.status === 429 ? withWait(base, error, messages) : base;
+}
+
+/** "Too many requests": a friendly wait message with the backend's waiting time, where it gives one (Document 3, section 5). */
+function withWait(text: string, error: AppErrorShape, messages: Messages): string {
+  const seconds = Number(error.details?.retryAfterSeconds);
+  if (!Number.isFinite(seconds) || seconds <= 0) return text;
+  const wait = seconds < 60 ? fill(messages.errors.waitSeconds, { seconds: Math.ceil(seconds) }) : fill(messages.errors.waitMinutes, { minutes: Math.ceil(seconds / 60) });
+  return `${text} ${wait}`;
 }
 
 /** Puts values into a message such as "Sent to {phone}". */

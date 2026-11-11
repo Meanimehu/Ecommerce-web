@@ -1,7 +1,7 @@
 import 'server-only';
 import type { NextRequest } from 'next/server';
 import { AppError } from '@/lib/errors';
-import * as authApi from '../api-layer/auth';
+import * as authApi from '../api-layer/accounts';
 import { serverConfig } from '../config';
 import { storePool } from '../store/pool';
 import { storeStatus } from '../store/monitor';

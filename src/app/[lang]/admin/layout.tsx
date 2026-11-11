@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { AreaShell } from '@/features/auth/area-shell';
 import { requireUser } from '@/features/auth/require-user';
-import { isStaff } from '@/schemas/auth';
+import { isStaff } from '@/schemas/accounts';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { robots: { index: false, follow: false } };

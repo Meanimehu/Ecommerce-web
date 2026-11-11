@@ -1,7 +1,7 @@
 /** Fails when the English and Hindi message files differ in keys, or hold empty or non-text values (Document 4, section 6). */
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { BACKEND_CODES_IN_USE, FRONTEND_CODES_WITH_MESSAGES } from '../src/lib/error-codes-in-use';
+import { BACKEND_CODES_IN_USE, FRAMEWORK_CODES_WITH_MESSAGES, FRONTEND_CODES_WITH_MESSAGES } from '../src/lib/error-codes-in-use';
 import { compareCatalogues } from '../src/lib/message-keys';
 
 const dir = fileURLToPath(new URL('../src/messages/', import.meta.url));
@@ -18,7 +18,7 @@ for (const code of BACKEND_CODES_IN_USE) {
   if (!known.has(code)) problems.push({ key: `errors.codes.${code}`, problem: 'not in the backend error catalogue' });
   if (!codes[code]) problems.push({ key: `errors.codes.${code}`, problem: 'in use but has no message' });
 }
-for (const code of FRONTEND_CODES_WITH_MESSAGES) if (!codes[code]) problems.push({ key: `errors.codes.${code}`, problem: 'has no message' });
+for (const code of [...FRONTEND_CODES_WITH_MESSAGES, ...FRAMEWORK_CODES_WITH_MESSAGES]) if (!codes[code]) problems.push({ key: `errors.codes.${code}`, problem: 'has no message' });
 const covered = [...known].filter((code) => codes[code]).length;
 if (problems.length) {
   for (const p of problems) console.error(`${p.key}: ${p.problem}`);
