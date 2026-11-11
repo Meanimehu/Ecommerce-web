@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
-import { callBackend } from '@/server/api-layer/client';
-import { pickClientAddress } from '@/server/client-address';
+import { callBackend, pickClientAddress } from '@/server/api-layer/client';
 
 describe("the customer's address (Document 3, section 3)", () => {
   it('takes the last entry, the one the host wrote, and ignores what the browser put before it', () => {

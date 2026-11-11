@@ -2,9 +2,11 @@ import 'server-only';
 import { randomUUID } from 'node:crypto';
 import { NextResponse, type NextRequest } from 'next/server';
 import { AppError } from '@/lib/errors';
-import { COOKIE, cookieOptions, encodeRefreshCookie, LIFETIME_SECONDS } from './cookies';
-import { CSRF_HEADER, originAllowed, verifyCsrf, type CsrfAccept } from './csrf';
-import { loginIdOf, readAuth, type Failure, type NewCookies } from './session';
+import { serverConfig } from '../config';
+import { COOKIE, cookieOptions, LIFETIME_SECONDS } from './cookies';
+import type { Failure, NewCookies } from './session';
+
+/** Helpers for our own endpoints: answers, errors, cookies and the forgery check. */
 
 /** Responses of our own endpoints: personal, never cached (Document 2, section 5). Errors carry the request id (T7-4). */
 const PRIVATE = { 'Cache-Control': 'private, no-store' };
@@ -31,34 +33,44 @@ export function fromAppError(error: unknown): NextResponse {
   return fail('SERVER_ERROR', 500);
 }
 
-/** The three session answers of Document 4, section 9, plus "not logged in". None sets or clears a cookie. */
-export function fromFailure(failure: Failure, extra: Record<string, unknown> = {}): NextResponse {
+/**
+ * A request that could not run as the person (Document 4, section 9). Only when the backend confirmed the session is
+ * over are the cookies cleared, in this same answer (D2-05). "Try again" changes no cookie.
+ */
+export function fromFailure(failure: Failure): NextResponse {
   switch (failure.outcome) {
     case 'anonymous':
-      return fail('UNAUTHORIZED', 401, extra);
+      return fail('UNAUTHORIZED', 401);
     case 'temporary':
-      return fail('SESSION_TEMPORARY', 503, extra);
-    case 'stale':
-      return fail('SESSION_STALE', 409, { handle: failure.handle, ...extra });
-    case 'ended':
-      return fail(failure.reason === 'blocked' ? 'USER_BLOCKED' : 'SESSION_ENDED', failure.reason === 'blocked' ? 403 : 401, { handle: failure.handle, ...extra });
+      return fail('SESSION_TEMPORARY', 503);
+    case 'ended': {
+      const blocked = failure.reason === 'blocked';
+      const response = fail(blocked ? 'USER_BLOCKED' : 'SESSION_ENDED', blocked ? 403 : 401);
+      clearSessionCookies(response);
+      return response;
+    }
   }
 }
 
 export function setSessionCookies(response: NextResponse, cookies: NewCookies): void {
   response.cookies.set(COOKIE.access, cookies.accessToken, cookieOptions(cookies.expiresIn));
-  response.cookies.set(COOKIE.refresh, encodeRefreshCookie(cookies.refresh), cookieOptions(LIFETIME_SECONDS.refresh));
+  response.cookies.set(COOKIE.refresh, cookies.refreshToken, cookieOptions(LIFETIME_SECONDS.refresh));
 }
 
-/** Clears the authentication and temporary-flow cookies; the language cookie stays (Document 4, section 9). */
+/** Clears the login and temporary-flow cookies; the language cookie stays (Document 4, section 9). */
 export function clearSessionCookies(response: NextResponse): void {
   for (const name of [COOKIE.access, COOKIE.refresh, COOKIE.pendingAdd, COOKIE.next]) response.cookies.set(name, '', cookieOptions(0));
 }
 
-/** Every data-changing request: exact Origin, then the anti-forgery token (Document 2, section 6; D7-13). */
-export function guardChange(request: NextRequest, accept: CsrfAccept): NextResponse | null {
-  if (!originAllowed(request.headers.get('origin'))) return fail('ORIGIN_INVALID', 403);
-  if (!verifyCsrf(request.headers.get(CSRF_HEADER), loginIdOf(readAuth(request)), accept)) return fail('CSRF_INVALID', 403);
+/**
+ * Forgery protection (Document 2, section 6; Document 7, section 17.3, D7-13). Every data-changing request must come
+ * from our own site (exact Origin) and carry our fixed header. Another site cannot add that header to a request to us.
+ */
+export const FORGERY_HEADER = 'x-dhaaga-csrf';
+
+export function guardChange(request: NextRequest): NextResponse | null {
+  if (request.headers.get('origin') !== serverConfig.siteOrigin) return fail('ORIGIN_INVALID', 403);
+  if (request.headers.get(FORGERY_HEADER) !== '1') return fail('CSRF_INVALID', 403);
   return null;
 }
 

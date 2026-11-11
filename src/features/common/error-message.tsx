@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import type { Messages } from '@/lib/messages';
+import type { Messages } from '@/lib/i18n';
 
 /**
  * An error message with the request id and a "Copy" button, shown only when the id actually reached the browser

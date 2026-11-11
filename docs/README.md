@@ -1,6 +1,6 @@
 # Frontend documentation
 
-Documentation for the web frontend of the multi-vendor fashion marketplace. Documents are written one at a time and each is approved before the next starts. No frontend code exists yet.
+Documentation for the web frontend of the multi-vendor fashion marketplace. Documents are written one at a time and each is approved before the next starts. **[`code-map.md`](code-map.md)** is a plain guide to the code itself: which file does what.
 
 ## Rules
 

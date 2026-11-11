@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
-import { isLocale } from '@/lib/i18n';
-import { getMessages } from '@/lib/messages';
+import { getMessages, isLocale } from '@/lib/i18n';
 
 /** Vendor home (Document 5, section 7.2). Its content arrives with the vendor screens from Slice 2. */
 export default async function VendorHome({ params }: { params: Promise<{ lang: string }> }) {

@@ -2,7 +2,7 @@
 
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState, type ReactNode } from 'react';
-import { endSession, endsSession } from '@/lib/client/session-end';
+import { endSession, endsSession } from '@/lib/client/session';
 import { AppError } from '@/lib/errors';
 
 /**
@@ -13,7 +13,7 @@ import { AppError } from '@/lib/errors';
 export function Providers({ children }: { children: ReactNode }) {
   const [client] = useState(() => {
     const onError = (error: unknown) => {
-      if (endsSession(error)) void endSession(error as AppError);
+      if (endsSession(error)) endSession(error as AppError);
     };
     return new QueryClient({
       queryCache: new QueryCache({ onError }),

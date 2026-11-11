@@ -2,10 +2,10 @@
  * One error type for every failed call (Document 3, section 5). The app decides by `code`, never by the backend's text.
  * Messages come from the catalogue (D-09); unknown codes fall back to a general message by kind of failure.
  */
-import type { Messages } from './messages';
+import type { Messages } from './i18n';
 
 /** Codes the frontend itself produces (not from the backend). */
-export const FRONTEND_CODES = ['TIMEOUT', 'NETWORK', 'CSRF_INVALID', 'ORIGIN_INVALID', 'SESSION_STALE', 'SESSION_TEMPORARY', 'RESPONSE_MISMATCH'] as const;
+export const FRONTEND_CODES = ['TIMEOUT', 'NETWORK', 'CSRF_INVALID', 'ORIGIN_INVALID', 'SESSION_TEMPORARY', 'RESPONSE_MISMATCH'] as const;
 
 /** One backend field error (VALIDATION_FAILED): the backend's field name and its messages. */
 export interface FieldError {

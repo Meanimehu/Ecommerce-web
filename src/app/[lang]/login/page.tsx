@@ -3,8 +3,7 @@ import { notFound } from 'next/navigation';
 import { LoginForm } from '@/features/auth/login-form';
 import { LanguageSwitch } from '@/features/common/language-switch';
 import { NeedsScript } from '@/features/common/needs-script';
-import { isLocale } from '@/lib/i18n';
-import { getMessages } from '@/lib/messages';
+import { getMessages, isLocale } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 

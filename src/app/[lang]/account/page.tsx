@@ -3,8 +3,8 @@ import { LogoutButtons } from '@/features/auth/logout-buttons';
 import { requireUser } from '@/features/auth/require-user';
 import { LanguageSwitch } from '@/features/common/language-switch';
 import { NeedsScript } from '@/features/common/needs-script';
-import { getMessages } from '@/lib/messages';
-import { formatPhone } from '@/lib/phone';
+import { getMessages } from '@/lib/i18n';
+import { formatPhone } from '@/lib/format';
 import { isStaff } from '@/schemas/accounts';
 
 export const dynamic = 'force-dynamic';

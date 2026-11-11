@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { backendLog, backendLogin, blockUser, freshPhone, logIn, readCode } from './support/login';
+import { backendLog, backendLogin, backendLogout, blockUser, freshPhone, logIn, readCode } from './support/login';
 
 /**
  * Slice 1 "done when" (Document 8): log in by phone code, stay logged in, refresh safely, logout and log out everywhere,
@@ -42,7 +42,7 @@ test.describe('login and sessions', () => {
     await expect(page).toHaveURL(/\/en\/login$/);
   });
 
-  test('an expired access token is refreshed without the person noticing; a used refresh token is never sent again', async ({ page, context }) => {
+  test('an expired access token is refreshed without the person noticing, also when tabs refresh at once (D4-11)', async ({ page, context }) => {
     await page.goto('/en/login');
     await logIn(page, freshPhone());
     await expect(page).toHaveURL(/\/en$/);
@@ -58,15 +58,24 @@ test.describe('login and sessions', () => {
     expect(after.find((c) => c.name === '__Host-dhaaga_at')).toBeTruthy();
     expect(newRefresh?.value).not.toBe(oldRefresh?.value);
 
-    // Another tab still sending the old refresh cookie: it uses the stored result and never refreshes again.
+    // A request that still sends the old refresh cookie a moment later (another tab, a retry): the backend accepts it
+    // within 10 seconds, so the person stays logged in there too.
     const other = await context.browser()!.newContext({ ignoreHTTPSErrors: true });
     await other.addCookies([{ ...oldRefresh!, sameSite: 'Lax' }]);
-    const tab = await other.newPage();
-    const answer = await tab.request.get('/api/session');
+    const answer = await (await other.newPage()).request.get('/api/session');
     expect(answer.status()).toBe(200);
     expect((await answer.json()).user).toBeTruthy();
-    expect(answer.headers()['set-cookie'] ?? '').not.toContain('__Host-dhaaga_rt');
     await other.close();
+
+    // Two requests that refresh at the same moment: both succeed.
+    await context.clearCookies({ name: '__Host-dhaaga_at' });
+    const both = await Promise.all([page.request.get('/api/session'), page.request.get('/api/session')]);
+    for (const one of both) {
+      expect(one.status()).toBe(200);
+      expect((await one.json()).user).toBeTruthy();
+    }
+    await page.goto('/en/account');
+    await expect(page.getByRole('heading', { name: 'Your account' })).toBeVisible();
   });
 
   test('log out everywhere asks first, then ends the session', async ({ page }) => {
@@ -120,8 +129,7 @@ test.describe('session ends (Document 2, section 4)', () => {
     await page.goto('/en/login');
     await logIn(page, phone);
     // End the session at the backend without touching this browser's cookies (as a logout in another tab would).
-    const { csrfToken } = (await (await page.request.get('/api/session')).json()) as { csrfToken: string };
-    expect((await page.request.post('/api/auth/logout', { headers: { origin: 'https://localhost:3001', 'x-dhaaga-csrf': csrfToken } })).status()).toBe(200);
+    await backendLogout((await context.cookies()).find((c) => c.name === '__Host-dhaaga_at')!.value);
     expect((await context.cookies()).map((c) => c.name)).toContain('__Host-dhaaga_rt');
 
     await page.goto('/en/account');
@@ -193,14 +201,17 @@ test.describe('form checks (D-04, D6-25; no backend needed)', () => {
 });
 
 test.describe('protections', () => {
-  test('a change request from another site, or without the token, is refused', async ({ request }) => {
+  test('a change request from another site, or without our header, is refused (D7-13)', async ({ request }) => {
     const foreign = await request.post('/api/auth/code', { data: { phone: '9000000000' }, headers: { origin: 'https://evil.example' } });
     expect(foreign.status()).toBe(403);
     expect((await foreign.json()).error.code).toBe('ORIGIN_INVALID');
 
-    const noToken = await request.post('/api/auth/code', { data: { phone: '9000000000' }, headers: { origin: 'https://localhost:3001' } });
-    expect(noToken.status()).toBe(403);
-    expect((await noToken.json()).error.code).toBe('CSRF_INVALID');
+    const noHeader = await request.post('/api/auth/code', { data: { phone: '9000000000' }, headers: { origin: 'https://localhost:3001' } });
+    expect(noHeader.status()).toBe(403);
+    expect((await noHeader.json()).error.code).toBe('CSRF_INVALID');
+
+    const ours = await request.post('/api/language', { data: { lang: 'hi' }, headers: { origin: 'https://localhost:3001', 'x-dhaaga-csrf': '1' } });
+    expect(ours.status()).toBe(200);
   });
 
   test('an after-login page outside our site is never kept', async ({ request }) => {
@@ -220,8 +231,6 @@ test.describe('protections', () => {
   test('the session answer is private and never cached', async ({ request }) => {
     const answer = await request.get('/api/session');
     expect(answer.headers()['cache-control']).toContain('no-store');
-    const body = await answer.json();
-    expect(body.user).toBeNull();
-    expect(body.csrfToken).toMatch(/^p\./);
+    expect(await answer.json()).toEqual({ user: null });
   });
 });

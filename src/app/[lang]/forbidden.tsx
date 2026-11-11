@@ -1,8 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { isLocale } from '@/lib/i18n';
-import { getMessages } from '@/lib/messages';
+import { getMessages, isLocale } from '@/lib/i18n';
 
 /** The "you don't have access" page, sent with a real 403 (Document 2, section 4; Document 4, section 5). */
 export default function Forbidden() {

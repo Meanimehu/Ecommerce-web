@@ -1,29 +1,79 @@
-import 'server-only';
-export { COOKIE, LIFETIME_SECONDS, cookieOptions, isSafeLocalPath, encodeNext, decodeNext, type CookieOptions } from './cookie-basics';
+import { createHmac, hkdfSync, timingSafeEqual } from 'node:crypto';
 
 /**
- * The cookies of Document 4, section 9 and Document 7, section 17.2. Every one is `__Host-`, Secure, HttpOnly,
- * SameSite=Lax, path /, no domain (D4-07). Only the frontend server reads them.
+ * Our cookies (Document 4, section 9; Document 7, section 17.2). Every one is `__Host-`, Secure, HttpOnly,
+ * SameSite=Lax, path /, no domain (D4-07). Only the frontend server reads them. Kept free of server-only imports so
+ * the proxy can use it too.
  */
-/** What the refresh cookie holds: the refresh token, the store generation it was issued under, and the login id. */
-export interface RefreshCookie {
-  /** Refresh token (never logged, never stored in the shared store). */
-  t: string;
-  /** Store generation id when the token was stored (Document 4, section 9, "Store generation"). */
-  g: string;
-  /** Random id for this login, kept through refreshes; the anti-forgery token is tied to it (D7-13). */
-  l: string;
-}
+export const COOKIE = {
+  access: '__Host-dhaaga_at',
+  /** Holds the backend's refresh token as it is (it is already safe to put in a cookie). */
+  refresh: '__Host-dhaaga_rt',
+  pendingAdd: '__Host-dhaaga_pa',
+  next: '__Host-dhaaga_next',
+  language: '__Host-dhaaga_lang',
+} as const;
 
-export function encodeRefreshCookie(value: RefreshCookie): string {
-  return Buffer.from(JSON.stringify(value)).toString('base64url');
-}
+export const LIFETIME_SECONDS = {
+  /** Only the browser cookie's lifetime; the backend alone decides whether the refresh token is valid (D7-12). */
+  refresh: 30 * 24 * 3600,
+  pendingAdd: 15 * 60,
+  next: 15 * 60,
+  language: 365 * 24 * 3600,
+} as const;
 
-export function decodeRefreshCookie(raw: string | undefined): RefreshCookie | null {
-  if (!raw) return null;
+export const cookieOptions = (maxAge: number) => ({ httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge }) as const;
+
+/**
+ * Only a path in our own site: starts with one "/", no scheme, no host, no backslashes or control characters.
+ * "//evil.com", "/\\evil.com" and "https://evil.com" are all refused (no open redirects).
+ */
+export function isSafeLocalPath(path: string): boolean {
+  if (typeof path !== 'string' || path.length === 0 || path.length > 512) return false;
+  if (!path.startsWith('/') || path.startsWith('//')) return false;
+  if (/[\\\u0000-\u001f\u007f]/.test(path)) return false;
   try {
-    const value = JSON.parse(Buffer.from(raw, 'base64url').toString('utf8')) as Partial<RefreshCookie>;
-    return typeof value.t === 'string' && typeof value.g === 'string' && typeof value.l === 'string' ? (value as RefreshCookie) : null;
+    return new URL(path, 'https://dhaaga.invalid').origin === 'https://dhaaga.invalid';
+  } catch {
+    return false;
+  }
+}
+
+/** The after-login destination: a path inside our own site, signed, and checked again when used. */
+export function encodeNext(path: string): string {
+  return sign({ p: path });
+}
+
+export function decodeNext(raw: string | undefined): string | null {
+  const value = unsign<{ p?: unknown }>(raw);
+  return typeof value?.p === 'string' && isSafeLocalPath(value.p) ? value.p : null;
+}
+
+// Signing the short-lived cookies (pending add, after-login page) with COOKIE_SECRET, so they cannot be altered (D4-07).
+
+function signingKey(): Buffer {
+  const secret = process.env.COOKIE_SECRET;
+  if (!secret || secret.length < 32) throw new Error('COOKIE_SECRET must be set (at least 32 characters).');
+  return Buffer.from(hkdfSync('sha256', secret, 'dhaaga-web', 'signed-cookies', 32));
+}
+
+const signature = (body: string): string => createHmac('sha256', signingKey()).update(body).digest('base64url');
+
+/** "payload.signature", both base64url. */
+export function sign(payload: unknown): string {
+  const body = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  return `${body}.${signature(body)}`;
+}
+
+export function unsign<T>(value: string | undefined): T | null {
+  if (!value) return null;
+  const [body, given, extra] = value.split('.');
+  if (!body || !given || extra !== undefined) return null;
+  const expected = Buffer.from(signature(body));
+  const actual = Buffer.from(given);
+  if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) return null;
+  try {
+    return JSON.parse(Buffer.from(body, 'base64url').toString('utf8')) as T;
   } catch {
     return null;
   }

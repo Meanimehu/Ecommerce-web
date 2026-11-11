@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatDate, formatTime } from '@/lib/dates';
-import { formatRupees } from '@/lib/money';
-import { formatPhone } from '@/lib/phone';
+import { formatDate, formatPhone, formatRupees, formatTime } from '@/lib/format';
 
 describe('formatRupees (Document 6, section 16)', () => {
   it('uses the rupee sign and Indian grouping, without decimals for whole rupees', () => {

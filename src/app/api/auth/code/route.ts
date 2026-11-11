@@ -7,7 +7,7 @@ import { fail, fromAppError, guardChange, ok, readJson } from '@/server/auth/htt
 const Body = z.object({ phone: z.string().trim().min(1).max(20) });
 
 export async function POST(request: NextRequest) {
-  const refused = guardChange(request, 'session-or-pre-login');
+  const refused = guardChange(request);
   if (refused) return refused;
   const body = Body.safeParse(await readJson(request));
   if (!body.success) return fail('PHONE_INVALID', 400);

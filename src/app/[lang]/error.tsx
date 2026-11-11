@@ -3,8 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { isLocale } from '@/lib/i18n';
-import { getMessages } from '@/lib/messages';
+import { getMessages, isLocale } from '@/lib/i18n';
 
 /**
  * When a page fails, a clear message and a way on, never a blank page (D-12; Document 6, section 10).

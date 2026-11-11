@@ -22,9 +22,7 @@ test('the health check answers and is never cached', async ({ request }) => {
   const response = await request.get('/api/health');
   expect(response.status()).toBe(200);
   expect(response.headers()['cache-control']).toBe('no-store');
-  const body = (await response.json()) as { status: string; store: { ok: boolean } };
-  expect(body.status).toBe('ok');
-  expect(typeof body.store.ok).toBe('boolean');
+  expect(await response.json()).toEqual({ status: 'ok' });
 });
 
 for (const lang of ['en', 'hi'] as const) {

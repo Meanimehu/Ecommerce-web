@@ -8,8 +8,6 @@ export default defineConfig({
   test: {
     projects: [
       { extends: true, test: { name: 'unit', include: ['tests/unit/**/*.test.ts'], environment: 'node', setupFiles: ['tests/unit/setup-env.ts'] } },
-      // Needs a PostgreSQL server; each run creates and drops its own throwaway database (STORE_TEST_ADMIN_URL).
-      { extends: true, test: { name: 'store', include: ['tests/store/**/*.test.ts'], environment: 'node', testTimeout: 20000, hookTimeout: 30000 } },
     ],
   },
 });

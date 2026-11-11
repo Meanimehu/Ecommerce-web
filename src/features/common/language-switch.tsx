@@ -2,8 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { send } from '@/lib/client/api';
-import type { Locale } from '@/lib/i18n';
-import { getMessages } from '@/lib/messages';
+import { getMessages, type Locale } from '@/lib/i18n';
 
 /**
  * Switches language and stays on the same page (Document 4, section 6). The other language's name in its own script

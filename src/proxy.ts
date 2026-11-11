@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { isLocale, localeOfPath, pickLocale } from '@/lib/i18n';
-import { COOKIE, cookieOptions, encodeNext, isSafeLocalPath, LIFETIME_SECONDS } from '@/server/auth/cookie-basics';
+import { COOKIE, cookieOptions, encodeNext, isSafeLocalPath, LIFETIME_SECONDS } from '@/server/auth/cookies';
 
 /**
  * 1. A visit with no language prefix goes to /en or /hi (Document 4, section 6): the remembered choice, else the

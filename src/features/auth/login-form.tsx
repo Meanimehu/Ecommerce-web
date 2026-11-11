@@ -3,17 +3,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { ErrorSummary } from '@/components/form/error-summary';
-import { applyServerError } from '@/components/form/server-errors';
+import { applyServerError, useAppForm } from '@/components/form/form';
 import { TextField } from '@/components/form/text-field';
-import { useAppForm } from '@/components/form/use-app-form';
 import { Button } from '@/components/ui/button';
 import { send } from '@/lib/client/api';
-import { reloadSession } from '@/lib/client/reconcile';
-import { useSession } from '@/lib/client/session';
-import { NOTICE_EVENT, takeSessionNotice, type SessionNotice } from '@/lib/client/session-end';
+import { NOTICE_EVENT, reloadSession, takeSessionNotice, type SessionNotice } from '@/lib/client/session';
 import { AppError, fill } from '@/lib/errors';
-import type { Locale } from '@/lib/i18n';
-import { getMessages } from '@/lib/messages';
+import { getMessages, type Locale } from '@/lib/i18n';
 import { CodeSchema, PhoneSchema, type CodeInput, type PhoneInput } from '@/schemas/forms/login';
 
 /**
@@ -28,8 +24,6 @@ const asAppError = (error: unknown): AppError => (error instanceof AppError ? er
 export function LoginForm({ lang }: { lang: Locale }) {
   const t = getMessages(lang);
   const queryClient = useQueryClient();
-  // Fetches this page's anti-forgery token (D7-13); a session the backend has ended is handled in session-end.ts.
-  useSession();
   const phoneForm = useAppForm<PhoneInput, { phone: string }>(PhoneSchema, { phone: '' });
   const codeForm = useAppForm<CodeInput, { code: string }>(CodeSchema, { code: '' });
   const [step, setStep] = useState<'phone' | 'code'>('phone');
@@ -40,7 +34,7 @@ export function LoginForm({ lang }: { lang: Locale }) {
   const [phoneFocus, setPhoneFocus] = useState(0);
   const [codeFocus, setCodeFocus] = useState(0);
 
-  // After a session ended, session-end.ts leaves a notice for this page: "Please log in again", or the blocked message.
+  // After a session ended, lib/client/session.ts leaves a notice for this page: "Please log in again", or the blocked message.
   const [sessionNotice, setSessionNotice] = useState<SessionNotice | null>(null);
   useEffect(() => {
     const read = () => {

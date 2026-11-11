@@ -1,9 +1,8 @@
 import { forbidden, notFound, redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
-import { isLocale, type Locale } from '@/lib/i18n';
-import { getMessages } from '@/lib/messages';
+import { getMessages, isLocale, type Locale } from '@/lib/i18n';
 import type { User } from '@/schemas/accounts';
-import { getViewer } from '@/server/auth/viewer';
+import { getViewer } from '@/server/auth/session';
 import { SessionCheck } from './session-check';
 
 /**
