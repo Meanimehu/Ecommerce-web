@@ -10,7 +10,8 @@ import { TextField } from '@/components/form/text-field';
 import { applyServerError, useAppForm, type ServerErrorMap } from '@/hooks/use-app-form';
 import { useActiveGstRates, useSaveCatalogueItem } from '@/hooks/use-catalogue';
 import { requestIdOf, toAppError } from '@/lib/errors';
-import { getMessages, type Locale, type Messages } from '@/lib/i18n';
+import type { Messages } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import {
   BrandFormSchema,
   ColourFormSchema,
@@ -123,8 +124,8 @@ export function useRateOptions(t: Messages, current: number | null | undefined) 
   return [{ value: '', label: t.catalogue.none }, ...options];
 }
 
-export function HsnForm({ lang, item, onDone }: { lang: Locale; item?: HsnCode; onDone: () => void }) {
-  const t = getMessages(lang);
+export function HsnForm({ item, onDone }: { item?: HsnCode; onDone: () => void }) {
+  const t = useMessages();
   const f = t.catalogue.fields;
   const form = useAppForm(HsnFormSchema, { code: item?.code ?? '', description: item?.description ?? '', defaultGstRateBps: item?.defaultGstRateBps === null || item === undefined ? '' : String(item.defaultGstRateBps) });
   const ids = { code: 'hsn-code', description: 'hsn-description', defaultGstRateBps: 'hsn-gst' } as const;
@@ -166,8 +167,8 @@ export function HsnForm({ lang, item, onDone }: { lang: Locale; item?: HsnCode; 
   );
 }
 
-export function BrandForm({ lang, item, onDone }: { lang: Locale; item?: Brand; onDone: () => void }) {
-  const t = getMessages(lang);
+export function BrandForm({ item, onDone }: { item?: Brand; onDone: () => void }) {
+  const t = useMessages();
   const f = t.catalogue.fields;
   const form = useAppForm(BrandFormSchema, { name: item?.name ?? '', slug: item?.slug ?? '' });
   const ids = { name: 'brand-name', slug: 'brand-slug' } as const;
@@ -200,8 +201,8 @@ export function BrandForm({ lang, item, onDone }: { lang: Locale; item?: Brand; 
   );
 }
 
-export function SizeForm({ lang, item, onDone }: { lang: Locale; item?: Size; onDone: () => void }) {
-  const t = getMessages(lang);
+export function SizeForm({ item, onDone }: { item?: Size; onDone: () => void }) {
+  const t = useMessages();
   const f = t.catalogue.fields;
   const form = useAppForm(SizeFormSchema, { code: item?.code ?? '', label: item?.label ?? '', sizeGroup: item?.sizeGroup ?? 'apparel', sortOrder: item ? String(item.sortOrder) : '' });
   const ids = { code: 'size-code', label: 'size-label', sizeGroup: 'size-group', sortOrder: 'size-order' } as const;
@@ -247,8 +248,8 @@ export function SizeForm({ lang, item, onDone }: { lang: Locale; item?: Size; on
   );
 }
 
-export function ColourForm({ lang, item, onDone }: { lang: Locale; item?: Colour; onDone: () => void }) {
-  const t = getMessages(lang);
+export function ColourForm({ item, onDone }: { item?: Colour; onDone: () => void }) {
+  const t = useMessages();
   const f = t.catalogue.fields;
   const form = useAppForm(ColourFormSchema, { code: item?.code ?? '', label: item?.label ?? '', hex: item?.hex ?? '' });
   const ids = { code: 'colour-code', label: 'colour-label', hex: 'colour-hex' } as const;

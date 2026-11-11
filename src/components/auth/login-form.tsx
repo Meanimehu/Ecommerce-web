@@ -8,9 +8,11 @@ import { TextField } from '@/components/form/text-field';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { useRequestCode, useVerify } from '@/hooks/use-login';
+import { keepAddNotice } from '@/hooks/use-cart';
 import { NOTICE_EVENT, reloadSession, takeSessionNotice, type SessionNotice } from '@/hooks/use-session';
 import { AppError, fill } from '@/lib/errors';
-import { getMessages, type Locale } from '@/lib/i18n';
+import { type Locale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import { formatPhone } from '@/utils/format';
 import { CodeSchema, PhoneSchema, type CodeInput, type PhoneInput } from '@/types/auth';
 
@@ -25,7 +27,7 @@ const IDS = { phone: 'login-phone', code: 'login-code' } as const;
 const asAppError = (error: unknown): AppError => (error instanceof AppError ? error : new AppError({ code: 'NETWORK', status: 0 }));
 
 export function LoginForm({ lang }: { lang: Locale }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const queryClient = useQueryClient();
   const phoneForm = useAppForm<PhoneInput, { phone: string }>(PhoneSchema, { phone: '' });
   const codeForm = useAppForm<CodeInput, { code: string }>(CodeSchema, { code: '' });
@@ -101,6 +103,8 @@ export function LoginForm({ lang }: { lang: Locale }) {
     (values) => {
       verify.mutate({ phone, code: values.code, lang }, {
         onSuccess: (answer) => {
+          // A pending "Add to cart" ran in this answer (D2-02): the page the person returns to says what happened.
+          if (answer.pendingAdd) keepAddNotice(answer.pendingAdd);
           queryClient.clear();
           // A full page load on purpose: the next page is rendered on the server with the new cookies.
           window.location.assign(answer.destination);

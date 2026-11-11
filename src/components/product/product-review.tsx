@@ -21,7 +21,8 @@ import { ErrorMessage } from '@/components/common/error-message';
 import { useToast } from '@/components/common/toast';
 import { useDeleteProduct, useSubmitProduct } from '@/hooks/use-product';
 import { fill, messageFor, toAppError, type AppError } from '@/lib/errors';
-import { getMessages, type Locale } from '@/lib/i18n';
+import { type Locale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import type { ProductView } from '@/types/product';
 import { productStepFor } from './product-steps';
 
@@ -31,7 +32,7 @@ import { productStepFor } from './product-steps';
  * that was never submitted can also be deleted here.
  */
 export function ReviewStep({ lang, product }: { lang: Locale; product: ProductView }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const p = t.product;
   const router = useRouter();
   const toast = useToast();

@@ -4,7 +4,7 @@ import { NAV_ICONS } from '@/components/auth/nav-icons';
 import { requireUser } from '@/components/auth/require-user';
 import { StateBlock } from '@/components/common/state-block';
 import { Button } from '@/components/ui/button';
-import { getMessages } from '@/lib/i18n';
+import { getMessages } from '@/lib/messages';
 import { isStaff } from '@/types/auth';
 
 /**

@@ -17,7 +17,7 @@ moved or removed.
 | `utils/` | Helper functions: money, dates, phone numbers | Both |
 | `types/` | Types and the Zod shapes they come from; `generated/` for tool-made files | Both |
 | `messages/` | `en.json` and `hi.json`: every text on screen | Both |
-| `proxy.ts` | The page middleware: language redirect, keeping the after-login page | Server |
+| `proxy.ts` | The page middleware: language redirect, keeping the after-login page, the page's own address for layout guards, images only from our site and the photo host | Server |
 
 The same area name is used in every folder: everything about login is `components/auth/`, `hooks/use-login.ts`,
 `api/auth.ts`, `types/auth.ts`. A cart would be `components/cart/`, `hooks/use-cart.ts`, `api/cart.ts`, `types/cart.ts`.
@@ -71,6 +71,9 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | --- | --- |
 | `[lang]/layout.tsx`, `providers.tsx` | The page frame for `/en` and `/hi`; the QueryClient and its session-end handler |
 | `[lang]/page.tsx` | Home (a placeholder until Slice 3) |
+| `[lang]/c/[slug]` | A category page: its products, newest first, with "Load more" (kept for 60 seconds) |
+| `[lang]/p/[id]/[[...name]]` | A product page; a missing or wrong name part redirects to the full address (kept for 60 seconds) |
+| `[lang]/cart` | The cart (needs login) |
 | `[lang]/login/page.tsx` | The login page |
 | `[lang]/account/page.tsx` | Account: log out, log out everywhere, the areas this person may open |
 | `[lang]/admin/layout.tsx`, `page.tsx` | Admin area frame (any staff role) and its home with the screens this person's roles can use |
@@ -91,6 +94,10 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `api/admin/catalogue/[list]/…` | The catalogue lists: read, add, change (and switch off or on) |
 | `api/catalogue/dictionaries` | What the product form offers |
 | `api/catalogue/categories` | The public category tree |
+| `api/catalogue/products/…` | Product cards for "Load more"; one product as it is now (before adding to the cart) |
+| `api/cart/…` | The cart: view (with a coupon preview), add, change quantity, remove, remove unavailable |
+| `api/cart/pending` | "Add to cart" while logged out: kept in a signed cookie until login (D2-02) |
+| `api/auth/verify` | Also runs a pending add, once |
 | `api/vendors/me/products/…` | The vendor's products: details, variants, photos (upload, order, description, private view), submit |
 | `api/moderation/products/…` | Moderation: queue, one product, its photos, approve or reject |
 | `api/language` | Remembers the language choice |
@@ -125,6 +132,11 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `product/product-summary.tsx` | A product the vendor cannot change right now, read-only |
 | `product/product-status.tsx`, `product-steps.ts` | The product status chip; the step names and which step fixes each missing item |
 | `product/photo-frame.tsx` | A product photo in its 4:5 frame, or "Photo unavailable" |
+| `catalogue/product-card.tsx`, `price.tsx` | The storefront product card and price line |
+| `catalogue/load-more.tsx` | The product grid with "Load more" |
+| `catalogue/product-gallery.tsx`, `product-buy.tsx` | The product page's photos; size and colour, stock, Add to cart |
+| `cart/cart-screen.tsx` | The cart: lines by seller, quantity, remove, line problems, coupon, totals |
+| `common/header-actions.tsx` | "Log in" or the account, and the cart with its count, in the storefront header |
 | `form/field-frame.tsx` | What every field shares: label, "(optional)", the error under it, help text |
 | `form/text-field.tsx`, `select-field.tsx`, `textarea-field.tsx` | A labelled input, select and text area with their errors |
 | `form/error-summary.tsx` | The summary at the top of a form that takes focus |
@@ -154,6 +166,7 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `use-login.ts` | `useRequestCode`, `useVerify` |
 | `use-logout.ts` | `useLogout` |
 | `use-app-form.ts` | `useAppForm` (React Hook Form with Zod), `applyServerError` (backend errors under the right field), message keys |
+| `use-cart.ts` | The cart and its count, add, change, remove, add after login and its notice |
 | `use-product.ts` | The vendor's products: the form guide, list, one product and every change to it |
 | `use-moderation.ts` | The moderation queue, one product, the decision, the public category tree |
 | `use-catalogue.ts` | The catalogue lists: `useCatalogueList`, `useSaveCatalogueItem`, active GST rates and HSN codes |
@@ -166,8 +179,9 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `client.ts` | `callBackend`: time limits, retries for reads only, every answer checked against its shape, the customer's address passed on; streamed uploads; `openBackendFile` for private files |
 | `auth.ts` | The login and session calls of backend Area 1 |
 | `vendor.ts` | Backend Area 2: the vendor application and the admin review |
-| `catalogue.ts` | Backend Area 3a: the admin catalogue lists, and the public category tree |
+| `catalogue.ts` | Backend Area 3a: the admin catalogue lists, and the storefront (category tree, product cards, one product) |
 | `product.ts` | Backend Area 3b: the vendor's products, variants and photos |
+| `cart.ts` | Backend Area 5: the cart |
 | `moderation.ts` | Backend Area 3b: moderation |
 
 ### `middleware/` — login and request handling (server only)
@@ -187,7 +201,9 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `lib/fonts.ts` | Outfit and Noto Sans Devanagari, from our own site, each loaded only for the characters it covers |
 | `lib/http.ts` | Browser calls to our endpoints: `get`, `send`, `patch`, `put`, `remove` and `upload` (with progress and Cancel), with the time limit, the forgery label and one error shape |
 | `lib/uploads.ts` | Upload limits copied from the backend, for a quick check before sending; the photo sizes |
-| `lib/i18n.ts` | The two languages, choosing one, and `getMessages` for the English and Hindi text |
+| `lib/i18n.ts` | The two languages and choosing one |
+| `lib/messages.ts` | `getMessages` for server pages; the shared text and the Vendor and Admin areas' own text |
+| `lib/messages-context.tsx` | `useMessages`: the page's text in the browser, only its language (and area text only inside those areas) |
 | `lib/errors.ts` | `AppError`, and `messageFor`: our own message for any error |
 | `utils/format.ts` | Dates and times in IST, rupees, phone numbers, GST rates |
 | `utils/cn.ts` | The class-name helper the shadcn/ui tool expects |
@@ -196,7 +212,8 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `types/auth.ts` | User, login and session answers, the phone and code forms |
 | `types/error.ts` | The backend's error answer |
 | `types/common.ts` | Shapes every area shares: a page of a list, a reason |
-| `types/catalogue.ts` | Backend Area 3a lists (GST rate, HSN code, category with attributes, brand, size, colour), their forms, tree order |
+| `types/catalogue.ts` | Backend Area 3a lists (GST rate, HSN code, category with attributes, brand, size, colour), their forms, tree order; the storefront's category tree, product card, product, and product addresses |
+| `types/cart.ts` | Backend Area 5 cart view, the pending add |
 | `types/product.ts` | Backend Area 3b answers (product, variant, photo, form guide, moderation), the product forms, rupees to paise |
 | `types/vendor.ts` | Backend Area 2 answers (vendor, address, document, admin views) and the application forms |
 | `types/generated/` | Request types, the OpenAPI description and the error-code list, made by `npm run gen:types` and `gen:error-codes`; never edited |
@@ -213,7 +230,7 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 
 | I want to… | Files |
 | --- | --- |
-| Change a text on screen | `messages/en.json` and `hi.json` (both) |
+| Change a text on screen | `messages/en.json` and `hi.json` (both). Text only the Vendor or Admin area uses goes in a section listed in `AREA_SECTIONS` (`lib/messages.ts`) |
 | Change a colour, size or type style | `app/globals.css` (tokens) or the component in `components/ui/` |
 | Change what a backend error says | `errors.codes` in the same two files |
 | Change a form's checks | Its schema in `types/<area>.ts` |

@@ -23,7 +23,10 @@
       "catalogue": "Catalogue lists",
       "moderation": "Product moderation"
     },
-    "products": "Products"
+    "products": "Products",
+    "cart": "Cart",
+    "cartOne": "item",
+    "cartMany": "items"
   },
   "login": {
     "title": "Log in or sign up",
@@ -168,7 +171,12 @@
       "IMAGE_LIMIT": "A product can have up to 8 photos.",
       "REVIEW_STALE": "This product changed while you were looking at it. Review it again.",
       "REVIEW_OWN_VENDOR": "You cannot review products of your own vendor.",
-      "TAX_CONFIRMATION_REQUIRED": "Confirm the tax the vendor declared before approving."
+      "TAX_CONFIRMATION_REQUIRED": "Confirm the tax the vendor declared before approving.",
+      "INSUFFICIENT_STOCK": "Not enough of this item is left.",
+      "VARIANT_UNAVAILABLE": "This item can no longer be bought.",
+      "CART_QUANTITY_LIMIT": "You can have up to 10 of one item in your cart.",
+      "CART_LINE_LIMIT": "Your cart can hold up to 50 different items.",
+      "CART_ITEM_NOT_FOUND": "This item is no longer in your cart. Reload the page."
     }
   },
   "languageNames": {
@@ -212,7 +220,8 @@
     "home": "Go to the shop"
   },
   "common": {
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "photoUnavailable": "Photo unavailable"
   },
   "toast": {
     "dismiss": "Dismiss"
@@ -620,7 +629,6 @@
     "categoryInactive": "This product's category is switched off. Choose another category in Basics.",
     "attributesHelp": "Required details can be filled in later; the review step lists what is still missing.",
     "attributeInvalid": "This value is not accepted. Check it and try again.",
-    "photoUnavailable": "Photo unavailable",
     "variant": {
       "sku": "SKU",
       "skuHelp": "Your own code: letters, digits, . _ or -. Used only once across your products.",
@@ -733,5 +741,99 @@
     "nothingWaiting": "Nothing is waiting for a decision on this product.",
     "stale": "This product changed while you were looking at it",
     "staleText": "The latest version is shown now. Review it again before deciding."
+  },
+  "store": {
+    "home": "Home",
+    "mrp": "MRP",
+    "off": "{percent}% off",
+    "sale": "Sale",
+    "outOfStock": "Out of stock",
+    "inStock": "In stock",
+    "lowStock": "Only a few left",
+    "productsOne": "1 product",
+    "productsMany": "{count} products",
+    "subcategories": "Sub-categories",
+    "noProducts": "No products here yet. Have a look at another category.",
+    "loadMore": "Load more",
+    "showing": "Showing {shown} of {total}",
+    "added": "{count} more products shown",
+    "soldBy": "Sold by",
+    "taxesIncluded": "Inclusive of all taxes",
+    "saleEnds": "Sale ends {date}",
+    "description": "Description",
+    "details": "Details",
+    "photos": "Photos",
+    "photoOf": "{title}, photo {number}",
+    "size": "Size",
+    "colour": "Colour",
+    "unavailable": "Unavailable",
+    "unavailableHelp": "Unavailable sizes and colours are crossed out and cannot be picked.",
+    "chooseSize": "Choose a size to add this to your cart.",
+    "chooseColour": "Choose a colour to add this to your cart.",
+    "chooseBoth": "Choose a size and a colour to add this to your cart.",
+    "addToCart": "Add to cart",
+    "addedToCart": "Added to cart",
+    "viewCart": "View cart",
+    "addUnknown": "We could not confirm whether the item was added. Please check your cart and add it again if needed."
+  },
+  "cart": {
+    "title": "Your cart",
+    "empty": "Your cart is empty",
+    "emptyText": "Items you add from a product page appear here.",
+    "continueShopping": "Continue shopping",
+    "soldBy": "Sold by {name}",
+    "vendorSubtotal": "Subtotal from this seller",
+    "each": "each",
+    "size": "Size {size}",
+    "colour": "Colour {colour}",
+    "quantity": "Quantity",
+    "remove": "Remove",
+    "summary": "Order summary",
+    "items": "Items ({count})",
+    "savings": "Savings",
+    "couponDiscount": "Coupon",
+    "shipping": "Shipping",
+    "shippingLater": "Not calculated yet",
+    "estimatedTotal": "Estimated total",
+    "taxesIncluded": "Prices include GST.",
+    "checkoutSoon": "Shipping charges are not calculated yet. Checkout is coming soon. Your cart is saved.",
+    "coupon": "Coupon code",
+    "apply": "Apply",
+    "removeCoupon": "Remove coupon",
+    "couponApplied": "Coupon {code} applied.",
+    "couponReasons": {
+      "COUPON_NOT_FOUND": "This coupon code does not exist.",
+      "COUPON_PENDING_VENDOR": "This coupon is not ready to use yet.",
+      "COUPON_NOT_ACTIVE": "This coupon is not active.",
+      "COUPON_NOT_STARTED": "This coupon cannot be used yet.",
+      "COUPON_EXPIRED": "This coupon has expired.",
+      "COUPON_MIN_NOT_MET": "Your cart does not reach this coupon's minimum amount yet.",
+      "COUPON_USAGE_LIMIT_REACHED": "This coupon has been used up.",
+      "COUPON_USER_LIMIT_REACHED": "You have already used this coupon as often as allowed.",
+      "COUPON_NOT_APPLICABLE": "This coupon does not apply to the items in your cart.",
+      "COUPON_NO_DISCOUNT": "This coupon gives no discount on this cart."
+    },
+    "status": {
+      "low_stock": "Only a few left",
+      "insufficient_stock": "Not enough left",
+      "out_of_stock": "Out of stock",
+      "unavailable": "Unavailable"
+    },
+    "explain": {
+      "lowStock": "Only a few are left of this item.",
+      "insufficient": "There are not enough left for this quantity. Lower the quantity.",
+      "outOfStock": "This item is out of stock. Remove it, or keep it and check back later.",
+      "unavailable": "This item can no longer be bought. Remove it.",
+      "reasons": {
+        "product_not_available": "This product is no longer on sale. Remove it.",
+        "variant_inactive": "This size or colour is no longer sold. Remove it.",
+        "variant_not_found": "This item no longer exists. Remove it."
+      }
+    },
+    "someUnavailable": "Some items in your cart can no longer be bought.",
+    "removeUnavailable": "Remove unavailable items",
+    "removeUnavailableTitle": "Remove the unavailable items?",
+    "removeUnavailableBody": "Items that are out of stock or no longer sold are removed from your cart.",
+    "changeUnknown": "We could not confirm your change. Check the cart before trying again."
   }
 }

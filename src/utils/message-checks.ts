@@ -79,6 +79,12 @@ export const BACKEND_CODES_IN_USE = [
   'REVIEW_STALE',
   'REVIEW_OWN_VENDOR',
   'TAX_CONFIRMATION_REQUIRED',
+  // storefront and cart (Areas 3a and 5): Slice 2d
+  'INSUFFICIENT_STOCK',
+  'VARIANT_UNAVAILABLE',
+  'CART_QUANTITY_LIMIT',
+  'CART_LINE_LIMIT',
+  'CART_ITEM_NOT_FOUND',
 ] as const;
 
 /** Codes from the backend's framework, not in its catalogue (api-contract.md, section 3), that a built screen can show. */

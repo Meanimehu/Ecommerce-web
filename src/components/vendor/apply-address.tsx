@@ -24,7 +24,8 @@ import { TextField } from '@/components/form/text-field';
 import { applyServerError, useAppForm } from '@/hooks/use-app-form';
 import { addressBody, useRemoveAddress, useSaveAddress } from '@/hooks/use-vendor';
 import { fill, messageFor, requestIdOf, toAppError } from '@/lib/errors';
-import { getMessages, type Locale } from '@/lib/i18n';
+import { type Locale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import { formatPhone } from '@/utils/format';
 import { AddressSchema, type AddressInput, type Vendor, type VendorAddress } from '@/types/vendor';
 
@@ -34,7 +35,7 @@ import { AddressSchema, type AddressInput, type Vendor, type VendorAddress } fro
  * address is optional. A vendor can hold up to 5 addresses; the backend says when that is reached.
  */
 export function AddressStep({ lang, vendor }: { lang: Locale; vendor: Vendor }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const [editing, setEditing] = useState<VendorAddress | 'new' | null>(vendor.addresses.length ? null : 'new');
   const base = `/${lang}/vendor/apply`;
   return (
@@ -49,16 +50,16 @@ export function AddressStep({ lang, vendor }: { lang: Locale; vendor: Vendor }) 
         {vendor.addresses.map((address) =>
           editing !== 'new' && editing?.id === address.id ? (
             <li key={address.id}>
-              <AddressForm lang={lang} address={address} onDone={() => setEditing(null)} />
+              <AddressForm address={address} onDone={() => setEditing(null)} />
             </li>
           ) : (
             <li key={address.id}>
-              <AddressCard lang={lang} address={address} onEdit={() => setEditing(address)} />
+              <AddressCard address={address} onEdit={() => setEditing(address)} />
             </li>
           ),
         )}
       </ul>
-      {editing === 'new' ? <AddressForm lang={lang} onDone={() => setEditing(null)} canCancel={vendor.addresses.length > 0} /> : null}
+      {editing === 'new' ? <AddressForm onDone={() => setEditing(null)} canCancel={vendor.addresses.length > 0} /> : null}
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
         {editing === null ? (
           <Button type="button" variant="secondary" onClick={() => setEditing('new')}>
@@ -77,8 +78,8 @@ export function AddressStep({ lang, vendor }: { lang: Locale; vendor: Vendor }) 
   );
 }
 
-function AddressCard({ lang, address, onEdit }: { lang: Locale; address: VendorAddress; onEdit: () => void }) {
-  const t = getMessages(lang);
+function AddressCard({ address, onEdit }: { address: VendorAddress; onEdit: () => void }) {
+  const t = useMessages();
   const toast = useToast();
   const removeAddress = useRemoveAddress();
   const oneLine = [address.line1, address.line2, address.city, address.state, address.pincode].filter(Boolean).join(', ');
@@ -128,8 +129,8 @@ const IDS = {
   contactPhone: 'address-phone',
 } as const;
 
-function AddressForm({ lang, address, onDone, canCancel = true }: { lang: Locale; address?: VendorAddress; onDone: () => void; canCancel?: boolean }) {
-  const t = getMessages(lang);
+function AddressForm({ address, onDone, canCancel = true }: { address?: VendorAddress; onDone: () => void; canCancel?: boolean }) {
+  const t = useMessages();
   const toast = useToast();
   const save = useSaveAddress();
   const [focus, setFocus] = useState(0);

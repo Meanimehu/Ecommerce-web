@@ -1,6 +1,3 @@
-import en from '@/messages/en.json';
-import hi from '@/messages/hi.json';
-
 /**
  * The two languages of the first release (Document 1, D-08). Every page lives under /en or /hi (Document 4, D4-01).
  */
@@ -40,12 +37,7 @@ export function localeOfPath(pathname: string): Locale | null {
 
 /**
  * The message catalogue: one file per language, the same keys in both (Document 4, section 6). Screens never hold text
- * of their own (Document 1, D-08). `npm run check:messages` fails when the two files differ in keys.
+ * of their own (Document 1, D-08). `npm run check:messages` fails when the two files differ in keys. The catalogues are
+ * read on the server (lib/messages.ts); the browser gets only its page's language, through useMessages.
  */
-export type Messages = typeof en;
-
-const catalogues: Record<Locale, Messages> = { en, hi };
-
-export function getMessages(locale: Locale): Messages {
-  return catalogues[locale];
-}
+export type Messages = typeof import('@/messages/en.json');

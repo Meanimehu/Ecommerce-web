@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { adminNav } from '@/components/auth/area-menus';
 import { AreaShell } from '@/components/auth/area-shell';
 import { requireUser } from '@/components/auth/require-user';
-import { getMessages } from '@/lib/i18n';
+import { getMessages } from '@/lib/messages';
 import { isStaff } from '@/types/auth';
 
 export const dynamic = 'force-dynamic';

@@ -5,7 +5,7 @@ import { AreaShell } from '@/components/auth/area-shell';
 import { vendorNav } from '@/components/auth/area-menus';
 import { currentPath, requireUser, Unavailable } from '@/components/auth/require-user';
 import { AppError } from '@/lib/errors';
-import { getMessages } from '@/lib/i18n';
+import { getMessages } from '@/lib/messages';
 
 /**
  * Who may open the Vendor area (Document 5, section 4): the application page is open to any logged-in person; every

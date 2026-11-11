@@ -11,7 +11,8 @@ import { Pagination } from '@/components/common/pagination';
 import { StateBlock } from '@/components/common/state-block';
 import { VendorStatusChip } from '@/components/vendor/vendor-status';
 import { useVendorList } from '@/hooks/use-vendor';
-import { getMessages, type Locale } from '@/lib/i18n';
+import { type Locale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import { formatDate, formatPhone } from '@/utils/format';
 import { VENDOR_STATUSES, type AdminVendorRow } from '@/types/vendor';
 import { pageNumber, withQuery } from '@/utils/url';
@@ -24,7 +25,7 @@ import { pageNumber, withQuery } from '@/utils/url';
 const LIMIT = 20;
 
 export function VendorList({ lang }: { lang: Locale }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const params = useSearchParams();
   const status = params.get('status') ?? '';
   const documents = params.get('documents') ?? '';

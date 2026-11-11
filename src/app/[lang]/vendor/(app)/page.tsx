@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
-import { getMessages, isLocale } from '@/lib/i18n';
+import { isLocale } from '@/lib/i18n';
+import { getMessages } from '@/lib/messages';
 
 /**
  * Vendor home (Document 5, section 7.2). The needs-attention list arrives with the rest of the vendor screens (Slice 4);

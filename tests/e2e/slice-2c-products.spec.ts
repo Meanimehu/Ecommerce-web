@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
-import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
+import { addAndSubmitProduct as addAndSubmit } from './support/flows';
 import { backendLog, freshPhone, pageAs } from './support/login';
 
 /**
@@ -11,46 +11,9 @@ import { backendLog, freshPhone, pageAs } from './support/login';
 const VENDOR_PHONE = process.env.E2E_VENDOR_PHONE ?? '9000000011';
 const MODERATOR_PHONE = process.env.E2E_MODERATOR_PHONE ?? '9000000002';
 const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
-const KURTA = { name: 'kurta.png', mimeType: 'image/png', buffer: readFileSync('tests/e2e/fixtures/garment-kurta.png') };
-const SHIRT = { name: 'shirt.png', mimeType: 'image/png', buffer: readFileSync('tests/e2e/fixtures/garment-shirt.png') };
 
 async function noAxeViolations(page: Page) {
   expect((await new AxeBuilder({ page }).withTags(WCAG).analyze()).violations).toEqual([]);
-}
-
-/** Adds a product through every step and submits it; returns its address. */
-async function addAndSubmit(vendor: Page, title: string, sku: string) {
-  await vendor.goto('/en/vendor/products/new');
-  await vendor.getByRole('textbox', { name: 'Title' }).fill(title);
-  await vendor.getByRole('combobox', { name: 'Category' }).selectOption({ label: 'Women › Kurtas' });
-  await expect(vendor.getByText(/The category's default: HSN \d+, GST \d+%/)).toBeVisible();
-  await vendor.getByRole('button', { name: 'Save and continue' }).click();
-  await expect(vendor).toHaveURL(/\/en\/vendor\/products\/[0-9a-f-]+\?step=attributes$/);
-  const address = vendor.url().replace(/\?.*$/, '');
-
-  await vendor.getByRole('link', { name: 'Continue' }).click();
-  await expect(vendor).toHaveURL(/step=variants/);
-  await vendor.getByRole('combobox', { name: /^Size/ }).selectOption({ label: 'M' });
-  await vendor.getByRole('textbox', { name: 'SKU' }).fill(sku);
-  await vendor.getByRole('textbox', { name: 'MRP (₹)' }).fill('1999');
-  await vendor.getByRole('textbox', { name: 'Selling price (₹)' }).fill('1499.50');
-  await vendor.getByRole('button', { name: 'Save variant' }).click();
-  await expect(vendor.getByRole('cell', { name: '₹1,499.50' })).toBeVisible();
-  await vendor.getByRole('link', { name: 'Continue' }).click();
-
-  await expect(vendor).toHaveURL(/step=photos/);
-  const chooser = vendor.waitForEvent('filechooser');
-  await vendor.getByRole('button', { name: 'Choose files' }).click();
-  await (await chooser).setFiles([KURTA, SHIRT]);
-  await expect(vendor.getByText('Main photo', { exact: true })).toBeVisible();
-  await expect(vendor.getByText('Photo 2', { exact: true })).toBeVisible();
-  await vendor.getByRole('link', { name: 'Continue' }).click();
-
-  await expect(vendor).toHaveURL(/step=review/);
-  await expect(vendor.getByText('Everything needed is here.')).toBeVisible();
-  await vendor.getByRole('button', { name: 'Submit for review' }).click();
-  await expect(vendor.getByText('This product is waiting for review and cannot be changed until a moderator decides.')).toBeVisible();
-  return address;
 }
 
 test.describe('vendor products and moderation', () => {

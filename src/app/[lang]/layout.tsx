@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { notFound } from 'next/navigation';
 import { notoDevanagari, outfit, outfitExtended } from '@/lib/fonts';
-import { getMessages, isLocale, LOCALES } from '@/lib/i18n';
+import { isLocale, LOCALES } from '@/lib/i18n';
+import { getMessages, sharedMessages } from '@/lib/messages';
 import { Providers } from './providers';
 import '../globals.css';
 
@@ -28,7 +29,9 @@ export default async function LanguageLayout({ children, params }: Props) {
   return (
     <html lang={lang} className={`${outfit.variable} ${outfitExtended.variable} ${notoDevanagari.variable}`}>
       <body>
-        <Providers dismissLabel={getMessages(lang).toast.dismiss}>{children}</Providers>
+        <Providers messages={sharedMessages(lang)} dismissLabel={getMessages(lang).toast.dismiss}>
+          {children}
+        </Providers>
       </body>
     </html>
   );

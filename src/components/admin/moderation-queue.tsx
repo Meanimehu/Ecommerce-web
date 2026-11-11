@@ -9,7 +9,8 @@ import { Pagination } from '@/components/common/pagination';
 import { StateBlock } from '@/components/common/state-block';
 import { ProductStatusChip } from '@/components/product/product-status';
 import { useCategoryTree, useQueue } from '@/hooks/use-moderation';
-import { getMessages, type Locale } from '@/lib/i18n';
+import { type Locale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import { findInTree } from '@/types/catalogue';
 import type { ModerationRow } from '@/types/product';
 import { formatDate } from '@/utils/format';
@@ -23,7 +24,7 @@ import { pageNumber, withQuery } from '@/utils/url';
 const LIMIT = 20;
 
 export function ModerationQueue({ lang }: { lang: Locale }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const m = t.moderation;
   const params = useSearchParams();
   const page = pageNumber(params.get('page'));

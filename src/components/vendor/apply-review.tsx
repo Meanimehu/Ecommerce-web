@@ -11,7 +11,8 @@ import { ErrorMessage } from '@/components/common/error-message';
 import { useToast } from '@/components/common/toast';
 import { useSubmitVendor } from '@/hooks/use-vendor';
 import { fill, messageFor, toAppError, type AppError } from '@/lib/errors';
-import { getMessages, type Locale } from '@/lib/i18n';
+import { type Locale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import type { Vendor } from '@/types/vendor';
 import { stepFor } from './apply-steps';
 
@@ -24,7 +25,7 @@ import { stepFor } from './apply-steps';
 const KNOWN = ['seller_type', 'contact_email', 'pickup_address', 'document:pan', 'document:gst_certificate'] as const;
 
 export function ReviewStep({ lang, vendor }: { lang: Locale; vendor: Vendor }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const router = useRouter();
   const toast = useToast();
   const submit = useSubmitVendor();

@@ -8,7 +8,8 @@ import { LoadingBlock, PartError } from '@/components/common/load-states';
 import { Steps, type Step } from '@/components/common/steps';
 import { useMyVendor } from '@/hooks/use-vendor';
 import { fill } from '@/lib/errors';
-import { getMessages, type Locale } from '@/lib/i18n';
+import { type Locale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import type { Vendor } from '@/types/vendor';
 import { AddressStep } from './apply-address';
 import { DetailsStep } from './apply-details';
@@ -23,7 +24,7 @@ import { isEditable, VendorStatusChip } from './vendor-status';
  * the address (?step=), so the back button and a reload keep it. Only a draft or a rejected application can be changed.
  */
 export function ApplyScreen({ lang }: { lang: Locale }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const params = useSearchParams();
   const asked = params.get('step');
   const step = (STEP_KEYS as readonly string[]).includes(asked ?? '') ? (asked as StepKey) : null;
@@ -73,7 +74,7 @@ export function ApplyScreen({ lang }: { lang: Locale }) {
 
 /** The start page: the application's status, its message, the reviewer's reason when there is one, and one way on. */
 function StatusCard({ lang, vendor }: { lang: Locale; vendor: Vendor | null }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const base = `/${lang}/vendor/apply`;
   const status = vendor?.status;
   const firstStep = vendor?.missing[0] ? stepFor(vendor.missing[0]) : 'review';

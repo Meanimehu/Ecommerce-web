@@ -5,7 +5,8 @@ import { useParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { StateBlock } from '@/components/common/state-block';
 import { Button } from '@/components/ui/button';
-import { getMessages, isLocale } from '@/lib/i18n';
+import { isLocale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 
 /**
  * When a page fails: what failed, "Try again", and a way on, never a blank page (D-12; Document 6, section 10).
@@ -14,7 +15,7 @@ import { getMessages, isLocale } from '@/lib/i18n';
 export default function PageError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   const params = useParams<{ lang: string }>();
   const lang = isLocale(params.lang) ? params.lang : 'en';
-  const t = getMessages(lang);
+  const t = useMessages();
   useEffect(() => console.error(error), [error]);
   return (
     <main className="mx-auto grid w-full max-w-[640px] px-4 py-12">

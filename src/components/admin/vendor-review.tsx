@@ -13,7 +13,8 @@ import { useToast } from '@/components/common/toast';
 import { VendorStatusChip } from '@/components/vendor/vendor-status';
 import { useVendor, useVendorDecision, vendorDocumentHref } from '@/hooks/use-vendor';
 import { fill, messageFor, toAppError, type AppError } from '@/lib/errors';
-import { getMessages, type Locale, type Messages } from '@/lib/i18n';
+import { type Locale, type Messages } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import { formatSize } from '@/lib/uploads';
 import { formatDate, formatPhone, formatTime } from '@/utils/format';
 import type { AdminVendor, VendorDocument } from '@/types/vendor';
@@ -27,7 +28,7 @@ import type { AdminVendor, VendorDocument } from '@/types/vendor';
 const DOC_TONE: Record<VendorDocument['status'], ChipTone> = { pending: 'info', approved: 'success', rejected: 'error' };
 
 export function VendorReview({ lang, id }: { lang: Locale; id: string }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const vendor = useVendor(id);
   const base = `/${lang}/admin/vendors`;
   return (
@@ -45,7 +46,7 @@ export function VendorReview({ lang, id }: { lang: Locale; id: string }) {
 }
 
 function Review({ lang, vendor }: { lang: Locale; vendor: AdminVendor }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const toast = useToast();
   const decide = useVendorDecision(vendor.id);
   const [error, setError] = useState<AppError | null>(null);

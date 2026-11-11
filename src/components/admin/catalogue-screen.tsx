@@ -17,7 +17,8 @@ import { StatusChip } from '@/components/common/status-chip';
 import { useToast } from '@/components/common/toast';
 import { useCatalogueList, useSaveCatalogueItem } from '@/hooks/use-catalogue';
 import { fill, messageFor, toAppError } from '@/lib/errors';
-import { getMessages, type Locale, type Messages } from '@/lib/i18n';
+import { type Locale, type Messages } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import { EDITABLE_LISTS, inTreeOrder, type Brand, type Category, type Colour, type EditableList, type HsnCode, type Size } from '@/types/catalogue';
 import { cn } from '@/utils/cn';
 import { formatRate } from '@/utils/format';
@@ -37,7 +38,7 @@ interface Item {
 }
 
 export function CatalogueScreen({ lang, list }: { lang: Locale; list: EditableList }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const c = t.catalogue;
   const base = `/${lang}/admin/catalogue`;
   return (
@@ -80,7 +81,7 @@ function statusColumn<T extends Item>(t: Messages): Column<T> {
 }
 
 function HsnCodes({ lang }: { lang: Locale }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const c = t.catalogue.columns;
   return (
     <CatalogueTable<HsnCode>
@@ -93,14 +94,14 @@ function HsnCodes({ lang }: { lang: Locale }) {
         { key: 'description', header: c.description, cell: (item) => item.description },
         { key: 'gst', header: c.defaultGst, cell: (item) => (item.defaultGstRateBps === null ? '—' : formatRate(item.defaultGstRateBps)) },
       ]}
-      form={(item, done) => <HsnForm lang={lang} item={item} onDone={done} />}
+      form={(item, done) => <HsnForm item={item} onDone={done} />}
       note={t.catalogue.codesNeverChange}
     />
   );
 }
 
 function Brands({ lang }: { lang: Locale }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const c = t.catalogue.columns;
   return (
     <CatalogueTable<Brand>
@@ -112,13 +113,13 @@ function Brands({ lang }: { lang: Locale }) {
         statusColumn(t),
         { key: 'slug', header: c.slug, cell: (item) => item.slug },
       ]}
-      form={(item, done) => <BrandForm lang={lang} item={item} onDone={done} />}
+      form={(item, done) => <BrandForm item={item} onDone={done} />}
     />
   );
 }
 
 function Sizes({ lang }: { lang: Locale }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const c = t.catalogue.columns;
   return (
     <CatalogueTable<Size>
@@ -132,14 +133,14 @@ function Sizes({ lang }: { lang: Locale }) {
         { key: 'group', header: c.sizeGroup, cell: (item) => (t.catalogue.sizeGroups as Record<string, string>)[item.sizeGroup] ?? item.sizeGroup },
         { key: 'order', header: c.sortOrder, numeric: true, cell: (item) => item.sortOrder },
       ]}
-      form={(item, done) => <SizeForm lang={lang} item={item} onDone={done} />}
+      form={(item, done) => <SizeForm item={item} onDone={done} />}
       note={t.catalogue.codesNeverChange}
     />
   );
 }
 
 function Colours({ lang }: { lang: Locale }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const c = t.catalogue.columns;
   return (
     <CatalogueTable<Colour>
@@ -163,14 +164,14 @@ function Colours({ lang }: { lang: Locale }) {
         { key: 'label', header: c.label, cell: (item) => item.label },
         { key: 'hex', header: c.hex, cell: (item) => item.hex ?? '—' },
       ]}
-      form={(item, done) => <ColourForm lang={lang} item={item} onDone={done} />}
+      form={(item, done) => <ColourForm item={item} onDone={done} />}
       note={t.catalogue.codesNeverChange}
     />
   );
 }
 
 function Categories({ lang }: { lang: Locale }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const c = t.catalogue.columns;
   return (
     <CatalogueTable<Category>
@@ -196,7 +197,7 @@ function Categories({ lang }: { lang: Locale }) {
         { key: 'attributes', header: c.attributes, numeric: true, cell: (item) => item.attributeSchema.length },
         { key: 'tax', header: c.defaultTax, cell: (item) => [item.defaultHsnCode, item.defaultGstRateBps === null ? null : formatRate(item.defaultGstRateBps)].filter(Boolean).join(', ') || '—' },
       ]}
-      form={(item, done) => <CategoryForm lang={lang} item={item} onDone={done} />}
+      form={(item, done) => <CategoryForm item={item} onDone={done} />}
       note={t.catalogue.categoryNote}
     />
   );
@@ -224,7 +225,7 @@ function CatalogueTable<T extends Item>({
   /** The order to show rows in, when it is not the backend's. */
   order?: (items: T[]) => T[];
 }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const c = t.catalogue;
   const toast = useToast();
   const params = useSearchParams();

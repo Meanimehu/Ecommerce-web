@@ -3,7 +3,9 @@ import type { ReactNode } from 'react';
 import { LanguageSwitch } from '@/components/common/language-switch';
 import { NeedsScript } from '@/components/common/needs-script';
 import { Wordmark } from '@/components/common/wordmark';
-import { getMessages, type Locale } from '@/lib/i18n';
+import { type Locale } from '@/lib/i18n';
+import { areaMessages, getMessages } from '@/lib/messages';
+import { MessagesProvider } from '@/lib/messages-context';
 import { AreaMenuButton, AreaSideNav, type NavItem } from './area-nav';
 
 /**
@@ -42,7 +44,8 @@ export function AreaShell({ lang, area, nav, children }: { lang: Locale; area: '
         <AreaSideNav items={nav} label={t.nav.menu} />
         <main className="grid min-w-0 flex-1 content-start gap-6 px-4 py-6 sm:px-6 lg:px-8">
           <NeedsScript t={t} />
-          {children}
+          {/* The Vendor and Admin areas' own text (lib/messages.ts). */}
+          <MessagesProvider messages={areaMessages(lang)}>{children}</MessagesProvider>
         </main>
       </div>
     </div>

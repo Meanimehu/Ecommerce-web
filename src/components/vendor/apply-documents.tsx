@@ -21,7 +21,8 @@ import { StatusChip, type ChipTone } from '@/components/common/status-chip';
 import { useToast } from '@/components/common/toast';
 import { myDocumentHref, useRemoveDocument, useUploadDocument } from '@/hooks/use-vendor';
 import { AppError, fill, messageFor, requestIdOf, toAppError } from '@/lib/errors';
-import { getMessages, type Locale, type Messages } from '@/lib/i18n';
+import { type Locale, type Messages } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import { checkFile, formatSize, UPLOAD_RULES } from '@/lib/uploads';
 import { DOCUMENT_TYPES, type DocumentType, type Vendor, type VendorDocument } from '@/types/vendor';
 import { cn } from '@/utils/cn';
@@ -35,7 +36,7 @@ import { cn } from '@/utils/cn';
 const DOC_TONE: Record<VendorDocument['status'], ChipTone> = { pending: 'info', approved: 'success', rejected: 'error' };
 
 export function DocumentsStep({ lang, vendor }: { lang: Locale; vendor: Vendor }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   return (
     <section aria-labelledby="documents-heading" className="grid gap-4 rounded-1 border border-line bg-surface p-5 sm:p-6">
       <h2 id="documents-heading" className="type-h3 text-ink">
@@ -44,7 +45,7 @@ export function DocumentsStep({ lang, vendor }: { lang: Locale; vendor: Vendor }
       <ul className="grid gap-3">
         {DOCUMENT_TYPES.map((type) => (
           <li key={type}>
-            <DocumentRow lang={lang} vendor={vendor} type={type} />
+            <DocumentRow vendor={vendor} type={type} />
           </li>
         ))}
       </ul>
@@ -60,8 +61,8 @@ export function DocumentsStep({ lang, vendor }: { lang: Locale; vendor: Vendor }
   );
 }
 
-function DocumentRow({ lang, vendor, type }: { lang: Locale; vendor: Vendor; type: DocumentType }) {
-  const t = getMessages(lang);
+function DocumentRow({ vendor, type }: { vendor: Vendor; type: DocumentType }) {
+  const t = useMessages();
   const toast = useToast();
   const latest = vendor.documents.find((d) => d.type === type);
   const required = type === 'pan' || (type === 'gst_certificate' && Boolean(vendor.gstin));

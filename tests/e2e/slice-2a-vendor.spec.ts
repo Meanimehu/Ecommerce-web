@@ -96,7 +96,7 @@ test.describe('become a vendor, and admin review', () => {
     await expect(admin.getByRole('status').filter({ hasText: 'Document approved' })).toBeVisible();
     await admin.getByRole('button', { name: 'Approve vendor' }).click();
     await expect(admin.getByRole('status').filter({ hasText: 'Vendor approved' })).toBeVisible();
-    await expect(admin.getByText('Approved', { exact: true }).first()).toBeVisible();
+    await expect(admin.getByText('Approved', { exact: true }).filter({ visible: true }).first()).toBeVisible();
 
     // The new vendor now reaches the Vendor area, and the application shows Approved.
     await page.goto('/en/vendor/apply');

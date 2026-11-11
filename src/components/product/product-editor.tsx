@@ -8,7 +8,8 @@ import { Steps, type Step } from '@/components/common/steps';
 import { useDictionaries, useMyProduct } from '@/hooks/use-product';
 import { useMyVendor } from '@/hooks/use-vendor';
 import { fill } from '@/lib/errors';
-import { getMessages, type Locale } from '@/lib/i18n';
+import { type Locale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import type { Dictionaries, ProductView } from '@/types/product';
 import { AttributesStep } from './product-attributes';
 import { BasicsStep } from './product-basics';
@@ -26,7 +27,7 @@ import { VariantsStep } from './product-variants';
  * reason at the top. A vendor that is not approved sees everything and changes nothing (Document 5, section 7.5).
  */
 export function ProductEditor({ lang, id }: { lang: Locale; id: string | null }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const p = t.product;
   const params = useSearchParams();
   const dictionaries = useDictionaries();
@@ -80,7 +81,7 @@ export function ProductEditor({ lang, id }: { lang: Locale; id: string | null })
               {step === 'review' ? <ReviewStep lang={lang} product={view} /> : null}
             </>
           ) : (
-            <ProductSummary lang={lang} product={view} dictionaries={dict} />
+            <ProductSummary product={view} dictionaries={dict} />
           )}
         </div>
       );
@@ -97,7 +98,7 @@ export function ProductEditor({ lang, id }: { lang: Locale; id: string | null })
 }
 
 function StepNav({ lang, product, current }: { lang: Locale; product: ProductView | null; current: ProductStep }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const p = t.product;
   const missing = product?.missing ?? [];
   const done = (step: ProductStep) => product !== null && step !== 'review' && !missing.some((m) => productStepFor(m) === step);
