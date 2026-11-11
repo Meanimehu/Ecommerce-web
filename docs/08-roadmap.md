@@ -59,7 +59,7 @@ Nothing below has been done. Each is a check, not a promise.
 - **Accessibility:** automated checks and the manual keyboard, screen reader, contrast and focus tests for the five core customer journeys (D7-08, T7-6). Contrast of every combination on the approved screens (D6-50).
 - **Browsers:** the manual real-browser and real-device checks in D7-11 (the current Chrome, Safari, Firefox and Edge on Android, iPhone and desktop), recorded for each browser and device. The automated tests alone do not count (D7-09, D7-11).
 - **Real vendor photos** in the 4:5 complete-photo frames (D6-62, T7-7).
-- **Request ID** reaching the browser, before the "Copy" button is kept (V5-5, T7-4).
+- **Request ID** reaching the browser, before the "Copy" button is kept (V5-5, T7-4): confirmed in the first build on 11 Nov 2026; checked again on staging.
 - **Sitemap size and splitting** (T7-5); the **OpenAPI source** matches production (T7-3).
 - **Hindi wording** reviewed by someone who writes Hindi.
 - **Backend items B1 to B6** closed or accepted by the owner.

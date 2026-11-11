@@ -38,7 +38,10 @@ describe('forgery protection (Document 7, section 17.3; D7-13)', () => {
   ])('refuses %j with %s', async (headers, code) => {
     const answer = guardChange(post(headers));
     expect(answer?.status).toBe(403);
-    expect((await answer?.json()).error.code).toBe(code);
+    const { error } = await answer!.json();
+    expect(error.code).toBe(code);
+    // Our server decided this by itself: no made-up reference number that nobody could look up (D5-14).
+    expect(error).not.toHaveProperty('requestId');
   });
 });
 

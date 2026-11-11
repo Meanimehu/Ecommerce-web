@@ -107,7 +107,10 @@ test.describe('login and sessions', () => {
     await page.getByRole('button', { name: 'Send code' }).click();
     await readCode(phone);
     await page.getByLabel('Code', { exact: true }).fill('000000');
+    const answer = page.waitForResponse((r) => r.url().endsWith('/api/auth/verify'));
     await page.getByRole('button', { name: 'Log in', exact: true }).click();
+    // The backend's request id reaches the browser (T7-4), so it can be shown with "Copy" where a screen shows one (D5-14).
+    expect((await (await answer).json()).error.requestId).toMatch(/^[0-9a-f-]{36}$/);
     const code = page.getByLabel('Code', { exact: true });
     await expect(code).toHaveAttribute('aria-invalid', 'true');
     await expect(code).toHaveAccessibleDescription(/That code isn't right/);
