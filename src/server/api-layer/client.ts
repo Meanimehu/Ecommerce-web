@@ -2,6 +2,7 @@ import 'server-only';
 import type { z } from 'zod';
 import { AppError } from '@/lib/errors';
 import { BackendErrorSchema } from '@/schemas/error';
+import { clientAddress } from '../client-address';
 import { serverConfig } from '../config';
 
 /**
@@ -28,6 +29,8 @@ export interface CallOptions<S extends z.ZodType | null> {
   schema: S;
   fetchImpl?: typeof fetch;
   sleep?: (ms: number) => Promise<void>;
+  /** For tests only; normally read from the incoming request. null sends none. */
+  clientAddress?: string | null;
 }
 
 export interface CallResult<T> {
@@ -46,6 +49,8 @@ function retryWaitMs(error: AppError, attempt: number): number | null {
     const wait = Number.isFinite(seconds) && seconds > 0 ? seconds * 1000 : (RETRY_PAUSES_MS[attempt] ?? 0);
     return wait <= MAX_RATE_LIMIT_WAIT_MS ? wait : null;
   }
+  // A response that does not match its schema is not a server failure: repeating the call would not change it.
+  if (error.code === 'RESPONSE_MISMATCH') return null;
   const retryable = error.code === 'NETWORK' || error.code === 'TIMEOUT' || error.status === 502 || error.status === 503 || error.status === 504 || error.status === 500;
   return retryable ? jitter(RETRY_PAUSES_MS[attempt] ?? 0) : null;
 }
@@ -72,6 +77,9 @@ async function callOnce<S extends z.ZodType | null>(options: CallOptions<S>): Pr
   const headers: Record<string, string> = { accept: 'application/json' };
   if (options.token) headers.authorization = `Bearer ${options.token}`;
   if (options.body !== undefined) headers['content-type'] = 'application/json';
+  // The customer's address, so the backend's per-address limits count each customer (Document 3, section 3).
+  const address = options.clientAddress === undefined ? await clientAddress() : options.clientAddress;
+  if (address) headers['x-forwarded-for'] = address;
 
   let response: Response;
   try {
@@ -88,6 +96,8 @@ async function callOnce<S extends z.ZodType | null>(options: CallOptions<S>): Pr
   }
 
   const requestId = response.headers.get('x-request-id') ?? undefined;
+  // "Too many requests": the wait the backend gives, from details or its headers (api-contract.md, sections 3 and 7).
+  const waitHeader = Number(response.headers.get('retry-after') ?? response.headers.get('x-ratelimit-reset'));
   const text = await response.text().catch(() => '');
   const json = text ? safeJson(text) : undefined;
 
@@ -99,7 +109,10 @@ async function callOnce<S extends z.ZodType | null>(options: CallOptions<S>): Pr
     const { code, details, message } = parsed.data.error;
     const fields = Array.isArray(details) ? details : undefined;
     // Backend gap B1: details may carry a database constraint name. It is never used or passed on.
-    const cleanDetails = details && !Array.isArray(details) ? Object.fromEntries(Object.entries(details).filter(([k]) => k !== 'constraint')) : undefined;
+    let cleanDetails = details && !Array.isArray(details) ? Object.fromEntries(Object.entries(details).filter(([k]) => k !== 'constraint')) : undefined;
+    if (response.status === 429 && cleanDetails?.retryAfterSeconds === undefined && Number.isFinite(waitHeader) && waitHeader > 0) {
+      cleanDetails = { ...cleanDetails, retryAfterSeconds: waitHeader };
+    }
     throw new AppError({
       code,
       status: response.status,
@@ -114,9 +127,17 @@ async function callOnce<S extends z.ZodType | null>(options: CallOptions<S>): Pr
   if (options.schema === null) return { data: null as never, status: response.status, requestId };
   const checked = options.schema.safeParse(json);
   if (!checked.success) {
+    // The report: endpoint, request id and fields, never the data (Document 3, section 4). Error monitoring is open (Q7-2),
+    // so the server log is where it goes for now. In development and tests the screen also says exactly what is wrong.
     const fields = checked.error.issues.map((issue) => issue.path.join('.') || '(body)');
-    console.error(JSON.stringify({ event: 'response_mismatch', endpoint: `${options.method} ${options.path}`, requestId, fields }));
-    throw new AppError({ code: 'RESPONSE_MISMATCH', status: 502, requestId });
+    const endpoint = `${options.method} ${options.path}`;
+    console.error(JSON.stringify({ event: 'response_mismatch', endpoint, requestId, fields }));
+    throw new AppError({
+      code: 'RESPONSE_MISMATCH',
+      status: 502,
+      requestId,
+      backendMessage: serverConfig.isProduction ? undefined : `The answer of ${endpoint} does not match its schema (fields: ${fields.join(', ')}).`,
+    });
   }
   return { data: checked.data as never, status: response.status, requestId };
 }

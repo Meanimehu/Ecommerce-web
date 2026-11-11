@@ -64,6 +64,7 @@ Because the host is not chosen, the app must meet these, and a host is acceptabl
 - **Full control of cache headers**, so the rules in Document 2, section 5 can be met and checked.
 - **Region** close to India for low delay (D-11).
 - **A health check endpoint** for the frontend itself, and a clean shutdown that lets running requests finish.
+- **The customer's address** (Document 3, section 3). The host's front door gives each customer's address in a header (named in `CLIENT_ADDRESS_HEADER`), the backend runs with `TRUST_PROXY=true`, and the backend is reachable only from the frontend server, so nobody else can send it an address. Without this, the backend's per-address limits would count every customer as one, and logins would stop after the hourly limit.
 
 ## 5. Routes
 

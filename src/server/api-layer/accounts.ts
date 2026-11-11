@@ -1,6 +1,6 @@
 import 'server-only';
 import type { components } from '@/generated/backend-api';
-import { LoginResultSchema, OtpRequestResultSchema, RefreshResultSchema, UserSchema } from '@/schemas/auth';
+import { LoginResultSchema, OtpRequestResultSchema, RefreshResultSchema, UserSchema } from '@/schemas/accounts';
 import { callBackend } from './client';
 
 /** Area 1 login and session calls (backend area-1-accounts.md). Request types are generated from OpenAPI (D7-02). */

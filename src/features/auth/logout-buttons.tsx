@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { forgetCsrf, send } from '@/lib/client/api';
+import { reloadSession } from '@/lib/client/reconcile';
 import { AppError, messageFor } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
@@ -32,14 +33,23 @@ export function LogoutButtons({ lang }: { lang: Locale }) {
       const { handle } = await send<{ handle: string | null }>(everywhere ? '/api/auth/logout-all' : '/api/auth/logout');
       if (handle) await send('/api/session/clear', { handle });
     },
-    onSuccess: () => {
-      queryClient.clear();
-      forgetCsrf();
-      // A full page load on purpose: the next page is rendered on the server without the cookies.
-      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-      window.location.assign(`/${lang}`);
+    onSuccess: () => leave(),
+    onError: async (raw) => {
+      // Unknown outcome: look at the session once, and go by what is there (Document 3, section 6).
+      if (raw instanceof AppError && raw.outcomeUnknown) {
+        const answer = await reloadSession(queryClient);
+        if (answer && !answer.user) leave();
+      }
     },
   });
+
+  function leave() {
+    queryClient.clear();
+    forgetCsrf();
+    // A full page load on purpose: the next page is rendered on the server without the cookies.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.assign(`/${lang}`);
+  }
   const busy = logOut.isPending || logOut.isSuccess;
   const error = logOut.error ? (logOut.error instanceof AppError ? logOut.error : new AppError({ code: 'NETWORK', status: 0 })) : null;
 

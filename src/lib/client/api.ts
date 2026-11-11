@@ -1,4 +1,5 @@
 import { AppError } from '@/lib/errors';
+import type { User } from '@/schemas/accounts';
 
 /**
  * Browser calls to our own server (Document 3, D3-03: the browser never calls the backend). Every request has a time
@@ -18,16 +19,9 @@ export function forgetCsrf(): void {
   csrf = null;
 }
 
-export interface SessionUser {
-  id: string;
-  phone: string;
-  name: string | null;
-  email: string | null;
-  roles: string[];
-}
-
 export interface SessionAnswer {
-  user: SessionUser | null;
+  /** The User of Area 1, as checked by the server against UserSchema; the type is inferred from that schema. */
+  user: User | null;
   csrfToken: string;
 }
 

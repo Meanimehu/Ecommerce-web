@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
-import * as authApi from '@/server/api-layer/auth';
+import * as authApi from '@/server/api-layer/accounts';
 import { fail, fromAppError, guardChange, ok, readJson } from '@/server/auth/http';
 
 /** POST /api/auth/code: asks the backend to send a login code (area-1-accounts.md, POST /auth/otp/request). */

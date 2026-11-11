@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server';
-import * as authApi from '@/server/api-layer/auth';
+import * as authApi from '@/server/api-layer/accounts';
 import { preLoginToken, sessionToken } from '@/server/auth/csrf';
 import { fromAppError, fromFailure, ok, setSessionCookies } from '@/server/auth/http';
 import { asUser, loginIdOf, readAuth } from '@/server/auth/session';

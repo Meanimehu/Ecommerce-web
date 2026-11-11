@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { isLocale } from '@/lib/i18n';
-import * as authApi from '@/server/api-layer/auth';
+import * as authApi from '@/server/api-layer/accounts';
 import { COOKIE, cookieOptions, decodeNext } from '@/server/auth/cookies';
 import { randomId } from '@/server/auth/crypto';
 import { sessionToken } from '@/server/auth/csrf';

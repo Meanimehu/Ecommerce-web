@@ -5,7 +5,7 @@ import { LanguageSwitch } from '@/features/common/language-switch';
 import { NeedsScript } from '@/features/common/needs-script';
 import { getMessages } from '@/lib/messages';
 import { formatPhone } from '@/lib/phone';
-import { isStaff } from '@/schemas/auth';
+import { isStaff } from '@/schemas/accounts';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { robots: { index: false, follow: false } };

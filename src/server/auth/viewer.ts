@@ -1,8 +1,8 @@
 import 'server-only';
 import { cookies } from 'next/headers';
 import { AppError } from '@/lib/errors';
-import type { User } from '@/schemas/auth';
-import * as authApi from '../api-layer/auth';
+import type { User } from '@/schemas/accounts';
+import * as authApi from '../api-layer/accounts';
 import { COOKIE } from './cookie-basics';
 
 /**
