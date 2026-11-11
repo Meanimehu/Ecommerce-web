@@ -16,7 +16,8 @@ import { CodeSchema, PhoneSchema, type CodeInput, type PhoneInput } from '@/type
  * Login by phone code (Document 2, section 3; Document 5, section 6.4). One login page for everyone (D2-04).
  * Phone first, then one code field with autocomplete="one-time-code" (D6-24). The wait before "Send code again" comes
  * from the backend. It never says whether an account exists. Forms: React Hook Form with Zod (D-04); server data:
- * TanStack Query (D-02).
+ * TanStack Query (D-02). The forms use method="post" so that, before the scripts have loaded (or without them), a
+ * tap on a button never puts the phone number or code in the address (it would land in history and server logs).
  */
 const IDS = { phone: 'login-phone', code: 'login-code' } as const;
 const asAppError = (error: unknown): AppError => (error instanceof AppError ? error : new AppError({ code: 'NETWORK', status: 0 }));
@@ -165,7 +166,7 @@ export function LoginForm({ lang }: { lang: Locale }) {
       ) : null}
 
       {step === 'phone' ? (
-        <form className="space-y-4" noValidate onSubmit={(event) => void onPhone(event)}>
+        <form method="post" className="space-y-4" noValidate onSubmit={(event) => void onPhone(event)}>
           <ErrorSummary form={phoneForm} fieldIds={{ phone: IDS.phone }} t={t} requestId={asRequestId(requestCode.error)} focusSignal={phoneFocus} />
           <TextField
             form={phoneForm}
@@ -181,7 +182,7 @@ export function LoginForm({ lang }: { lang: Locale }) {
           </Button>
         </form>
       ) : (
-        <form className="space-y-4" noValidate onSubmit={(event) => void onCode(event)}>
+        <form method="post" className="space-y-4" noValidate onSubmit={(event) => void onCode(event)}>
           <ErrorSummary
             form={codeForm}
             fieldIds={{ code: IDS.code }}

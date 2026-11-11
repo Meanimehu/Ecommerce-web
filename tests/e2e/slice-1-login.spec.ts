@@ -201,6 +201,18 @@ test.describe('form checks (D-04, D6-25; no backend needed)', () => {
 });
 
 test.describe('protections', () => {
+  test.describe('without scripts (or before they load on a slow phone)', () => {
+    test.use({ javaScriptEnabled: false });
+    test('sending the login form never puts the phone number in the address', async ({ page }) => {
+      await page.goto('/en/login');
+      await page.getByLabel('Mobile number').fill('9876543210');
+      await page.getByRole('button', { name: 'Send code' }).click();
+      await page.waitForLoadState();
+      expect(page.url()).not.toContain('9876543210');
+      await expect(page).toHaveURL(/\/en\/login$/);
+    });
+  });
+
   test('a change request from another site, or without our header, is refused (D7-13)', async ({ request }) => {
     const foreign = await request.post('/api/auth/code', { data: { phone: '9000000000' }, headers: { origin: 'https://evil.example' } });
     expect(foreign.status()).toBe(403);
