@@ -1,6 +1,6 @@
 # 4. Architecture and routes
 
-> **Status: Approved. D4-01 to D4-04 approved 4 Nov 2026; D4-05 to D4-09 approved 9 Nov 2026; D4-10 approved 10 Nov 2026; merged (PR #5). Section 4 plain-language note and Q4-1 updated 10 Nov 2026 (no decision changed).**
+> **Status: Approved. D4-01 to D4-04 approved 4 Nov 2026; D4-05 to D4-09 approved 9 Nov 2026; D4-10 approved 10 Nov 2026; merged (PR #5). Section 4 plain-language note and Q4-1 updated 10 Nov 2026 (no decision changed). Simplified 11 Nov 2026 (owner approved): the frontend store is removed; D4-05, D4-06 and D4-10 are withdrawn and replaced by D4-11; D4-08 changed.**
 > Follows Documents 1 to 3. Documentation only.
 
 ## 1. Purpose
@@ -15,14 +15,12 @@ How the frontend is organised and run: its layers, its pages and addresses, lang
 | D4-02 | **Product pages use a readable name plus the id**, for example `/en/p/<id>/slim-fit-chinos`. The frontend builds the readable part from the title; the id is what is looked up. A wrong or old name part redirects to the correct address. No backend change is needed | Approved (4 Nov 2026). Clarified (route form only): the id and the name are separate path segments, because ids are opaque (Document 3, section 7) |
 | D4-03 | **Hosting is not chosen now.** The app is built to run as a plain, self-contained Node.js server that any suitable host can run, and the host is chosen at deployment time against the checklist in section 4 | Approved (4 Nov 2026) |
 | D4-04 | **Search engines index only the home page, category pages, brand pages and product pages.** Search results, filter and sort combinations, cart, account, login, vendor and admin pages are marked not to be indexed | Approved (4 Nov 2026) |
-| D4-05 | **Shared-store durability.** Entries that protect against reuse (refresh-token consumed markers, pending-add used marks) need a store that is persistent, never evicts them, keeps them for as long as the protected cookie can arrive, writes them atomically, and carries a generation id so any loss is detected. If these guarantees cannot be confirmed, refreshing stops (section 4) | Approved (9 Nov 2026) |
-| D4-06 | **Safe refresh coordination and stale requests.** A refresh token that was, or may have been, used is never sent again. A consumed marker is written before the backend call, and an unknown outcome counts as used. The refresh token never goes into the shared store. A request that cannot safely refresh fails alone, without setting or clearing authentication cookies in its own response; clearing after a confirmed rejection or an explicit logout goes through a separate compare-and-clear step, which narrows but cannot fully remove the delayed-response race (section 9) | Approved (9 Nov 2026) |
 | D4-07 | **Cookie security.** Every cookie we set uses the `__Host-` prefix with `Secure`, path `/`, no domain, and `HttpOnly` and `SameSite=Lax` as shown in section 9. Pending-add and after-login cookies are signed. There is no anti-forgery cookie. Logout and a confirmed session end keep the language cookie. Names and numeric lifetimes are set in Document 7 | Approved (9 Nov 2026) |
-| D4-08 | **Pending add runs at most once.** The one-time mark guarantees at most once, not completion. An add whose outcome is unknown is never repeated automatically, and the person is told to check the cart (section 9) | Approved (9 Nov 2026) |
+| D4-08 | **Pending add runs once.** The answer that runs it also removes it, so a reload, the back button or a retry cannot run it again. An add whose outcome is unknown is never repeated automatically, and the person is told to check the cart (section 9) | Approved (9 Nov 2026). Changed 11 Nov 2026 (owner approved): no "already used" mark in a store |
 | D4-09 | **The New arrivals section of the home page (Document 5, D5-12) shares the home page's cache refresh interval, and cached home-page content is public catalogue data only:** nothing specific to a person or to login. The interval itself is set in Document 7 (Q4-4) | Approved (9 Nov 2026) |
-| D4-10 | **The shared store for the security-critical entries is PostgreSQL, in a separate database used only by the frontend.** It holds the consumed-token markers and the pending-add "already used" marks (section 4). It is never the backend's database and the backend never reads it. The checklist in section 4 stays the acceptance test and is checked in every environment. Restoring the database from a backup must first start a new generation id (section 9, "Store generation"), so a restore is never mistaken for an intact store. Disposable entries (locks, short-lived results, cached public data) may use the same database or a separate area (section 4). This settles which product the store is; D4-05 and D4-06 are unchanged | Approved (10 Nov 2026) |
+| D4-11 | **No frontend store. Refreshing relies on the backend's 10-second tolerance.** Each server runs at most one refresh per session at a time and shares its result with the requests waiting on that server. Tabs or servers that refresh at the same moment are covered by the backend, which accepts a just-replaced refresh token again within 10 seconds (`docs/api/reference/area-1-accounts.md`, section "1. Login and sessions", refresh). Cookies are set or cleared in the answer to the request itself (section 9). Replaces D4-05, D4-06 and D4-10 | Approved (11 Nov 2026) |
 
-D4-05 to D4-08 were approved by the owner on 9 Nov 2026, as written, and D4-09 on the same date. Sections 4, 7 and 9 describe them in detail.
+D4-05 to D4-08 were approved by the owner on 9 Nov 2026, as written, and D4-09 on the same date. **D4-05, D4-06 and D4-10 (the frontend's shared store) were withdrawn on 11 Nov 2026 and replaced by D4-11:** the backend already accepts a repeated refresh within 10 seconds, so the store protected nothing the customer would notice. Sections 7 and 9 describe the decisions in detail.
 
 ## 3. Layers
 
@@ -42,25 +40,14 @@ The app has these layers. A layer may use only the layer below it, with one exce
 - The backend's address is configuration read only on the server and is never sent to the browser (D3-03).
 - Text for screens and our own error messages live in the message catalogue, never inside screens (D-08, D-09).
 
-## 4. Hosting requirements (D4-03, D4-05)
+## 4. Hosting requirements (D4-03)
 
 Because the host is not chosen, the app must meet these, and a host is acceptable only if it does too.
 
-**Why the frontend has a store, in plain words.** When a login is renewed, the backend gives a new renewal key and the old one dies; if the old key is ever sent again, the backend treats it as stolen and ends the session (backend Area 1). With two tabs open, or the site running on two servers, both can try to renew with the same key at the same moment, and the person would be logged out for no reason. The shared store is the notebook every server can read: a server writes "this key is used" there first, and any other tab or server that sees the note waits for the result instead of sending the dead key. It holds only these notes (scrambled, never the keys themselves) and a few short-lived entries; no products, customers or orders, which all stay in the backend. It is PostgreSQL, in a database used only by the frontend (D4-10).
-
 - **A plain Node.js server**, run as one or more identical instances, with no feature specific to one host.
-- **Stateless instances.** Anything that must be shared between instances goes to the shared store below.
-- **A shared store** reachable by all instances, for coordination and shared data (sections 7 and 9). It never holds a refresh token or a password-like secret. The only credential it ever holds is a newly issued access token, encrypted and kept for a few seconds (section 9). Its entries fall into two classes with **different durability needs**, and the store must satisfy both: The product is PostgreSQL in a frontend-only database (D4-10).
-  - **Security-critical entries: must not be lost or evicted early.** These are the "consumed" markers of refresh tokens (they stop a used refresh token from ever being sent again) and the "already used" marks of pending adds. Losing one early could let a used token or a one-time action be repeated. The store must therefore provide, for this class:
-    - **Persistence:** a write is acknowledged only once it is durable, and entries survive a restart or failover of the store.
-    - **No eviction:** these entries are never removed to free memory. When the store is full it **refuses new writes** instead of evicting. Capacity is monitored and an alert is raised well before it is full.
-    - **Retention:** each entry lives at least as long as the old cookie it protects could still arrive, plus a safety margin (section 9). It then expires on its own.
-    - **Availability:** reachable by every instance, with an atomic "create only if absent" write, so two instances cannot both claim the same token.
-    - **Loss detection:** the store carries a permanent *generation id*, created with the store and never expired. **Any loss of security-critical entries, whole or partial** (a failover or restore that may drop acknowledged writes, an eviction or manual deletion, a failed replica), **must either change the generation id, or block refreshing until the loss is detected and a new generation is established.** A surviving generation id is never proof that the markers are intact (section 9).
-  - **Disposable entries: may be lost, evicted or short-lived.** These are locks, short-lived refresh results, and cached public data (pages, search results, the brand map). Losing one only costs a repeat of work or a "try again", and never weakens any protection, because the security-critical entries are always checked first. They may live in a separate store or area with ordinary eviction and shorter lifetimes.
-  - **If the guarantees for the security-critical class cannot be provided or confirmed, refreshing stops** and the request gets a temporary "try again" answer, with no backend call and no cookie change (fails closed, section 9). Each instance checks the configuration at start-up and regularly (persistence on, eviction off, generation id present). The check list and the automated test are in Document 7.
+- **Identical instances that share nothing.** Each keeps its own short-lived caches, and refreshing relies on the backend (D4-11), so no store is shared between them.
 - **Streaming** of request and response bodies, and a request body limit at least as large as the biggest backend upload (Document 3, section 10).
-- **Configuration through environment variables** for each environment (local, staging, production): the backend address, the public site address, and the secrets for cookies and anti-forgery tokens. Secrets are never in the repository.
+- **Configuration through environment variables** for each environment (local, staging, production): the backend address, the public site address, and the secret that signs our short-lived cookies. Secrets are never in the repository.
 - **Full control of cache headers**, so the rules in Document 2, section 5 can be met and checked.
 - **Region** close to India for low delay (D-11).
 - **A health check endpoint** for the frontend itself, and a clean shutdown that lets running requests finish.
@@ -95,7 +82,7 @@ All paths begin with the language prefix `/{lang}`. This lists areas and the mai
 
 **Brand addresses.**
 - *What the backend offers:* the public brand list is paged and has no lookup by slug, and the product list filters brands by id, not slug (`docs/api/reference/area-3a-catalogue.md`, brands and product list). The brand facet on the product list carries slugs, but only for the brands in the current result, so it cannot be used as a lookup.
-- *How a slug becomes an id:* the frontend server keeps one **map of brand slug to brand id**, built from the public brand list (all pages, read until the total is reached) and kept in the shared public cache with a refresh interval set in Document 7. A brand page request is **one lookup in the map**; the paged list is never scanned per request. Building the map costs one backend request per page of the brand list; that cost is paid once per refresh interval, not on each brand-page request.
+- *How a slug becomes an id:* the frontend server keeps one **map of brand slug to brand id**, built from the public brand list (all pages, read until the total is reached) and kept in each server's cache with a refresh interval set in Document 7. A brand page request is **one lookup in the map**; the paged list is never scanned per request. Building the map costs one backend request per page of the brand list; that cost is paid once per refresh interval, not on each brand-page request.
 - *Unknown slug:* the map is rebuilt once (rebuilds are limited to one in a short period, so repeated unknown slugs cannot hammer the backend), and if the slug is still missing the not-found page is shown. A brand switched off in the backend disappears from the map at its next rebuild.
 - *No backend change is proposed.* The current API is enough. This is revisited only if the number of brands grows so large that building the map becomes slow.
 
@@ -134,7 +121,7 @@ All paths begin with the language prefix `/{lang}`. This lists areas and the mai
 - A **sitemap** lists the indexed pages in both languages. A site rules file points to it and keeps search engines out of the endpoints and the login areas.
 - Whether pages after the first of a list are indexed is an open question (Q4-2).
 
-## 9. Sessions and cookies across instances (Document 2; D4-06 to D4-08)
+## 9. Sessions and cookies (Document 2; D4-07, D4-08, D4-11)
 
 ### Cookies (D4-07)
 
@@ -143,98 +130,40 @@ Every cookie our frontend server sets uses the `__Host-` name prefix. The browse
 | Cookie | Holds | Attributes | Lifetime |
 | --- | --- | --- | --- |
 | Access | The backend access token | `__Host-`, `Secure`, `HttpOnly`, `SameSite=Lax`, path `/`, no domain | No longer than the access token |
-| Refresh | The backend refresh token, and the store's generation id from when it was stored (see "Store generation" below) | Same | No longer than the longest refresh-token lifetime in `docs/api/reference/area-1-accounts.md`, section 1. The backend stays the authority: an expired or refused token is handled as "session ended" |
-| Pending add | Only the variant, the quantity and a one-time id (Document 2, section 3) | Same, and the value is signed so it cannot be altered | Minutes; set in Document 7 |
+| Refresh | The backend refresh token | Same | No longer than the longest refresh-token lifetime in `docs/api/reference/area-1-accounts.md`, section 1. The backend stays the authority: an expired or refused token is handled as "session ended" |
+| Pending add | Only the variant and the quantity (Document 2, section 3) | Same, and the value is signed so it cannot be altered | Minutes; set in Document 7 |
 | After-login destination | A path inside our own site | Same, and the value is signed. The path is checked again when it is used | Minutes; set in Document 7 |
 | Language choice | `en` or `hi` | Same. Set only when the person uses the language switcher (section 6). Not cleared by logout or session end | Long-lived; set in Document 7 |
 
 - `SameSite=Lax` is needed so a person arriving from a link stays logged in and returns from login to where they were. `SameSite=None` is not used.
-- **There is no anti-forgery cookie.** The anti-forgery token is derived on the server from a secret and the person's session. The browser receives it in the response of a read request, keeps it in memory, and sends it in a request header on every data-changing request (Document 2, section 6). Because it is not a cookie, it cannot be sent automatically by another site.
-- **Explicit logout and a confirmed end of session (the backend rejecting the session, cleared through compare-and-clear, see "When cookies are cleared") clear the authentication cookies (access, refresh) and the temporary-flow cookies (pending add, after-login destination), but keep the language-preference cookie** (Document 2, section 4). The language cookie changes only when the person changes their language, or clears their site data.
-- **A request that merely cannot refresh never clears or sets authentication cookies** (see "Three answers" below).
+- **There is no anti-forgery cookie and no anti-forgery token.** A data-changing request must come from our own origin and carry our fixed request header (Document 2, section 6; Document 7, section 17.3).
+- **Explicit logout and a confirmed end of session (the backend rejecting the session) clear the authentication cookies (access, refresh) and the temporary-flow cookies (pending add, after-login destination), but keep the language-preference cookie** (Document 2, section 4). The language cookie changes only when the person changes their language, or clears their site data.
+- **A request whose refresh fails without a confirmed rejection** (network error, timeout, backend error) **changes no cookie.**
 - Running these cookies in local development needs the site served in a way the browser accepts for `Secure` cookies; the setup is in Document 7.
 
-### Refresh across instances (D4-05, D4-06)
+### Refresh (D4-11)
 
-**Rules that never change:**
-- **A refresh token that has been replaced, or may have been, is never sent to the backend again.** The app does not use the backend's retry tolerance (see the backend reference for how refresh tokens are replaced).
-- **The refresh token never leaves the cookie** and the instance's memory while it is being used. It is never written to the shared store, to logs or to any report.
-- Only the instance holding the session's **lock** may refresh.
+1. A request finds the access token missing, or the backend answers that it has expired.
+2. If this server is already refreshing this session, the request waits for that refresh and uses its result. Otherwise it starts one.
+3. The frontend server sends the refresh token to the backend once:
+   - **Success:** the call is repeated with the new access token, and this answer sets the new access and refresh cookies.
+   - **The backend confirms the session is over** (session ended, token reused, account blocked): this answer clears the authentication and temporary-flow cookies, keeps the language cookie, and the person sees Document 2's message.
+   - **No clear answer** (timeout, network error, backend error): cookies stay as they are and the person sees "Something went wrong. Please try again." (Document 7, D7-10). The refresh is not repeated in that request.
+4. A server-rendered page cannot set cookies. When it finds the access token missing or expired, the browser asks our session endpoint, which refreshes as above and sets the cookies, and the page renders again.
 
-**What the shared store holds, all keyed by a keyed hash of the refresh token (never the token).** The three kinds have different durability needs (section 4):
+**Why this is enough.** The backend replaces the refresh token on every refresh and treats an old one that comes back as theft, except within 10 seconds of replacing it: then it gives another new token instead (`docs/api/reference/area-1-accounts.md`, section "1. Login and sessions", refresh). That covers two tabs or two servers refreshing at once, and a retry after a lost answer.
 
-| Entry | Class | Durability and lifetime |
-| --- | --- | --- |
-| **Consumed marker**, written **before** the backend call. From that moment the token counts as used, whatever happens next | **Security-critical** | Persistent, never evicted, written with an atomic "create only if absent" and **acknowledged as durable before the backend is called**. Kept for the longest refresh-token lifetime (`docs/api/reference/area-1-accounts.md`, section 1) plus a safety margin for clock differences, so it outlives any time the old cookie could still arrive. Expires only by this rule |
-| **Lock**, taken before a refresh | Disposable | Expires a little after the backend call timeout (Document 7), so a crashed instance cannot block a session for long. If a lock is lost, nothing is weakened: the marker is still checked first, and a second refresh with the same token is refused |
-| **Short-lived result**: either a **success** (the new access token, encrypted) or a **confirmed rejection** by the backend. It never contains the new refresh token. An unknown outcome is never stored as a result: it is simply a marker with no result | Disposable | A few seconds (Document 7). If it is lost, a waiting request gets the stale-session answer and never refreshes again |
+**Logout.** The logout endpoint asks the backend to end the session and clears the cookies in its own answer, whether or not the backend request succeeded (Document 2, section 4). A failed backend request is logged without the token.
 
-The keyed-hash secret is kept, even after a change of secret, for as long as the markers made with it can still be needed, so that no marker becomes unfindable.
-
-**Store generation.** The refresh cookie also carries the store's *generation id* from the time its token was stored (section 4). At refresh time, if the store's current generation id has **changed**, markers may have been lost, so every cookie from before the change is treated as possibly consumed: the request gets the stale-session answer (below) and the person logs in again. Cookies issued after the change are not affected. If the id is **missing** (the store has lost its data), the guarantees cannot be confirmed, so refreshing is blocked with the temporary answer until a new generation is established.
-
-**A matching generation id is not enough.** If security-critical markers may have been lost while the id survived (partial loss), refreshing must not proceed. The store, or the procedure that runs it, must then either start a new generation immediately, or hold refreshing blocked until the loss is detected and a new generation is established. Failovers, restores and any deletion or eviction of these entries are covered by this rule.
-
-**Three answers. None of them sets or clears a cookie in its own response.**
-
-| | Temporary "try again" | Stale-session | Session-ended |
-| --- | --- | --- | --- |
-| When | The shared store is unavailable, or its guarantees cannot currently be confirmed (including suspected partial loss until a new generation is established) | The store's generation id has changed since the cookie was issued, or a consumed marker exists but no usable result is available (including an unknown outcome) | The backend has **confirmed** it rejected the session (session ended, token reused, account blocked), either to this request's own refresh or as a stored rejection result |
-| Backend | No call | No call; the used token is never sent | No further call for this token |
-| Cookies in this response | Untouched | Untouched | Untouched; cleared afterwards by the compare-and-clear step below |
-| What it means | A problem on our side that is expected to pass. The person stays logged in | This refresh token is already used or cannot be trusted | The session is over |
-| Person sees | "Something went wrong, please try again shortly" | "Your session changed. Please try again; if it keeps happening, log in again" | "Please log in again" (Document 2, section 4) |
-
-- **Why a response leaves cookies alone:** the browser may already hold newer cookies, from a successful refresh or a newer login. A delayed response from an old request must not clear or overwrite them.
-- **A retry may or may not help after a stale-session answer, and the app does not promise it will.** It succeeds only if the browser already holds newer cookies from a successful refresh (for example another tab's refresh finished). If the successful refresh's response never reached the browser, the browser still holds the old refresh cookie. The new refresh token was never stored in the shared store, by design, so it cannot be recovered; retrying cannot work and the person must log in again.
-- A new login replaces the old cookies, so a person is never permanently stuck.
-- A server-rendered page treats a stale-session or session-ended answer as "not logged in" for that request and sends the person to the login page. For a temporary answer it shows an error state with a real 5xx status and does not send them to login.
-
-**Flow.** The store checks and the marker are always done before any refresh starts.
-1. A request finds the access token expired. If the store is unavailable or its guarantees cannot be confirmed, return the **temporary answer** and stop.
-2. Compare the generation id in the refresh cookie with the store's. If it has changed, return the **stale-session answer** and stop.
-3. **Check the consumed marker** for this token and what is stored with it:
-   - **Marker with a successful result:** use the stored new access token for this request only. Do not refresh again, and set no token cookies.
-   - **Marker with a confirmed-rejection result:** do not call the backend; return the **session-ended answer**.
-   - **Marker with no usable result** (unknown outcome, lost or expired result, crashed holder): the token is treated as **consumed and is never resent**. If a lock shows that a refresh is still running, wait for its result up to a limit (Document 7). If no usable result appears, or no refresh is running, return the **stale-session answer**.
-   - **No marker:** continue.
-4. Take the lock. If another instance holds it, go back to step 3 after it finishes or the wait limit passes.
-5. **Create the marker with the atomic create-if-absent write, and confirm that this call created it and that it is durable.** If the marker already exists, **stop without calling the backend** and handle the request as in step 3. If creation or durability cannot be confirmed, **stop without calling the backend** and return the **temporary answer**.
-6. Only now call the backend:
-   - **Success:** store the success result and set the new access and refresh cookies **only in this response**.
-   - **Confirmed rejection:** store the rejection result and return the **session-ended answer**.
-   - **Unknown outcome** (timeout, lost answer): store nothing; the token stays consumed; return the **stale-session answer**.
-7. Requests that arrive carrying the old cookies, from other tabs or instances, are handled by step 3: on a success result they use the stored new access token for that one request, **do not set token cookies, and do not refresh**. The browser gets the new cookies from the refreshing request's response.
-
-**When cookies are cleared.** Authentication cookies are cleared only on **explicit logout** or after a **confirmed backend rejection**. A rejection or an explicit logout clears them through the compare-and-clear step below, never in the response of an ordinary request (except the no-script logout fallback described there). Document 2, section 4 and D2-05 say the same (updated 9 Nov 2026): a network error, a timeout or an unknown outcome never clears the cookies, and a refresh that was never made is not a failure of the session (Q4-5, settled).
-
-**Compare-and-clear (after a session-ended answer or a logout).** The session-ended answer carries a non-secret *session handle* derived from the marker key (never the token). The screen then calls a dedicated endpoint with that handle. At the moment it processes that call, the server compares the handle with the refresh cookie the browser is **currently** sending. If they match, it clears the authentication and temporary-flow cookies (keeping the language cookie). If they differ, or no refresh cookie is sent, it changes nothing, because the browser now holds a newer session. **Explicit logout uses the same step.** The logout call asks the backend to end the session and changes no cookie. The frontend server derives the session handle locally from the refresh cookie, so it is available whether the backend logout request succeeds or fails, and returns it with its logout answer. The frontend always attempts compare-and-clear after the logout request, including when the backend is unavailable or returns an error. Cookie clearing does not depend on the backend accepting or completing the logout request (a failed backend request is logged without the token, Document 2, section 4). This stops a delayed logout response from clearing the cookies of a newer login. Without scripts the compare-and-clear call does not run. After a rejection the unusable cookies then stay until the next login or logout, which is harmless because the backend rejects them. A no-script logout form has to clear the cookies directly in its own response, which cannot be conditional, so that fallback has the full delayed-response race.
-
-**Delayed responses: a limitation that cannot be fully guaranteed.** The browser applies a `Set-Cookie` whenever a response arrives, and the server cannot make that conditional on what the browser holds by then. Compare-and-clear removes the main race, because it checks the browser's current cookies when the call is processed. It cannot close the last gap: a newer login or refresh that completes between that check and the browser applying the clear response (about one request round trip) could still be overwritten. In the same way, a delayed *successful* refresh response could overwrite cookies of a login that completed while it was in flight. **Explicit logout is covered by this limitation too, and its cookie clearing is not race-free:** if a person logs out in one tab and logs in again in another, a delayed logout response (or the clear response of its compare-and-clear call) could still clear the new login's cookies. Compare-and-clear narrows this to the same one-round-trip window; the no-script fallback does not narrow it at all. This design cannot rule these cases out, and this document does not claim it does. **Required resolution before implementation:** Document 7 specifies and tests the compare-and-clear step and the order of cookie writes, and the owner decides either to accept the narrow remaining window, or, for rejections only, to use the simpler alternative of never clearing cookies (unusable cookies stay until the next login or logout), which has no clearing race. Explicit logout has no such alternative, because logging out must remove the cookies, so for logout the owner either accepts the window or Document 7 finds a stronger mechanism. Document 7 covers logout in the same specification and tests. How the handle reaches the login page after a server-rendered redirect, without putting it in the address, is also specified in Document 7.
-
-**Failure behaviour (always fails closed):**
-
-| What happens | What the app does |
-| --- | --- |
-| The shared store is unavailable | **Temporary answer.** No refresh, no backend call, cookies untouched, the problem is logged. The person is not logged out |
-| The store's guarantees cannot be provided or confirmed now (persistence or no-eviction setting wrong or unknown, marker creation not confirmed durable, the store full and refusing writes, the check in Document 7 failing, the store's generation id missing, or possible partial loss while the id survives and no new generation exists yet) | **Temporary answer**, plus an alert to us. Refreshing stays blocked until the guarantees are confirmed, and after a possible loss until a new generation is established. The token is never sent without a confirmed marker |
-| The store's generation id has changed since the cookie was issued (markers may have been lost) | **Stale-session answer.** Nothing is sent to the backend and cookies are untouched. Retry cannot refresh these cookies; the person must log in again. Rare, and expected only after a store failure |
-| A marker is found for the token with a **successful** result | The stored new access token is used for this request only. No refresh, no backend call, no token cookies set |
-| A marker is found for the token with a **confirmed-rejection** result | **Session-ended answer.** No backend call. Cookies are cleared afterwards by compare-and-clear |
-| A marker is found for the token, but there is no usable result and no refresh running | **Stale-session answer.** The token is treated as used and is not sent. A retry helps only if the browser already holds newer cookies; otherwise the person must log in again |
-| The instance holding the lock crashes after the marker was written | The marker has no result, so the token is treated as used. Later requests with the old cookie get the **stale-session answer**. Unless the browser holds newer cookies, the person must log in again |
-| The backend call fails because the connection could not be made at all (the request was certainly never sent) | The token was not used. The marker is removed and a refresh may be tried again. If the marker cannot be removed, or there is any doubt that nothing was sent, the token stays treated as used |
-| The backend call times out or the answer is lost (unknown outcome) | The token counts as consumed and is never resent. Nothing is stored as a result. This request gets the **stale-session answer**, and the person must log in again unless the browser holds newer cookies. Cookies are not cleared |
-| The backend refuses the refresh (session ended, token reused, account blocked) | A confirmed rejection. The rejection is stored for a few seconds so waiting and later requests get the same **session-ended answer**. Cookies are cleared afterwards by compare-and-clear, and Document 2's behaviour for that case applies |
-| A request arrives with an old refresh cookie after the result has expired | The marker says it was used, so it gets the **stale-session answer**. The old token is not sent and cookies are untouched. This happens when the refreshing response never reached the browser, and a retry cannot recover it: the person must log in again |
-
-**Expiry summary:** locks last a little longer than the backend timeout; results last a few seconds; markers last at least as long as the longest refresh-token lifetime plus a margin, and are never evicted earlier. The values are set in Document 7.
+**Limits we accept (rare; the person logs in again).**
+- If the answer carrying new cookies is lost and the browser sends the old refresh token more than 10 seconds later, the backend ends that login.
+- A slow answer can overwrite newer cookies: for example, a logout in one tab whose answer arrives after a new login in another tab clears that new login. No extra mechanism is added for this.
 
 ### Pending add and after-login destination
 
-Kept in the short-lived signed cookies above. The "already used" mark for the pending add is kept in the shared store, so it can be used only once whichever instance handles the request (Document 2, section 3). It is a **security-critical entry** (section 4): persistent, never evicted, retained at least as long as the pending-add cookie lifetime plus a margin. If it cannot be written or confirmed, the pending add is **not run**; the person lands on the same page with a message and can tap "Add to cart" again.
+Kept in the short-lived signed cookies above. **The pending add runs in one request after login, and the answer to that request removes the pending-add cookie (D4-08),** so a reload, the back button or a retry cannot run it again. If that answer is lost on the way, the cookie could arrive once more and the item could be added a second time; the person sees the quantity in the cart and can change it.
 
-**At most once, not exactly once (D4-08).** The one-time mark guarantees the add runs **at most once**. It does not guarantee that it completes. If the mark is written but the server fails (or the answer is lost) before the cart request finishes, the add may not have happened, or its result is unknown. In that case:
+**When the outcome is unknown** (the server fails, or the answer is lost, before the cart request finishes), the add may not have happened. In that case:
 - The add is **never repeated automatically**, because repeating it can change the cart a second time (Document 3, section 6).
 - The person sees a clear message: the item may not have been added, **please check your cart and add it again if needed**. The cart and its count are reloaded fresh so they see what is really there.
 - The app does not promise exactly-once completion. That would need an idempotency mechanism in the backend's cart operations; none is documented, so none is assumed (`docs/api/reference/area-5-sales-cart-coupons.md`).
@@ -258,13 +187,13 @@ All paths are in `Meanimehu/Ecommerce`.
 
 - Every screen and the route list inside each area: Document 5.
 - Look and feel, error pages' design, and loading states: Document 6.
-- Names of folders and files, environment variable names, refresh intervals, all the lifetimes and limits named above, the sitemap, the browser list, local development setup, the check list for the shared store's guarantees and the automated checks: Document 7.
+- Names of folders and files, environment variable names, refresh intervals, all the lifetimes and limits named above, the sitemap, the browser list, local development setup and the automated checks: Document 7.
 
 ## 13. Open questions
 
 | # | Question | Settled in |
 | --- | --- | --- |
-| Q4-1 | Which host to use, chosen against the checklist in section 4 (including the durability guarantees). The shared store is settled: PostgreSQL in a database used only by the frontend (D4-10) | Host: deployment time (owner). Store: settled (D4-10) |
+| Q4-1 | Which host to use, chosen against the checklist in section 4 | Deployment time (owner). (The shared store settled on 10 Nov 2026 was removed on 11 Nov 2026, D4-11) |
 | Q4-2 | Are pages after the first of an indexed list indexed, and what is their preferred address | Settled — see Document 5 (D5-07) |
 | Q4-3 | How the sitemap is built and kept up to date for a large catalogue | Settled — see Document 7 (D7-03, section 6) |
 | Q4-4 | Refresh intervals for cached public pages, the size and life of the search cache, and the short lifetimes in section 9 | Approach settled — see Document 7 (D7-04, section 7); the intervals are proposed and provisional until validated |
