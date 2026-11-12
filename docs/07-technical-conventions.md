@@ -1,6 +1,6 @@
 # 7. Technical conventions
 
-> **Status: Approved (9 Nov 2026).** The owner reviewed the decisions D7-01 to D7-10, every group of starting figures and sections 5 to 11, and approved the document as a whole on 9 Nov 2026. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation. D7-11 to D7-15 were approved on 10 Nov 2026. On 11 Nov 2026 the owner approved removing the frontend store and simplifying forgery protection: D7-13 changed, the refresh timings removed (section 17). The same day the owner chose a new folder layout (section 16). On 12 Nov 2026 the owner asked for the code-style rules in section 20 (D7-16), tried first on the login feature.
+> **Status: Approved (9 Nov 2026).** The owner reviewed the decisions D7-01 to D7-10, every group of starting figures and sections 5 to 11, and approved the document as a whole on 9 Nov 2026. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation. D7-11 to D7-15 were approved on 10 Nov 2026. On 11 Nov 2026 the owner approved removing the frontend store and simplifying forgery protection: D7-13 changed, the refresh timings removed (section 17). The same day the owner chose a new folder layout (section 16). On 12 Nov 2026 the owner set the code practices in section 20 (D7-16) after reviewing the code and a pilot on the login feature; the folder layout and a few smaller points stay open (Q7-4 to Q7-9).
 > Follows Documents 1 to 6. Documentation only; no code is written for this document.
 
 ## 1. Purpose
@@ -26,7 +26,7 @@ The technical rules the first build follows, so that Documents 1 to 6 can leave 
 | D7-13 | **Forgery protection, the same before and after login:** the exact `Origin` check, our fixed request header and `SameSite=Lax` cookies. No token, no anti-forgery cookie and no backend change (section 17.3) | Approved (10 Nov 2026). Changed 11 Nov 2026 (owner approved): the signed token was removed |
 | D7-14 | **Components come from the shadcn/ui tool** (D-03), added into `src/components/ui/` and styled with the Document 6 tokens to the approved Stage 4 look (section 18) | Approved (10 Nov 2026) |
 | D7-15 | **Error messages are written slice by slice.** Each slice adds English and Hindi messages for the backend error codes its screens can show; by launch every code in the backend's catalogue has one (section 19) | Approved (10 Nov 2026) |
-| D7-16 | **Code is written to be read.** Clear names, short lines, one way to do each common job, error codes as enums, comments only where they explain why (section 20). Tried first on the login feature; the owner decides whether it is kept before the rest of the code follows | Asked for by the owner (12 Nov 2026). Pilot on login, owner to confirm |
+| D7-16 | **Code is written to be read, and every common job is done one way** (section 20): clear names, no raw comparisons, error codes as enums, screens that only draw, one form hook per form and one call hook per call, one way to submit, every browser failure an `AppError`, short lines, comments only where they explain why. Rolled out area by area after the login pilot | Agreed by the owner (12 Nov 2026) after reviewing the login pilot (pull request #36). Folder layout open (Q7-4) |
 
 ## 3. Timeouts (D7-01)
 
@@ -130,7 +130,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | # | Check | When |
 | --- | --- | --- |
 | T7-1 | Every figure in section 12 against the real backend and the agreed budget-device and slow-connection profiles | First working build |
-| T7-2 | Document 6 performance figures (LCP, INP, CLS, 300 KB, 150 KB, 100 KB per area). **First measurement (11 Nov 2026, Slice 1, transferred, empty cache):** English home 225 KB and English login 273 KB, both within 300 KB; plus 53 KB for the Hindi font on English pages, loaded on demand because the language switch shows "हिन्दी" (Document 6, 5.4: not counted in the total, how to count it is open). Hindi home 278 KB, within. **Hindi login 375 KB, over the 300 KB** (Document 6, section 14, item 3: fonts take 146 KB on Hindi pages, the login page's scripts about 220 KB). Owner decision needed; the end-to-end test reports this page without judging it until then. **Slice 2a (12 Nov 2026):** the build's chunk setting was changed (`next.config.ts`, `turbopackChunking.minChunkSize` 10,000) after the default sent the shared button code three times on the login page; with the new message text English login is 288 KB, English home 223 KB, Hindi home 276 KB, Hindi login 391 KB. **Slice 2d (12 Nov 2026):** the browser now gets only its page's language, and the Vendor and Admin areas' own text only inside those areas (`lib/messages.ts`), so storefront pages do not grow with area screens. English login 296 KB, English home 229 KB, English category page 294 KB, Hindi home 283 KB, Hindi login 399 KB (still the open owner decision). **Code-style pilot (12 Nov 2026):** the named error codes (section 20.4) travel to the browser as a list of 120 codes, about 3 KB on every page: English home 232 KB, English login 298 KB (close to 300), Hindi home 286 KB, Hindi login 402 KB. The add-to-cart outcome is kept in its own file without Zod (`types/add-notice.ts`), because importing it from `types/cart.ts` put Zod (32 KB) on every page | First working build; Hindi login open; English login close to the limit |
+| T7-2 | Document 6 performance figures (LCP, INP, CLS, 300 KB, 150 KB, 100 KB per area). **First measurement (11 Nov 2026, Slice 1, transferred, empty cache):** English home 225 KB and English login 273 KB, both within 300 KB; plus 53 KB for the Hindi font on English pages, loaded on demand because the language switch shows "हिन्दी" (Document 6, 5.4: not counted in the total, how to count it is open). Hindi home 278 KB, within. **Hindi login 375 KB, over the 300 KB** (Document 6, section 14, item 3: fonts take 146 KB on Hindi pages, the login page's scripts about 220 KB). Owner decision needed; the end-to-end test reports this page without judging it until then. **Slice 2a (12 Nov 2026):** the build's chunk setting was changed (`next.config.ts`, `turbopackChunking.minChunkSize` 10,000) after the default sent the shared button code three times on the login page; with the new message text English login is 288 KB, English home 223 KB, Hindi home 276 KB, Hindi login 391 KB. **Slice 2d (12 Nov 2026):** the browser now gets only its page's language, and the Vendor and Admin areas' own text only inside those areas (`lib/messages.ts`), so storefront pages do not grow with area screens. English login 296 KB, English home 229 KB, English category page 294 KB, Hindi home 283 KB, Hindi login 399 KB (still the open owner decision). **Code-style pilot (12 Nov 2026):** the named error codes (section 20.7) travel to the browser as a list of 120 codes, about 3 KB on every page: English home 232 KB, English login 298 KB (close to 300), Hindi home 286 KB, Hindi login 402 KB. The add-to-cart outcome is kept in its own file without Zod (`types/add-notice.ts`), because importing it from `types/cart.ts` put Zod (32 KB) on every page | First working build; Hindi login open; English login close to the limit |
 | T7-3 | OpenAPI source: which staging address, and whether it matches production (section 5) | First build |
 | T7-4 | **Request ID (Document 5, V5-5): confirmed 11 Nov 2026.** Our server endpoints include the backend's `requestId` in the error response they send to the browser; an end-to-end test checks it. Errors our server decides by itself carry none, so no made-up number is ever shown (D5-14) | Done |
 | T7-5 | Sitemap size and splitting (section 6) | First build |
@@ -146,6 +146,12 @@ These are **proposals** so the first build has numbers to start from. They are n
 | Q7-1 | Exact minimum browser versions for the build tool's compatibility settings | First build, with the owner |
 | Q7-2 | Whether an error-monitoring service is wanted after the first release | Owner, later |
 | Q7-3 | Which real devices and browser versions are used for the manual checks (D7-11). Document 6 names a budget Android phone and slow-connection profile, but no specific devices | Owner, before Slice 6 |
+| Q7-4 | Folder layout: keep folders by kind of code (section 16), or move to folders by feature (`src/features/<feature>/`, with `src/shared/` for shared code; section 20.2) | Owner, before the clean-up goes past login |
+| Q7-5 | Rename the address placeholder `[lang]` to `[language]`? Addresses do not change either way (section 20.2) | Owner |
+| Q7-6 | Do comparisons with a JavaScript type name (`typeof value === 'string'`) also get a named value (section 20.6)? | Owner |
+| Q7-7 | The English login page is 298 KB, close to the provisional 300 KB; the Hindi login page is 402 KB, over it (T7-2) | Owner |
+| Q7-8 | Does the code clean-up (section 20.11) finish before Slice 3 starts, or run alongside it? | Owner |
+| Q7-9 | Logging in our endpoints: the logout route writes `console.warn(JSON.stringify(...))` by hand. The existing logging is to be looked at first and a proposal brought to the owner before it changes (section 20.11) | With the logout clean-up |
 
 ## 15. Revision history
 
@@ -169,6 +175,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 16 | 12 Nov 2026 | Slice 2d: page sizes in T7-2 after sending each page only its language's text. No decision changed |
 | 17 | 12 Nov 2026 | D7-16 and section 20 added: the code-style rules the owner asked for after reviewing the code, with the owner's choices (two error-code enums, 100-character lines, storefront addresses renamed). No earlier decision changed; the address change to D4-02 is made with the storefront clean-up |
 | 18 | 12 Nov 2026 | Page sizes after the pilot in T7-2. Section 20 after the owner's review of the login pilot: named values instead of raw comparisons (20.5); screens only draw, form hooks do the work, one `Form` component, `handleSubmit(onValid, onInvalid)` with `mutate` callbacks, every browser failure an `AppError` (20.6). No earlier decision changed |
+| 19 | 12 Nov 2026 | Section 20 rewritten with every practice the owner agreed on 12 Nov 2026: names, folders and addresses, imports and exports, shared and feature code, formatting, comments, error codes, named values, forms and calls, what we do not copy, how work is done, and the rollout. D7-16 agreed; Q7-4 to Q7-9 added. Section 17.1: trusting the local certificate when the frontend runs in WSL. No other decision changed |
 
 ## 16. Names: folders and files
 
@@ -178,8 +185,8 @@ Recorded 10 Nov 2026; **layout changed by the owner on 11 Nov 2026** to folders 
 | --- | --- |
 | `src/app/` | Routing and layouts. Pages under the language prefix in `src/app/[lang]/` (D4-01); our own endpoints for the browser in `src/app/api/` (addresses `/api/...`, Document 4, section 3). Next.js fixes these names |
 | `src/proxy.ts` | The page middleware: the language redirect for visits with no prefix (Document 4, section 6) and keeping the after-login page. Next.js fixes this file name |
-| `src/components/` | Reusable UI: `ui/` for the shadcn/ui components (D7-14), `form/`, `common/`, and one subfolder per area for its screens (`auth/`, later `cart/`, `catalogue/`, `vendor/`, `admin/`) |
-| `src/hooks/` | Reusable logic: TanStack Query hooks (D-02), one file per area (`use-<area>.ts`), and the form hook (D-04) |
+| `src/components/` | Reusable UI: `ui/` for the shadcn/ui components (D7-14), `form/` (with `Form`, section 20.9), `common/`, and one subfolder per area for its screens (`auth/`, later `cart/`, `catalogue/`, `vendor/`, `admin/`) |
+| `src/hooks/` | Reusable logic: the call hooks of each area (TanStack Query, D-02) in `use-<area>.ts`, a form's logic in `use-<area>-form.ts` (section 20.9), and the shared form hook (D-04) |
 | `src/api/` | Backend handlers, **server only**: the one place that calls the backend (Document 3): `client.ts` and one file per backend area. Not to be confused with `src/app/api/`, our own endpoints |
 | `src/middleware/` | Login and request handling, **server only**: running a call as the person and renewing the login (Document 4, section 9), cookies, the answers of our endpoints and the forgery check (section 17.3) |
 | `src/lib/` | Configs and integrations: settings read from the environment, the browser's call helper, languages and the message catalogue, errors |
@@ -193,6 +200,7 @@ Recorded 10 Nov 2026; **layout changed by the owner on 11 Nov 2026** to folders 
 - **The same area name is used in every folder** (`components/cart/`, `hooks/use-cart.ts`, `api/cart.ts`, `types/cart.ts`), so everything about one area is easy to find.
 - **`src/api/` and `src/middleware/` are server only.** The files that call the backend or handle tokens are marked so the build fails if code for the browser imports them, so login tokens never reach the browser. `middleware/cookies.ts` is also used by `src/proxy.ts`, so it is not marked; it holds only cookie names and settings and the signing of the short-lived cookies.
 - A folder is created when its first file is written. A plain guide to every file is in `docs/code-map.md`.
+- How names, imports and shared code are handled is in section 20 (20.2 to 20.4). Whether this layout changes to folders by feature is open (Q7-4).
 
 ## 17. Local HTTPS and cookies (D7-12, D7-13)
 
@@ -203,6 +211,7 @@ Recorded 10 Nov 2026. Document 4 (section 9) left the local Secure-cookie setup,
 - The local site runs at **`https://localhost:3001`**, so the `__Host-` cookie rules (D4-07) work locally the same way in every browser, including Safari.
 - `npm run dev` uses Next.js's built-in development HTTPS. The first time, Next.js downloads `mkcert` and makes a locally trusted certificate by itself; the computer may ask for its password once. The certificate files are never committed.
 - **Local setup:** the frontend runs with Node.js, not in Docker, and needs only the backend running. It has no database of its own.
+- **Windows with WSL:** when `npm run dev` runs inside WSL and the browser runs on Windows, the certificate authority mkcert made lives in WSL (`~/.local/share/mkcert/rootCA.pem`), so Windows does not trust it. Copy only `rootCA.pem` (never `rootCA-key.pem`) to Windows and import it once into **Current User → Trusted Root Certification Authorities** (`certmgr.msc` → Import, file type "All Files"; or `certutil -user -addstore Root <file>`), then restart the browser. Firefox also needs `security.enterprise_roots.enabled`. It stays trusted until the certificate authority in WSL is deleted.
 - In staging and production, the host provides HTTPS. The app itself does not handle certificates.
 - `PUBLIC_SITE_URL` is `https://localhost:3001` locally. The origin check (Document 2, section 6) compares data-changing requests with it.
 
@@ -240,77 +249,140 @@ Every cookie uses the `__Host-` prefix, `Secure`, `HttpOnly`, `SameSite=Lax`, pa
 - Unknown codes always fall back to a general message chosen by the kind of failure (Document 3, section 5).
 - Hindi messages are drafts until reviewed by someone who writes Hindi (Document 8, section 6).
 
-## 20. Code style (D7-16)
+## 20. Code practices (D7-16)
 
-Recorded 12 Nov 2026 at the owner's request after a review of the code. The goal: someone new can open a file, see what it is for, follow the calls and know what each name holds without guessing. These rules change how code is written, never what it does: no behaviour, backend contract or feature changes because of them.
+Agreed by the owner on 12 Nov 2026, after a review of the code, a reference project the owner shared, and a pilot on the login feature (pull request #36). The goal: someone new can open a file, see what it is for, follow the calls and know what each name holds without guessing. Code is written for people to read, not only for the compiler. These practices change how code is written, never what it does: no behaviour, backend contract or feature changes come from them.
 
 ### 20.1 Names
 
-- **Files and folders:** kebab-case, named for what they hold (section 16). No one- or two-letter names.
-- **Variables, functions, parameters and state:** camelCase full words. No single letters, including callback parameters: `sellers.map((seller) => …)`, not `(s) => …`. A longer name is fine when it is clearer.
-- **Functions say what they do:** a verb and its object, such as `submitPhoneNumber` or `removeUnavailableLines`. Event handlers are named for what they do, not `onPhone`.
-- **The page's text** is `messages` (from `useMessages()` or `getMessages()`); an area's part may be named for it, such as `loginText`. Never `t`.
-- **In a catch** (only where section 20.6 allows one), the caught value is `caughtError`.
+- **Variables, functions, parameters, callbacks and state:** camelCase full words. No single letters or unclear short names (`t`, `n`, `raw`, `c`, `p`), including callback parameters: `sellers.map((seller) => …)`, not `(s) => …`. A longer name is fine when it is clearer.
+- **Functions say what they do:** a verb and its object, such as `sendCode`, `verifyCode`, `resendCode`, `removeUnavailableLines`, `showSendCodeError`. Handlers are named for what they do, not `onPhone`.
+- **Components** are PascalCase and named for what they show (`LoginForm`, `PhoneStep`, `CodeStep`).
+- **The page's text** is `messages` (from `useMessages()` or `getMessages()`), never `t`.
+- **In a catch** (only where section 20.9 allows one), the caught value is `caughtError`.
+- **Constants** are UPPER_SNAKE_CASE when they are fixed values (`FIELD_IDS`, `MILLISECONDS_PER_SECOND`); enums and their members are PascalCase (`HttpStatus.TooManyRequests`).
 
-### 20.2 Layout and formatting
+### 20.2 Folders, files and addresses
 
-- Prettier formats the code: single quotes, trailing commas, **lines up to 100 characters** (`.prettierrc.json`, `npm run format`).
-- No nested `? :` chains in JSX. A screen with several states (loading, error, empty, content) returns early for each, or uses one small named component per state.
-- One expression does one thing. A long condition or a long call gets a named variable or its own lines.
-- Files are sized by what they are responsible for, not kept small for its own sake. No new layer or helper unless it removes real repetition.
+- **Folders and files:** kebab-case, named for what they hold, so a developer knows what is inside without opening it. No one- or two-letter names. A component file exports the same name in PascalCase (`login-form.tsx` exports `LoginForm`).
+- **Hook files:** `use-<area>.ts` holds the call hooks of an area (one per API call); `use-<area>-form.ts` holds a form's logic.
+- **Inside `src/app/` a folder name is the web address** (Next.js). The names Next.js fixes stay as they are: `page.tsx`, `layout.tsx`, `route.ts`, a placeholder in square brackets for a changing part (`[lang]`, `[slug]`, `[id]`), `[[...name]]` for an optional part, and `(app)` for a group that shares a layout or guard but is not in the address.
+- **Address words are full words.** The storefront's `c`, `b` and `p` become **`category`**, **`brand`** and **`product`** (`/en/category/kurtas`, `/en/product/<id>/<name>`), as the owner chose on 12 Nov 2026 (Document 4, D4-02 and section 5). This is done in the storefront clean-up; `brand` is not built yet.
+- **Pages in `src/app/` are thin:** they read the address values, check the language, and render the area's screen. The work lives outside `src/app/`.
+- **Layout today:** folders by kind of code, with the same area name in each (section 16). Whether to move to folders by feature is open (Q7-4):
 
-### 20.3 Comments
+```
+src/features/<feature>/components/   the screens
+src/features/<feature>/hooks/        use-<feature>.ts, use-<feature>-form.ts
+src/features/<feature>/server/       backend calls, server only
+src/features/<feature>/types.ts      schemas and types
+src/shared/                          components/ui, components/form, lib, utils
+```
 
-- A comment explains **why**, or something the code cannot show (a backend rule, a browser quirk). It does not repeat what the code says.
-- Where a rule comes from a decision, the comment names it briefly, such as `(D2-02)`. File headers are a sentence or two, not a summary of the documents.
-- No commented-out code.
+### 20.3 Imports and exports
 
-### 20.4 Error codes
+- **Named exports only.** Default exports only where Next.js requires them (pages, layouts).
+- **`@/` for anything outside the file's own folder; `./` only for a file in the same folder.** Never `../../`.
+- **Order:** packages, then shared code, then the area's own files, then files in the same folder. `import type` for anything used only as a type.
+- **No index files that re-export a folder.** They hide where code lives and can pull more code into a page than it needs. Import the file itself.
+- **Server-only files** (`src/api/`, `src/middleware/` except `cookies.ts`) start with `import 'server-only'`, so the build fails if browser code imports them.
+- **A `'use client'` file never exports a constant or enum that server code needs.** Those go in a plain file. Server code importing one has crashed a page before.
+- **Heavy libraries stay where they are needed.** A file every page loads (the header, the session) never imports a file that brings Zod. `types/add-notice.ts` is kept apart from `types/cart.ts` for this reason: importing it from there put Zod (32 KB) on every page.
 
-- **`BackendErrorCode`** (`src/types/generated/backend-error-codes.ts`) is generated from the backend's error catalogue together with `backend-error-codes.json` (`npm run gen:error-codes`). Its values are the backend's codes exactly; names are the same words in PascalCase (`OTP_RESEND_WAIT` is `BackendErrorCode.OtpResendWait`). It is never edited by hand, and `npm run check:messages` fails if it differs from the stored catalogue.
-- **`AppErrorCode`** (`src/lib/error-codes.ts`) holds the codes the frontend knows that are not in the backend's catalogue: the ones our own code produces (a lost connection, a timeout, the forgery checks, a response that does not match, a cancelled upload, the general codes our endpoints use), and the two the backend's framework sends outside its catalogue (`NOT_FOUND`, `TOO_MANY_REQUESTS`). The check fails if one of them is ever a catalogue code.
-- Code compares and sets codes only through these enums, never with a string such as `'NETWORK'`. Message keys in `en.json` and `hi.json` stay the plain code strings, so the catalogue is unchanged.
-- A code the frontend does not know (a newer backend) still reaches the screen and gets the general message for its kind (section 19).
+### 20.4 Shared code and area code
 
-### 20.5 Named values instead of raw comparisons
+- **Code starts in its area.** It moves to shared code only when a second area really needs it.
+- **Shared code:** `components/ui/` (shadcn/ui), `components/form/` (`Form`, fields, the error summary), `components/common/`, `lib/`, `utils/` and `types/common.ts`.
+- **`lib/` and `utils/`:** `lib/` is code that knows the app (calls to our server, errors and error codes, HTTP statuses, languages, messages). `utils/` is plain functions with no app knowledge (formatting, addresses, class names).
+- **An area does not reach into another area's files.** If two areas need the same thing, it moves to shared code. Known case to fix in the clean-up: the login form hook uses `keepAddNotice` from the cart hook.
+- **The browser only calls our server, and only `src/api/` calls the backend** (D3-03).
 
-- **Code never compares with, or sets, a raw string or number.** The value gets a name first (an enum or a named constant), and the code uses the name: `sessionNotice === SessionNotice.Blocked`, `error.status === HttpStatus.TooManyRequests`, `error.code === BackendErrorCode.OtpResendWait`, never `=== 'blocked'`, `=== 429` or `=== 'OTP_RESEND_WAIT'`.
+### 20.5 Layout and formatting
+
+- **Prettier** formats the code: single quotes, trailing commas, **lines up to 100 characters** (`.prettierrc.json`, `npm run format`). Markdown files are not formatted by Prettier, so the documents keep their own layout.
+- Prettier does not wrap comments; comments are kept within 100 characters by hand. A long text string may run longer when breaking it would make it harder to read.
+- **No nested `? :` chains in JSX.** A screen with several states (loading, error, empty, content) returns early for each, or uses one small named component per state.
+- **One expression does one thing.** A long condition gets a named variable (`const mustWaitToResend = …`); a long call gets its own lines.
+- **Spacing:** a blank line between the steps of a function, so its flow reads top to bottom.
+- **Files are sized by responsibility,** not kept small for its own sake. No tiny files, wrapper functions or new layers unless they remove real repetition.
+
+### 20.6 Named values instead of raw comparisons
+
+- **Code never compares with, or sets, a raw string or number.** The value gets a name first (an enum or a named constant), and the code uses the name: `sessionNotice === SessionNotice.Blocked`, `error.status === HttpStatus.TooManyRequests`, `fetchError.name === BrowserErrorName.Timeout`, `notice.outcome === AddOutcome.Added`; never `=== 'blocked'`, `=== 429` or `=== 'TimeoutError'`. This applies everywhere, not only in login.
 - A string enum keeps the stored or sent value (`SessionNotice.Blocked = 'blocked'`), so nothing stored in the browser or sent to the backend changes.
-- HTTP statuses are `HttpStatus` (`src/lib/http-status.ts`), including `HttpStatus.NoResponse` (0) for an error where no answer arrived; a range is a named check such as `isServerError(status)`. A count that picks "1 second" over "{seconds} seconds" uses `isSingular(count)` (`src/utils/format.ts`).
-- Comparisons with a JavaScript type name (`typeof value === 'string'`) stay as they are until the owner decides otherwise.
+- **Named values in use:** `HttpStatus` and the range checks `isSuccess`, `isClientError`, `isServerError` (`lib/http-status.ts`), with `HttpStatus.NoResponse` (0) for an error where no answer arrived; `ErrorKind` (`lib/errors.ts`); `SessionNotice` (`hooks/use-session.ts`); `AddOutcome` (`types/add-notice.ts`); `HttpMethod` and `BrowserErrorName` (`lib/http.ts`); `DEFAULT_LOCALE` (`lib/i18n.ts`); `isSingular(count)` (`utils/format.ts`) for "1 second" against "{seconds} seconds".
+- Comparisons with a JavaScript type name (`typeof value === 'string'`) stay as they are until the owner decides (Q7-6).
 
-### 20.6 Forms and calls from the browser
+### 20.7 Error codes
+
+- **`BackendErrorCode`** (`src/types/generated/backend-error-codes.ts`) is generated from the backend's error catalogue together with `backend-error-codes.json` (`npm run gen:error-codes`). Its values are the backend's codes exactly; the names are the same words in PascalCase (`OTP_RESEND_WAIT` is `BackendErrorCode.OtpResendWait`). It is never edited by hand, and `npm run check:messages` fails if it differs from the stored catalogue.
+- **`AppErrorCode`** (`src/lib/error-codes.ts`) holds the codes the frontend knows that are not in the backend's catalogue: the ones our code produces (a lost connection, a timeout, the forgery checks, a response that does not match, a cancelled upload, the general codes our endpoints use) and the two the backend's framework sends outside its catalogue (`NOT_FOUND`, `TOO_MANY_REQUESTS`). The check fails if one of them is ever a catalogue code.
+- No backend code is renamed, given another meaning or invented. Message keys in `en.json` and `hi.json` stay the plain code strings.
+- A code the frontend does not know (a newer backend) still reaches the screen and gets the general message for its kind (section 19); `ErrorCode` allows it.
+
+### 20.8 Comments
+
+- A comment explains **why**, or something the code cannot show (a backend rule, a browser quirk, a privacy reason). It does not repeat what the code says.
+- Where a rule comes from a decision, the comment names it briefly, such as `(D2-02)`. File headers are a sentence or two, not a summary of the documents.
+- No commented-out code, no `console.log` left behind.
+
+### 20.9 Forms and calls from the browser
 
 **Who does what.**
 
 | Part | File | Its one job |
 | --- | --- | --- |
 | The screen | `components/<area>/…` | Draws fields and buttons and wires the submit. No call or error logic |
-| `Form` | `components/form/form.tsx` | The `<form>` tag every form uses: always `method="post"`, the browser's own checks off. Posting means a tap before the scripts load never puts what was typed (a phone number, a code) in the address, where history and server logs keep it |
-| The form hook | `hooks/use-<area>-form.ts` | The form (`useAppForm` with its Zod schema), what to do on success and on each error, the error-summary focus, timers. Returns only what the screen needs |
+| `Form` | `components/form/form.tsx` | The `<form>` tag every form uses: always `method="post"`, the browser's own checks off. Posting means a tap before the scripts load never puts what was typed (a phone number, a code) in the address, where history and server logs keep it. A post to a page only shows the page again; nothing reads it |
+| The form hook | `hooks/use-<area>-form.ts` | The form (`useAppForm` with its Zod schema), what happens on success and on each error, the error-summary focus, timers. Returns only what the screen needs |
 | The call hook | `hooks/use-<area>.ts` | One TanStack Query hook per call, with its address, typed input and typed answer |
 | `lib/http.ts` | | The only place the browser calls our server: our forgery header, a time limit, and **every failure becomes an `AppError`** |
-| Our endpoint | `app/api/<area>/…/route.ts` | Checks the request is ours and complete, then calls `src/api/` |
-| `src/api/` | `api/<area>.ts`, `api/client.ts` | The only place our server calls the backend; checks the answer's shape |
+| Our endpoint | `app/api/<area>/…/route.ts` | Checks the request is ours (`guardChange`) and complete, then calls `src/api/` |
+| `src/api/` | `api/<area>.ts`, `api/client.ts` | The only place our server calls the backend; never retries a change; checks the answer's shape |
 
-**How a submit runs.**
+**How a submit runs** (the full login example is in `docs/code-map.md`).
 
 1. The screen: `<Form onSubmit={form.handleSubmit(sendCode, showValidationErrors)}>`. React Hook Form's `handleSubmit` stops the browser's own submit and runs the Zod schema. It calls the first function with the checked values, or the second when a field is wrong.
 2. The form hook's function calls the call hook: `requestLoginCode.mutate(phone, { onSuccess, onError })`. Both are named functions in the hook, so success and every error case are easy to find.
-3. `onError` receives an `AppError`, already typed (`src/types/react-query.d.ts`), because `lib/http.ts` only ever rejects with one. **No `try`/`catch` and no `toAppError` in screens or form hooks.**
+3. `onError` receives an `AppError`, already typed (`src/types/react-query.d.ts`), because `lib/http.ts` only ever rejects with one.
 4. An error for a field goes under that field and the others go in the error summary (`applyServerError`); then focus moves to the summary (`useErrorSummaryFocus`). A failed field check moves focus there too.
 
 **Rules.**
 
-- One way to submit: `handleSubmit(onValid, onInvalid)` in the screen, `mutate` with `onSuccess` and `onError` in the form hook.
-- A screen with a form never calls a call hook or `lib/http.ts` itself. A small action without a form (a Remove button) may use the call hook directly.
-- `try`/`catch` is used only where a failure is a normal answer, not a bug: our endpoints and `src/api/` (turning failures into answers), `lib/http.ts`, and reading browser storage.
-- Text in client components comes from `useMessages()`. A component takes text as a prop only when a server page also uses it.
-- Request bodies are typed, from the generated backend request types where the body passes through unchanged.
+- **One way to submit:** `handleSubmit(onValid, onInvalid)` in the screen, `mutate` with `onSuccess` and `onError` in the form hook.
+- **No `try`/`catch` and no `toAppError` in screens or form hooks.** `try`/`catch` is used only where a failure is a normal answer: our endpoints and `src/api/` (turning failures into answers), `lib/http.ts`, and reading browser storage.
+- **A screen with a form never calls a call hook or `lib/http.ts` itself.** A small action without a form (a Remove button) may use the call hook directly.
+- **A value that must survive a step change** belongs to the parent: the phone form is created in `LoginForm`, so the typed number is still there after "Change number".
+- **Field checks** run when the person leaves a field and on submit (D6-25); they check only a missing value or a wrong shape, and the backend decides the rest.
+- **Text in client components** comes from `useMessages()`. A component takes text as a prop only when a server page also uses it.
+- **Request bodies are typed,** from the generated backend request types where the body passes through unchanged.
+- **Hooks are kept when they have a real job:** `useMessages` (the page's text), `useSessionNotice` (the notice a session end leaves for the login page), the resend countdown, and `useErrorSummaryFocus` (the summary appears one render after the error is set, so it takes focus in its own effect when told to).
 
-### 20.7 How it is rolled out
+### 20.10 What we do not copy
 
-1. The login feature first (the pilot). The owner looks at the result and decides whether these rules stay, change or go.
-2. If they stay, one pull request per area: session and logout, vendor application, admin catalogue, products and moderation, storefront and cart. The storefront pull request also renames the `c` and `p` folders and addresses to `category` and `product`, as the owner chose on 12 Nov 2026, and updates D4-02 and the route table in Document 4 first.
-3. Files that follow these rules are listed in the lint settings (`eslint.config.mjs`), where one-letter names are an error. When every area is done, the list becomes the whole of `src/`, and the format check joins CI.
+From the reference project the owner shared on 12 Nov 2026, these are taken: descriptive names, short formatted lines, a screen that only draws with one hook doing the work, and `handleSubmit(onSubmit, onError)` wiring. These are **not** taken, because they conflict with approved decisions or cause problems:
 
+- login tokens returned to the browser and kept in Redux or local storage (D4-07: tokens stay in cookies the browser's scripts cannot read);
+- `any`, deep `../../../` imports, default exports everywhere, mixed file-name styles;
+- hard-coded English text (both languages come from the message catalogue);
+- the backend's error text shown in a toast (we show our own message for each code);
+- commented-out code, `console.log` in error handlers, empty `if` branches, a separate loading flag next to the call's own `isPending`;
+- passing state setters down to children (`setIsSubmitting`, `setStep`); a named callback such as `onCodeSent` is passed instead.
+
+### 20.11 How work is done
+
+1. **Review before changing.** Look at the existing code and its dependencies, explain what it does and why, and report findings and a plan before rewriting anything.
+2. **A new pattern is tried on one feature first,** shown to the owner as code, and rolled out only after the owner agrees.
+3. **Documents first, then code.** This document and `docs/code-map.md` are updated before or with the code they describe.
+4. **Explain in plain words,** step by step: which file comes in when, and why.
+5. **Behaviour is kept.** Anything a test does not cover (such as "Change number" keeping the typed number) is checked by reading the existing code. A fix found on the way is reported, never hidden.
+6. **After every change:** types, lint, the message and enum checks, generated types, unit tests, every end-to-end test on desktop and phone, and the first-load page sizes (T7-2). A change that adds weight to every page is found and fixed, not accepted silently.
+7. **Pull requests stay focused** on one area. Nothing is merged unless the owner says "merge". Commits and pull requests carry no assistant attribution lines.
+8. **Logging** is looked at before it is changed (Q7-9): the existing logging is checked first and a proposal comes to the owner.
+
+### 20.12 How it is rolled out
+
+1. **Login** first (pull request #36), reviewed by the owner on 12 Nov 2026.
+2. Then one pull request per area: **session and logout** (including the session middleware's outcome strings and the logout route's logging), **vendor application**, **admin catalogue**, **products and moderation**, **storefront and cart** (with the `category` and `product` addresses, D4-02 and the Document 4 route table updated first).
+3. Files that follow these practices are listed in the lint settings (`eslint.config.mjs`), where one-letter names and nested ternaries are errors. When every area is done, the list becomes the whole of `src/`, and the format check (`npm run format:check`) joins CI.
+4. If the owner chooses folders by feature (Q7-4), each area's pull request also moves that area into its folder.

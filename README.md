@@ -29,6 +29,10 @@ npm run dev                     # https://localhost:3001
 
 - `npm run dev` serves **https://localhost:3001** (Document 7, section 17.1). The first time, Next.js sets up a local
   certificate with mkcert by itself; your Mac may ask for your password once to trust it.
+- **Windows with WSL:** if the browser shows a certificate warning, Windows does not yet trust the certificate made
+  inside WSL. Copy `~/.local/share/mkcert/rootCA.pem` (never `rootCA-key.pem`) to Windows and import it once into
+  Current User → Trusted Root Certification Authorities (`certmgr.msc` → Import), then restart the browser. Details in
+  Document 7, section 17.1.
 - **Login codes**: the backend's SMS is a mock; the code is in its log: `docker compose logs api | grep "MOCK SMS"` in
   the backend folder.
 - Set up before 11 Nov 2026? The `dhaaga_web_store` database and the `STORE_*` and `CSRF_SECRET` lines in `.env.local`
@@ -41,7 +45,7 @@ npm run dev                     # https://localhost:3001
 | `npm run dev` | Development server on port 3001 |
 | `npm run build` / `npm start` | Production build and server (`PORT`, default 3001; `BIND_HOST`, default 127.0.0.1) |
 | `npm run lint` / `npm run typecheck` | ESLint and TypeScript |
-| `npm run format` / `npm run format:check` | Prettier, 100-character lines (Document 7, section 20). Files are formatted area by area as each is cleaned up |
+| `npm run format` / `npm run format:check` | Prettier, 100-character lines (Document 7, section 20.5). Files are formatted area by area as each is cleaned up |
 | `npm test` | Unit tests (Vitest) |
 | `npm run test:e2e` | End-to-end tests (Playwright) over HTTPS on Chromium, Firefox and WebKit at phone and desktop sizes, plus the installed Chrome and Edge when `E2E_INSTALLED_BROWSERS` is set (CI). A regression safety net only: real browsers and devices are checked by hand (Document 7, D7-11). Login tests run when `E2E_BACKEND_LOG` points at the local backend's log |
 | `npm run gen:types` | Fetches the backend's OpenAPI description, stores it in `src/types/generated/` and regenerates the request types |
@@ -55,3 +59,11 @@ npm run dev                     # https://localhost:3001
 
 **[`docs/code-map.md`](docs/code-map.md)** explains which file does what, and how a login travels through them. The
 folder names are in Document 7, section 16.
+
+## How we write code
+
+Read **Document 7, section 20** before changing code. In short: full-word names, no comparison with a raw string or
+number (name it first), error codes through `BackendErrorCode` and `AppErrorCode`, screens that only draw, one form
+hook per form and one call hook per API call, `form.handleSubmit(onValid, onInvalid)` on the shared `Form`, no
+`try`/`catch` in screens, comments only for why, Prettier at 100 characters. The login screen
+(`components/auth/login-form.tsx` with `hooks/use-login-form.ts`) is the example to follow.

@@ -21,7 +21,7 @@ import {
 
 /**
  * The login form's logic (Document 2, section 3): what each step does on submit, on success and on
- * each error. The screen, components/auth/login-form.tsx, only draws (Document 7, section 20.6).
+ * each error. The screen, components/auth/login-form.tsx, only draws (Document 7, section 20.9).
  */
 
 /** What the code step starts with, once a code has been sent. */

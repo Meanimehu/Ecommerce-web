@@ -8,7 +8,7 @@ import { HttpStatus, isServerError, isSuccess } from '@/lib/http-status';
  * fixed header, which another site cannot add (Document 7, section 17.3).
  *
  * Every failure rejects with an AppError, so screens and hooks never need to convert one
- * (Document 7, section 20.6).
+ * (Document 7, section 20.9).
  */
 const TIMEOUT_MS = 20_000;
 const UPLOAD_TIMEOUT_MS = 75_000;

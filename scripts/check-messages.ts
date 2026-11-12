@@ -36,7 +36,7 @@ for (const code of BACKEND_CODES_IN_USE) {
 for (const code of [...FRONTEND_CODES_WITH_MESSAGES, ...FRAMEWORK_CODES_WITH_MESSAGES])
   if (!codes[code]) problems.push({ key: `errors.codes.${code}`, problem: 'has no message' });
 
-// Document 7, section 20.4: the enum is the stored catalogue exactly, and our own codes are never backend codes.
+// Document 7, section 20.7: the enum is the stored catalogue exactly, and our own codes are never backend codes.
 const enumFile = fileURLToPath(
   new URL('../src/types/generated/backend-error-codes.ts', import.meta.url),
 );

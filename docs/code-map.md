@@ -24,7 +24,7 @@ The same area name is used in every folder: everything about login is `component
 
 ## How a request travels
 
-The login code, from the button to the backend and back (Document 7, section 20.6):
+The login code, from the button to the backend and back (Document 7, section 20.9):
 
 ```
 BROWSER                                              OUR SERVER                             BACKEND
@@ -226,7 +226,7 @@ hooks/use-login-form.ts   onSuccess → the code step;  onError(error: AppError)
 | `lib/messages.ts` | `getMessages` for server pages; the shared text and the Vendor and Admin areas' own text |
 | `lib/messages-context.tsx` | `useMessages`: the page's text in the browser, only its language (and area text only inside those areas) |
 | `lib/errors.ts` | `AppError`, `toAppError`, and `messageFor`: our own message for any error |
-| `lib/error-codes.ts` | `AppErrorCode` (codes not in the backend catalogue) and `ErrorCode`; re-exports `BackendErrorCode` (Document 7, 20.4) |
+| `lib/error-codes.ts` | `AppErrorCode` (codes not in the backend catalogue) and `ErrorCode`; re-exports `BackendErrorCode` (Document 7, 20.7) |
 | `utils/format.ts` | Dates and times in IST, rupees, phone numbers, GST rates; `isSingular` for one-or-many messages |
 | `utils/cn.ts` | The class-name helper the shadcn/ui tool expects |
 | `utils/url.ts` | Addresses with their query (`withQuery`), page numbers, picking list filters |

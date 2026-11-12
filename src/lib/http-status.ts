@@ -1,4 +1,4 @@
-/** The HTTP statuses our code acts on (Document 7, section 20.5). */
+/** The HTTP statuses our code acts on (Document 7, section 20.6). */
 export enum HttpStatus {
   /** Our own: no answer reached us (lost connection, time limit, cancelled upload). */
   NoResponse = 0,

@@ -10,7 +10,7 @@ import { enumMemberName } from '../../scripts/gen-error-codes';
 
 const englishMessages = getMessages('en');
 
-describe('error-code enums (Document 7, section 20.4)', () => {
+describe('error-code enums (Document 7, section 20.7)', () => {
   it('names each backend code in PascalCase and keeps the value exactly', () => {
     expect(enumMemberName('OTP_RESEND_WAIT')).toBe('OtpResendWait');
     expect(enumMemberName('VALIDATION_FAILED')).toBe('ValidationFailed');
@@ -51,7 +51,7 @@ describe('waiting time on "too many requests"', () => {
   });
 });
 
-describe('named values (Document 7, section 20.5)', () => {
+describe('named values (Document 7, section 20.6)', () => {
   it('sorts statuses into success, client error and server error', () => {
     expect(isSuccess(HttpStatus.NoContent)).toBe(true);
     expect(isClientError(HttpStatus.TooManyRequests)).toBe(true);

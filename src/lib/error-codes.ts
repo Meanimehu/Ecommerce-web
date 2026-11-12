@@ -2,7 +2,7 @@ import { BackendErrorCode } from '@/types/generated/backend-error-codes';
 
 /**
  * Error codes the frontend knows that are not in the backend's error catalogue (Document 7, section
- * 20.4). The catalogue's own codes are BackendErrorCode, generated from the backend and never
+ * 20.7). The catalogue's own codes are BackendErrorCode, generated from the backend and never
  * written here.
  */
 export enum AppErrorCode {
