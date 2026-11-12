@@ -8,8 +8,6 @@ import { retryAfterSecondsOf, type AppError } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { keepAddNotice } from '@/hooks/use-cart';
-import { useRequestLoginCode, useVerifyLoginCode, type LoggedIn } from '@/features/auth/hooks/use-login';
-import { reloadSession } from '@/features/auth/hooks/use-session';
 import {
   CodeFormSchema,
   PhoneFormSchema,
@@ -18,10 +16,12 @@ import {
   type PhoneFormInput,
   type PhoneFormValues,
 } from '@/features/auth/types';
+import { reloadSession, useRequestLoginCode, useVerifyLoginCode, type LoggedIn } from './use-auth';
 
 /**
  * The login form's logic (Document 2, section 3): what each step does on submit, on success and on
- * each error. The screen, components/auth/login-form.tsx, only draws (Document 7, section 20.9).
+ * each error. The screen, `features/auth/components/login-form.tsx`, only draws (Document 7,
+ * section 20.9).
  */
 
 /** What the code step starts with, once a code has been sent. */

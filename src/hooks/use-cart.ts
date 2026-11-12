@@ -6,7 +6,7 @@ import type { Locale } from '@/lib/i18n';
 import { isAddNotice, type AddNotice } from '@/types/add-notice';
 import type { Cart } from '@/types/cart';
 import { withQuery } from '@/utils/url';
-import { useSession } from '@/features/auth/hooks/use-session';
+import { useSession } from '@/features/auth/hooks/use-auth';
 
 /**
  * The cart (backend Area 5), through our /api/cart endpoints. Every cart answer is the whole cart, so the screen shows
