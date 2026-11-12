@@ -22,6 +22,8 @@ Everything in Documents 1 to 7, which means the screens in Document 5 for the st
 
 Each slice ends with something that can be tried by a person, not just a list of finished files. A slice is "done" only when its checks in section 6 for that slice are met. No check result is claimed in this document.
 
+**Working slice by slice (12 Nov 2026, proposed; Document 7, D7-19).** Each slice is finished, cleaned up, tested and reviewed before the next one starts, and clean-up that a slice's work does not need is never mixed into that slice's pull requests. Before Slice 3, the code from Slices 0 to 2 is brought to the code practices in Document 7, section 20.
+
 | Slice | What it delivers | Screens and parts (Document 5) | Needs first | Done when (proposed) |
 | --- | --- | --- | --- | --- |
 | **0. Setup** | The project can be built, run, tested and checked in every environment | None. The repository structure, environments, the automatic checks: generated request types (D7-02), accessibility and size checks, message-catalogue check | Documents 1 to 7 | A blank page deploys to staging, and the checks run on every change |
@@ -108,3 +110,4 @@ Nothing below has been done. Each is a check, not a promise.
 | 6 | 11 Nov 2026 | Owner approved removing the frontend store (Document 4, D4-11): Slice 0 no longer includes it, and Slice 1's refresh check says what is actually tested |
 | 7 | 11 Nov 2026 | Slice 1 components: only those the existing screens use; the rest come with the slice that first needs them (owner decision) |
 | 8 | 12 Nov 2026 | Slice 2 notes: no quantity on the product form (stock stays in Slice 4), demo terms text until Q8-4 and Q8-5 are answered, photos when testing locally, and the four parts 2a to 2d (owner decisions) |
+| 9 | 12 Nov 2026 | **Proposed, awaiting the owner's approval:** working slice by slice (Document 7, D7-19); the code from Slices 0 to 2 is brought to Document 7, section 20 before Slice 3. No other decision changed |

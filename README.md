@@ -29,6 +29,10 @@ npm run dev                     # https://localhost:3001
 
 - `npm run dev` serves **https://localhost:3001** (Document 7, section 17.1). The first time, Next.js sets up a local
   certificate with mkcert by itself; your Mac may ask for your password once to trust it.
+- **Windows with WSL:** if the browser shows a certificate warning, Windows does not yet trust the certificate made
+  inside WSL. Copy `~/.local/share/mkcert/rootCA.pem` (never `rootCA-key.pem`) to Windows and import it once into
+  Current User → Trusted Root Certification Authorities (`certmgr.msc` → Import), then restart the browser. Details in
+  Document 7, section 17.1.
 - **Login codes**: the backend's SMS is a mock; the code is in its log: `docker compose logs api | grep "MOCK SMS"` in
   the backend folder.
 - Set up before 11 Nov 2026? The `dhaaga_web_store` database and the `STORE_*` and `CSRF_SECRET` lines in `.env.local`
@@ -54,3 +58,8 @@ npm run dev                     # https://localhost:3001
 
 **[`docs/code-map.md`](docs/code-map.md)** explains which file does what, and how a login travels through them. The
 folder names are in Document 7, section 16.
+
+## How we write code
+
+Read **Document 7, section 20** (proposed 12 Nov 2026, awaiting the owner's approval) before changing code: names,
+folders and features, imports, named values, error codes, forms and calls, logging, and how work is done slice by slice.
