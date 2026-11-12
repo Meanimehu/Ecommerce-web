@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
+import { getMyVendor } from '@/api/vendor';
 import { LogoutButtons } from '@/components/auth/logout-buttons';
 import { requireUser } from '@/components/auth/require-user';
 import { NeedsScript } from '@/components/common/needs-script';
 import { SiteHeader } from '@/components/common/site-header';
+import { AppError } from '@/lib/errors';
 import { getMessages } from '@/lib/i18n';
 import { isStaff } from '@/types/auth';
 import { formatPhone } from '@/utils/format';
@@ -12,17 +14,24 @@ export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 /**
  * Account, Slice 1 part: the session controls (Document 5, section 6.5, as the approved Stage 5 security card) and the
- * areas this person may enter (Document 2, D2-03). Profile, addresses and the account tabs come in Slice 3.
+ * areas this person may enter (Document 2, D2-03), and "Become a vendor" for a person with no vendor (D5-10). Profile, addresses and the account tabs come in Slice 3.
  */
 export default async function AccountPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: param } = await params;
-  const result = await requireUser(param, `/${param}/account`);
+  const result = await requireUser(param);
   if ('render' in result) return result.render;
-  const { user, lang } = result;
+  const { user, lang, token } = result;
   const t = getMessages(lang);
+  // A person with a vendor in any status may open the Vendor area; one with none is offered "Become a vendor" (D5-10).
+  // If the backend cannot say, neither link is shown rather than a wrong one.
+  const vendor = await getMyVendor(token).then(
+    () => 'yes' as const,
+    (error: unknown) => (error instanceof AppError && error.code === 'VENDOR_NOT_FOUND' ? ('no' as const) : ('unknown' as const)),
+  );
   const areas = [
     ...(isStaff(user.roles) ? [{ href: `/${lang}/admin`, label: t.nav.adminArea }] : []),
-    ...(user.roles.includes('vendor_owner') ? [{ href: `/${lang}/vendor`, label: t.nav.vendorArea }] : []),
+    ...(vendor === 'yes' ? [{ href: `/${lang}/vendor`, label: t.nav.vendorArea }] : []),
+    ...(vendor === 'no' ? [{ href: `/${lang}/vendor/apply`, label: t.nav.becomeVendor }] : []),
   ];
   return (
     <>

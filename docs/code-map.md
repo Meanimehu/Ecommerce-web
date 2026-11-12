@@ -9,7 +9,7 @@ moved or removed.
 | Folder | What goes in it | Runs in |
 | --- | --- | --- |
 | `app/` | Routing and layouts: pages in `[lang]/`, our own endpoints in `api/` | Both |
-| `components/` | Reusable UI: `ui/` (shadcn), `form/`, `common/`, and one folder per area (`auth/`) | Browser and server pages |
+| `components/` | Reusable UI: `ui/` (shadcn), `form/`, `common/`, and one folder per area (`auth/`, `vendor/`, `admin/`) | Browser and server pages |
 | `hooks/` | Reusable logic: TanStack Query hooks (our "slices") and the form hook | Browser |
 | `api/` | Backend handlers: the calls from our server to the backend | **Server only** |
 | `middleware/` | Login and request handling: who the person is, renewing the login, cookies, endpoint answers | **Server only** |
@@ -73,12 +73,18 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `[lang]/page.tsx` | Home (a placeholder until Slice 3) |
 | `[lang]/login/page.tsx` | The login page |
 | `[lang]/account/page.tsx` | Account: log out, log out everywhere, the areas this person may open |
-| `[lang]/admin/…`, `[lang]/vendor/…` | Admin and Vendor areas (placeholders; the layout checks the role) |
+| `[lang]/admin/layout.tsx`, `page.tsx` | Admin area frame (any staff role) and its home with the screens this person's roles can use |
+| `[lang]/admin/vendors/…` | Vendor review: the list, and one application (admin only) |
+| `[lang]/vendor/layout.tsx` | Vendor area: never indexed, always rendered for the person |
+| `[lang]/vendor/apply/page.tsx` | Become a vendor: open to anyone logged in |
+| `[lang]/vendor/(app)/…` | Every other vendor page: needs a vendor in any status (the `(app)` folder groups them, it is not in the address) |
 | `[lang]/error.tsx`, `forbidden.tsx`, `global-error.tsx` | Error page, "no access" page (real 403), last-resort error page |
 | `global-not-found.tsx` | "Not found" with a real 404, in English and Hindi together (the pages sit under a language segment, so Next.js uses one global page) |
 | `api/auth/code`, `api/auth/verify` | Ask for a login code; check it and log in |
 | `api/auth/logout`, `api/auth/logout-all` | Log out here; log out everywhere |
 | `api/session` | Who is logged in; renews the login when needed |
+| `api/vendors/…` | The person's own vendor application: details, addresses, documents (upload and view), submit |
+| `api/admin/vendors/…` | Vendor review: list, one vendor, its documents, and the decisions |
 | `api/language` | Remembers the language choice |
 | `api/health` | Health check for the hosting |
 | `globals.css` | The Document 6 design tokens: colours, type scale (with the Hindi rules), radius, focus ring, reduced motion, hover only where a device can hover |
@@ -91,15 +97,33 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `auth/require-user.tsx` | Guard for pages that need login or a role |
 | `auth/session-check.tsx` | Shown while the browser renews an expired login |
 | `auth/logout-buttons.tsx` | "Log out" and "Log out everywhere" |
-| `auth/area-shell.tsx` | Top bar of the Admin and Vendor areas: wordmark, area label with its icon, language, account |
-| `form/text-field.tsx`, `form/error-summary.tsx` | A labelled input with its error; the summary at the top that takes focus |
+| `auth/area-shell.tsx` | The frame of the Admin and Vendor areas: top bar (wordmark, area label, language, account) and the side menu |
+| `auth/area-nav.tsx` | The side menu, and the menu button with its drawer below 1024 px |
+| `auth/area-menus.ts` | What each side menu lists, by role (Admin) or by having a vendor (Vendor) |
+| `vendor/vendor-area.tsx` | Who may open which vendor page; the application page is open to anyone logged in |
+| `vendor/apply-screen.tsx` | Become a vendor: the status card and the four steps |
+| `vendor/apply-steps.ts` | The step names and which step fixes each missing item |
+| `vendor/apply-details.tsx`, `apply-address.tsx`, `apply-documents.tsx`, `apply-review.tsx` | The four steps: details, addresses, documents (upload with progress), review with the terms and submit |
+| `vendor/vendor-status.tsx` | The vendor status chip, and which statuses can be changed |
+| `admin/vendor-list.tsx` | Vendor review list with its filters and pages |
+| `admin/vendor-review.tsx` | One application: details, addresses, documents and the decisions |
+| `form/field-frame.tsx` | What every field shares: label, "(optional)", the error under it, help text |
+| `form/text-field.tsx`, `select-field.tsx`, `textarea-field.tsx` | A labelled input, select and text area with their errors |
+| `form/error-summary.tsx` | The summary at the top of a form that takes focus |
 | `common/site-header.tsx`, `wordmark.tsx` | The storefront header (wordmark and language switch for now) and the Dhaaga wordmark |
 | `common/language-switch.tsx` | The other language's name with a globe icon |
 | `common/error-message.tsx` | An error banner with its reference number and Copy, when a real one exists |
 | `common/state-block.tsx` | Whole-screen states: error, no access, not found |
 | `common/needs-script.tsx` | The "needs JavaScript" notice |
+| `common/status-chip.tsx` | A status chip: icon, words and a tone |
+| `common/steps.tsx` | The steps of a long form |
+| `common/data-table.tsx`, `pagination.tsx` | Staff tables (stacked blocks on phones) and numbered pages |
+| `common/breadcrumbs.tsx` | Breadcrumbs (only the parent on phones) |
+| `common/load-states.tsx` | Loading and "could not be loaded, Try again" for one part of a screen |
+| `common/reason-dialog.tsx` | A confirmation that asks for a reason (reject, suspend) |
+| `common/toast.tsx` | The success toast ("Saved") |
 | `ui/button.tsx` | Primary, secondary, quiet, destructive and destructive-confirm buttons; large, default and small; loading state |
-| `ui/input.tsx` | The text input |
+| `ui/input.tsx`, `select.tsx`, `textarea.tsx`, `checkbox.tsx` | The text input, select, text area and checkbox |
 | `ui/alert-dialog.tsx` | The confirmation dialog |
 | `ui/banner.tsx` | Information, success, warning and error banners |
 | `ui/skeleton.tsx` | Static loading shapes |
@@ -112,13 +136,15 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `use-login.ts` | `useRequestCode`, `useVerify` |
 | `use-logout.ts` | `useLogout` |
 | `use-app-form.ts` | `useAppForm` (React Hook Form with Zod), `applyServerError` (backend errors under the right field), message keys |
+| `use-vendor.ts` | The own application (`useMyVendor` and its changes, document upload) and the admin review (`useVendorList`, `useVendor`, `useVendorDecision`) |
 
 ### `api/` — calls to the backend (server only)
 
 | File | What it does |
 | --- | --- |
-| `client.ts` | `callBackend`: time limits, retries for reads only, every answer checked against its shape, the customer's address passed on |
+| `client.ts` | `callBackend`: time limits, retries for reads only, every answer checked against its shape, the customer's address passed on; streamed uploads; `openBackendFile` for private files |
 | `auth.ts` | The login and session calls of backend Area 1 |
+| `vendor.ts` | Backend Area 2: the vendor application and the admin review |
 
 ### `middleware/` — login and request handling (server only)
 
@@ -127,6 +153,7 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `session.ts` | Who a request is (`asUser`, `getViewer`), renewing the login (`refreshSession`), logout, where to go after login |
 | `responses.ts` | Answers and errors of our endpoints, setting and clearing cookies, the forgery check |
 | `cookies.ts` | Cookie names, lifetimes and settings, and the signed after-login cookie. Also used by `proxy.ts` |
+| `endpoint.ts` | What every endpoint for the browser does: `answerAsUser` (forgery check, run as the person, renew the login, answer), `uploadFrom` (a streamed upload), `fileAsUser` (a private file) |
 
 ### `lib/`, `utils/`, `types/`
 
@@ -134,14 +161,18 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | --- | --- |
 | `lib/config.ts` | Settings read from the environment (`.env.local`), server only |
 | `lib/fonts.ts` | Outfit and Noto Sans Devanagari, from our own site, each loaded only for the characters it covers |
-| `lib/http.ts` | Browser calls to our endpoints: `get` and `send`, with the time limit, the forgery label and one error shape |
+| `lib/http.ts` | Browser calls to our endpoints: `get`, `send`, `patch`, `put`, `remove` and `upload` (with progress and Cancel), with the time limit, the forgery label and one error shape |
+| `lib/uploads.ts` | Upload limits copied from the backend, for a quick check before sending |
 | `lib/i18n.ts` | The two languages, choosing one, and `getMessages` for the English and Hindi text |
 | `lib/errors.ts` | `AppError`, and `messageFor`: our own message for any error |
 | `utils/format.ts` | Dates and times in IST, rupees, phone numbers |
 | `utils/cn.ts` | The class-name helper the shadcn/ui tool expects |
+| `utils/url.ts` | Addresses with their query (`withQuery`), page numbers, picking list filters |
 | `utils/message-checks.ts` | What `npm run check:messages` checks (not used by the site) |
 | `types/auth.ts` | User, login and session answers, the phone and code forms |
 | `types/error.ts` | The backend's error answer |
+| `types/common.ts` | Shapes every area shares: a page of a list, a reason |
+| `types/vendor.ts` | Backend Area 2 answers (vendor, address, document, admin views) and the application forms |
 | `types/generated/` | Request types, the OpenAPI description and the error-code list, made by `npm run gen:types` and `gen:error-codes`; never edited |
 
 ### Outside `src/`

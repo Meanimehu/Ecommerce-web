@@ -22,7 +22,9 @@ async function parseError(response: Response, changesData: boolean): Promise<App
   });
 }
 
-async function request<T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T> {
+type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
+
+async function request<T>(method: Method, path: string, body?: unknown): Promise<T> {
   const changesData = method !== 'GET';
   let response: Response;
   try {
@@ -39,11 +41,49 @@ async function request<T>(method: 'GET' | 'POST', path: string, body?: unknown):
     throw new AppError({ code: timedOut ? 'TIMEOUT' : 'NETWORK', status: 0, outcomeUnknown: changesData });
   }
   if (!response.ok) throw await parseError(response, changesData);
+  if (response.status === 204) return null as T;
   return (await response.json()) as T;
 }
 
 /** A read. Safe to repeat. */
 export const get = <T>(path: string): Promise<T> => request<T>('GET', path);
 
-/** A data-changing request. Never repeated automatically. */
+/** Data-changing requests. Never repeated automatically. */
 export const send = <T>(path: string, body: unknown = {}): Promise<T> => request<T>('POST', path, body);
+export const patch = <T>(path: string, body: unknown): Promise<T> => request<T>('PATCH', path, body);
+export const put = <T>(path: string, body: unknown): Promise<T> => request<T>('PUT', path, body);
+export const remove = <T = null>(path: string): Promise<T> => request<T>('DELETE', path);
+
+/**
+ * A file upload (Document 3, section 10): one file per request, progress reported as it is sent, can be cancelled, and
+ * never repeated automatically. The browser's XMLHttpRequest is used because fetch cannot report upload progress.
+ * A cancelled upload rejects with the code UPLOAD_CANCELLED, which screens do not show as an error.
+ */
+const UPLOAD_TIMEOUT_MS = 75_000;
+
+export function upload<T>(path: string, form: FormData, options: { onProgress?: (fraction: number) => void; signal?: AbortSignal } = {}): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', path);
+    xhr.timeout = UPLOAD_TIMEOUT_MS;
+    xhr.withCredentials = true;
+    xhr.setRequestHeader('accept', 'application/json');
+    for (const [name, value] of Object.entries(FORGERY_HEADER)) xhr.setRequestHeader(name, value);
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable && event.total > 0) options.onProgress?.(event.loaded / event.total);
+    };
+    xhr.onload = () => {
+      const response = new Response(xhr.responseText || null, { status: xhr.status, headers: { 'content-type': 'application/json' } });
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve((xhr.responseText ? JSON.parse(xhr.responseText) : null) as T);
+      } else {
+        void parseError(response, true).then(reject);
+      }
+    };
+    xhr.onerror = () => reject(new AppError({ code: 'NETWORK', status: 0, outcomeUnknown: true }));
+    xhr.ontimeout = () => reject(new AppError({ code: 'TIMEOUT', status: 0, outcomeUnknown: true }));
+    xhr.onabort = () => reject(new AppError({ code: 'UPLOAD_CANCELLED', status: 0 }));
+    options.signal?.addEventListener('abort', () => xhr.abort(), { once: true });
+    xhr.send(form);
+  });
+}

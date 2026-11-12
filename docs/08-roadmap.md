@@ -38,6 +38,12 @@ Each slice ends with something that can be tried by a person, not just a list of
 
 **Test photos (10 Nov 2026).** Early layout and API work keeps using the plain coloured photos from the backend's sample data. When Slice 2 approaches, the approved garment illustrations are exported as development image files (at least 500 px on the shorter side) and uploaded through the real vendor upload. They are development stand-ins, are never presented as vendor photos (D6-62), and exist only in local and staging data. Real-photo testing (T7-7) stays open.
 
+**Slice 2 notes (12 Nov 2026, owner decisions).** Recorded with the Slice 2 plan; no approved decision changes.
+- **Stock.** The product form has no quantity: stock screens stay in Slice 4 (Document 5, 7.4). A new variant starts with 0 stock (`area-4-inventory.md`), so the Slice 2 end-to-end test sets the quantity by calling the backend directly, not through a screen. On staging a newly added product cannot be put in a cart until Slice 4; existing sample products can.
+- **Vendor terms.** Until the owner supplies the real text (Q8-4, Q8-5), the terms step shows a box marked "Demo text — not the real vendor terms", which only says that the real terms will replace it, with the checkbox and the version label the backend sends (`requiredTermsVersion`). No legal wording is written.
+- **Photos when testing locally.** The local backend keeps files in memory, so public photo addresses do not load on a developer's computer; pages show the approved "Photo unavailable" state (Document 6, 12.1). Tests check the photo address, not the picture. Staging shows real photos.
+- **Four parts.** Slice 2 is built as four reviewed parts in order: 2a vendor application and vendor review; 2b catalogue lists; 2c vendor products and moderation; 2d storefront and cart.
+
 Slices 3, 4 and 5 do not depend on each other, so they can follow in any order or be worked on at the same time. This document does not choose between them.
 
 ## 5. Waiting on others
@@ -101,3 +107,4 @@ Nothing below has been done. Each is a check, not a promise.
 | 5 | 10 Nov 2026 | Settled with the owner: shared store (D4-10), image exception (D3-04), real-browser checks (D7-11), test-photo approach (Slice 2 note). Vendor terms recorded as open (Q8-4, Q8-5). No approved decision changed |
 | 6 | 11 Nov 2026 | Owner approved removing the frontend store (Document 4, D4-11): Slice 0 no longer includes it, and Slice 1's refresh check says what is actually tested |
 | 7 | 11 Nov 2026 | Slice 1 components: only those the existing screens use; the rest come with the slice that first needs them (owner decision) |
+| 8 | 12 Nov 2026 | Slice 2 notes: no quantity on the product form (stock stays in Slice 4), demo terms text until Q8-4 and Q8-5 are answered, photos when testing locally, and the four parts 2a to 2d (owner decisions) |

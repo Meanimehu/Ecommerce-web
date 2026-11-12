@@ -1,12 +1,14 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { isLocale, localeOfPath, pickLocale } from '@/lib/i18n';
-import { COOKIE, cookieOptions, encodeNext, isSafeLocalPath, LIFETIME_SECONDS } from '@/middleware/cookies';
+import { COOKIE, cookieOptions, encodeNext, isSafeLocalPath, LIFETIME_SECONDS, PATH_HEADER } from '@/middleware/cookies';
 
 /**
  * 1. A visit with no language prefix goes to /en or /hi (Document 4, section 6): the remembered choice, else the
  *    browser's preference, else English. The redirect depends on the visitor, so it is never stored in a shared cache.
  * 2. /{lang}/login?next=/path: the asked-for page is checked (a path in our own site only), kept in the signed
  *    after-login cookie, and the address is cleaned (Document 2, section 6; Document 4, section 9).
+ * 3. Every page request carries its own address to the server render (PATH_HEADER), so a login guard in a layout can
+ *    return the person to the exact page they asked for (Document 2, D2-03).
  * Our own endpoints (/api), Next.js files and static files are left alone.
  */
 const PRIVATE = 'private, no-store';
@@ -31,7 +33,11 @@ export function proxy(request: NextRequest) {
     return response;
   }
 
-  return NextResponse.next();
+  // The page's own address, for the login guard in layouts (which Next.js does not tell its address). Always set
+  // here, so a value sent by the browser is never used.
+  const headers = new Headers(request.headers);
+  headers.set(PATH_HEADER, `${pathname}${search}`);
+  return NextResponse.next({ request: { headers } });
 }
 
 export const config = {

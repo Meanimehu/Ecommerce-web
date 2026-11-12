@@ -23,13 +23,38 @@ export const BACKEND_CODES_IN_USE = [
   'TOKEN_REUSED',
   'SESSION_ENDED',
   'USER_BLOCKED',
+  // vendor application and admin vendor review (Area 2): Slice 2a
+  'VENDOR_NOT_FOUND',
+  'VENDOR_EXISTS',
+  'GSTIN_TAKEN',
+  'VENDOR_LOCKED',
+  'VENDOR_ADDRESS_LIMIT',
+  'VENDOR_ADDRESS_NOT_FOUND',
+  'VENDOR_STATE_INVALID',
+  'TERMS_VERSION_MISMATCH',
+  'VENDOR_INCOMPLETE',
+  'VENDOR_DOCUMENTS_PENDING',
+  'DOCUMENT_NOT_FOUND',
+  'DOCUMENT_REVIEWED',
+  'DOCUMENT_NOT_SCANNED',
+  'DOCUMENT_LIMIT',
+  // file uploads and private files (Areas 2 and 3b): Slice 2a
+  'FILE_REQUIRED',
+  'FILE_TOO_LARGE',
+  'FILE_TYPE_NOT_ALLOWED',
+  'FILE_UNSAFE',
+  'FILE_INFECTED',
+  'FILE_UNAVAILABLE',
+  'UPLOAD_RATE_LIMITED',
+  'STORAGE_UNAVAILABLE',
+  'SCAN_UNAVAILABLE',
 ] as const;
 
 /** Codes from the backend's framework, not in its catalogue (api-contract.md, section 3), that a built screen can show. */
-export const FRAMEWORK_CODES_WITH_MESSAGES = ['TOO_MANY_REQUESTS'] as const;
+export const FRAMEWORK_CODES_WITH_MESSAGES = ['TOO_MANY_REQUESTS', 'NOT_FOUND'] as const;
 
 /** Frontend codes that need their own message (the others use the general messages by kind). */
-export const FRONTEND_CODES_WITH_MESSAGES = ['CSRF_INVALID', 'ORIGIN_INVALID', 'SESSION_TEMPORARY'] as const;
+export const FRONTEND_CODES_WITH_MESSAGES = ['CSRF_INVALID', 'ORIGIN_INVALID', 'SESSION_TEMPORARY', 'UPLOAD_CANCELLED'] as const;
 
 /** Lists every key path whose value is text, for example "errors.viewTimeout". */
 export function textKeys(value: unknown, prefix = ''): string[] {
