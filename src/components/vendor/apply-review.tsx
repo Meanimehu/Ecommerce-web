@@ -100,7 +100,7 @@ export function ReviewStep({ lang, vendor }: { lang: Locale; vendor: Vendor }) {
         </label>
       </div>
 
-      {error ? <ErrorMessage text={error.code === 'TERMS_VERSION_MISMATCH' ? t.vendor.review.termsChanged : messageFor(error, t)} requestId={error.requestId} t={t} /> : null}
+      {error ? <ErrorMessage text={error.code === 'TERMS_VERSION_MISMATCH' ? t.vendor.review.termsChanged : messageFor(error, t)} requestId={error.requestId} messages={t} /> : null}
 
       <div className="grid gap-2 sm:justify-items-end">
         <Button type="button" loading={submit.isPending} disabled={!ready || !accepted || submit.isPending} onClick={onSubmit}>

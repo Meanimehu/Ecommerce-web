@@ -69,7 +69,7 @@ export function CatalogueFormFrame<TValues extends FieldValues>({
       <h2 tabIndex={-1} className="type-h3 text-ink outline-none">
         {title}
       </h2>
-      <ErrorSummary form={form} fieldIds={fieldIds} t={t} requestId={requestId} focusSignal={focusSignal} />
+      <ErrorSummary form={form} fieldIds={fieldIds} messages={t} requestId={requestId} focusSignal={focusSignal} />
       {children}
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <Button type="button" variant="quiet" disabled={busy} onClick={onCancel}>
@@ -159,10 +159,10 @@ export function HsnForm({ item, onDone }: { item?: HsnCode; onDone: () => void }
       {item ? (
         <ReadOnly label={f.code} value={item.code} help={f.codeFixed} />
       ) : (
-        <TextField form={form} name="code" id={ids.code} label={f.hsnCode} description={f.hsnCodeHelp} t={t} inputProps={{ inputMode: 'numeric', maxLength: 8 }} />
+        <TextField form={form} name="code" id={ids.code} label={f.hsnCode} description={f.hsnCodeHelp} messages={t} inputProps={{ inputMode: 'numeric', maxLength: 8 }} />
       )}
-      <TextField form={form} name="description" id={ids.description} label={f.description} t={t} inputProps={{ maxLength: 300 }} />
-      <SelectField form={form} name="defaultGstRateBps" id={ids.defaultGstRateBps} label={f.defaultGst} optional options={rateOptions} t={t} />
+      <TextField form={form} name="description" id={ids.description} label={f.description} messages={t} inputProps={{ maxLength: 300 }} />
+      <SelectField form={form} name="defaultGstRateBps" id={ids.defaultGstRateBps} label={f.defaultGst} optional options={rateOptions} messages={t} />
     </CatalogueFormFrame>
   );
 }
@@ -195,8 +195,8 @@ export function BrandForm({ item, onDone }: { item?: Brand; onDone: () => void }
         )
       }
     >
-      <TextField form={form} name="name" id={ids.name} label={f.name} t={t} inputProps={{ maxLength: 100 }} />
-      <TextField form={form} name="slug" id={ids.slug} label={f.slug} description={f.slugHelp} optional={!item} t={t} inputProps={{ maxLength: 100, spellCheck: false }} />
+      <TextField form={form} name="name" id={ids.name} label={f.name} messages={t} inputProps={{ maxLength: 100 }} />
+      <TextField form={form} name="slug" id={ids.slug} label={f.slug} description={f.slugHelp} optional={!item} messages={t} inputProps={{ maxLength: 100, spellCheck: false }} />
     </CatalogueFormFrame>
   );
 }
@@ -237,12 +237,12 @@ export function SizeForm({ item, onDone }: { item?: Size; onDone: () => void }) 
       {item ? (
         <ReadOnly label={f.code} value={item.code} help={f.codeFixed} />
       ) : (
-        <TextField form={form} name="code" id={ids.code} label={f.code} description={f.sizeCodeHelp} t={t} inputProps={{ maxLength: 12, autoCapitalize: 'characters', className: 'uppercase' }} />
+        <TextField form={form} name="code" id={ids.code} label={f.code} description={f.sizeCodeHelp} messages={t} inputProps={{ maxLength: 12, autoCapitalize: 'characters', className: 'uppercase' }} />
       )}
-      <TextField form={form} name="label" id={ids.label} label={f.label} t={t} inputProps={{ maxLength: 50 }} />
+      <TextField form={form} name="label" id={ids.label} label={f.label} messages={t} inputProps={{ maxLength: 50 }} />
       <div className="grid gap-4 sm:grid-cols-2">
-        <SelectField form={form} name="sizeGroup" id={ids.sizeGroup} label={f.sizeGroup} options={SIZE_GROUPS.map((value) => ({ value, label: t.catalogue.sizeGroups[value] }))} t={t} />
-        <TextField form={form} name="sortOrder" id={ids.sortOrder} label={f.sortOrder} description={f.sortOrderHelp} optional t={t} inputProps={{ inputMode: 'numeric', maxLength: 6 }} />
+        <SelectField form={form} name="sizeGroup" id={ids.sizeGroup} label={f.sizeGroup} options={SIZE_GROUPS.map((value) => ({ value, label: t.catalogue.sizeGroups[value] }))} messages={t} />
+        <TextField form={form} name="sortOrder" id={ids.sortOrder} label={f.sortOrder} description={f.sortOrderHelp} optional messages={t} inputProps={{ inputMode: 'numeric', maxLength: 6 }} />
       </div>
     </CatalogueFormFrame>
   );
@@ -283,12 +283,12 @@ export function ColourForm({ item, onDone }: { item?: Colour; onDone: () => void
       {item ? (
         <ReadOnly label={f.code} value={item.code} help={f.codeFixed} />
       ) : (
-        <TextField form={form} name="code" id={ids.code} label={f.code} description={f.colourCodeHelp} t={t} inputProps={{ maxLength: 20, autoCapitalize: 'characters', className: 'uppercase' }} />
+        <TextField form={form} name="code" id={ids.code} label={f.code} description={f.colourCodeHelp} messages={t} inputProps={{ maxLength: 20, autoCapitalize: 'characters', className: 'uppercase' }} />
       )}
-      <TextField form={form} name="label" id={ids.label} label={f.label} t={t} inputProps={{ maxLength: 50 }} />
+      <TextField form={form} name="label" id={ids.label} label={f.label} messages={t} inputProps={{ maxLength: 50 }} />
       <div className="flex items-end gap-3">
         <div className="flex-1">
-          <TextField form={form} name="hex" id={ids.hex} label={f.hex} description={f.hexHelp} optional t={t} inputProps={{ maxLength: 7, spellCheck: false }} />
+          <TextField form={form} name="hex" id={ids.hex} label={f.hex} description={f.hexHelp} optional messages={t} inputProps={{ maxLength: 7, spellCheck: false }} />
         </div>
         <span aria-hidden="true" className="mb-7 size-11 shrink-0 rounded-2 border border-control" style={/^#[0-9a-fA-F]{6}$/.test(hex) ? { background: hex } : undefined} />
       </div>

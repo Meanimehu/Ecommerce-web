@@ -185,7 +185,7 @@ export function PhotosStep({ lang, product }: { lang: Locale; product: ProductVi
         </ul>
       ) : null}
 
-      {order.error ? <ErrorMessage text={messageFor(toAppError(order.error), t)} requestId={requestIdOf(order.error)} t={t} /> : null}
+      {order.error ? <ErrorMessage text={messageFor(toAppError(order.error), t)} requestId={requestIdOf(order.error)} messages={t} /> : null}
 
       <ul className="grid gap-3" aria-label={p.photos.list}>
         {photos.map((photo, index) => (
@@ -291,7 +291,7 @@ function PhotoRow({ product, photo, index, count, busy, onMove }: { product: Pro
             {p.altHelp}
           </p>
         </form>
-        {error ? <ErrorMessage text={messageFor(toAppError(error), t)} requestId={requestIdOf(error)} t={t} /> : null}
+        {error ? <ErrorMessage text={messageFor(toAppError(error), t)} requestId={requestIdOf(error)} messages={t} /> : null}
       </div>
       <div className="flex flex-wrap items-start gap-1 sm:flex-col sm:items-end">
         <Button type="button" variant="secondary" size="small" disabled={busy || index === 0} onClick={() => onMove(index, index - 1)}>

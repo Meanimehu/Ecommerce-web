@@ -78,7 +78,7 @@ function PhoneStep({ phoneStep }: { phoneStep: PhoneStepState }) {
       <ErrorSummary
         form={form}
         fieldIds={{ phone: FIELD_IDS.phone }}
-        t={messages}
+        messages={messages}
         requestId={requestId}
         focusSignal={focusSignal}
       />
@@ -89,7 +89,7 @@ function PhoneStep({ phoneStep }: { phoneStep: PhoneStepState }) {
         label={messages.login.phoneLabel}
         description={messages.login.phoneHelp}
         prefix="+91"
-        t={messages}
+        messages={messages}
         inputProps={{ type: 'tel', inputMode: 'numeric', autoComplete: 'tel-national' }}
       />
       <Button type="submit" className="w-full" loading={isSending} disabled={isSending}>
@@ -150,7 +150,7 @@ function CodeStep({
       <ErrorSummary
         form={form}
         fieldIds={{ code: FIELD_IDS.code }}
-        t={messages}
+        messages={messages}
         requestId={requestId}
         focusSignal={focusSignal}
       />
@@ -160,7 +160,7 @@ function CodeStep({
         id={FIELD_IDS.code}
         label={messages.login.codeLabel}
         description={messages.login.codeHelp}
-        t={messages}
+        messages={messages}
         inputProps={{
           type: 'text',
           inputMode: 'numeric',

@@ -309,18 +309,18 @@ function CatalogueTable<T extends Item>({
         <div ref={panel}>{form(editing === 'new' ? undefined : editing, () => setEditing(null))}</div>
       ) : null}
 
-      {save.error ? <ErrorMessage text={messageFor(toAppError(save.error), t)} requestId={toAppError(save.error).requestId} t={t} /> : null}
+      {save.error ? <ErrorMessage text={messageFor(toAppError(save.error), t)} requestId={toAppError(save.error).requestId} messages={t} /> : null}
 
       {data.isPending ? (
-        <LoadingBlock t={t} lines={6} />
+        <LoadingBlock messages={t} lines={6} />
       ) : data.isError ? (
-        <PartError error={data.error} onRetry={() => void data.refetch()} t={t} />
+        <PartError error={data.error} onRetry={() => void data.refetch()} messages={t} />
       ) : items.length === 0 ? (
         <StateBlock icon={Tags} title={c.empty} text={q || isActive ? c.emptyFiltered : c.emptyText} titleAs="h2" />
       ) : (
         <>
           <DataTable rows={items} columns={[...columns, actions]} rowKey={(item) => item.id} caption={c.lists[list]} />
-          {paged ? <Pagination page={page} limit={LIMIT} total={total} hrefFor={(n) => withQuery(base, { q, isActive, page: n === 1 ? undefined : n })} t={t} /> : null}
+          {paged ? <Pagination page={page} limit={LIMIT} total={total} hrefFor={(n) => withQuery(base, { q, isActive, page: n === 1 ? undefined : n })} messages={t} /> : null}
         </>
       )}
       {note ? (

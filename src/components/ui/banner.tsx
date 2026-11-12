@@ -29,13 +29,13 @@ export function Banner({
   action?: ReactNode;
   className?: string;
 } & Omit<React.ComponentProps<'div'>, 'title'>) {
-  const t = TONES[tone];
-  const Icon = t.icon;
+  const toneStyle = TONES[tone];
+  const Icon = toneStyle.icon;
   return (
-    <div className={cn('flex items-start gap-3 rounded-1 border px-4 py-3.5', t.box, className)} {...props}>
-      <Icon aria-hidden="true" className={cn('mt-0.5 size-5 shrink-0', t.title)} />
+    <div className={cn('flex items-start gap-3 rounded-1 border px-4 py-3.5', toneStyle.box, className)} {...props}>
+      <Icon aria-hidden="true" className={cn('mt-0.5 size-5 shrink-0', toneStyle.title)} />
       <div className="grid min-w-0 flex-1 gap-1">
-        {title ? <div className={cn('font-medium', t.title)}>{title}</div> : null}
+        {title ? <div className={cn('font-medium', toneStyle.title)}>{title}</div> : null}
         {children ? <div className="type-small text-ink">{children}</div> : null}
         {action ? <div className="pt-1">{action}</div> : null}
       </div>

@@ -97,15 +97,15 @@ export function ProductList({ lang }: { lang: Locale }) {
         </Button>
       </form>
       {list.isPending ? (
-        <LoadingBlock t={t} lines={6} />
+        <LoadingBlock messages={t} lines={6} />
       ) : list.isError ? (
-        <PartError error={list.error} onRetry={() => void list.refetch()} t={t} />
+        <PartError error={list.error} onRetry={() => void list.refetch()} messages={t} />
       ) : list.data.items.length === 0 ? (
         <StateBlock icon={Package} title={status || q ? p.emptyFiltered : p.empty} text={status || q ? p.emptyFilteredText : p.emptyText} titleAs="h2" />
       ) : (
         <>
           <DataTable rows={list.data.items} columns={columns} rowKey={(row) => row.id} caption={p.title} />
-          <Pagination page={page} limit={LIMIT} total={list.data.total} hrefFor={(n) => withQuery(base, { status, q, page: n === 1 ? undefined : n })} t={t} />
+          <Pagination page={page} limit={LIMIT} total={list.data.total} hrefFor={(n) => withQuery(base, { status, q, page: n === 1 ? undefined : n })} messages={t} />
         </>
       )}
     </div>

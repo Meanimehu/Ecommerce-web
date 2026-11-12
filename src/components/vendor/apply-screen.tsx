@@ -32,8 +32,8 @@ export function ApplyScreen({ lang }: { lang: Locale }) {
   const base = `/${lang}/vendor/apply`;
 
   let body;
-  if (mine.isPending) body = <LoadingBlock t={t} />;
-  else if (mine.isError) body = <PartError error={mine.error} onRetry={() => void mine.refetch()} t={t} />;
+  if (mine.isPending) body = <LoadingBlock messages={t} />;
+  else if (mine.isError) body = <PartError error={mine.error} onRetry={() => void mine.refetch()} messages={t} />;
   else {
     const vendor = mine.data;
     if (!vendor) {

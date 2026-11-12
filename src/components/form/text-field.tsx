@@ -19,7 +19,7 @@ export function TextField<TValues extends FieldValues>({
   description,
   optional,
   prefix,
-  t,
+  messages,
   inputProps,
 }: {
   form: UseFormReturn<TValues, unknown, FieldValues>;
@@ -30,11 +30,11 @@ export function TextField<TValues extends FieldValues>({
   description?: string;
   optional?: boolean;
   prefix?: string;
-  t: Messages;
+  messages: Messages;
   inputProps?: Omit<ComponentProps<typeof Input>, 'id' | 'name' | 'aria-invalid' | 'aria-describedby'>;
 }) {
   return (
-    <FieldFrame form={form} name={name} id={id} label={label} description={description} optional={optional} t={t}>
+    <FieldFrame form={form} name={name} id={id} label={label} description={description} optional={optional} messages={messages}>
       {({ invalid, describedBy }) => {
         const input = (
           <Input

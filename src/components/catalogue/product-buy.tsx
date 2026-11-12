@@ -173,7 +173,7 @@ export function ProductBuy({ lang, product: initial }: { lang: Locale; product: 
           </Banner>
         ) : null}
       </div>
-      {error ? <ErrorMessage text={messageFor(error, t)} requestId={error.requestId} t={t} /> : null}
+      {error ? <ErrorMessage text={messageFor(error, t)} requestId={error.requestId} messages={t} /> : null}
     </div>
   );
 }

@@ -15,7 +15,7 @@ export function SelectField<TValues extends FieldValues>({
   optional,
   options,
   placeholder,
-  t,
+  messages,
 }: {
   form: UseFormReturn<TValues, unknown, FieldValues>;
   name: Path<TValues>;
@@ -26,10 +26,10 @@ export function SelectField<TValues extends FieldValues>({
   options: readonly { value: string; label: string }[];
   /** Text of the empty first choice; leave out when the field always has a value. */
   placeholder?: string;
-  t: Messages;
+  messages: Messages;
 }) {
   return (
-    <FieldFrame form={form} name={name} id={id} label={label} description={description} optional={optional} t={t}>
+    <FieldFrame form={form} name={name} id={id} label={label} description={description} optional={optional} messages={messages}>
       {({ invalid, describedBy }) => (
         <Select id={id} aria-invalid={invalid || undefined} aria-describedby={describedBy} {...form.register(name)}>
           {placeholder !== undefined ? <option value="">{placeholder}</option> : null}

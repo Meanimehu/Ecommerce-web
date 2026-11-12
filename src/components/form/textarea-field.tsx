@@ -15,7 +15,7 @@ export function TextareaField<TValues extends FieldValues>({
   description,
   optional,
   maxLength,
-  t,
+  messages,
 }: {
   form: UseFormReturn<TValues, unknown, FieldValues>;
   name: Path<TValues>;
@@ -25,16 +25,16 @@ export function TextareaField<TValues extends FieldValues>({
   optional?: boolean;
   /** The backend's limit, from the API reference. */
   maxLength?: number;
-  t: Messages;
+  messages: Messages;
 }) {
   const value = form.watch(name);
   const count = typeof value === 'string' ? value.length : 0;
   return (
-    <FieldFrame form={form} name={name} id={id} label={label} description={description} optional={optional} t={t}>
+    <FieldFrame form={form} name={name} id={id} label={label} description={description} optional={optional} messages={messages}>
       {({ invalid, describedBy }) => (
         <div className="grid gap-1">
           <Textarea id={id} aria-invalid={invalid || undefined} aria-describedby={describedBy} maxLength={maxLength} {...form.register(name)} />
-          {maxLength ? <p className="justify-self-end type-caption text-muted-foreground tabular-nums">{fill(t.form.characters, { count, max: maxLength })}</p> : null}
+          {maxLength ? <p className="justify-self-end type-caption text-muted-foreground tabular-nums">{fill(messages.form.characters, { count, max: maxLength })}</p> : null}
         </div>
       )}
     </FieldFrame>

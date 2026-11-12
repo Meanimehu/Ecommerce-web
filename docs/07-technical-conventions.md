@@ -177,6 +177,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 15 | 12 Nov 2026 | Slice 2a: the build's chunk setting and new page-size measurements in T7-2. No decision changed |
 | 16 | 12 Nov 2026 | Slice 2d: page sizes in T7-2 after sending each page only its language's text. No decision changed |
 | 17 | 12 Nov 2026 | **Agreed by the owner (12 Nov 2026):** D7-16 (code practices, section 20), D7-17 (feature folders one feature at a time; `auth` owns the session, its cookies, login, logout and page access, and is used by other features only through its listed public helpers; `layout` owns page frames; shared code depends on no feature; `api/client.ts` is the only code that calls the backend), D7-18 (plain-text logging through `logServerEvent`, levels set by the helper, details limited by its types, no `JSON.stringify` for logging) and D7-19 (slice by slice) added; Q7-4 to Q7-9 added, Q7-4, Q7-5, Q7-6, Q7-8 and Q7-9 settled and Q7-7 given a measuring plan; section 16 rewritten for feature folders, with cookie ownership split between shared tools, `auth` and `cart`; section 17.1: trusting the local certificate when the frontend runs in WSL; section 20 added; T7-2 measurements verified, caching stated from the checked headers, gzip and Brotli kept apart; in 20.1 the `<feature>Keys` naming exception for query-key objects; in 20.9 the hooks that are kept and why; in 20.13 the one-time `sessionKeys` rename (step 3), the split of `types/catalogue.ts` and `api/catalogue.ts` between `catalogue` and `storefront` (steps 5 and 8), and moving `utils/message-checks.ts` to `scripts/` (step 11); the photo frame moves to shared code with `product` (step 6) and the category-tree call hook to `storefront` (step 8); which steps start with a move-only commit; which pull requests are not one feature |
+| 18 | 12 Nov 2026 | Agreed by the owner: in 20.3 other features' public parts sit between shared code and the feature's own files in the import order; in 20.13 the shared components' `t` prop becomes `messages` in its own small pull request after login. No other decision changed |
 
 ## 16. Names: folders and files
 
@@ -290,7 +291,7 @@ Every cookie uses the `__Host-` prefix, `Secure`, `HttpOnly`, `SameSite=Lax`, pa
 
 - **Named exports only.** Default exports only where a tool requires them: Next.js pages, layouts and special files (`error.tsx`, `not-found.tsx`, `forbidden.tsx`, `global-error.tsx`, `global-not-found.tsx`), and config files (`next.config.ts`, `eslint.config.mjs`, the Playwright and Vitest configs).
 - **`@/` for anything outside the file's own folder; `./` only for a file in the same folder.** Never `../../`.
-- **Order:** packages, then shared code, then the feature's own files, then files in the same folder. `import type` for what is used only as a type.
+- **Order:** packages, then shared code, then other features' public parts (20.4), then the feature's own files, then files in the same folder. `import type` for what is used only as a type.
 - **No index files that re-export a folder.** Import the file itself.
 - **Server-only files** (`src/api/client.ts`, `features/*/server/`, `middleware/` except `cookies.ts`, `lib/server-log.ts`) start with `import 'server-only'`.
 - **A `'use client'` file never exports a constant or enum that server code needs;** those go in a plain file.
@@ -471,6 +472,8 @@ The code from Slices 0 to 2 is brought to these practices before Slice 3 starts 
    - its own changes to Documents 4, 5 and 7 and to the README's practice notes are removed, so the two pull requests never edit the same text;
    - it keeps its login code, the tooling it adds (with the README rows that describe that tooling), and the code map's explanation of the login flow and its files;
    - it is finished under these rules (`PhoneSchema` becomes `PhoneFormSchema`) and merged when the owner says so.
+
+   Then, in a separate small pull request, the shared components' text prop `t` becomes `messages` (`components/form/` and `components/common/`, with every place that passes it), and `ui/banner.tsx` names its tone styles `toneStyle`. Feature components that still take `t`, and each feature's local `t`, are renamed in that feature's own pull request.
 3. **The `auth` pilot:**
    - `auth` moves to `src/features/auth/` (move-only commit).
    - The session work leaves `middleware/`: `middleware/session.ts`; `answerAsUser` and `fileAsUser` from `endpoint.ts`; `fromFailure`, `setSessionCookies` and `clearSessionCookies` from `responses.ts`; and the after-login page cookie helpers from `cookies.ts`. `middleware/` then imports nothing from `auth`, and gains the generic delete-a-cookie tool.

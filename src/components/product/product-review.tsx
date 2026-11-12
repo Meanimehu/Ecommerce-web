@@ -80,7 +80,7 @@ export function ReviewStep({ lang, product }: { lang: Locale; product: ProductVi
           );
         })}
       </ul>
-      {error ? <ErrorMessage text={messageFor(error, t)} requestId={error.requestId} t={t} /> : null}
+      {error ? <ErrorMessage text={messageFor(error, t)} requestId={error.requestId} messages={t} /> : null}
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
         {product.status === 'draft' && !product.submittedAt ? (
           <AlertDialog>

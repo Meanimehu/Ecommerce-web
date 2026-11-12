@@ -37,7 +37,7 @@ export default async function AccountPage({ params }: { params: Promise<{ lang: 
     <>
       <SiteHeader lang={lang} />
       <main className="mx-auto grid w-full max-w-[1200px] gap-6 px-4 py-8 sm:px-6 lg:px-8">
-        <NeedsScript t={t} />
+        <NeedsScript messages={t} />
         <h1 className="type-h1 text-ink">{t.account.title}</h1>
         <div className="grid max-w-[520px] gap-6">
           <section aria-labelledby="phone-heading" className="grid gap-1 rounded-1 border border-line bg-surface p-5 sm:p-6">

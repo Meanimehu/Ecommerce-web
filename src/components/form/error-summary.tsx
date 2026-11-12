@@ -17,14 +17,14 @@ import { resolveMessage } from '@/hooks/use-app-form';
 export function ErrorSummary<TValues extends FieldValues>({
   form,
   fieldIds,
-  t,
+  messages,
   requestId,
   focusSignal,
 }: {
   form: UseFormReturn<TValues, unknown, FieldValues>;
   /** Form field name (nested ones as "attributes.0.key") -> the id of its input, in the order the fields appear. */
   fieldIds: Partial<Record<keyof TValues & string, string>> | Record<string, string>;
-  t: Messages;
+  messages: Messages;
   requestId?: string;
   /** Changes each time the summary must take focus (after a failed submit). */
   focusSignal: number;
@@ -35,7 +35,7 @@ export function ErrorSummary<TValues extends FieldValues>({
 
   const fieldEntries = Object.entries(fieldIds)
     .filter(([name]) => get(errors, name))
-    .map(([name, id]) => ({ id: id as string, text: resolveMessage((get(errors, name) as { message?: string } | undefined)?.message, t) }));
+    .map(([name, id]) => ({ id: id as string, text: resolveMessage((get(errors, name) as { message?: string } | undefined)?.message, messages) }));
   const rootEntries = Object.values(errors.root ?? {})
     .filter((e): e is { message: string } => typeof e === 'object' && e !== null && typeof (e as { message?: unknown }).message === 'string')
     .map((e) => e.message);
@@ -54,7 +54,7 @@ export function ErrorSummary<TValues extends FieldValues>({
   });
 
   if (!visible) return null;
-  const heading = count === 1 ? t.form.summaryOne : fill(t.form.summaryMany, { count });
+  const heading = count === 1 ? messages.form.summaryOne : fill(messages.form.summaryMany, { count });
   return (
     <div
       ref={ref}
@@ -88,7 +88,7 @@ export function ErrorSummary<TValues extends FieldValues>({
         ))}
       </ul>
       {requestId && rootEntries.length > 0 ? (
-        <Reference requestId={requestId} copied={copiedFor === requestId} onCopy={() => setCopiedFor(requestId)} t={t} />
+        <Reference requestId={requestId} copied={copiedFor === requestId} onCopy={() => setCopiedFor(requestId)} messages={messages} />
       ) : null}
       </div>
     </div>

@@ -39,8 +39,8 @@ export function ProductEditor({ lang, id }: { lang: Locale; id: string | null })
   const loading = dictionaries.isPending || vendor.isPending || (id !== null && product.isPending);
   const failed = dictionaries.error ?? vendor.error ?? (id !== null ? product.error : null);
   let body;
-  if (loading) body = <LoadingBlock t={t} lines={6} />;
-  else if (failed) body = <PartError error={failed} onRetry={() => void Promise.all([dictionaries.refetch(), vendor.refetch(), id ? product.refetch() : null])} t={t} />;
+  if (loading) body = <LoadingBlock messages={t} lines={6} />;
+  else if (failed) body = <PartError error={failed} onRetry={() => void Promise.all([dictionaries.refetch(), vendor.refetch(), id ? product.refetch() : null])} messages={t} />;
   else {
     const dict = dictionaries.data as Dictionaries;
     const approved = vendor.data?.status === 'approved';

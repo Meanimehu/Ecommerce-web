@@ -96,15 +96,15 @@ export function VendorList({ lang }: { lang: Locale }) {
         </div>
       </form>
       {list.isPending ? (
-        <LoadingBlock t={t} lines={6} />
+        <LoadingBlock messages={t} lines={6} />
       ) : list.isError ? (
-        <PartError error={list.error} onRetry={() => void list.refetch()} t={t} />
+        <PartError error={list.error} onRetry={() => void list.refetch()} messages={t} />
       ) : list.data.items.length === 0 ? (
         <StateBlock icon={Store} title={t.adminVendors.empty} text={t.adminVendors.emptyText} titleAs="h2" />
       ) : (
         <>
           <DataTable rows={list.data.items} columns={columns} rowKey={(row) => row.id} caption={t.adminVendors.title} />
-          <Pagination page={page} limit={list.data.limit} total={list.data.total} hrefFor={hrefFor} t={t} />
+          <Pagination page={page} limit={list.data.limit} total={list.data.total} hrefFor={hrefFor} messages={t} />
         </>
       )}
     </div>

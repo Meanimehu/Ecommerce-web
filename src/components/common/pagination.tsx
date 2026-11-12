@@ -7,20 +7,20 @@ import { cn } from '@/utils/cn';
  * Numbered pages for tables (Document 5, section 3; Document 6, 8.9): page buttons drawn 40 px high (44 px hit area on
  * compact), the current page in ink, "Page 1 of 6" and the total beside them. Links, so the page is in the address.
  */
-export function Pagination({ page, limit, total, hrefFor, t }: { page: number; limit: number; total: number; hrefFor: (page: number) => string; t: Messages }) {
+export function Pagination({ page, limit, total, hrefFor, messages }: { page: number; limit: number; total: number; hrefFor: (page: number) => string; messages: Messages }) {
   const pages = Math.max(1, Math.ceil(total / limit));
   const numbers = pageWindow(page, pages);
   const item = 'inline-flex h-10 min-w-10 items-center justify-center rounded-2 border px-3 type-small font-medium no-underline transition-colors duration-100';
   return (
-    <nav aria-label={t.table.pages} className="flex flex-wrap items-center justify-between gap-3">
-      <p className="type-small text-ink-2">{fill(t.table.pageOf, { page: Math.min(page, pages), pages, total })}</p>
+    <nav aria-label={messages.table.pages} className="flex flex-wrap items-center justify-between gap-3">
+      <p className="type-small text-ink-2">{fill(messages.table.pageOf, { page: Math.min(page, pages), pages, total })}</p>
       {pages > 1 ? (
         <ul className="flex flex-wrap items-center gap-1.5">
           {page > 1 ? (
             <li>
               <a href={hrefFor(page - 1)} className={cn(item, 'border-control bg-surface text-ink hover:border-ink')}>
                 <ChevronLeft aria-hidden="true" className="size-4" />
-                <span className="sr-only">{t.table.previous}</span>
+                <span className="sr-only">{messages.table.previous}</span>
               </a>
             </li>
           ) : null}
@@ -36,7 +36,7 @@ export function Pagination({ page, limit, total, hrefFor, t }: { page: number; l
                   aria-current={n === page ? 'page' : undefined}
                   className={cn(item, n === page ? 'border-ink bg-ink text-surface' : 'border-control bg-surface text-ink hover:border-ink')}
                 >
-                  <span className="sr-only">{t.table.page} </span>
+                  <span className="sr-only">{messages.table.page} </span>
                   {n}
                 </a>
               </li>
@@ -46,7 +46,7 @@ export function Pagination({ page, limit, total, hrefFor, t }: { page: number; l
             <li>
               <a href={hrefFor(page + 1)} className={cn(item, 'border-control bg-surface text-ink hover:border-ink')}>
                 <ChevronRight aria-hidden="true" className="size-4" />
-                <span className="sr-only">{t.table.next}</span>
+                <span className="sr-only">{messages.table.next}</span>
               </a>
             </li>
           ) : null}
