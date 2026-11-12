@@ -53,3 +53,10 @@ export function formatPhone(phone: string): string {
 export function formatRate(bps: number): string {
   return `${bps / 100}%`;
 }
+
+const SINGULAR_COUNT = 1;
+
+/** Picks the "1 second" form of a message rather than "{seconds} seconds". */
+export function isSingular(count: number): boolean {
+  return count === SINGULAR_COUNT;
+}

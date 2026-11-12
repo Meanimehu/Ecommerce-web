@@ -6,12 +6,15 @@ import { useEffect, useState } from 'react';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { ErrorMessage } from '@/components/common/error-message';
-import { addAfterLogin, takeAddNotice, useAddToCart, type AddNotice } from '@/hooks/use-cart';
+import { addAfterLogin, takeAddNotice, useAddToCart } from '@/hooks/use-cart';
 import { useSession } from '@/hooks/use-session';
-import { get } from '@/lib/http';
+import { AppErrorCode } from '@/lib/error-codes';
 import { AppError, fill, messageFor, toAppError } from '@/lib/errors';
+import { get } from '@/lib/http';
+import { HttpStatus } from '@/lib/http-status';
 import { type Locale, type Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { AddOutcome, type AddNotice } from '@/types/add-notice';
 import type { ProductDetail, PublicVariant } from '@/types/catalogue';
 import { cn } from '@/utils/cn';
 import { formatDate } from '@/utils/format';
@@ -186,7 +189,7 @@ function unique<T extends { code: string }>(items: T[]): T[] {
 }
 
 function showNotice(notice: AddNotice, t: Messages, setMessage: (m: { tone: 'success' | 'warning'; text: string }) => void, setError: (e: AppError) => void) {
-  if (notice.outcome === 'added') setMessage({ tone: 'success', text: t.store.addedToCart });
-  else if (notice.outcome === 'unknown') setMessage({ tone: 'warning', text: t.store.addUnknown });
-  else setError(new AppError({ code: notice.code ?? 'UNKNOWN_ERROR', status: 409 }));
+  if (notice.outcome === AddOutcome.Added) setMessage({ tone: 'success', text: t.store.addedToCart });
+  else if (notice.outcome === AddOutcome.Unknown) setMessage({ tone: 'warning', text: t.store.addUnknown });
+  else setError(new AppError({ code: notice.code ?? AppErrorCode.UnknownError, status: HttpStatus.Conflict }));
 }

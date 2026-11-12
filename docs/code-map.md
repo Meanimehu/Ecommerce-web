@@ -24,21 +24,31 @@ The same area name is used in every folder: everything about login is `component
 
 ## How a request travels
 
+The login code, from the button to the backend and back (Document 7, section 20.9):
+
 ```
-BROWSER                                        OUR SERVER                                   BACKEND
-───────                                        ──────────                                   ───────
-components/auth/login-form.tsx
-   │ uses
-hooks/use-login.ts   (useVerify)
-   │ calls
-lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.ts
-              (time limit, forgery label)        │ checks the request    middleware/responses.ts
-                                                  │ calls
-                                               api/auth.ts  verifyLoginCode()
-                                                  │ through
-                                               api/client.ts  callBackend() ──────────────►  /api/v1/auth/otp/verify
-                                                  │ answer checked against types/auth.ts
-                                               sets the login cookies (middleware/responses.ts)
+BROWSER                                              OUR SERVER                             BACKEND
+───────                                              ──────────                             ───────
+components/auth/login-form.tsx   draws only
+  <Form onSubmit={form.handleSubmit(sendCode, showValidationErrors)}>
+   │ field check fails → showValidationErrors (summary takes focus); passes → sendCode
+   ▼
+hooks/use-login-form.ts   usePhoneStep: sendCode, onSuccess, onError
+   │ requestLoginCode.mutate(phone, { onSuccess, onError })
+   ▼
+hooks/use-login.ts   useRequestLoginCode: the address and the typed answer
+   │
+   ▼
+lib/http.ts   send('/api/auth/code') ──────────►  app/api/auth/code/route.ts
+  time limit, forgery header,                        │ guardChange: is it from our site?
+  every failure becomes an AppError                  ▼
+                                                   api/auth.ts  requestLoginCode()
+                                                     │
+                                                   api/client.ts  callBackend() ──────────►  /api/v1/auth/otp/request
+                                                     │ answer checked against types/auth.ts
+   ◄─────────────────────────────────────────────  ok(answer) or the same error code
+   ▼
+hooks/use-login-form.ts   onSuccess → the code step;  onError(error: AppError) → message + focus
 ```
 
 - The browser never calls the backend; only `api/` does, on our server (Document 3, D3-03). Public photos are the one
@@ -49,18 +59,26 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 
 ## Logging in, step by step
 
-1. `/en/login`: `app/[lang]/login/page.tsx` shows `LoginForm` from `components/auth/login-form.tsx`.
-2. The phone number is checked in the browser by `PhoneSchema` in `types/auth.ts` (only its shape; the backend decides the rest).
-3. "Send code": `useRequestCode` in `hooks/use-login.ts` calls `/api/auth/code` through `lib/http.ts`.
+1. `/en/login`: `app/[lang]/login/page.tsx` shows `LoginForm` from `components/auth/login-form.tsx`. The screen only
+   draws; its logic is `usePhoneStep` and `useCodeStep` in `hooks/use-login-form.ts`.
+2. The phone number is checked in the browser by `PhoneFormSchema` in `types/auth.ts` (only its shape; the backend decides
+   the rest), through `form.handleSubmit` on the `Form` (`components/form/form.tsx`, always a post).
+3. "Send code": `sendCode` calls `useRequestLoginCode` (`hooks/use-login.ts`), which posts to `/api/auth/code` through
+   `lib/http.ts`.
 4. `app/api/auth/code/route.ts` checks the request comes from our site (`guardChange` in `middleware/responses.ts`),
    then calls `requestLoginCode` in `api/auth.ts`.
-5. The code: `useVerify` calls `/api/auth/verify`, which gets the tokens from the backend and puts them in cookies.
-6. Every page that needs login calls `requireUser` (`components/auth/require-user.tsx`), which asks `getViewer` in
+5. The answer comes back to `onSuccess` (go to the code step) or `onError` (an `AppError`: the message under the field
+   or in the summary, then focus on the summary). A code sent a moment ago (`OTP_RESEND_WAIT`) still goes to the code
+   step and shows the wait.
+6. The code: `verifyCode` calls `useVerifyLoginCode`, which posts to `/api/auth/verify`. That endpoint gets the tokens
+   from the backend, puts them in cookies, runs a pending "Add to cart" once, and says which page comes next.
+   "Send code again" (`resendCode`) uses the same call as step 3.
+7. Every page that needs login calls `requireUser` (`components/auth/require-user.tsx`), which asks `getViewer` in
    `middleware/session.ts` who the person is.
-7. When the access token has expired, `useSession` (`hooks/use-session.ts`) asks `/api/session`, and `refreshSession`
+8. When the access token has expired, `useSession` (`hooks/use-session.ts`) asks `/api/session`, and `refreshSession`
    in `middleware/session.ts` gets new tokens. Two requests at once share one refresh; tabs and servers at once are
    covered by the backend's 10 seconds (Document 4, D4-11).
-8. If the backend says the session is over, that answer clears the cookies, and `endSession` in
+9. If the backend says the session is over, that answer clears the cookies, and `endSession` in
    `hooks/use-session.ts` takes the person to the login page with "Please log in again".
 
 ## Every file
@@ -108,7 +126,7 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 
 | File | What it does |
 | --- | --- |
-| `auth/login-form.tsx` | The phone and code steps |
+| `auth/login-form.tsx` | The login screen: the phone and code steps, drawing only (logic in `hooks/use-login-form.ts`) |
 | `auth/require-user.tsx` | Guard for pages that need login or a role |
 | `auth/session-check.tsx` | Shown while the browser renews an expired login |
 | `auth/logout-buttons.tsx` | "Log out" and "Log out everywhere" |
@@ -139,6 +157,7 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `common/header-actions.tsx` | "Log in" or the account, and the cart with its count, in the storefront header |
 | `form/field-frame.tsx` | What every field shares: label, "(optional)", the error under it, help text |
 | `form/text-field.tsx`, `select-field.tsx`, `textarea-field.tsx` | A labelled input, select and text area with their errors |
+| `form/form.tsx` | `Form`: the `<form>` tag every form uses, always a post, our checks instead of the browser's |
 | `form/error-summary.tsx` | The summary at the top of a form that takes focus |
 | `common/site-header.tsx`, `wordmark.tsx` | The storefront header (wordmark and language switch for now) and the Dhaaga wordmark |
 | `common/language-switch.tsx` | The other language's name with a globe icon |
@@ -162,10 +181,11 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 
 | File | What it does |
 | --- | --- |
-| `use-session.ts` | `useSession` (who is logged in), `reloadSession`, `endSession`, the "Please log in again" notice |
-| `use-login.ts` | `useRequestCode`, `useVerify` |
+| `use-session.ts` | `useSession` (who is logged in), `reloadSession`, `endSession`, `SessionNotice` and `useSessionNotice` (the "Please log in again" or blocked notice) |
+| `use-login.ts` | The two login calls: `useRequestLoginCode`, `useVerifyLoginCode` |
+| `use-login-form.ts` | The login form's logic: `usePhoneStep` and `useCodeStep` (submit, success, each error, resend countdown) |
 | `use-logout.ts` | `useLogout` |
-| `use-app-form.ts` | `useAppForm` (React Hook Form with Zod), `applyServerError` (backend errors under the right field), message keys |
+| `use-app-form.ts` | `useAppForm` (React Hook Form with Zod), `applyServerError` (backend errors under the right field), `useErrorSummaryFocus` (focus after a failed submit), message keys |
 | `use-cart.ts` | The cart and its count, add, change, remove, add after login and its notice |
 | `use-product.ts` | The vendor's products: the form guide, list, one product and every change to it |
 | `use-moderation.ts` | The moderation queue, one product, the decision, the public category tree |
@@ -199,13 +219,15 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | --- | --- |
 | `lib/config.ts` | Settings read from the environment (`.env.local`), server only |
 | `lib/fonts.ts` | Outfit and Noto Sans Devanagari, from our own site, each loaded only for the characters it covers |
-| `lib/http.ts` | Browser calls to our endpoints: `get`, `send`, `patch`, `put`, `remove` and `upload` (with progress and Cancel), with the time limit, the forgery label and one error shape |
+| `lib/http.ts` | Browser calls to our endpoints: `get`, `send`, `patch`, `put`, `remove` and `upload` (with progress and Cancel), with the time limit and the forgery label; every failure is an `AppError` |
+| `lib/http-status.ts` | `HttpStatus` and the range checks (`isSuccess`, `isClientError`, `isServerError`) |
 | `lib/uploads.ts` | Upload limits copied from the backend, for a quick check before sending; the photo sizes |
 | `lib/i18n.ts` | The two languages and choosing one |
 | `lib/messages.ts` | `getMessages` for server pages; the shared text and the Vendor and Admin areas' own text |
 | `lib/messages-context.tsx` | `useMessages`: the page's text in the browser, only its language (and area text only inside those areas) |
-| `lib/errors.ts` | `AppError`, and `messageFor`: our own message for any error |
-| `utils/format.ts` | Dates and times in IST, rupees, phone numbers, GST rates |
+| `lib/errors.ts` | `AppError`, `toAppError`, and `messageFor`: our own message for any error |
+| `lib/error-codes.ts` | `AppErrorCode` (codes not in the backend catalogue) and `ErrorCode`; re-exports `BackendErrorCode` (Document 7, 20.7) |
+| `utils/format.ts` | Dates and times in IST, rupees, phone numbers, GST rates; `isSingular` for one-or-many messages |
 | `utils/cn.ts` | The class-name helper the shadcn/ui tool expects |
 | `utils/url.ts` | Addresses with their query (`withQuery`), page numbers, picking list filters |
 | `utils/message-checks.ts` | What `npm run check:messages` checks (not used by the site) |
@@ -214,15 +236,18 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `types/common.ts` | Shapes every area shares: a page of a list, a reason |
 | `types/catalogue.ts` | Backend Area 3a lists (GST rate, HSN code, category with attributes, brand, size, colour), their forms, tree order; the storefront's category tree, product card, product, and product addresses |
 | `types/cart.ts` | Backend Area 5 cart view, the pending add |
+| `types/add-notice.ts` | `AddOutcome` and `AddNotice`: what happened to a pending add at login. Kept free of Zod because every page's header reads it |
+| `types/react-query.d.ts` | Tells TanStack Query that every error is an `AppError` |
 | `types/product.ts` | Backend Area 3b answers (product, variant, photo, form guide, moderation), the product forms, rupees to paise |
 | `types/vendor.ts` | Backend Area 2 answers (vendor, address, document, admin views) and the application forms |
-| `types/generated/` | Request types, the OpenAPI description and the error-code list, made by `npm run gen:types` and `gen:error-codes`; never edited |
+| `types/generated/` | Request types, the OpenAPI description, the error-code list and the `BackendErrorCode` enum, made by `npm run gen:types` and `gen:error-codes`; never edited |
 
 ### Outside `src/`
 
 | Folder | What it holds |
 | --- | --- |
-| `scripts/` | `gen-types`, `gen-error-codes`, `check-messages`, and copying files after a build |
+| `scripts/` | `gen-types`, `gen-error-codes` (the code list and its enum), `check-messages` (also checks the enum), and copying files after a build |
+| `.prettierrc.json`, `eslint.config.mjs` | Formatting (100-character lines) and lint; the files already following Document 7, section 20 are listed in the lint settings |
 | `tests/unit/` | Fast tests of the helpers (Vitest) |
 | `tests/e2e/` | Browser tests against the real backend (Playwright); `fixtures/` holds the garment illustrations used as test photos |
 
