@@ -2,7 +2,7 @@
 
 import { CircleAlert } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import type { FieldValues, UseFormReturn } from 'react-hook-form';
+import { get, type FieldValues, type UseFormReturn } from 'react-hook-form';
 import { Reference } from '@/components/common/error-message';
 import { fill } from '@/lib/errors';
 import type { Messages } from '@/lib/i18n';
@@ -22,8 +22,8 @@ export function ErrorSummary<TValues extends FieldValues>({
   focusSignal,
 }: {
   form: UseFormReturn<TValues, unknown, FieldValues>;
-  /** Form field name -> the id of its input, in the order the fields appear. */
-  fieldIds: Partial<Record<keyof TValues & string, string>>;
+  /** Form field name (nested ones as "attributes.0.key") -> the id of its input, in the order the fields appear. */
+  fieldIds: Partial<Record<keyof TValues & string, string>> | Record<string, string>;
   t: Messages;
   requestId?: string;
   /** Changes each time the summary must take focus (after a failed submit). */
@@ -34,8 +34,8 @@ export function ErrorSummary<TValues extends FieldValues>({
   const { errors, submitCount } = form.formState;
 
   const fieldEntries = Object.entries(fieldIds)
-    .filter(([name]) => errors[name])
-    .map(([name, id]) => ({ id: id as string, text: resolveMessage(errors[name]?.message as string | undefined, t) }));
+    .filter(([name]) => get(errors, name))
+    .map(([name, id]) => ({ id: id as string, text: resolveMessage((get(errors, name) as { message?: string } | undefined)?.message, t) }));
   const rootEntries = Object.values(errors.root ?? {})
     .filter((e): e is { message: string } => typeof e === 'object' && e !== null && typeof (e as { message?: unknown }).message === 'string')
     .map((e) => e.message);

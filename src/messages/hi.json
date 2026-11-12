@@ -19,7 +19,8 @@
     "becomeVendor": "विक्रेता बनें",
     "breadcrumbs": "आप यहाँ हैं",
     "admin": {
-      "vendors": "विक्रेता समीक्षा"
+      "vendors": "विक्रेता समीक्षा",
+      "catalogue": "कैटलॉग सूचियाँ"
     }
   },
   "login": {
@@ -136,7 +137,16 @@
       "VENDOR_INCOMPLETE": "अभी भी कुछ बाकी है। सूची जाँचें और फिर कोशिश करें।",
       "VENDOR_DOCUMENTS_PENDING": "यह विक्रेता अभी स्वीकार नहीं किया जा सकता।",
       "NOT_FOUND": "यह नहीं मिला।",
-      "UPLOAD_CANCELLED": "अपलोड रद्द किया गया।"
+      "UPLOAD_CANCELLED": "अपलोड रद्द किया गया।",
+      "CODE_TAKEN": "यह कोड पहले से है।",
+      "NAME_TAKEN": "यह नाम पहले से इस्तेमाल हो रहा है।",
+      "SLUG_TAKEN": "यह पते का नाम पहले से इस्तेमाल हो रहा है।",
+      "TAX_INVALID": "ऐसा HSN कोड और GST दर चुनें जो सक्रिय हों।",
+      "CATEGORY_INVALID": "यह ऊपर की श्रेणी नहीं चुनी जा सकती: इससे चक्र बनेगा या 4 स्तर से ज़्यादा हो जाएगा।",
+      "CATEGORY_NOT_FOUND": "यह श्रेणी नहीं मिली। पेज दोबारा लोड करें।",
+      "BRAND_NOT_FOUND": "यह ब्रांड नहीं मिला। पेज दोबारा लोड करें।",
+      "DICTIONARY_VALUE_NOT_FOUND": "यह प्रविष्टि नहीं मिली। पेज दोबारा लोड करें।",
+      "ATTRIBUTE_SCHEMA_INVALID": "कुछ गुण ठीक करने हैं।"
     }
   },
   "languageNames": {
@@ -159,7 +169,9 @@
     "required": "इसे भरें।",
     "choose": "कोई एक चुनें।",
     "pincodeShape": "6 अंकों का पिन कोड डालें।",
-    "reasonRequired": "कारण लिखें।"
+    "reasonRequired": "कारण लिखें।",
+    "wholeNumber": "पूरी संख्या लिखें।",
+    "hexShape": "#1A1A1A जैसा रंग लिखें, या खाली छोड़ दें।"
   },
   "noScript": {
     "interactive": "इस पेज के लिए JavaScript चाहिए। इसे अपने ब्राउज़र की सेटिंग में चालू करें, या नया ब्राउज़र इस्तेमाल करें।"
@@ -401,6 +413,109 @@
       "terms_acceptance": "विक्रेता की शर्तें नहीं मानी गईं",
       "document": "{document}: नहीं है, या सबसे नई फ़ाइल स्वीकृत नहीं है",
       "fileNotClean": "{document}: स्वीकृत फ़ाइल मैलवेयर जाँच में पास नहीं हुई है"
+    }
+  },
+  "catalogue": {
+    "title": "कैटलॉग सूचियाँ",
+    "listsLabel": "कैटलॉग सूचियाँ",
+    "lists": {
+      "categories": "श्रेणियाँ",
+      "hsn-codes": "HSN कोड",
+      "brands": "ब्रांड",
+      "sizes": "साइज़",
+      "colours": "रंग"
+    },
+    "add": {
+      "categories": "श्रेणी जोड़ें",
+      "hsn-codes": "HSN कोड जोड़ें",
+      "brands": "ब्रांड जोड़ें",
+      "sizes": "साइज़ जोड़ें",
+      "colours": "रंग जोड़ें"
+    },
+    "editTitle": "बदलें",
+    "edit": "बदलें",
+    "save": "सहेजें",
+    "saved": "सहेजा गया",
+    "active": "सक्रिय",
+    "switchedOff": "बंद",
+    "switchOff": "बंद करें",
+    "switchOn": "चालू करें",
+    "switchedOffDone": "{name} बंद किया गया",
+    "switchedOnDone": "{name} चालू किया गया",
+    "none": "कोई नहीं",
+    "empty": "अभी यहाँ कुछ नहीं",
+    "emptyText": "ऊपर के बटन से पहली प्रविष्टि जोड़ें।",
+    "emptyFiltered": "कुछ नहीं मिला। कोई दूसरी स्थिति चुनें या खोज हटाएँ।",
+    "codesNeverChange": "कोड कभी नहीं बदलते। किसी कोड की जगह नया जोड़ें और पुराना बंद कर दें।",
+    "categoryNote": "किसी श्रेणी को बंद करने से वह और उसके नीचे का सब कुछ ग्राहकों से छिप जाता है। उसके उत्पाद जैसे हैं वैसे रहते हैं।",
+    "filters": {
+      "status": "स्थिति",
+      "all": "सभी",
+      "search": "खोजें",
+      "show": "नतीजे दिखाएँ"
+    },
+    "columns": {
+      "code": "कोड",
+      "name": "नाम",
+      "status": "स्थिति",
+      "description": "विवरण",
+      "defaultGst": "डिफ़ॉल्ट GST दर",
+      "slug": "पते का नाम",
+      "label": "लेबल",
+      "sizeGroup": "साइज़ समूह",
+      "sortOrder": "क्रम",
+      "hex": "रंग का मान",
+      "attributes": "गुण",
+      "defaultTax": "डिफ़ॉल्ट HSN कोड और GST दर",
+      "actions": "कार्रवाई"
+    },
+    "sizeGroups": {
+      "apparel": "कपड़े",
+      "footwear": "जूते-चप्पल",
+      "other": "अन्य"
+    },
+    "attributeTypes": {
+      "text": "टेक्स्ट",
+      "number": "संख्या",
+      "choice": "सूची में से चुनाव"
+    },
+    "attributeProblem": "गुण {number}: उसकी कुंजी, लेबल, प्रकार और विकल्प जाँचें।",
+    "attributeInParent": "कुंजी {key} पहले से किसी ऊपर की श्रेणी में है। कोई दूसरी कुंजी लें।",
+    "fields": {
+      "code": "कोड",
+      "codeFixed": "कोड बदला नहीं जा सकता।",
+      "hsnCode": "HSN कोड",
+      "hsnCodeHelp": "4, 6 या 8 अंक।",
+      "description": "विवरण",
+      "defaultGst": "डिफ़ॉल्ट GST दर",
+      "defaultHsn": "डिफ़ॉल्ट HSN कोड",
+      "name": "नाम",
+      "slug": "पते का नाम",
+      "slugHelp": "वेब पते में इस्तेमाल होता है: छोटे अंग्रेज़ी अक्षर, अंक और हाइफ़न। खाली छोड़ने पर नाम से बनता है।",
+      "label": "लेबल",
+      "sizeCodeHelp": "12 तक अक्षर, अंक या . _ / -",
+      "colourCodeHelp": "20 तक अक्षर, अंक, _ या -",
+      "sizeGroup": "साइज़ समूह",
+      "sortOrder": "क्रम",
+      "sortOrderHelp": "छोटी संख्या पहले आती है।",
+      "hex": "रंग का मान",
+      "hexHelp": "जैसे #1A1A1A.",
+      "parent": "ऊपर की श्रेणी",
+      "parentHelp": "श्रेणियाँ 4 स्तर तक जा सकती हैं।",
+      "topLevel": "कोई नहीं (सबसे ऊपर)",
+      "attributes": "गुण",
+      "attributesHelp": "इस श्रेणी और इसकी उप-श्रेणियों के उत्पादों के लिए विक्रेताओं को क्या बताना है। 30 तक।",
+      "addAttribute": "गुण जोड़ें",
+      "removeAttribute": "गुण हटाएँ",
+      "attributeNumber": "गुण {number}",
+      "attributeKey": "कुंजी",
+      "attributeKeyHelp": "छोटे अंग्रेज़ी अक्षर, अंक और _, अक्षर से शुरू। जैसे sleeve_length.",
+      "attributeLabel": "लेबल",
+      "attributeType": "प्रकार",
+      "attributeOptions": "विकल्प",
+      "attributeOptionsHelp": "हर पंक्ति में एक विकल्प, 50 तक।",
+      "attributeRequired": "विक्रेताओं को मान देना होगा",
+      "attributeFilterable": "ग्राहक इससे फ़िल्टर कर सकते हैं"
     }
   }
 }

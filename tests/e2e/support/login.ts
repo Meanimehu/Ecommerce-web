@@ -1,4 +1,5 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { expect, test, type Browser, type BrowserContext, type Page } from '@playwright/test';
 
 /**
@@ -61,9 +62,18 @@ export async function blockUser(adminToken: string, phone: string): Promise<void
 
 /**
  * A page logged in as this person, in its own browser context. The login is done once per phone number and test run
- * (the backend allows one code every 30 seconds per number), then reused: the session cookies are copied.
+ * (the backend allows one code every 30 seconds per number), then reused: the session cookies are copied. They are
+ * kept in the run's output folder, which Playwright empties at the start of each run, so every spec file shares them.
  */
-const sessions = new Map<string, Awaited<ReturnType<BrowserContext['storageState']>>>();
+type Session = Awaited<ReturnType<BrowserContext['storageState']>>;
+const sessionFile = (phone: string) => join(test.info().project.outputDir, `.session-${test.info().project.name}-${phone}.json`);
+const sessions = {
+  get: (phone: string): Session | undefined => (existsSync(sessionFile(phone)) ? (JSON.parse(readFileSync(sessionFile(phone), 'utf8')) as Session) : undefined),
+  set: (phone: string, session: Session) => {
+    mkdirSync(test.info().project.outputDir, { recursive: true });
+    writeFileSync(sessionFile(phone), JSON.stringify(session));
+  },
+};
 const HINDI = { phone: 'मोबाइल नंबर', send: 'कोड भेजें', code: 'वन-टाइम कोड', verify: 'पुष्टि करें और लॉग इन करें' };
 
 export async function pageAs(browser: Browser, phone: string, path: string): Promise<Page> {
