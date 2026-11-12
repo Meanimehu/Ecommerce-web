@@ -1,4 +1,4 @@
-import { requireUser } from '@/components/auth/require-user';
+import { requireUser } from '@/features/auth/components/require-user';
 import { VendorReview } from '@/components/admin/vendor-review';
 
 /** One vendor application for review (Document 5, section 8.3): admin only. */

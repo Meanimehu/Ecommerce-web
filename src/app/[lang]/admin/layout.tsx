@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { adminNav } from '@/components/auth/area-menus';
 import { AreaShell } from '@/components/auth/area-shell';
-import { requireUser } from '@/components/auth/require-user';
+import { requireUser } from '@/features/auth/components/require-user';
 import { getMessages } from '@/lib/messages';
-import { isStaff } from '@/types/auth';
+import { isStaff } from '@/features/auth/types';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { robots: { index: false, follow: false } };

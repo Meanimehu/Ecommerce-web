@@ -1,5 +1,5 @@
 import { ModerationReview } from '@/components/admin/moderation-review';
-import { requireUser } from '@/components/auth/require-user';
+import { requireUser } from '@/features/auth/components/require-user';
 
 /** One product for review (Document 5, section 8.3): moderator and admin, never for the person's own vendor. */
 export default async function ModerationReviewPage({ params }: { params: Promise<{ lang: string; id: string }> }) {

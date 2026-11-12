@@ -1,11 +1,11 @@
 import { Shield } from 'lucide-react';
 import { adminScreens } from '@/components/auth/area-menus';
 import { NAV_ICONS } from '@/components/auth/nav-icons';
-import { requireUser } from '@/components/auth/require-user';
+import { requireUser } from '@/features/auth/components/require-user';
 import { StateBlock } from '@/components/common/state-block';
 import { Button } from '@/components/ui/button';
 import { getMessages } from '@/lib/messages';
-import { isStaff } from '@/types/auth';
+import { isStaff } from '@/features/auth/types';
 
 /**
  * Admin home (Document 5, section 8.3; approved Stage 5): links to the screens this person's roles can use. A staff

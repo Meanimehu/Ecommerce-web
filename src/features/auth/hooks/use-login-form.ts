@@ -8,8 +8,8 @@ import { retryAfterSecondsOf, type AppError } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { keepAddNotice } from '@/hooks/use-cart';
-import { useRequestLoginCode, useVerifyLoginCode, type LoggedIn } from '@/hooks/use-login';
-import { reloadSession } from '@/hooks/use-session';
+import { useRequestLoginCode, useVerifyLoginCode, type LoggedIn } from '@/features/auth/hooks/use-login';
+import { reloadSession } from '@/features/auth/hooks/use-session';
 import {
   CodeFormSchema,
   PhoneFormSchema,
@@ -17,7 +17,7 @@ import {
   type CodeFormValues,
   type PhoneFormInput,
   type PhoneFormValues,
-} from '@/types/auth';
+} from '@/features/auth/types';
 
 /**
  * The login form's logic (Document 2, section 3): what each step does on submit, on success and on

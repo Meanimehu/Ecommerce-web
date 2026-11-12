@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { AppError } from '@/lib/errors';
 import { serverConfig } from '@/lib/config';
 import { COOKIE, cookieOptions, LIFETIME_SECONDS } from './cookies';
-import type { Failure, NewCookies } from './session';
+import type { Failure, NewCookies } from '@/features/auth/server/session';
 
 /** Helpers for our own endpoints: answers, errors, cookies and the forgery check. */
 

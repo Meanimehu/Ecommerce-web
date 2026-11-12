@@ -2,7 +2,7 @@ import 'server-only';
 import { NextResponse, type NextRequest } from 'next/server';
 import type { CallResult, UploadBody } from '@/api/client';
 import { fail, fromAppError, fromFailure, guardChange, ok, readJson, setSessionCookies } from './responses';
-import { asUser, readAuth } from './session';
+import { asUser, readAuth } from '@/features/auth/server/session';
 
 /**
  * The shape every one of our endpoints for the browser follows (Document 4, section 3): check the forgery rules for a

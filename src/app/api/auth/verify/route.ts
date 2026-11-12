@@ -13,9 +13,9 @@ import {
   readJson,
   setSessionCookies,
 } from '@/middleware/responses';
-import * as authApi from '@/api/auth';
+import * as authApi from '@/features/auth/server/auth-api';
 import * as cartApi from '@/api/cart';
-import { defaultDestination } from '@/middleware/session';
+import { defaultDestination } from '@/features/auth/server/session';
 import { AddOutcome, type AddNotice } from '@/types/add-notice';
 
 /**

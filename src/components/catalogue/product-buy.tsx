@@ -7,7 +7,7 @@ import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { ErrorMessage } from '@/components/common/error-message';
 import { addAfterLogin, takeAddNotice, useAddToCart } from '@/hooks/use-cart';
-import { useSession } from '@/hooks/use-session';
+import { useSession } from '@/features/auth/hooks/use-session';
 import { AppErrorCode } from '@/lib/error-codes';
 import { AppError, fill, messageFor, toAppError } from '@/lib/errors';
 import { get } from '@/lib/http';

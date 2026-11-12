@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { applyServerError, resolveMessage } from '@/hooks/use-app-form';
 import { AppError } from '@/lib/errors';
 import { getMessages } from '@/lib/messages';
-import { CodeFormSchema, PhoneFormSchema } from '@/types/auth';
+import { CodeFormSchema, PhoneFormSchema } from '@/features/auth/types';
 
 const t = getMessages('en');
 

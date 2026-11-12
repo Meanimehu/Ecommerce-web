@@ -5,7 +5,7 @@ import { useState, type ReactNode } from 'react';
 import { ToastProvider } from '@/components/common/toast';
 import type { Messages } from '@/lib/i18n';
 import { MessagesProvider } from '@/lib/messages-context';
-import { endSession, endsSession } from '@/hooks/use-session';
+import { endSession, endsSession } from '@/features/auth/hooks/use-session';
 import { AppError } from '@/lib/errors';
 
 /**

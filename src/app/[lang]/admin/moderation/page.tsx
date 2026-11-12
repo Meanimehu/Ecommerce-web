@@ -1,5 +1,5 @@
 import { ModerationQueue } from '@/components/admin/moderation-queue';
-import { requireUser } from '@/components/auth/require-user';
+import { requireUser } from '@/features/auth/components/require-user';
 
 /** Product moderation queue (Document 5, section 8.3): moderator and admin. */
 export default async function ModerationPage({ params }: { params: Promise<{ lang: string }> }) {

@@ -6,7 +6,7 @@ import { BackendErrorCode } from '@/lib/error-codes';
 import { AppError } from '@/lib/errors';
 import { isLocale } from '@/lib/i18n';
 import { get } from '@/lib/http';
-import type { SessionAnswer } from '@/types/auth';
+import type { SessionAnswer } from '@/features/auth/types';
 
 /** Who is logged in (D-02; Document 4, section 9). Never cached across people. */
 export const SESSION_QUERY_KEY = ['session'] as const;

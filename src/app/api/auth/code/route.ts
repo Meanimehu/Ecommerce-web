@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { BackendErrorCode } from '@/lib/error-codes';
 import { HttpStatus } from '@/lib/http-status';
 import { fail, fromAppError, guardChange, ok, readJson } from '@/middleware/responses';
-import * as authApi from '@/api/auth';
+import * as authApi from '@/features/auth/server/auth-api';
 
 /** POST /api/auth/code: asks the backend to send a login code (POST /auth/otp/request). */
 const RequestCodeBody = z.object({ phone: z.string().trim().min(1).max(20) });

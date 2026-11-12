@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { getMyVendor } from '@/api/vendor';
 import { AreaShell } from '@/components/auth/area-shell';
 import { vendorNav } from '@/components/auth/area-menus';
-import { currentPath, requireUser, Unavailable } from '@/components/auth/require-user';
+import { currentPath, requireUser, Unavailable } from '@/features/auth/components/require-user';
 import { AppError } from '@/lib/errors';
 import { getMessages } from '@/lib/messages';
 

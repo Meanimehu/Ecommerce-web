@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
-import * as authApi from '@/api/auth';
+import * as authApi from '@/features/auth/server/auth-api';
 import { fromAppError, fromFailure, ok, setSessionCookies } from '@/middleware/responses';
-import { asUser, readAuth } from '@/middleware/session';
+import { asUser, readAuth } from '@/features/auth/server/session';
 
 /**
  * GET /api/session: who is logged in (Document 4, section 9). Refreshes the session when needed and sets the new

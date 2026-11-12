@@ -5,7 +5,7 @@ import { useEffect, useMemo } from 'react';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { endsSession, useSession } from '@/hooks/use-session';
+import { endsSession, useSession } from '@/features/auth/hooks/use-session';
 import { AppError } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';

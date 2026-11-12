@@ -4,10 +4,10 @@ import { cache } from 'react';
 import type { NextRequest } from 'next/server';
 import { AppError } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
-import { isStaff, type User } from '@/types/auth';
-import * as authApi from '@/api/auth';
-import { COOKIE } from './cookies';
-import { clearSessionCookies, guardChange, ok } from './responses';
+import { isStaff, type User } from '@/features/auth/types';
+import * as authApi from '@/features/auth/server/auth-api';
+import { COOKIE } from '@/middleware/cookies';
+import { clearSessionCookies, guardChange, ok } from '@/middleware/responses';
 
 /**
  * Who a request is, and keeping them logged in (Document 2, section 4; Document 4, section 9, D4-11).

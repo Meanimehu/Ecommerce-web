@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useLogout } from '@/hooks/use-logout';
+import { useLogout } from '@/features/auth/hooks/use-logout';
 import { AppError, messageFor } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';

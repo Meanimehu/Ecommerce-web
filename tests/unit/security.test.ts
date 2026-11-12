@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { describe, expect, it } from 'vitest';
 import { decodeNext, encodeNext, isSafeLocalPath, sign, unsign } from '@/middleware/cookies';
 import { guardChange } from '@/middleware/responses';
-import { defaultDestination } from '@/middleware/session';
+import { defaultDestination } from '@/features/auth/server/session';
 
 describe('after-login path (Document 2, section 6: no open redirects)', () => {
   it.each(['/en/account', '/hi/admin?x=1', '/en'])('accepts %s', (p) => expect(isSafeLocalPath(p)).toBe(true));

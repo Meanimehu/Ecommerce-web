@@ -3,7 +3,7 @@ import { AppErrorCode, BackendErrorCode } from '@/lib/error-codes';
 import { AppError, messageFor, retryAfterSecondsOf, toAppError } from '@/lib/errors';
 import { HttpStatus, isClientError, isServerError, isSuccess } from '@/lib/http-status';
 import { getMessages } from '@/lib/messages';
-import { SessionNotice } from '@/hooks/use-session';
+import { SessionNotice } from '@/features/auth/hooks/use-session';
 import { AddOutcome, isAddNotice } from '@/types/add-notice';
 import { isSingular } from '@/utils/format';
 import { enumMemberName } from '../../scripts/gen-error-codes';

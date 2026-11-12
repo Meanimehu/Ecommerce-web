@@ -4,7 +4,7 @@ import { NeedsScript } from '@/components/common/needs-script';
 import { SiteHeader } from '@/components/common/site-header';
 import { isLocale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
-import { LoginForm } from '@/components/auth/login-form';
+import { LoginForm } from '@/features/auth/components/login-form';
 
 export const dynamic = 'force-dynamic';
 
