@@ -1,6 +1,6 @@
 # 7. Technical conventions
 
-> **Status: Approved (9 Nov 2026).** The owner reviewed the decisions D7-01 to D7-10, every group of starting figures and sections 5 to 11, and approved the document as a whole on 9 Nov 2026. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation. D7-11 to D7-15 were approved on 10 Nov 2026. On 11 Nov 2026 the owner approved removing the frontend store and simplifying forgery protection: D7-13 changed, the refresh timings removed (section 17). The same day the owner chose a new folder layout (section 16). On 12 Nov 2026 the owner set the code practices in section 20 (D7-16) after reviewing the code and a pilot on the login feature; the folder layout and a few smaller points stay open (Q7-4 to Q7-9).
+> **Status: Approved (9 Nov 2026).** The owner reviewed the decisions D7-01 to D7-10, every group of starting figures and sections 5 to 11, and approved the document as a whole on 9 Nov 2026. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation. D7-11 to D7-15 were approved on 10 Nov 2026. On 11 Nov 2026 the owner approved removing the frontend store and simplifying forgery protection: D7-13 changed, the refresh timings removed (section 17). The same day the owner chose a new folder layout (section 16). **Agreed by the owner on 12 Nov 2026:** the code practices in section 20 (D7-16), feature folders introduced one feature at a time with `auth` owning everything about the session and `layout` owning page frames (D7-17, section 16), plain-text logging through one helper (D7-18), and working slice by slice (D7-19). The page-size question (Q7-7) stays open until the measurements in its row are reviewed.
 > Follows Documents 1 to 6. Documentation only; no code is written for this document.
 
 ## 1. Purpose
@@ -26,7 +26,10 @@ The technical rules the first build follows, so that Documents 1 to 6 can leave 
 | D7-13 | **Forgery protection, the same before and after login:** the exact `Origin` check, our fixed request header and `SameSite=Lax` cookies. No token, no anti-forgery cookie and no backend change (section 17.3) | Approved (10 Nov 2026). Changed 11 Nov 2026 (owner approved): the signed token was removed |
 | D7-14 | **Components come from the shadcn/ui tool** (D-03), added into `src/components/ui/` and styled with the Document 6 tokens to the approved Stage 4 look (section 18) | Approved (10 Nov 2026) |
 | D7-15 | **Error messages are written slice by slice.** Each slice adds English and Hindi messages for the backend error codes its screens can show; by launch every code in the backend's catalogue has one (section 19) | Approved (10 Nov 2026) |
-| D7-16 | **Code is written to be read, and every common job is done one way** (section 20): clear names, no raw comparisons, error codes as enums, screens that only draw, one form hook per form and one call hook per call, one way to submit, every browser failure an `AppError`, short lines, comments only where they explain why. Rolled out area by area after the login pilot | Agreed by the owner (12 Nov 2026) after reviewing the login pilot (pull request #36). Folder layout open (Q7-4) |
+| D7-16 | **Code is written to be read, and every common job is done one way** (section 20): clear names with a short list of exceptions, named values for anything the code branches on, stores or sends, error codes as enums, page addresses from one place, screens that only draw, one form hook per form and one call hook per call, one way to submit, every browser failure an `AppError`, short lines, comments only where they explain why | Agreed by the owner (12 Nov 2026), after the login pilot (pull request #36) |
+| D7-17 | **Feature code lives in feature folders** (`src/features/<feature>/`); shared code stays in `components/ui`, `components/form`, `components/common`, `lib`, `utils`, `middleware`, `api/client.ts` and `types` (section 16). **`auth` owns everything about the session:** login, logout, reading, writing, clearing and renewing the login cookies, running a call as the person, the answer when a session fails, and page access. Other features use it only through its public helpers (20.4). **`layout` owns page frames, headers, navigation and page structure;** it may show `auth` and `cart` information but holds none of their logic. **Shared code depends on no feature and holds no business logic.** "Admin" is a role, not a feature. Features move one at a time, `auth` first as the pilot, each in a commit that only moves files | Agreed by the owner (12 Nov 2026). The owner reviews the `auth` pilot before other features move |
+| D7-18 | **Server logs are plain text, one line per event, written only through `logServerEvent`** (section 20.10). Each event is named in `ServerEvent`, and the helper gives each event its level. `JSON.stringify` is not used for logging. The helper's types accept only our request id, error codes, backend call names, field names and named true/false flags; never personal data, tokens, cookies, headers or request and response bodies | Agreed by the owner (12 Nov 2026) |
+| D7-19 | **Work goes slice by slice** (Document 8). Each slice is finished, cleaned up, tested and reviewed before the next one starts. Clean-up that a slice's work does not need is not mixed into that slice's pull requests. The code written in Slices 0 to 2 is brought to section 20 before Slice 3 starts; from Slice 3 on, code is written to section 20 from the start | Agreed by the owner (12 Nov 2026). Settles Q7-8 |
 
 ## 3. Timeouts (D7-01)
 
@@ -130,7 +133,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | # | Check | When |
 | --- | --- | --- |
 | T7-1 | Every figure in section 12 against the real backend and the agreed budget-device and slow-connection profiles | First working build |
-| T7-2 | Document 6 performance figures (LCP, INP, CLS, 300 KB, 150 KB, 100 KB per area). **First measurement (11 Nov 2026, Slice 1, transferred, empty cache):** English home 225 KB and English login 273 KB, both within 300 KB; plus 53 KB for the Hindi font on English pages, loaded on demand because the language switch shows "हिन्दी" (Document 6, 5.4: not counted in the total, how to count it is open). Hindi home 278 KB, within. **Hindi login 375 KB, over the 300 KB** (Document 6, section 14, item 3: fonts take 146 KB on Hindi pages, the login page's scripts about 220 KB). Owner decision needed; the end-to-end test reports this page without judging it until then. **Slice 2a (12 Nov 2026):** the build's chunk setting was changed (`next.config.ts`, `turbopackChunking.minChunkSize` 10,000) after the default sent the shared button code three times on the login page; with the new message text English login is 288 KB, English home 223 KB, Hindi home 276 KB, Hindi login 391 KB. **Slice 2d (12 Nov 2026):** the browser now gets only its page's language, and the Vendor and Admin areas' own text only inside those areas (`lib/messages.ts`), so storefront pages do not grow with area screens. English login 296 KB, English home 229 KB, English category page 294 KB, Hindi home 283 KB, Hindi login 399 KB (still the open owner decision). **Code-style pilot (12 Nov 2026):** the named error codes (section 20.7) travel to the browser as a list of 120 codes, about 3 KB on every page: English home 232 KB, English login 298 KB (close to 300), Hindi home 286 KB, Hindi login 402 KB. The add-to-cart outcome is kept in its own file without Zod (`types/add-notice.ts`), because importing it from `types/cart.ts` put Zod (32 KB) on every page | First working build; Hindi login open; English login close to the limit |
+| T7-2 | Document 6 performance figures (LCP, INP, CLS, 300 KB, 150 KB, 100 KB per area). **First measurement (11 Nov 2026, Slice 1, transferred, empty cache):** English home 225 KB and English login 273 KB, both within 300 KB; plus 53 KB for the Hindi font on English pages, loaded on demand because the language switch shows "हिन्दी" (Document 6, 5.4: not counted in the total, how to count it is open). Hindi home 278 KB, within. **Hindi login 375 KB, over the 300 KB** (Document 6, section 14, item 3: fonts take 146 KB on Hindi pages, the login page's scripts about 220 KB). Owner decision needed; the end-to-end test reports this page without judging it until then. **Slice 2a (12 Nov 2026):** the build's chunk setting was changed (`next.config.ts`, `turbopackChunking.minChunkSize` 10,000) after the default sent the shared button code three times on the login page; with the new message text English login is 288 KB, English home 223 KB, Hindi home 276 KB, Hindi login 391 KB. **Slice 2d (12 Nov 2026):** the browser now gets only its page's language, and the Vendor and Admin areas' own text only inside those areas (`lib/messages.ts`), so storefront pages do not grow with area screens. English login 296 KB, English home 229 KB, English category page 294 KB, Hindi home 283 KB, Hindi login 399 KB (still the open owner decision). **Verified 12 Nov 2026,** on the local production server (`next start`), each page measured three times with identical results: `main` gives English home 228.8 KB, English login 295.5 KB, Hindi home 283.0 KB, Hindi login 399.2 KB; the login pilot branch (pull request #36) gives 231.7, 298.2, 286.0 and 401.9 KB, the difference being its list of named error codes (about 3 KB on every page). The figures are the bytes transferred with **gzip**, which is what the local server sends (it sent gzip even when the browser also offered Brotli), plus about 10 KB of HTTP headers, with an empty cache and the fonts for the page language inside the total (Document 6, section 14). Measured on `main`: every page shares 174 KB of scripts (React and Next.js about 125 KB, the button `Slot` and class merging 14 KB, TanStack Query about 12 KB, the page's text 10 KB); the login page adds 52 KB (Zod 31 KB, React Hook Form with its Zod link 15 KB, the code that sends data 4 KB, the login screen 2 KB). **Caching, as checked in the response headers of the local production server:** scripts, styles and fonts are sent with `public, max-age=31536000, immutable`, so a browser may keep them for up to a year, and a visitor who reaches login from another page then needs only about 52 KB of login scripts plus the page; the page itself is sent with `private, no-store` and is downloaded on every visit. A browser can still drop its cache earlier, and the chosen host must send the same headers (D4-03, "full control of cache headers"), which is checked again on staging. **Brotli sizes have not been measured;** they are measured once a host is chosen (Q7-7) and recorded separately from these gzip figures | First working build; Hindi login open; English login close to the limit; next measurements in Q7-7 |
 | T7-3 | OpenAPI source: which staging address, and whether it matches production (section 5) | First build |
 | T7-4 | **Request ID (Document 5, V5-5): confirmed 11 Nov 2026.** Our server endpoints include the backend's `requestId` in the error response they send to the browser; an end-to-end test checks it. Errors our server decides by itself carry none, so no made-up number is ever shown (D5-14) | Done |
 | T7-5 | Sitemap size and splitting (section 6) | First build |
@@ -146,12 +149,12 @@ These are **proposals** so the first build has numbers to start from. They are n
 | Q7-1 | Exact minimum browser versions for the build tool's compatibility settings | First build, with the owner |
 | Q7-2 | Whether an error-monitoring service is wanted after the first release | Owner, later |
 | Q7-3 | Which real devices and browser versions are used for the manual checks (D7-11). Document 6 names a budget Android phone and slow-connection profile, but no specific devices | Owner, before Slice 6 |
-| Q7-4 | Folder layout: keep folders by kind of code (section 16), or move to folders by feature (`src/features/<feature>/`, with `src/shared/` for shared code; section 20.2) | Owner, before the clean-up goes past login |
-| Q7-5 | Rename the address placeholder `[lang]` to `[language]`? Addresses do not change either way (section 20.2) | Owner |
-| Q7-6 | Do comparisons with a JavaScript type name (`typeof value === 'string'`) also get a named value (section 20.6)? | Owner |
-| Q7-7 | The English login page is 298 KB, close to the provisional 300 KB; the Hindi login page is 402 KB, over it (T7-2) | Owner |
-| Q7-8 | Does the code clean-up (section 20.11) finish before Slice 3 starts, or run alongside it? | Owner |
-| Q7-9 | Logging in our endpoints: the logout route writes `console.warn(JSON.stringify(...))` by hand. The existing logging is to be looked at first and a proposal brought to the owner before it changes (section 20.11) | With the logout clean-up |
+| Q7-4 | Folder layout | **Settled 12 Nov 2026: D7-17** |
+| Q7-5 | Rename `[lang]` to `[language]`? | **Settled 12 Nov 2026: no.** `[lang]` stays: it matches the HTML `lang` attribute and the language cookie; it is a listed naming exception (20.2) |
+| Q7-6 | Named values for `typeof` checks? | **Settled 12 Nov 2026: no.** Native `typeof value === 'string'` stays: TypeScript already rejects a misspelt type name (20.6) |
+| Q7-7 | Login page sizes: English 298 KB (close to the provisional 300 KB), Hindi 402 KB (over it; fonts alone are 144 KB). **Agreed measuring plan,** for the English and Hindi login pages, each on a first visit (empty cache) and a repeat visit (after the home page), measured first on an **emulated** budget Android phone and slow-network profile from Document 6, until Q7-3 names the real devices: (1) loading time, LCP; (2) responsiveness of a controlled interaction (the time from tapping "Send code" to the screen's next update, measured in the test browser); (3) real-user INP, only if a measuring tool is available (D7-05 allows no tracking service in the first release; error monitoring is Q7-2); (4) Brotli transfer sizes, once a host is selected (D4-03), recorded apart from the gzip figures in T7-2. **No library or font is removed, and the 300 KB budget is not changed, before the owner has reviewed the results** | Owner, after the results (with Document 6, section 14, items 3 and 4) |
+| Q7-8 | Clean-up before or alongside Slice 3? | **Settled 12 Nov 2026: D7-19** |
+| Q7-9 | Logging | **Settled 12 Nov 2026: D7-18** |
 
 ## 15. Revision history
 
@@ -173,34 +176,44 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 14 | 11 Nov 2026 | Slice 1 part 2: how the fonts are loaded (section 9); first page-size measurements recorded in T7-2, with the Hindi login page over the provisional 300 KB for the owner to decide |
 | 15 | 12 Nov 2026 | Slice 2a: the build's chunk setting and new page-size measurements in T7-2. No decision changed |
 | 16 | 12 Nov 2026 | Slice 2d: page sizes in T7-2 after sending each page only its language's text. No decision changed |
-| 17 | 12 Nov 2026 | D7-16 and section 20 added: the code-style rules the owner asked for after reviewing the code, with the owner's choices (two error-code enums, 100-character lines, storefront addresses renamed). No earlier decision changed; the address change to D4-02 is made with the storefront clean-up |
-| 18 | 12 Nov 2026 | Page sizes after the pilot in T7-2. Section 20 after the owner's review of the login pilot: named values instead of raw comparisons (20.5); screens only draw, form hooks do the work, one `Form` component, `handleSubmit(onValid, onInvalid)` with `mutate` callbacks, every browser failure an `AppError` (20.6). No earlier decision changed |
-| 19 | 12 Nov 2026 | Section 20 rewritten with every practice the owner agreed on 12 Nov 2026: names, folders and addresses, imports and exports, shared and feature code, formatting, comments, error codes, named values, forms and calls, what we do not copy, how work is done, and the rollout. D7-16 agreed; Q7-4 to Q7-9 added. Section 17.1: trusting the local certificate when the frontend runs in WSL. No other decision changed |
+| 17 | 12 Nov 2026 | **Agreed by the owner (12 Nov 2026):** D7-16 (code practices, section 20), D7-17 (feature folders one feature at a time; `auth` owns the session, its cookies, login, logout and page access, and is used by other features only through its listed public helpers; `layout` owns page frames; shared code depends on no feature; `api/client.ts` is the only code that calls the backend), D7-18 (plain-text logging through `logServerEvent`, levels set by the helper, details limited by its types, no `JSON.stringify` for logging) and D7-19 (slice by slice) added; Q7-4 to Q7-9 added, Q7-4, Q7-5, Q7-6, Q7-8 and Q7-9 settled and Q7-7 given a measuring plan; section 16 rewritten for feature folders, with cookie ownership split between shared tools, `auth` and `cart`; section 17.1: trusting the local certificate when the frontend runs in WSL; section 20 added; T7-2 measurements verified, caching stated from the checked headers, gzip and Brotli kept apart; in 20.1 the `<feature>Keys` naming exception for query-key objects; in 20.9 the hooks that are kept and why; in 20.13 the one-time `sessionKeys` rename (step 3), the split of `types/catalogue.ts` and `api/catalogue.ts` between `catalogue` and `storefront` (steps 5 and 8), and moving `utils/message-checks.ts` to `scripts/` (step 11); the photo frame moves to shared code with `product` (step 6) and the category-tree call hook to `storefront` (step 8); which steps start with a move-only commit; which pull requests are not one feature |
 
 ## 16. Names: folders and files
 
-Recorded 10 Nov 2026; **layout changed by the owner on 11 Nov 2026** to folders by kind of code, which is easier to recognise. Document 4 left the exact folder and file names, and the message catalogue's location, to this document.
+Recorded 10 Nov 2026; folders by kind of code chosen by the owner on 11 Nov 2026; **feature folders agreed on 12 Nov 2026 (D7-17), introduced one feature at a time.** Until a feature has moved, its files stay in the earlier layout (`components/<area>/`, `hooks/use-<area>.ts`, `api/<area>.ts`, `types/<area>.ts`), and the session work stays in `middleware/` until the `auth` pilot moves it (20.13, step 3). `docs/code-map.md` says where each file is.
 
 | Folder | What goes in it |
 | --- | --- |
-| `src/app/` | Routing and layouts. Pages under the language prefix in `src/app/[lang]/` (D4-01); our own endpoints for the browser in `src/app/api/` (addresses `/api/...`, Document 4, section 3). Next.js fixes these names |
-| `src/proxy.ts` | The page middleware: the language redirect for visits with no prefix (Document 4, section 6) and keeping the after-login page. Next.js fixes this file name |
-| `src/components/` | Reusable UI: `ui/` for the shadcn/ui components (D7-14), `form/` (with `Form`, section 20.9), `common/`, and one subfolder per area for its screens (`auth/`, later `cart/`, `catalogue/`, `vendor/`, `admin/`) |
-| `src/hooks/` | Reusable logic: the call hooks of each area (TanStack Query, D-02) in `use-<area>.ts`, a form's logic in `use-<area>-form.ts` (section 20.9), and the shared form hook (D-04) |
-| `src/api/` | Backend handlers, **server only**: the one place that calls the backend (Document 3): `client.ts` and one file per backend area. Not to be confused with `src/app/api/`, our own endpoints |
-| `src/middleware/` | Login and request handling, **server only**: running a call as the person and renewing the login (Document 4, section 9), cookies, the answers of our endpoints and the forgery check (section 17.3) |
-| `src/lib/` | Configs and integrations: settings read from the environment, the browser's call helper, languages and the message catalogue, errors |
-| `src/utils/` | Helper functions: money, dates and phone numbers, the class-name helper, the lists the message check uses |
-| `src/types/` | TypeScript types and the Zod schemas they come from, one file per backend area (Document 3, D3-01), forms included |
-| `src/types/generated/` | Generated request types, the stored OpenAPI description and the error-code list, never edited by hand (D7-02) |
-| `src/messages/` | **Message catalogue** (Document 4, section 6): `en.json` and `hi.json`, the same keys in both |
-| `scripts/` | Commands (type generation, checks) |
-| `tests/unit/`, `tests/e2e/` | Tests |
+| `src/app/` | Routing only; Next.js fixes these names. Pages under `[lang]/` (D4-01), our endpoints under `api/` (addresses `/api/...`). Pages are thin and show a feature's screen; endpoints call a feature's server code. Never moved into `features/`, because Next.js reads addresses from it |
+| `src/proxy.ts` | The page middleware (Document 4, section 6). Next.js fixes this file name |
+| `src/features/<feature>/components/` | The feature's screens and their parts |
+| `src/features/<feature>/hooks/` | `use-<feature>.ts`: the feature's call hooks, one per API call. `use-<form>-form.ts`: one file per form |
+| `src/features/<feature>/server/` | **Server only:** the feature's backend operations (`<feature>-api.ts`): which call, its input, its answer schema and its rules, each made through `api/client.ts`. Also the server logic the feature's endpoints share |
+| `src/features/<feature>/types.ts` | The feature's Zod schemas and the types made from them, forms included |
+| `src/components/ui/`, `form/`, `common/` | Shared UI: shadcn/ui components (D7-14), form parts (`Form`, fields, the error summary), and pieces two or more features use |
+| `src/lib/` | Shared code that knows the app: settings, the browser's call helper, errors and error codes, HTTP statuses, languages and messages, page addresses (`routes.ts`), the server log helper (`server-log.ts`) |
+| `src/api/client.ts` | **The shared, server-only backend transport client.** Feature server code uses it to make backend calls. It owns the actual HTTP communication: the backend address, time limits, retrying safe reads only, request ids, and checking each answer against the schema the feature gives it. Each feature owns its backend operations, their inputs, their answers and their business rules |
+| `src/utils/` | Plain helpers with no app knowledge: formatting, class names |
+| `src/middleware/` | **Server only, shared technical helpers that know nothing about the session or any feature:** endpoint answers (`ok`, `fail`, and `fromAppError` for non-session failures, 20.9), the forgery check (section 17.3), reading a request body, the public-answer and upload helpers, and the generic cookie tools in `cookies.ts`: the list of our cookie names and lifetimes (section 17.2), the options every cookie uses (D4-07), the tool that deletes a cookie by name, signing and checking signed values, the safe-local-path check and the page-address header. `cookies.ts` holds no rule about what any cookie means, and `middleware/` imports no feature |
+| `src/types/` | Shared types: `common.ts`, `error.ts`, `react-query.d.ts`; `generated/` is never edited by hand (D7-02) |
+| `src/messages/` | The message catalogue (Document 4, section 6) |
+| `scripts/`, `tests/unit/`, `tests/e2e/` | Commands and their helpers; tests |
 
-- **The same area name is used in every folder** (`components/cart/`, `hooks/use-cart.ts`, `api/cart.ts`, `types/cart.ts`), so everything about one area is easy to find.
-- **`src/api/` and `src/middleware/` are server only.** The files that call the backend or handle tokens are marked so the build fails if code for the browser imports them, so login tokens never reach the browser. `middleware/cookies.ts` is also used by `src/proxy.ts`, so it is not marked; it holds only cookie names and settings and the signing of the short-lived cookies.
-- A folder is created when its first file is written. A plain guide to every file is in `docs/code-map.md`.
-- How names, imports and shared code are handled is in section 20 (20.2 to 20.4). Whether this layout changes to folders by feature is open (Q7-4).
+**The features.**
+
+| Feature | What it owns |
+| --- | --- |
+| `auth` | Login, logout and "log out everywhere". The session: reading the login cookies, writing them after login or renewal, renewing tokens, running a call as the person, and the answer when a session fails (`fromFailure`, 20.9). When a session ends or the person logs out, `auth` starts the clean-up Document 4, section 9 requires: it deletes the login cookies and the short-lived cookies that go with them, using the shared cookie list and delete tool. Page access: the page guard, the default page after login by role, and the cookie that remembers the page to return to after login |
+| `vendor` | The vendor application, who may enter the vendor area, and the admin's vendor review |
+| `catalogue` | The admin lists: categories with attributes, HSN codes, GST rates, brands, sizes, colours |
+| `product` | A vendor's products and their moderation: the same backend area (3b), the same types and the same photos |
+| `storefront` | Category and product pages |
+| `cart` | The cart and Add to cart, including the add that waits for login (D2-02): what its signed cookie means, writing it, reading it (`decodePendingAdd`) and running the add. The login endpoint asks `cart` to run it; `auth` never calls the cart, and deleting the cookie at a session end needs only its name from the shared list |
+| `layout` | Page frames, headers, navigation and page structure: the storefront header and the staff area frame and menus. It shows `auth` and `cart` information (who is logged in, the cart count) through their public hooks, but owns none of their logic |
+
+- "Admin" is a role, not a feature. Admin pages in `src/app/[lang]/admin/` show screens from `vendor`, `catalogue` and `product`.
+- A folder is created when its first file is written.
+- How names, imports and dependencies between features are handled is in section 20.
 
 ## 17. Local HTTPS and cookies (D7-12, D7-13)
 
@@ -251,138 +264,233 @@ Every cookie uses the `__Host-` prefix, `Secure`, `HttpOnly`, `SameSite=Lax`, pa
 
 ## 20. Code practices (D7-16)
 
-Agreed by the owner on 12 Nov 2026, after a review of the code, a reference project the owner shared, and a pilot on the login feature (pull request #36). The goal: someone new can open a file, see what it is for, follow the calls and know what each name holds without guessing. Code is written for people to read, not only for the compiler. These practices change how code is written, never what it does: no behaviour, backend contract or feature changes come from them.
+**Agreed by the owner on 12 Nov 2026**, after a review of the code, a reference project the owner shared, and a pilot on the login feature (pull request #36). The goal: someone new can open a file, see what it is for, follow the calls and know what each name holds without guessing. These practices change how code is written, never what it does: no behaviour, backend contract or feature changes come from them. Parts of this section describe code the login pilot introduces (pull request #36: the error-code enums, `Form`, the form hooks, the named values); until it is merged they are the target the code is brought to.
 
 ### 20.1 Names
 
-- **Variables, functions, parameters, callbacks and state:** camelCase full words. No single letters or unclear short names (`t`, `n`, `raw`, `c`, `p`), including callback parameters: `sellers.map((seller) => …)`, not `(s) => …`. A longer name is fine when it is clearer.
-- **Functions say what they do:** a verb and its object, such as `sendCode`, `verifyCode`, `resendCode`, `removeUnavailableLines`, `showSendCodeError`. Handlers are named for what they do, not `onPhone`.
-- **Components** are PascalCase and named for what they show (`LoginForm`, `PhoneStep`, `CodeStep`).
-- **The page's text** is `messages` (from `useMessages()` or `getMessages()`), never `t`.
-- **In a catch** (only where section 20.9 allows one), the caught value is `caughtError`.
-- **Constants** are UPPER_SNAKE_CASE when they are fixed values (`FIELD_IDS`, `MILLISECONDS_PER_SECOND`); enums and their members are PascalCase (`HttpStatus.TooManyRequests`).
+- **Variables, functions, parameters, callbacks and state:** camelCase full words. No single letters or unclear short names (`t`, `n`, `raw`), callback parameters included: `sellers.map((seller) => …)`.
+- **Functions say what they do:** a verb and its object, such as `sendCode`, `removeUnavailableLines`, `showSendCodeError`.
+- **Components** are PascalCase and named for what they show (`LoginForm`, `CodeStep`).
+- **The page's text** is `messages`, never `t`.
+- **In a catch** (only where 20.9 allows one), the caught value is `caughtError`.
+- **Constants** are UPPER_SNAKE_CASE (`FIELD_IDS`); enums and their members are PascalCase (`HttpStatus.TooManyRequests`).
+- **Query-key objects** keep the existing `<feature>Keys` camelCase form (for example `sessionKeys`, `cartKeys` and `vendorKeys`). This is an established naming exception, not a general exception for constants.
+- **Schemas:** a backend answer is `<Thing>Schema` (`UserSchema`); a form is `<Thing>FormSchema` (`PhoneFormSchema`), with `<Thing>FormInput` for what the fields hold and `<Thing>FormValues` for the checked values.
 
 ### 20.2 Folders, files and addresses
 
-- **Folders and files:** kebab-case, named for what they hold, so a developer knows what is inside without opening it. No one- or two-letter names. A component file exports the same name in PascalCase (`login-form.tsx` exports `LoginForm`).
-- **Hook files:** `use-<area>.ts` holds the call hooks of an area (one per API call); `use-<area>-form.ts` holds a form's logic.
-- **Inside `src/app/` a folder name is the web address** (Next.js). The names Next.js fixes stay as they are: `page.tsx`, `layout.tsx`, `route.ts`, a placeholder in square brackets for a changing part (`[lang]`, `[slug]`, `[id]`), `[[...name]]` for an optional part, and `(app)` for a group that shares a layout or guard but is not in the address.
-- **Address words are full words.** The storefront's `c`, `b` and `p` become **`category`**, **`brand`** and **`product`** (`/en/category/kurtas`, `/en/product/<id>/<name>`), as the owner chose on 12 Nov 2026 (Document 4, D4-02 and section 5). This is done in the storefront clean-up; `brand` is not built yet.
-- **Pages in `src/app/` are thin:** they read the address values, check the language, and render the area's screen. The work lives outside `src/app/`.
-- **Layout today:** folders by kind of code, with the same area name in each (section 16). Whether to move to folders by feature is open (Q7-4):
-
-```
-src/features/<feature>/components/   the screens
-src/features/<feature>/hooks/        use-<feature>.ts, use-<feature>-form.ts
-src/features/<feature>/server/       backend calls, server only
-src/features/<feature>/types.ts      schemas and types
-src/shared/                          components/ui, components/form, lib, utils
-```
+- **Folders and files:** kebab-case, named for what they hold. A component file exports the same name in PascalCase (`login-form.tsx` exports `LoginForm`). Where they live is section 16.
+- **Short names only where something else fixes them:** `ui` and `cn` (shadcn/ui), `app` (Next.js), `api` (Next.js's `app/api/` and our backend client folder `src/api/`), `en` and `hi` (language codes), `me` (the backend's own address word), `id`, and `[lang]` (Q7-5).
+- **Inside `src/app/` a folder name is the web address.** Names Next.js fixes stay as they are: `page.tsx`, `layout.tsx`, `route.ts`, `[slug]` for a changing part, `[[...name]]` for an optional part, `(app)` for a group that is not in the address.
+- **Address words are full words:** `category`, `brand` and `product`, as recorded in Document 4 (D4-02 and the route table). The `storefront` pull request implements these documented addresses; `brand` is not built yet.
+- **Page addresses are built only in `lib/routes.ts`,** with one helper for each kind of page (for example `homePath`, `loginPath`, `cartPath`, `categoryPath`, `productPath`). Pages, screens and components use these helpers and never write an address such as `` `/${lang}/category/${slug}` `` by hand, so a renamed address changes in one file. The readable product name for addresses (D4-02) is made there too. Addresses of our own endpoints (`/api/...`) stay with the call hooks that use them. Each feature's clean-up pull request moves that feature's hand-built addresses to these helpers.
+- **Pages in `src/app/` are thin:** they read the address values, check the language and show the feature's screen.
 
 ### 20.3 Imports and exports
 
-- **Named exports only.** Default exports only where Next.js requires them (pages, layouts).
+- **Named exports only.** Default exports only where a tool requires them: Next.js pages, layouts and special files (`error.tsx`, `not-found.tsx`, `forbidden.tsx`, `global-error.tsx`, `global-not-found.tsx`), and config files (`next.config.ts`, `eslint.config.mjs`, the Playwright and Vitest configs).
 - **`@/` for anything outside the file's own folder; `./` only for a file in the same folder.** Never `../../`.
-- **Order:** packages, then shared code, then the area's own files, then files in the same folder. `import type` for anything used only as a type.
-- **No index files that re-export a folder.** They hide where code lives and can pull more code into a page than it needs. Import the file itself.
-- **Server-only files** (`src/api/`, `src/middleware/` except `cookies.ts`) start with `import 'server-only'`, so the build fails if browser code imports them.
-- **A `'use client'` file never exports a constant or enum that server code needs.** Those go in a plain file. Server code importing one has crashed a page before.
-- **Heavy libraries stay where they are needed.** A file every page loads (the header, the session) never imports a file that brings Zod. `types/add-notice.ts` is kept apart from `types/cart.ts` for this reason: importing it from there put Zod (32 KB) on every page.
+- **Order:** packages, then shared code, then the feature's own files, then files in the same folder. `import type` for what is used only as a type.
+- **No index files that re-export a folder.** Import the file itself.
+- **Server-only files** (`src/api/client.ts`, `features/*/server/`, `middleware/` except `cookies.ts`, `lib/server-log.ts`) start with `import 'server-only'`.
+- **A `'use client'` file never exports a constant or enum that server code needs;** those go in a plain file.
+- **Heavy libraries stay where they are needed.** A file every page loads (the header, the session) never imports a file that brings Zod. The add-to-cart result is kept apart from the cart's schemas for this reason.
 
-### 20.4 Shared code and area code
+### 20.4 Features, layout and shared code (D7-17)
 
-- **Code starts in its area.** It moves to shared code only when a second area really needs it.
-- **Shared code:** `components/ui/` (shadcn/ui), `components/form/` (`Form`, fields, the error summary), `components/common/`, `lib/`, `utils/` and `types/common.ts`.
-- **`lib/` and `utils/`:** `lib/` is code that knows the app (calls to our server, errors and error codes, HTTP statuses, languages, messages). `utils/` is plain functions with no app knowledge (formatting, addresses, class names).
-- **An area does not reach into another area's files.** If two areas need the same thing, it moves to shared code. Known case to fix in the clean-up: the login form hook uses `keepAddNotice` from the cart hook.
-- **The browser only calls our server, and only `src/api/` calls the backend** (D3-03).
+- **Code starts in its feature.** It moves to shared code only when a second feature needs it.
+- **What one feature may use from another:**
+  - its **call hooks, types and schemas**, when the business needs that link: the storefront's Add to cart uses the cart's hook, product forms use the catalogue's categories, product screens check the vendor's status;
+  - **`auth`'s public session and access helpers,** because every page and endpoint needs to know who is logged in. These are the only parts of `auth` other features use:
+
+    | Helper | Where it is used | What it does |
+    | --- | --- | --- |
+    | `useSession` | browser | Who is logged in, for showing things |
+    | `getViewer` | server, page render | Who is logged in |
+    | `requireUser` and its "not available" view | server, pages | The page guard |
+    | `answerAsUser`, `fileAsUser` | server, endpoints | Run a backend call, or open a private file, as the person |
+    | the after-login page cookie helper | server | Remember the page to return to after login |
+    | `isStaff` | anywhere | Whether a person has a staff role |
+    | the `User` and session answer types | anywhere | The person's shape |
+
+    The names are today's; the `auth` pilot may rename them to section 20.1 names, and this table changes with them.
+- **A feature never uses another feature's screens or form hooks,** and nothing outside `auth` uses its other files (its backend calls, token renewal, its cookie writing).
+- **Who places screens on a page:** only `src/app/` (pages, endpoints and `proxy.ts`) and `layout` put feature screens together. A page may show `LoginForm` from `auth` and the header from `layout`; a feature's own screen never contains another feature's screen.
+- **A component two features need** moves to `components/common/` (for example the photo frame).
+- **No circular dependencies.** If two features would need each other, the part both need moves to shared code, or the combining moves up to `src/app/`. The login endpoint (`app/api/auth/verify/route.ts`) calls `auth` to log the person in and `cart` to run the pending add, so neither feature imports the other.
+
+  **Migration exception:** one existing loop is tolerated during the clean-up: login imports the add-to-cart result from `cart` while `cart` imports the session from `auth` (D2-02). No new circular dependency may be introduced. This one is removed in the `cart` pull request (20.13, step 9) by making the add-to-cart result shared code. After that pull request, this rule applies with no exception.
+- **Shared code never imports a feature and holds no business logic.** `middleware/` keeps only technical helpers (section 16). For cookies the work is split three ways:
+  - **The owning feature** decides what its cookie means and does the normal reading and writing: `auth` for the login cookies and the after-login page, `cart` for the add that waits for login.
+  - **Shared code** (`middleware/cookies.ts`) supplies only generic tools: the list of cookie names and lifetimes, the options every cookie uses, signing, and deleting a cookie by name.
+  - **`auth` starts the clean-up** when a session ends or the person logs out, deleting the login cookies and the short-lived cookies Document 4, section 9 requires. It does this with the shared list and delete tool, so it never imports `cart` code.
+- **`layout` shows, it does not decide.** It owns page frames, headers, navigation and page structure, and may show `auth` and `cart` information through their public hooks (who is logged in, the cart count). Rules such as who may enter an area belong to `auth` (page access) and to the feature (for example `vendor`: no vendor means the application page).
+- **`lib/` and `utils/`:** `lib/` knows the app; `utils/` is plain functions with no app knowledge.
+- **Calls to the backend (D3-03):**
+  - The browser calls only our own server; the one exception is approved public product photos, which load straight from the public photo host (D3-04).
+  - On our server, **only `src/api/client.ts` makes outbound HTTP requests to the backend.** Feature server code calls the client and never the backend directly.
 
 ### 20.5 Layout and formatting
 
-- **Prettier** formats the code: single quotes, trailing commas, **lines up to 100 characters** (`.prettierrc.json`, `npm run format`). Markdown files are not formatted by Prettier, so the documents keep their own layout.
-- Prettier does not wrap comments; comments are kept within 100 characters by hand. A long text string may run longer when breaking it would make it harder to read.
-- **No nested `? :` chains in JSX.** A screen with several states (loading, error, empty, content) returns early for each, or uses one small named component per state.
-- **One expression does one thing.** A long condition gets a named variable (`const mustWaitToResend = …`); a long call gets its own lines.
-- **Spacing:** a blank line between the steps of a function, so its flow reads top to bottom.
+- **Prettier:** single quotes, trailing commas, lines up to 100 characters (`npm run format`). Markdown files are not run through Prettier.
+- Comments are kept within 100 characters by hand; a long text string may run longer when breaking it would make it harder to read.
+- **No nested `? :` chains in JSX.** A screen with several states returns early for each, or uses one small named component per state.
+- **One expression does one thing.** A long condition gets a named variable; a long call gets its own lines.
+- **A blank line between the steps of a function.**
 - **Files are sized by responsibility,** not kept small for its own sake. No tiny files, wrapper functions or new layers unless they remove real repetition.
 
 ### 20.6 Named values instead of raw comparisons
 
-- **Code never compares with, or sets, a raw string or number.** The value gets a name first (an enum or a named constant), and the code uses the name: `sessionNotice === SessionNotice.Blocked`, `error.status === HttpStatus.TooManyRequests`, `fetchError.name === BrowserErrorName.Timeout`, `notice.outcome === AddOutcome.Added`; never `=== 'blocked'`, `=== 429` or `=== 'TimeoutError'`. This applies everywhere, not only in login.
+- **A value the code branches on, stores or sends gets a name first** (an enum or a named constant), and the code uses the name: states, outcomes, notices, error codes, HTTP statuses and methods, kinds of failure, browser error names, log events. `sessionNotice === SessionNotice.Blocked`, `error.status === HttpStatus.TooManyRequests`, never `=== 'blocked'` or `=== 429`.
 - A string enum keeps the stored or sent value (`SessionNotice.Blocked = 'blocked'`), so nothing stored in the browser or sent to the backend changes.
-- **Named values in use:** `HttpStatus` and the range checks `isSuccess`, `isClientError`, `isServerError` (`lib/http-status.ts`), with `HttpStatus.NoResponse` (0) for an error where no answer arrived; `ErrorKind` (`lib/errors.ts`); `SessionNotice` (`hooks/use-session.ts`); `AddOutcome` (`types/add-notice.ts`); `HttpMethod` and `BrowserErrorName` (`lib/http.ts`); `DEFAULT_LOCALE` (`lib/i18n.ts`); `isSingular(count)` (`utils/format.ts`) for "1 second" against "{seconds} seconds".
-- Comparisons with a JavaScript type name (`typeof value === 'string'`) stay as they are until the owner decides (Q7-6).
+- **Not covered:** text, CSS classes, element ids, message keys, and the typed props of our own components (`tone="error"`, `variant="quiet"`), which TypeScript already checks.
+- **Native `typeof` checks stay as they are** (`typeof value === 'string'`, Q7-6).
+- **Named values introduced with the login pilot:** `HttpStatus` with `isSuccess`, `isClientError`, `isServerError` and `HttpStatus.NoResponse` (`lib/http-status.ts`); `ErrorKind` (`lib/errors.ts`); `SessionNotice`; `AddOutcome`; `HttpMethod` and `BrowserErrorName` (`lib/http.ts`); `DEFAULT_LOCALE`; `isSingular(count)` (`utils/format.ts`). `ServerEvent` (`lib/server-log.ts`, 20.10) comes with the `auth` pilot.
 
 ### 20.7 Error codes
 
-- **`BackendErrorCode`** (`src/types/generated/backend-error-codes.ts`) is generated from the backend's error catalogue together with `backend-error-codes.json` (`npm run gen:error-codes`). Its values are the backend's codes exactly; the names are the same words in PascalCase (`OTP_RESEND_WAIT` is `BackendErrorCode.OtpResendWait`). It is never edited by hand, and `npm run check:messages` fails if it differs from the stored catalogue.
-- **`AppErrorCode`** (`src/lib/error-codes.ts`) holds the codes the frontend knows that are not in the backend's catalogue: the ones our code produces (a lost connection, a timeout, the forgery checks, a response that does not match, a cancelled upload, the general codes our endpoints use) and the two the backend's framework sends outside its catalogue (`NOT_FOUND`, `TOO_MANY_REQUESTS`). The check fails if one of them is ever a catalogue code.
-- No backend code is renamed, given another meaning or invented. Message keys in `en.json` and `hi.json` stay the plain code strings.
-- A code the frontend does not know (a newer backend) still reaches the screen and gets the general message for its kind (section 19); `ErrorCode` allows it.
+- **`BackendErrorCode`** (`src/types/generated/backend-error-codes.ts`) is generated from the backend's error catalogue with `backend-error-codes.json` (`npm run gen:error-codes`). Values are the backend's codes exactly; names are the same words in PascalCase. Never edited by hand; `npm run check:messages` fails if it differs from the stored catalogue.
+- **`AppErrorCode`** (`src/lib/error-codes.ts`) holds the codes the frontend knows that are not in the backend's catalogue: the ones our code produces, and `NOT_FOUND` and `TOO_MANY_REQUESTS` from the backend's framework. The check fails if one is ever a catalogue code.
+- No backend code is renamed, given another meaning or invented. Message keys stay the plain code strings.
+- A code the frontend does not know still reaches the screen and gets the general message for its kind (section 19).
 
 ### 20.8 Comments
 
-- A comment explains **why**, or something the code cannot show (a backend rule, a browser quirk, a privacy reason). It does not repeat what the code says.
-- Where a rule comes from a decision, the comment names it briefly, such as `(D2-02)`. File headers are a sentence or two, not a summary of the documents.
-- No commented-out code, no `console.log` left behind.
+- A comment explains **why**, or something the code cannot show (a backend rule, a browser quirk, a privacy reason). It does not repeat the code.
+- A rule that comes from a decision names it briefly, such as `(D2-02)`. File headers are a sentence or two.
+- No commented-out code; no `console.log` left behind.
 
-### 20.9 Forms and calls from the browser
+### 20.9 Forms, calls and our endpoints
 
 **Who does what.**
 
 | Part | File | Its one job |
 | --- | --- | --- |
-| The screen | `components/<area>/…` | Draws fields and buttons and wires the submit. No call or error logic |
-| `Form` | `components/form/form.tsx` | The `<form>` tag every form uses: always `method="post"`, the browser's own checks off. Posting means a tap before the scripts load never puts what was typed (a phone number, a code) in the address, where history and server logs keep it. A post to a page only shows the page again; nothing reads it |
-| The form hook | `hooks/use-<area>-form.ts` | The form (`useAppForm` with its Zod schema), what happens on success and on each error, the error-summary focus, timers. Returns only what the screen needs |
-| The call hook | `hooks/use-<area>.ts` | One TanStack Query hook per call, with its address, typed input and typed answer |
-| `lib/http.ts` | | The only place the browser calls our server: our forgery header, a time limit, and **every failure becomes an `AppError`** |
-| Our endpoint | `app/api/<area>/…/route.ts` | Checks the request is ours (`guardChange`) and complete, then calls `src/api/` |
-| `src/api/` | `api/<area>.ts`, `api/client.ts` | The only place our server calls the backend; never retries a change; checks the answer's shape |
+| The screen | `features/<feature>/components/…` | Draws fields and buttons and wires the submit. No call or error logic |
+| `Form` | `components/form/form.tsx` | The `<form>` every form uses: always `method="post"`, the browser's own checks off, so a tap before the scripts load never puts what was typed in the address |
+| The form hook | `features/<feature>/hooks/use-<form>-form.ts` | The form (`useAppForm` with its schema), what happens on success and on each error, the error-summary focus, timers |
+| The call hook | `features/<feature>/hooks/use-<feature>.ts` | One TanStack Query hook per call, with its address, typed input and typed answer |
+| `lib/http.ts` | | The only place the browser calls our server: our forgery header, a time limit, and every failure becomes an `AppError` |
+| Our endpoint | `app/api/<area>/…/route.ts` | Checks the request and calls the feature's server code |
+| The feature's server code | `features/<feature>/server/<feature>-api.ts` | The feature's backend operations: which call, its input, its answer schema and its rules. It never makes the HTTP request itself |
+| The backend client | `src/api/client.ts` | The only code that makes HTTP requests to the backend: the address, time limits, request ids, retrying safe reads only (never a change, D7-01), and checking each answer against the schema it is given |
 
-**How a submit runs** (the full login example is in `docs/code-map.md`).
-
-1. The screen: `<Form onSubmit={form.handleSubmit(sendCode, showValidationErrors)}>`. React Hook Form's `handleSubmit` stops the browser's own submit and runs the Zod schema. It calls the first function with the checked values, or the second when a field is wrong.
-2. The form hook's function calls the call hook: `requestLoginCode.mutate(phone, { onSuccess, onError })`. Both are named functions in the hook, so success and every error case are easy to find.
-3. `onError` receives an `AppError`, already typed (`src/types/react-query.d.ts`), because `lib/http.ts` only ever rejects with one.
-4. An error for a field goes under that field and the others go in the error summary (`applyServerError`); then focus moves to the summary (`useErrorSummaryFocus`). A failed field check moves focus there too.
+**How a submit runs** (the full login example is in `docs/code-map.md` once pull request #36 is merged):
+1. `<Form onSubmit={form.handleSubmit(sendCode, showValidationErrors)}>`: React Hook Form checks the schema, then calls the first function with the checked values, or the second when a field is wrong.
+2. The form hook calls the call hook: `requestLoginCode.mutate(phone, { onSuccess, onError })`, both named functions.
+3. `onError` receives a typed `AppError` (`types/react-query.d.ts`).
+4. Field errors go under their field and the rest into the error summary (`applyServerError`); focus moves to the summary (`useErrorSummaryFocus`).
 
 **Rules.**
-
 - **One way to submit:** `handleSubmit(onValid, onInvalid)` in the screen, `mutate` with `onSuccess` and `onError` in the form hook.
-- **No `try`/`catch` and no `toAppError` in screens or form hooks.** `try`/`catch` is used only where a failure is a normal answer: our endpoints and `src/api/` (turning failures into answers), `lib/http.ts`, and reading browser storage.
-- **A screen with a form never calls a call hook or `lib/http.ts` itself.** A small action without a form (a Remove button) may use the call hook directly.
-- **A value that must survive a step change** belongs to the parent: the phone form is created in `LoginForm`, so the typed number is still there after "Change number".
-- **Field checks** run when the person leaves a field and on submit (D6-25); they check only a missing value or a wrong shape, and the backend decides the rest.
-- **Text in client components** comes from `useMessages()`. A component takes text as a prop only when a server page also uses it.
+- **One form hook per form,** each in its own file when a feature has more than one form (`use-vendor-address-form.ts`).
+- **No `try`/`catch` and no `toAppError` in screens or form hooks.** A call hook may turn one expected error into a value, with a comment saying why (`useMyVendor` returns `null` for `VENDOR_NOT_FOUND`).
+- **A screen with a form never calls a call hook itself.** A small action without a form (a Remove button) may.
+- **A value that must survive a step change belongs to the parent** (the phone form lives in `LoginForm`).
+- **Hooks that are kept, and why.** Each has a job that would otherwise be repeated in every screen or would put timing work into the screen:
+  - `useMessages` gives a client component the page's text in its language, so text is not passed down through every component.
+  - `useSessionNotice` reads, once, the notice a session end leaves for the login page ("log in again" or "blocked"), and reads it again if a session ends while that page is open.
+  - The resend countdown holds the wait the backend sets before "Send code again" and counts it down on screen.
+  - `useErrorSummaryFocus` tells the error summary that a submit has failed. The summary only appears after the errors are set, so it is the summary that moves focus to itself once it is on screen, once for each failed submit. After a failed submit the form only signals the failure; it does not move focus itself.
+- **Field checks** run when a field is left and on submit (D6-25), and check only a missing value or a wrong shape.
+- **Text** comes from `useMessages()` in client components, from the catalogue in both languages with the same keys (Document 4, section 6; `check:messages` enforces it).
 - **Request bodies are typed,** from the generated backend request types where the body passes through unchanged.
-- **Hooks are kept when they have a real job:** `useMessages` (the page's text), `useSessionNotice` (the notice a session end leaves for the login page), the resend countdown, and `useErrorSummaryFocus` (the summary appears one render after the error is set, so it takes focus in its own effect when told to).
+- **Our endpoints:**
+  - An endpoint that acts as the logged-in person uses `auth`'s `answerAsUser` or `fileAsUser`.
+  - A public one uses `answerPublic` (`middleware/endpoint.ts`).
+  - One that can use neither (before login, or one that streams an upload) runs, in this order: the forgery check (`guardChange`), the body check, the call, and `fromAppError` for a failure.
+  - An endpoint's logic lives in its feature's server code or its `route.ts`, never in `middleware/`.
 
-### 20.10 What we do not copy
+**Error answers from our endpoints.** Two helpers with separate jobs; they never overlap:
 
-From the reference project the owner shared on 12 Nov 2026, these are taken: descriptive names, short formatted lines, a screen that only draws with one hook doing the work, and `handleSubmit(onSubmit, onError)` wiring. These are **not** taken, because they conflict with approved decisions or cause problems:
+| Helper | Owner | For | What it answers |
+| --- | --- | --- | --- |
+| `fromAppError` | shared (`middleware/responses.ts`) | **Non-session failures** from calls in any feature: the backend refused the call, the call got no answer, or something unexpected went wrong | An `AppError` passes on its code and status. A call that got no answer becomes 502, or 504 when it ran out of time. Anything else is unexpected: it is logged with `logServerEvent` (its type and a new request id, never its message) and answered as `SERVER_ERROR` (500) |
+| `fromFailure` | `auth` | **Failures caused by authentication or session handling**: the request could not run as the person | Nobody logged in: `UNAUTHORIZED` (401). Renewal temporarily impossible: `SESSION_TEMPORARY` (503), with no cookie changed. The backend confirmed the session is over: `SESSION_ENDED` (401) or `USER_BLOCKED` (403), and the login cookies are cleared in that same answer (D2-05) |
 
-- login tokens returned to the browser and kept in Redux or local storage (D4-07: tokens stay in cookies the browser's scripts cannot read);
-- `any`, deep `../../../` imports, default exports everywhere, mixed file-name styles;
-- hard-coded English text (both languages come from the message catalogue);
-- the backend's error text shown in a toast (we show our own message for each code);
-- commented-out code, `console.log` in error handlers, empty `if` branches, a separate loading flag next to the call's own `isPending`;
-- passing state setters down to children (`setIsSubmitting`, `setStep`); a named callback such as `onCodeSent` is passed instead.
+`answerAsUser` first sorts out the session: if that fails, the answer comes from `fromFailure`. Only once the call itself runs as the person does a failure of that call go to `fromAppError`. Features never call `fromFailure` themselves.
 
-### 20.11 How work is done
+### 20.10 Logging (D7-18)
 
-1. **Review before changing.** Look at the existing code and its dependencies, explain what it does and why, and report findings and a plan before rewriting anything.
-2. **A new pattern is tried on one feature first,** shown to the owner as code, and rolled out only after the owner agrees.
-3. **Documents first, then code.** This document and `docs/code-map.md` are updated before or with the code they describe.
-4. **Explain in plain words,** step by step: which file comes in when, and why.
-5. **Behaviour is kept.** Anything a test does not cover (such as "Change number" keeping the typed number) is checked by reading the existing code. A fix found on the way is reported, never hidden.
-6. **After every change:** types, lint, the message and enum checks, generated types, unit tests, every end-to-end test on desktop and phone, and the first-load page sizes (T7-2). A change that adds weight to every page is found and fixed, not accepted silently.
-7. **Pull requests stay focused** on one area. Nothing is merged unless the owner says "merge". Commits and pull requests carry no assistant attribution lines.
-8. **Logging** is looked at before it is changed (Q7-9): the existing logging is checked first and a proposal comes to the owner.
+- **Server only, through one helper:** `logServerEvent` (`lib/server-log.ts`, server only). Nothing else in our code writes server logs.
+- **Events and levels:**
+  - each event is a member of the `ServerEvent` enum;
+  - the helper keeps one table that gives every event its level (warning or error), and TypeScript fails the build if an event has no level;
+  - it writes one plain-text line in the backend's style, for example `[requestId] logout_backend_failed code=SESSION_ENDED everywhere=true`.
+- **No `JSON.stringify` for logging,** in the helper or anywhere else. Any Node.js host records each console line. A structured format is considered only if a log or monitoring service the owner chooses needs one (Q7-2), and only with the owner's approval. Other uses of `JSON.stringify` that are not logging stay as they are: sending request bodies, signed cookie values, browser storage.
+- **What the helper's types allow.** The details argument accepts only these fields; any other field fails to compile:
 
-### 20.12 How it is rolled out
+  | Field | Accepts |
+  | --- | --- |
+  | `requestId` | text: only our own random id or the id the backend sent |
+  | `code` | an `ErrorCode` |
+  | `call` | a backend call name built from the generated list of backend paths, for example `POST /auth/otp/verify`, so no value from an address can appear in it |
+  | `fields` | field names: only the paths from a schema check, never the values |
+  | `flags` | true/false values with names from a fixed list (for example `everywhere`) |
 
-1. **Login** first (pull request #36), reviewed by the owner on 12 Nov 2026.
-2. Then one pull request per area: **session and logout** (including the session middleware's outcome strings and the logout route's logging), **vendor application**, **admin catalogue**, **products and moderation**, **storefront and cart** (with the `category` and `product` addresses, D4-02 and the Document 4 route table updated first).
-3. Files that follow these practices are listed in the lint settings (`eslint.config.mjs`), where one-letter names and nested ternaries are errors. When every area is done, the list becomes the whole of `src/`, and the format check (`npm run format:check`) joins CI.
-4. If the owner chooses folders by feature (Q7-4), each area's pull request also moves that area into its folder.
+  The types cannot check what is inside the two text fields (`requestId` and `fields`), so the rule fixes where their content may come from, and review checks it.
+- **Never logged:** request or response bodies, cookies, headers, tokens, session data, phone numbers, login codes, names, addresses, or the message of an unknown error (it can contain data). An unknown error logs its type and the request id; its full text appears only in development.
+- **In the browser:** nothing in production except the error page's report of the error to the person's own console; development-only warnings are wrapped in a development check.
+
+### 20.11 What we do not copy
+
+From the reference project the owner shared on 12 Nov 2026 we take descriptive names, short formatted lines, screens that only draw with one hook doing the work, and `handleSubmit(onSubmit, onError)` wiring. We do **not** take:
+
+- login tokens in the browser (D4-07);
+- `any`, `../../../` imports, default exports everywhere, mixed file-name styles;
+- hard-coded English text;
+- the backend's error text shown to the person;
+- commented-out code, `console.log` in error handlers, empty `if` branches, a second loading flag next to the call's own `isPending`;
+- state setters passed down to children; a named callback such as `onCodeSent` is passed instead.
+
+### 20.12 How work is done
+
+1. **Slice by slice (D7-19).** Each slice is finished, cleaned up, tested and reviewed before the next starts. Clean-up that the slice's work does not need goes in its own pull request, never alongside new feature work.
+2. **Review before changing,** and report findings and a plan first.
+3. **Decide, document, pilot, review, then roll out:** a new pattern or structure is tried on one feature, shown to the owner, and rolled out only after the owner agrees.
+4. **Documents first, then code;** `docs/code-map.md` changes with the structure or the request flow.
+5. **Explain in plain words,** step by step: which file comes in when, and why.
+6. **Behaviour is kept.** What no test covers is checked by reading the existing code. A bug found on the way is reported.
+7. **After every change:** types, lint, the message and enum checks, generated types, unit tests, every end-to-end test on desktop and phone, and the first-load page sizes (T7-2). A change that adds weight to every page is found and fixed.
+8. **Tests:** one end-to-end spec per feature, named after it (for example `auth.spec.ts`). Each pull request adds or updates tests for the behaviour it touches, and a new kind of page joins the page-size test. Each feature pull request splits or renames the existing slice-based specs (`slice-1-login.spec.ts`, `slice-2a-vendor.spec.ts` and so on) that cover it, so that by the end of the clean-up every spec is named after its feature.
+9. **Moves are their own commit:** a commit that moves files changes nothing else, so the review shows only renames.
+10. **Pull requests:** one feature each; the documents (20.13, step 1), page addresses (step 7) and the final clean-up (step 11) each have their own. The description says what changed, why, the flow if it changed, the checks run, the page sizes and the open items. Nothing is merged unless the owner says "merge". No assistant attribution lines.
+
+### 20.13 How it is rolled out
+
+The code from Slices 0 to 2 is brought to these practices before Slice 3 starts (D7-19), one pull request per feature, in this order, each reviewed before the next:
+
+1. **Documents, in one docs-only pull request made from the current `main`,** changing no code:
+   - Document 7: the status line, decisions D7-16 to D7-19, the open questions, T7-2, section 16, section 17.1 (WSL certificate) and section 20;
+   - Document 4 (D4-02 and the route table) and Document 5 (section 8.1);
+   - the Document 8 sentence;
+   - the README's local-setup note for WSL and its pointer to section 20.
+
+   Its decisions were marked Proposed while it was reviewed and switched to Agreed when the owner approved it on 12 Nov 2026 (pull request #37). The short reference copy in the owner's Claude project is rewritten from this section 20 and follows the same status. It is the only pull request that changes these documents.
+2. **Login** (pull request #36), after the documents are merged:
+   - its own changes to Documents 4, 5 and 7 and to the README's practice notes are removed, so the two pull requests never edit the same text;
+   - it keeps its login code, the tooling it adds (with the README rows that describe that tooling), and the code map's explanation of the login flow and its files;
+   - it is finished under these rules (`PhoneSchema` becomes `PhoneFormSchema`) and merged when the owner says so.
+3. **The `auth` pilot:**
+   - `auth` moves to `src/features/auth/` (move-only commit).
+   - The session work leaves `middleware/`: `middleware/session.ts`; `answerAsUser` and `fileAsUser` from `endpoint.ts`; `fromFailure`, `setSessionCookies` and `clearSessionCookies` from `responses.ts`; and the after-login page cookie helpers from `cookies.ts`. `middleware/` then imports nothing from `auth`, and gains the generic delete-a-cookie tool.
+   - Logout and the session are cleaned up, with `logServerEvent` (D7-18).
+   - One-time clean-up: `SESSION_QUERY_KEY` becomes `sessionKeys`, matching the other features' query-key objects (`cartKeys`, `vendorKeys`). This is a single rename, not a new naming rule.
+
+   The owner reviews it before any other feature moves.
+4. **`vendor`.**
+5. **`catalogue`:** `types/catalogue.ts` and `api/catalogue.ts` are split by ownership. The admin catalogue lists (their schemas, forms and backend operations) move to `catalogue`. The category tree and the storefront's product cards and product pages stay where they are until step 8 moves them to `storefront`. Behaviour does not change, and nothing is copied: a type or operation that both features use has one owner, and the other feature uses it under 20.4.
+6. **`product`**, with moderation. The photo frame moves to `components/common/`, because the storefront, the cart and moderation all use it (20.4); this keeps `product` and `storefront` from depending on each other.
+7. **Page addresses (`lib/routes.ts`):** its own pull request, or part of the first feature pull request that needs it. Each later feature pull request moves its own hand-built addresses to the helpers.
+8. **`storefront`:** implements the addresses already recorded in Document 4 (`category`, `product`), using `lib/routes.ts`. It also moves the remaining parts of `types/catalogue.ts` and `api/catalogue.ts` (the category tree, product cards and product pages) to `storefront`; the two old files are then gone. The category-tree call hook (`useCategoryTree`, today in `use-moderation.ts`) moves to `storefront`, which owns that endpoint, and `product` uses it under 20.4. Behaviour does not change, and nothing is copied.
+9. **`cart`:**
+   - `decodePendingAdd` and the running of the pending add move to `cart`, and the login endpoint calls `cart` for it;
+   - the add-to-cart result that login hands to the next page becomes shared code, which ends the loop between `auth` and `cart` (20.4).
+10. **`layout`.**
+11. **Finally:**
+    - the lint rule for one-letter names and nested ternaries covers all of `src/`, the format check joins CI, and the temporary file list in `eslint.config.mjs` goes;
+    - `utils/message-checks.ts` moves to `scripts/`, after checking again that no app code uses it. Today its only users are the message check (`scripts/check-messages.ts`) and that check's unit test (`tests/unit/messages.test.ts`), whose import changes with it.
+
+    Then Slice 3 starts.
+
+Steps 3 to 6 and 8 to 10 each start with a move-only commit, and each one also splits or renames the slice-based specs for its feature (20.12, item 8).

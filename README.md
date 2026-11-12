@@ -62,8 +62,5 @@ folder names are in Document 7, section 16.
 
 ## How we write code
 
-Read **Document 7, section 20** before changing code. In short: full-word names, no comparison with a raw string or
-number (name it first), error codes through `BackendErrorCode` and `AppErrorCode`, screens that only draw, one form
-hook per form and one call hook per API call, `form.handleSubmit(onValid, onInvalid)` on the shared `Form`, no
-`try`/`catch` in screens, comments only for why, Prettier at 100 characters. The login screen
-(`components/auth/login-form.tsx` with `hooks/use-login-form.ts`) is the example to follow.
+Read **Document 7, section 20** (agreed 12 Nov 2026) before changing code: names,
+folders and features, imports, named values, error codes, forms and calls, logging, and how work is done slice by slice.

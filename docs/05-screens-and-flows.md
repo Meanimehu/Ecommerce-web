@@ -1,6 +1,6 @@
 # 5. Screens and flows
 
-> **Status: Approved (9 Nov 2026).** Storefront addresses renamed 12 Nov 2026 (owner; Document 4, D4-02): `/category/`, `/brand/`, `/product/`.
+> **Status: Approved (9 Nov 2026).** Storefront addresses use full words (agreed 12 Nov 2026; Document 4, D4-02): `/category/`, `/brand/`, `/product/`.
 > Follows Documents 1 to 4. Documentation only. Working file for discussion; changes are made in place.
 > **Revision of 9 Nov 2026:** applies the owner's decisions of 9 Nov 2026 (D5-12 to D5-17, and the "Become a vendor" label in D5-10). Nothing else in the approved decisions changes. Document 6 (Design system) records the visual side.
 
