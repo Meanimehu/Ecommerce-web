@@ -61,5 +61,5 @@ folder names are in Document 7, section 16.
 
 ## How we write code
 
-Read **Document 7, section 20** (proposed 12 Nov 2026, awaiting the owner's approval) before changing code: names,
+Read **Document 7, section 20** (agreed 12 Nov 2026) before changing code: names,
 folders and features, imports, named values, error codes, forms and calls, logging, and how work is done slice by slice.
