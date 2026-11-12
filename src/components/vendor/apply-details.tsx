@@ -84,7 +84,7 @@ export function DetailsStep({ lang, vendor }: { lang: Locale; vendor: Vendor | n
   return (
     <form method="post" noValidate className="grid gap-5 rounded-1 border border-line bg-surface p-5 sm:p-6" onSubmit={onSubmit}>
       <h2 className="type-h3 text-ink">{t.vendor.steps.details}</h2>
-      <ErrorSummary form={form} fieldIds={IDS} t={t} requestId={requestIdOf(apply.error ?? update.error)} focusSignal={focus} />
+      <ErrorSummary form={form} fieldIds={IDS} messages={t} requestId={requestIdOf(apply.error ?? update.error)} focusSignal={focus} />
       <SelectField
         form={form}
         name="sellerType"
@@ -95,7 +95,7 @@ export function DetailsStep({ lang, vendor }: { lang: Locale; vendor: Vendor | n
           value,
           label: t.vendor.sellerTypes[value],
         }))}
-        t={t}
+        messages={t}
       />
       <TextField
         form={form}
@@ -103,7 +103,7 @@ export function DetailsStep({ lang, vendor }: { lang: Locale; vendor: Vendor | n
         id={IDS.legalName}
         label={t.vendor.fields.legalName}
         description={t.vendor.fields.legalNameHelp}
-        t={t}
+        messages={t}
         inputProps={{ autoComplete: 'organization', maxLength: 200 }}
       />
       <TextField
@@ -112,7 +112,7 @@ export function DetailsStep({ lang, vendor }: { lang: Locale; vendor: Vendor | n
         id={IDS.displayName}
         label={t.vendor.fields.displayName}
         description={t.vendor.fields.displayNameHelp}
-        t={t}
+        messages={t}
         inputProps={{ maxLength: 100 }}
       />
       <TextField
@@ -122,7 +122,7 @@ export function DetailsStep({ lang, vendor }: { lang: Locale; vendor: Vendor | n
         label={t.vendor.fields.gstin}
         description={t.vendor.fields.gstinHelp}
         optional
-        t={t}
+        messages={t}
         inputProps={{
           maxLength: 15,
           autoCapitalize: 'characters',
@@ -135,7 +135,7 @@ export function DetailsStep({ lang, vendor }: { lang: Locale; vendor: Vendor | n
         name="contactEmail"
         id={IDS.contactEmail}
         label={t.vendor.fields.contactEmail}
-        t={t}
+        messages={t}
         inputProps={{ type: 'email', autoComplete: 'email', maxLength: 254 }}
       />
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">

@@ -84,8 +84,8 @@ export function BasicsStep({ lang, product, dictionaries }: { lang: Locale; prod
   return (
     <form method="post" noValidate className="grid gap-5 rounded-1 border border-line bg-surface p-5 sm:p-6" onSubmit={(event) => void submit(event)}>
       <h2 className="type-h3 text-ink">{p.steps.basics}</h2>
-      <ErrorSummary form={form} fieldIds={IDS} t={t} requestId={requestIdOf(create.error ?? change.error)} focusSignal={focus} />
-      <TextField form={form} name="title" id={IDS.title} label={p.fields.title} t={t} inputProps={{ maxLength: 150 }} />
+      <ErrorSummary form={form} fieldIds={IDS} messages={t} requestId={requestIdOf(create.error ?? change.error)} focusSignal={focus} />
+      <TextField form={form} name="title" id={IDS.title} label={p.fields.title} messages={t} inputProps={{ maxLength: 150 }} />
       <SelectField
         form={form}
         name="categoryId"
@@ -94,7 +94,7 @@ export function BasicsStep({ lang, product, dictionaries }: { lang: Locale; prod
         description={p.fields.categoryHelp}
         placeholder={t.form.choose}
         options={categories.map(({ category, path }) => ({ value: category.id, label: path }))}
-        t={t}
+        messages={t}
       />
       <SelectField
         form={form}
@@ -103,9 +103,9 @@ export function BasicsStep({ lang, product, dictionaries }: { lang: Locale; prod
         label={p.fields.brand}
         optional
         options={[{ value: '', label: p.noBrand }, ...dictionaries.brands.map((brand) => ({ value: brand.id, label: brand.name }))]}
-        t={t}
+        messages={t}
       />
-      <TextareaField form={form} name="description" id={IDS.description} label={p.fields.description} description={p.fields.descriptionHelp} optional maxLength={5000} t={t} />
+      <TextareaField form={form} name="description" id={IDS.description} label={p.fields.description} description={p.fields.descriptionHelp} optional maxLength={5000} messages={t} />
       <fieldset className="grid gap-3 rounded-1 border border-line p-4">
         <legend className="px-1 type-h4 text-ink">{p.fields.tax}</legend>
         <p className="type-small text-ink-2">{chosen ? defaultText : p.taxChooseCategory}</p>
@@ -116,7 +116,7 @@ export function BasicsStep({ lang, product, dictionaries }: { lang: Locale; prod
             id={IDS.hsnCode}
             label={p.fields.hsnCode}
             options={[{ value: '', label: p.useDefault }, ...dictionaries.hsnCodes.map((code) => ({ value: code.code, label: `${code.code}, ${code.description}` }))]}
-            t={t}
+            messages={t}
           />
           <SelectField
             form={form}
@@ -124,7 +124,7 @@ export function BasicsStep({ lang, product, dictionaries }: { lang: Locale; prod
             id={IDS.gstRateBps}
             label={p.fields.gstRate}
             options={[{ value: '', label: p.useDefault }, ...dictionaries.gstRates.map((rate) => ({ value: String(rate.rateBps), label: rate.label }))]}
-            t={t}
+            messages={t}
           />
         </div>
         <p className="type-small text-muted-foreground">{p.taxHelp}</p>

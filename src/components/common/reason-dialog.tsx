@@ -31,7 +31,7 @@ export function ReasonDialog({
   confirmLabel,
   maxLength,
   onConfirm,
-  t,
+  messages,
 }: {
   trigger: ReactNode;
   title: string;
@@ -40,7 +40,7 @@ export function ReasonDialog({
   confirmLabel: string;
   maxLength: number;
   onConfirm: (reason: string) => Promise<unknown>;
-  t: Messages;
+  messages: Messages;
 }) {
   const [open, setOpen] = useState(false);
   const [focus, setFocus] = useState(0);
@@ -52,7 +52,7 @@ export function ReasonDialog({
         form.reset();
         setOpen(false);
       } catch (error) {
-        applyServerError(form, toAppError(error), t);
+        applyServerError(form, toAppError(error), messages);
         setFocus((n) => n + 1);
       }
     },
@@ -73,10 +73,10 @@ export function ReasonDialog({
             <AlertDialogTitle>{title}</AlertDialogTitle>
             <AlertDialogDescription>{body}</AlertDialogDescription>
           </AlertDialogHeader>
-          <ErrorSummary form={form} fieldIds={{ reason: 'reason-dialog-reason' }} t={t} focusSignal={focus} />
-          <TextareaField form={form} name="reason" id="reason-dialog-reason" label={label} maxLength={maxLength} t={t} />
+          <ErrorSummary form={form} fieldIds={{ reason: 'reason-dialog-reason' }} messages={messages} focusSignal={focus} />
+          <TextareaField form={form} name="reason" id="reason-dialog-reason" label={label} maxLength={maxLength} messages={messages} />
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={form.formState.isSubmitting}>{t.common.cancel}</AlertDialogCancel>
+            <AlertDialogCancel disabled={form.formState.isSubmitting}>{messages.common.cancel}</AlertDialogCancel>
             <Button type="submit" variant="destructiveConfirm" loading={form.formState.isSubmitting}>
               {confirmLabel}
             </Button>

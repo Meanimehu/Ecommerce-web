@@ -90,7 +90,7 @@ function AddressCard({ address, onEdit }: { address: VendorAddress; onEdit: () =
         <p className="text-ink">{oneLine}</p>
         <p className="type-small text-ink-2 tabular-nums">{formatPhone(address.contactPhone)}</p>
       </div>
-      {removeAddress.error ? <ErrorMessage text={messageFor(toAppError(removeAddress.error), t)} requestId={requestIdOf(removeAddress.error)} t={t} /> : null}
+      {removeAddress.error ? <ErrorMessage text={messageFor(toAppError(removeAddress.error), t)} requestId={requestIdOf(removeAddress.error)} messages={t} /> : null}
       <div className="flex flex-wrap gap-2">
         <Button type="button" variant="secondary" size="small" onClick={onEdit}>
           {t.vendor.address.edit}
@@ -161,7 +161,7 @@ function AddressForm({ address, onDone, canCancel = true }: { address?: VendorAd
   return (
     <form method="post" noValidate className="grid gap-4 rounded-1 border border-control p-4" onSubmit={(event) => void submit(event)}>
       <h3 className="type-h4 text-ink">{address ? t.vendor.address.editTitle : t.vendor.address.add}</h3>
-      <ErrorSummary form={form} fieldIds={IDS} t={t} requestId={requestIdOf(save.error)} focusSignal={focus} />
+      <ErrorSummary form={form} fieldIds={IDS} messages={t} requestId={requestIdOf(save.error)} focusSignal={focus} />
       <SelectField
         form={form}
         name="type"
@@ -171,17 +171,17 @@ function AddressForm({ address, onDone, canCancel = true }: { address?: VendorAd
           { value: 'pickup', label: t.vendor.address.types.pickup },
           { value: 'return', label: t.vendor.address.types.return },
         ]}
-        t={t}
+        messages={t}
       />
-      <TextField form={form} name="line1" id={IDS.line1} label={t.vendor.address.line1} t={t} inputProps={{ autoComplete: 'address-line1', maxLength: 200 }} />
-      <TextField form={form} name="line2" id={IDS.line2} label={t.vendor.address.line2} optional t={t} inputProps={{ autoComplete: 'address-line2', maxLength: 200 }} />
+      <TextField form={form} name="line1" id={IDS.line1} label={t.vendor.address.line1} messages={t} inputProps={{ autoComplete: 'address-line1', maxLength: 200 }} />
+      <TextField form={form} name="line2" id={IDS.line2} label={t.vendor.address.line2} optional messages={t} inputProps={{ autoComplete: 'address-line2', maxLength: 200 }} />
       <div className="grid gap-4 sm:grid-cols-2">
-        <TextField form={form} name="city" id={IDS.city} label={t.vendor.address.city} t={t} inputProps={{ autoComplete: 'address-level2', maxLength: 100 }} />
-        <TextField form={form} name="state" id={IDS.state} label={t.vendor.address.state} t={t} inputProps={{ autoComplete: 'address-level1', maxLength: 100 }} />
+        <TextField form={form} name="city" id={IDS.city} label={t.vendor.address.city} messages={t} inputProps={{ autoComplete: 'address-level2', maxLength: 100 }} />
+        <TextField form={form} name="state" id={IDS.state} label={t.vendor.address.state} messages={t} inputProps={{ autoComplete: 'address-level1', maxLength: 100 }} />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <TextField form={form} name="pincode" id={IDS.pincode} label={t.vendor.address.pincode} t={t} inputProps={{ inputMode: 'numeric', autoComplete: 'postal-code', maxLength: 6 }} />
-        <TextField form={form} name="contactPhone" id={IDS.contactPhone} label={t.vendor.address.contactPhone} prefix="+91" t={t} inputProps={{ type: 'tel', inputMode: 'numeric', autoComplete: 'tel-national' }} />
+        <TextField form={form} name="pincode" id={IDS.pincode} label={t.vendor.address.pincode} messages={t} inputProps={{ inputMode: 'numeric', autoComplete: 'postal-code', maxLength: 6 }} />
+        <TextField form={form} name="contactPhone" id={IDS.contactPhone} label={t.vendor.address.contactPhone} prefix="+91" messages={t} inputProps={{ type: 'tel', inputMode: 'numeric', autoComplete: 'tel-national' }} />
       </div>
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         {canCancel ? (

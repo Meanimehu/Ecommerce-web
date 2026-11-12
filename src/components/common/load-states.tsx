@@ -13,10 +13,10 @@ import { Reference } from './error-message';
  * skeleton shaped like the content, announced as "Loading". An error says what failed and offers "Try again" inside
  * that part only, with the reference number when a real one reached the browser (D5-14).
  */
-export function LoadingBlock({ t, lines = 4 }: { t: Messages; lines?: number }) {
+export function LoadingBlock({ messages, lines = 4 }: { messages: Messages; lines?: number }) {
   return (
     <div role="status" className="grid gap-3">
-      <span className="sr-only">{t.states.loading}</span>
+      <span className="sr-only">{messages.states.loading}</span>
       {Array.from({ length: lines }, (_, i) => (
         <Skeleton key={i} className={i === 0 ? 'h-8 w-1/2' : 'h-12 w-full'} />
       ))}
@@ -24,22 +24,22 @@ export function LoadingBlock({ t, lines = 4 }: { t: Messages; lines?: number }) 
   );
 }
 
-export function PartError({ error, onRetry, t, title }: { error: unknown; onRetry: () => void; t: Messages; title?: string }) {
+export function PartError({ error, onRetry, messages, title }: { error: unknown; onRetry: () => void; messages: Messages; title?: string }) {
   const [copied, setCopied] = useState(false);
   const appError = toAppError(error);
   return (
     <Banner
       tone="error"
       role="alert"
-      title={title ?? t.states.loadFailed}
+      title={title ?? messages.states.loadFailed}
       action={
         <Button type="button" variant="secondary" size="small" onClick={onRetry}>
-          {t.errors.tryAgain}
+          {messages.errors.tryAgain}
         </Button>
       }
     >
-      <p>{messageFor(appError, t)}</p>
-      {appError.requestId ? <Reference requestId={appError.requestId} copied={copied} onCopy={() => setCopied(true)} t={t} /> : null}
+      <p>{messageFor(appError, messages)}</p>
+      {appError.requestId ? <Reference requestId={appError.requestId} copied={copied} onCopy={() => setCopied(true)} messages={messages} /> : null}
     </Banner>
   );
 }

@@ -22,7 +22,7 @@ export default async function LoginPage({ params }: { params: Promise<{ lang: st
     <>
       <SiteHeader lang={lang} />
       <main className="mx-auto grid w-full max-w-[452px] gap-4 px-4 py-8 sm:py-12">
-        <NeedsScript t={t} />
+        <NeedsScript messages={t} />
         <LoginForm lang={lang} />
       </main>
     </>

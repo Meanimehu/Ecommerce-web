@@ -172,7 +172,7 @@ export function LoginForm({ lang }: { lang: Locale }) {
         {step === 'phone' ? (
           <form method="post" className="grid gap-5" noValidate onSubmit={(event) => void onPhone(event)}>
             <h1 className="type-h2 text-ink">{t.login.title}</h1>
-            <ErrorSummary form={phoneForm} fieldIds={{ phone: IDS.phone }} t={t} requestId={asRequestId(requestCode.error)} focusSignal={phoneFocus} />
+            <ErrorSummary form={phoneForm} fieldIds={{ phone: IDS.phone }} messages={t} requestId={asRequestId(requestCode.error)} focusSignal={phoneFocus} />
             <TextField
               form={phoneForm}
               name="phone"
@@ -180,7 +180,7 @@ export function LoginForm({ lang }: { lang: Locale }) {
               label={t.login.phoneLabel}
               description={t.login.phoneHelp}
               prefix="+91"
-              t={t}
+              messages={t}
               inputProps={{ type: 'tel', inputMode: 'numeric', autoComplete: 'tel-national' }}
             />
             <Button type="submit" className="w-full" loading={requestCode.isPending} disabled={busy}>
@@ -213,7 +213,7 @@ export function LoginForm({ lang }: { lang: Locale }) {
             <ErrorSummary
               form={codeForm}
               fieldIds={{ code: IDS.code }}
-              t={t}
+              messages={t}
               requestId={asRequestId(verify.error ?? requestCode.error)}
               focusSignal={codeFocus}
             />
@@ -223,7 +223,7 @@ export function LoginForm({ lang }: { lang: Locale }) {
               id={IDS.code}
               label={t.login.codeLabel}
               description={t.login.codeHelp}
-              t={t}
+              messages={t}
               inputProps={{ type: 'text', inputMode: 'numeric', autoComplete: 'one-time-code', maxLength: 12, className: 'tracking-[0.2em]' }}
             />
             {/* Always present, so a new notice is announced (Document 6, section 11, status messages). */}

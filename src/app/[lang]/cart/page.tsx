@@ -18,7 +18,7 @@ export default async function CartPage({ params }: { params: Promise<{ lang: str
     <>
       <SiteHeader lang={lang} />
       <main className="mx-auto grid w-full max-w-[1200px] gap-6 px-4 py-8 sm:px-6 lg:px-8">
-        <NeedsScript t={getMessages(lang)} />
+        <NeedsScript messages={getMessages(lang)} />
         <CartScreen lang={lang} />
       </main>
     </>

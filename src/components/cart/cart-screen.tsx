@@ -51,9 +51,9 @@ export function CartScreen({ lang }: { lang: Locale }) {
     <div className="grid gap-6">
       <h1 className="type-h1 text-ink">{c.title}</h1>
       {cart.isPending ? (
-        <LoadingBlock t={t} lines={5} />
+        <LoadingBlock messages={t} lines={5} />
       ) : cart.isError ? (
-        <PartError error={cart.error} onRetry={() => void cart.refetch()} t={t} />
+        <PartError error={cart.error} onRetry={() => void cart.refetch()} messages={t} />
       ) : cart.data.sellers.length === 0 ? (
         <StateBlock icon={ShoppingBag} title={c.empty} text={c.emptyText}>
           <Button asChild>
@@ -93,7 +93,7 @@ export function CartScreen({ lang }: { lang: Locale }) {
                 {c.someUnavailable}
               </Banner>
             ) : null}
-            {clear.error ? <ErrorMessage text={messageFor(toAppError(clear.error), t)} requestId={toAppError(clear.error).requestId} t={t} /> : null}
+            {clear.error ? <ErrorMessage text={messageFor(toAppError(clear.error), t)} requestId={toAppError(clear.error).requestId} messages={t} /> : null}
             {cart.data.sellers.map((seller) => (
               <section key={seller.vendorId ?? 'none'} aria-labelledby={`seller-${seller.vendorId}`} className="grid gap-3 rounded-1 border border-line bg-surface p-4 sm:p-5">
                 <h2 id={`seller-${seller.vendorId}`} className="type-label text-ink-2">
@@ -239,7 +239,7 @@ function Line({ lang, line, couponCode }: { lang: Locale; line: CartLine; coupon
             <span className="sr-only">: {line.title}</span>
           </Button>
         </div>
-        {error ? <ErrorMessage text={toAppError(error).outcomeUnknown ? c.changeUnknown : messageFor(toAppError(error), t)} requestId={toAppError(error).requestId} t={t} /> : null}
+        {error ? <ErrorMessage text={toAppError(error).outcomeUnknown ? c.changeUnknown : messageFor(toAppError(error), t)} requestId={toAppError(error).requestId} messages={t} /> : null}
       </div>
     </li>
   );

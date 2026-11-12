@@ -43,7 +43,7 @@ export function AreaShell({ lang, area, nav, children }: { lang: Locale; area: '
       <div className="flex flex-1">
         <AreaSideNav items={nav} label={t.nav.menu} />
         <main className="grid min-w-0 flex-1 content-start gap-6 px-4 py-6 sm:px-6 lg:px-8">
-          <NeedsScript t={t} />
+          <NeedsScript messages={t} />
           {/* The Vendor and Admin areas' own text (lib/messages.ts). */}
           <MessagesProvider messages={areaMessages(lang)}>{children}</MessagesProvider>
         </main>

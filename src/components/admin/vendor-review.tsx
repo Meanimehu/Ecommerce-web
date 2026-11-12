@@ -35,9 +35,9 @@ export function VendorReview({ lang, id }: { lang: Locale; id: string }) {
     <div className="grid max-w-[960px] gap-5">
       <Breadcrumbs label={t.nav.breadcrumbs} items={[{ label: t.adminVendors.title, href: base }, { label: vendor.data?.displayName ?? t.adminVendors.application }]} />
       {vendor.isPending ? (
-        <LoadingBlock t={t} lines={6} />
+        <LoadingBlock messages={t} lines={6} />
       ) : vendor.isError ? (
-        <PartError error={vendor.error} onRetry={() => void vendor.refetch()} t={t} />
+        <PartError error={vendor.error} onRetry={() => void vendor.refetch()} messages={t} />
       ) : (
         <Review lang={lang} vendor={vendor.data} />
       )}
@@ -144,7 +144,7 @@ function Review({ lang, vendor }: { lang: Locale; vendor: AdminVendor }) {
                           <span className="sr-only">: {label}</span>
                         </Button>
                         <ReasonDialog
-                          t={t}
+                          messages={t}
                           trigger={
                             <Button type="button" variant="destructive" size="small" disabled={decide.isPending}>
                               {a.rejectDoc}
@@ -181,7 +181,7 @@ function Review({ lang, vendor }: { lang: Locale; vendor: AdminVendor }) {
               </ul>
             </Banner>
           ) : (
-            <ErrorMessage text={messageFor(error, t)} requestId={error.requestId} t={t} />
+            <ErrorMessage text={messageFor(error, t)} requestId={error.requestId} messages={t} />
           )
         ) : null}
         <div className="flex flex-wrap gap-3">
@@ -192,7 +192,7 @@ function Review({ lang, vendor }: { lang: Locale; vendor: AdminVendor }) {
                 {a.approve}
               </Button>
               <ReasonDialog
-                t={t}
+                messages={t}
                 trigger={
                   <Button type="button" variant="destructive" disabled={decide.isPending}>
                     {a.reject}
@@ -209,7 +209,7 @@ function Review({ lang, vendor }: { lang: Locale; vendor: AdminVendor }) {
           ) : null}
           {vendor.status === 'approved' ? (
             <ReasonDialog
-              t={t}
+              messages={t}
               trigger={
                 <Button type="button" variant="destructive" disabled={decide.isPending}>
                   {a.suspend}

@@ -53,15 +53,15 @@ export function ModerationQueue({ lang }: { lang: Locale }) {
     <div className="grid gap-5">
       <h1 className="type-h2 stitch-bottom pb-3 text-ink">{m.title}</h1>
       {queue.isPending ? (
-        <LoadingBlock t={t} lines={6} />
+        <LoadingBlock messages={t} lines={6} />
       ) : queue.isError ? (
-        <PartError error={queue.error} onRetry={() => void queue.refetch()} t={t} />
+        <PartError error={queue.error} onRetry={() => void queue.refetch()} messages={t} />
       ) : queue.data.items.length === 0 ? (
         <StateBlock icon={Eye} title={m.empty} text={m.emptyText} titleAs="h2" />
       ) : (
         <>
           <DataTable rows={queue.data.items} columns={columns} rowKey={(row) => row.id} caption={m.title} />
-          <Pagination page={page} limit={LIMIT} total={queue.data.total} hrefFor={(n) => withQuery(base, { page: n === 1 ? undefined : n })} t={t} />
+          <Pagination page={page} limit={LIMIT} total={queue.data.total} hrefFor={(n) => withQuery(base, { page: n === 1 ? undefined : n })} messages={t} />
         </>
       )}
       <p className="type-small text-muted-foreground">{m.ownVendorNote}</p>

@@ -133,14 +133,14 @@ export function CategoryForm({ item, onDone }: { item?: Category; onDone: () => 
       onCancel={onDone}
       onSubmit={() => void submit()}
     >
-      <TextField form={form} name="name" id={ids.name} label={f.name} t={t} inputProps={{ maxLength: 100 }} />
-      <SelectField form={form} name="parentId" id={ids.parentId} label={f.parent} description={f.parentHelp} options={parentOptions} t={t} />
-      <TextField form={form} name="slug" id={ids.slug} label={f.slug} description={f.slugHelp} optional={!item} t={t} inputProps={{ maxLength: 100, spellCheck: false }} />
+      <TextField form={form} name="name" id={ids.name} label={f.name} messages={t} inputProps={{ maxLength: 100 }} />
+      <SelectField form={form} name="parentId" id={ids.parentId} label={f.parent} description={f.parentHelp} options={parentOptions} messages={t} />
+      <TextField form={form} name="slug" id={ids.slug} label={f.slug} description={f.slugHelp} optional={!item} messages={t} inputProps={{ maxLength: 100, spellCheck: false }} />
       <div className="grid gap-4 sm:grid-cols-2">
-        <SelectField form={form} name="defaultHsnCode" id={ids.defaultHsnCode} label={f.defaultHsn} optional options={hsnOptions} t={t} />
-        <SelectField form={form} name="defaultGstRateBps" id={ids.defaultGstRateBps} label={f.defaultGst} optional options={rateOptions} t={t} />
+        <SelectField form={form} name="defaultHsnCode" id={ids.defaultHsnCode} label={f.defaultHsn} optional options={hsnOptions} messages={t} />
+        <SelectField form={form} name="defaultGstRateBps" id={ids.defaultGstRateBps} label={f.defaultGst} optional options={rateOptions} messages={t} />
       </div>
-      <TextField form={form} name="sortOrder" id={ids.sortOrder} label={f.sortOrder} description={f.sortOrderHelp} optional t={t} inputProps={{ inputMode: 'numeric', maxLength: 6 }} />
+      <TextField form={form} name="sortOrder" id={ids.sortOrder} label={f.sortOrder} description={f.sortOrderHelp} optional messages={t} inputProps={{ inputMode: 'numeric', maxLength: 6 }} />
 
       <fieldset className="grid gap-3">
         <legend className="type-h4 text-ink">{f.attributes}</legend>
@@ -176,11 +176,11 @@ function AttributeRow({ index, form, onRemove }: { index: number; form: ReturnTy
         </Button>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
-        <TextField form={form} name={`attributes.${index}.key`} id={`attribute-${index}-key`} label={f.attributeKey} description={f.attributeKeyHelp} t={t} inputProps={{ maxLength: 40, spellCheck: false }} />
-        <TextField form={form} name={`attributes.${index}.label`} id={`attribute-${index}-label`} label={f.attributeLabel} t={t} inputProps={{ maxLength: 60 }} />
+        <TextField form={form} name={`attributes.${index}.key`} id={`attribute-${index}-key`} label={f.attributeKey} description={f.attributeKeyHelp} messages={t} inputProps={{ maxLength: 40, spellCheck: false }} />
+        <TextField form={form} name={`attributes.${index}.label`} id={`attribute-${index}-label`} label={f.attributeLabel} messages={t} inputProps={{ maxLength: 60 }} />
       </div>
-      <SelectField form={form} name={`attributes.${index}.type`} id={`attribute-${index}-type`} label={f.attributeType} options={ATTRIBUTE_TYPES.map((value) => ({ value, label: t.catalogue.attributeTypes[value] }))} t={t} />
-      {type === 'choice' ? <TextareaField form={form} name={`attributes.${index}.options`} id={`attribute-${index}-options`} label={f.attributeOptions} description={f.attributeOptionsHelp} t={t} /> : null}
+      <SelectField form={form} name={`attributes.${index}.type`} id={`attribute-${index}-type`} label={f.attributeType} options={ATTRIBUTE_TYPES.map((value) => ({ value, label: t.catalogue.attributeTypes[value] }))} messages={t} />
+      {type === 'choice' ? <TextareaField form={form} name={`attributes.${index}.options`} id={`attribute-${index}-options`} label={f.attributeOptions} description={f.attributeOptionsHelp} messages={t} /> : null}
       <label className="flex min-h-11 cursor-pointer items-start gap-3 text-ink">
         <Checkbox {...form.register(`attributes.${index}.required`)} />
         <span>{f.attributeRequired}</span>

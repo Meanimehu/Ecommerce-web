@@ -36,13 +36,13 @@ export function ModerationReview({ lang, id }: { lang: Locale; id: string }) {
     <div className="grid max-w-[960px] gap-5">
       <Breadcrumbs label={t.nav.breadcrumbs} items={[{ label: m.title, href: `/${lang}/admin/moderation` }, { label: review.data?.product.title ?? m.product }]} />
       {review.isPending ? (
-        <LoadingBlock t={t} lines={6} />
+        <LoadingBlock messages={t} lines={6} />
       ) : own ? (
         <Banner tone="warning" title={m.ownVendor}>
           {m.ownVendorText}
         </Banner>
       ) : review.isError ? (
-        <PartError error={review.error} onRetry={() => void review.refetch()} t={t} />
+        <PartError error={review.error} onRetry={() => void review.refetch()} messages={t} />
       ) : (
         <Review view={review.data} />
       )}
@@ -141,7 +141,7 @@ function Review({ view }: { view: ModerationView }) {
               {m.staleText}
             </Banner>
           ) : (
-            <ErrorMessage text={messageFor(error, t)} requestId={error.requestId} t={t} />
+            <ErrorMessage text={messageFor(error, t)} requestId={error.requestId} messages={t} />
           )
         ) : null}
         {waiting ? (
@@ -158,7 +158,7 @@ function Review({ view }: { view: ModerationView }) {
                 {m.approve}
               </Button>
               <ReasonDialog
-                t={t}
+                messages={t}
                 trigger={
                   <Button type="button" variant="destructive" disabled={decide.isPending}>
                     {m.reject}

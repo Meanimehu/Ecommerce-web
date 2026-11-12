@@ -24,7 +24,7 @@ export function FieldFrame<TValues extends FieldValues>({
   label,
   description,
   optional,
-  t,
+  messages,
   children,
 }: {
   form: UseFormReturn<TValues, unknown, FieldValues>;
@@ -33,18 +33,18 @@ export function FieldFrame<TValues extends FieldValues>({
   label: string;
   description?: string;
   optional?: boolean;
-  t: Messages;
+  messages: Messages;
   children: (ids: FieldIds) => ReactNode;
 }) {
   const error = get(form.formState.errors, name) as { message?: unknown } | undefined;
-  const errorText = error ? resolveMessage(typeof error.message === 'string' ? error.message : undefined, t) : '';
+  const errorText = error ? resolveMessage(typeof error.message === 'string' ? error.message : undefined, messages) : '';
   const descriptionId = description ? `${id}-description` : undefined;
   const errorId = error ? `${id}-error` : undefined;
   return (
     <div className="grid gap-1.5">
       <label htmlFor={id} className="type-label text-ink">
         {label}
-        {optional ? <span className="font-normal text-muted-foreground"> {t.form.optional}</span> : null}
+        {optional ? <span className="font-normal text-muted-foreground"> {messages.form.optional}</span> : null}
       </label>
       {children({ id, invalid: Boolean(error), describedBy: [errorId, descriptionId].filter(Boolean).join(' ') || undefined })}
       {error ? (

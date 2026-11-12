@@ -115,7 +115,7 @@ export function VariantsStep({ lang, product, dictionaries }: { lang: Locale; pr
       ) : editing !== 'new' ? (
         <StateBlock icon={Layers} title={p.variant.none} text={p.variant.noneText} titleAs="h3" />
       ) : null}
-      {actionError ? <ErrorMessage text={messageFor(toAppError(actionError), t)} requestId={requestIdOf(actionError)} t={t} /> : null}
+      {actionError ? <ErrorMessage text={messageFor(toAppError(actionError), t)} requestId={requestIdOf(actionError)} messages={t} /> : null}
       {editing !== null ? (
         <VariantForm product={product} dictionaries={dictionaries} variant={editing === 'new' ? undefined : editing} onDone={() => setEditing(null)} canCancel={product.variants.length > 0} />
       ) : null}
@@ -199,15 +199,15 @@ function VariantForm({
   return (
     <form method="post" noValidate className="grid gap-4 rounded-1 border border-control p-4" onSubmit={(event) => void submit(event)}>
       <h3 className="type-h4 text-ink">{variant ? p.variant.editTitle : p.variant.add}</h3>
-      <ErrorSummary form={form} fieldIds={IDS} t={t} requestId={requestIdOf(save.error)} focusSignal={focus} />
+      <ErrorSummary form={form} fieldIds={IDS} messages={t} requestId={requestIdOf(save.error)} focusSignal={focus} />
       <div className="grid gap-4 sm:grid-cols-2">
-        <SelectField form={form} name="sizeCode" id={IDS.sizeCode} label={p.variant.size} optional options={optionsOf(dictionaries.sizes, t)} t={t} />
-        <SelectField form={form} name="colourCode" id={IDS.colourCode} label={p.variant.colour} optional options={optionsOf(dictionaries.colours, t)} t={t} />
+        <SelectField form={form} name="sizeCode" id={IDS.sizeCode} label={p.variant.size} optional options={optionsOf(dictionaries.sizes, t)} messages={t} />
+        <SelectField form={form} name="colourCode" id={IDS.colourCode} label={p.variant.colour} optional options={optionsOf(dictionaries.colours, t)} messages={t} />
       </div>
-      <TextField form={form} name="sku" id={IDS.sku} label={p.variant.sku} description={p.variant.skuHelp} t={t} inputProps={{ maxLength: 64, autoCapitalize: 'characters', spellCheck: false, className: 'uppercase' }} />
+      <TextField form={form} name="sku" id={IDS.sku} label={p.variant.sku} description={p.variant.skuHelp} messages={t} inputProps={{ maxLength: 64, autoCapitalize: 'characters', spellCheck: false, className: 'uppercase' }} />
       <div className="grid gap-4 sm:grid-cols-2">
-        <TextField form={form} name="mrp" id={IDS.mrp} label={p.variant.mrpLabel} description={p.variant.mrpHelp} prefix="₹" t={t} inputProps={{ inputMode: 'decimal' }} />
-        <TextField form={form} name="price" id={IDS.price} label={p.variant.priceLabel} description={p.variant.priceHelp} prefix="₹" t={t} inputProps={{ inputMode: 'decimal' }} />
+        <TextField form={form} name="mrp" id={IDS.mrp} label={p.variant.mrpLabel} description={p.variant.mrpHelp} prefix="₹" messages={t} inputProps={{ inputMode: 'decimal' }} />
+        <TextField form={form} name="price" id={IDS.price} label={p.variant.priceLabel} description={p.variant.priceHelp} prefix="₹" messages={t} inputProps={{ inputMode: 'decimal' }} />
       </div>
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         {canCancel ? (

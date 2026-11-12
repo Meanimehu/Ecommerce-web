@@ -66,7 +66,7 @@ export function LogoutButtons({ lang }: { lang: Locale }) {
           </AlertDialog>
         </div>
       </div>
-      {error ? <ErrorMessage text={messageFor(error, t)} requestId={error.requestId} t={t} /> : null}
+      {error ? <ErrorMessage text={messageFor(error, t)} requestId={error.requestId} messages={t} /> : null}
     </section>
   );
 }

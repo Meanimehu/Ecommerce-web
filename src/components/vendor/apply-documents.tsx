@@ -187,9 +187,9 @@ function DocumentRow({ vendor, type }: { vendor: Vendor; type: DocumentType }) {
           </p>
         </div>
       ) : null}
-      {problem ? <ErrorMessage text={problem.text} requestId={problem.requestId} t={t} /> : null}
+      {problem ? <ErrorMessage text={problem.text} requestId={problem.requestId} messages={t} /> : null}
       {unknown ? <Banner tone="warning">{t.vendor.documents.uploadUnknown}</Banner> : null}
-      {removeDocument.error ? <ErrorMessage text={messageFor(toAppError(removeDocument.error), t)} requestId={requestIdOf(removeDocument.error)} t={t} /> : null}
+      {removeDocument.error ? <ErrorMessage text={messageFor(toAppError(removeDocument.error), t)} requestId={requestIdOf(removeDocument.error)} messages={t} /> : null}
     </div>
   );
 }

@@ -97,7 +97,7 @@ function AttributesForm({ product, attributes, next }: { product: ProductView; a
   return (
     <form method="post" noValidate className="grid gap-5 rounded-1 border border-line bg-surface p-5 sm:p-6" onSubmit={(event) => void submit(event)}>
       <h2 className="type-h3 text-ink">{p.steps.attributes}</h2>
-      <ErrorSummary form={form} fieldIds={ids} t={t} requestId={requestIdOf(change.error)} focusSignal={focus} />
+      <ErrorSummary form={form} fieldIds={ids} messages={t} requestId={requestIdOf(change.error)} focusSignal={focus} />
       {attributes.map((a) =>
         a.type === 'choice' ? (
           <SelectField
@@ -108,7 +108,7 @@ function AttributesForm({ product, attributes, next }: { product: ProductView; a
             label={a.label}
             optional={!a.required}
             options={[{ value: '', label: t.form.choose }, ...(a.options ?? []).map((option) => ({ value: option, label: option }))]}
-            t={t}
+            messages={t}
           />
         ) : (
           <TextField
@@ -118,7 +118,7 @@ function AttributesForm({ product, attributes, next }: { product: ProductView; a
             id={`attribute-${a.key}`}
             label={a.label}
             optional={!a.required}
-            t={t}
+            messages={t}
             inputProps={a.type === 'number' ? { inputMode: 'decimal' } : { maxLength: 200 }}
           />
         ),
