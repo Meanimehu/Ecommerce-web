@@ -1,5 +1,5 @@
 import 'server-only';
-import { CATALOGUE_ITEMS, CATALOGUE_LISTS, CategoryTreeSchema, type CatalogueList, type EditableList } from '@/types/catalogue';
+import { CATALOGUE_ITEMS, CATALOGUE_LISTS, CategoryTreeSchema, ProductCardPageSchema, ProductDetailSchema, type CatalogueList, type EditableList } from '@/types/catalogue';
 import type { Query } from '@/utils/url';
 import { callBackend } from './client';
 
@@ -20,3 +20,7 @@ export const changeCatalogueItem = (token: string, list: EditableList, id: strin
 // ---- Storefront (section 1): no login; the answer is the same for everyone. ----
 
 export const getCategoryTree = () => callBackend({ method: 'GET', path: '/catalogue/categories', kind: 'view', schema: CategoryTreeSchema });
+
+export const listProducts = (query: Query) => callBackend({ method: 'GET', path: '/catalogue/products', query, kind: 'view', schema: ProductCardPageSchema });
+
+export const getProduct = (id: string) => callBackend({ method: 'GET', path: `/catalogue/products/${encodeURIComponent(id)}`, kind: 'view', schema: ProductDetailSchema });

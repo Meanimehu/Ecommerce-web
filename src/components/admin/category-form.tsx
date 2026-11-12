@@ -12,7 +12,7 @@ import { TextareaField } from '@/components/form/textarea-field';
 import { applyServerError, useAppForm } from '@/hooks/use-app-form';
 import { useActiveHsnCodes, useAllCategories, useSaveCatalogueItem } from '@/hooks/use-catalogue';
 import { fill, requestIdOf, toAppError } from '@/lib/errors';
-import { getMessages, type Locale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import {
   ATTRIBUTE_TYPES,
   attributeBody,
@@ -40,8 +40,8 @@ function toRow(attribute: Attribute): AttributeFormInput {
   return { key: attribute.key, label: attribute.label, type: attribute.type, required: attribute.required, options: (attribute.options ?? []).join('\n'), filterable: attribute.filterable ?? false };
 }
 
-export function CategoryForm({ lang, item, onDone }: { lang: Locale; item?: Category; onDone: () => void }) {
-  const t = getMessages(lang);
+export function CategoryForm({ item, onDone }: { item?: Category; onDone: () => void }) {
+  const t = useMessages();
   const f = t.catalogue.fields;
   const toast = useToast();
   const save = useSaveCatalogueItem('categories');
@@ -146,7 +146,7 @@ export function CategoryForm({ lang, item, onDone }: { lang: Locale; item?: Cate
         <legend className="type-h4 text-ink">{f.attributes}</legend>
         <p className="type-small text-muted-foreground">{f.attributesHelp}</p>
         {attributes.fields.map((field, index) => (
-          <AttributeRow key={field.id} index={index} form={form} lang={lang} onRemove={() => attributes.remove(index)} />
+          <AttributeRow key={field.id} index={index} form={form} onRemove={() => attributes.remove(index)} />
         ))}
         {attributes.fields.length < MAX_ATTRIBUTES ? (
           <div>
@@ -161,8 +161,8 @@ export function CategoryForm({ lang, item, onDone }: { lang: Locale; item?: Cate
   );
 }
 
-function AttributeRow({ index, form, lang, onRemove }: { index: number; form: ReturnType<typeof useAppForm<CategoryFormInput, CategoryFormInput>>; lang: Locale; onRemove: () => void }) {
-  const t = getMessages(lang);
+function AttributeRow({ index, form, onRemove }: { index: number; form: ReturnType<typeof useAppForm<CategoryFormInput, CategoryFormInput>>; onRemove: () => void }) {
+  const t = useMessages();
   const f = t.catalogue.fields;
   const type = form.watch(`attributes.${index}.type`);
   const number = index + 1;

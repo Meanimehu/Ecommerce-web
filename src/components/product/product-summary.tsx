@@ -1,6 +1,6 @@
 'use client';
 
-import { getMessages, type Locale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import { flattenCategories, type Dictionaries, type ProductView } from '@/types/product';
 import { formatRate, formatRupees } from '@/utils/format';
 import { myPhotoSrc } from '@/hooks/use-product';
@@ -11,8 +11,8 @@ import { sortedPhotos } from './product-photos';
  * A product the vendor cannot change right now (in review, live, or the vendor is not approved): what it holds,
  * read-only (Document 5, sections 7.3 and 7.5).
  */
-export function ProductSummary({ lang, product, dictionaries }: { lang: Locale; product: ProductView; dictionaries: Dictionaries }) {
-  const t = getMessages(lang);
+export function ProductSummary({ product, dictionaries }: { product: ProductView; dictionaries: Dictionaries }) {
+  const t = useMessages();
   const p = t.product;
   const category = flattenCategories(dictionaries.categories).find((c) => c.category.id === product.categoryId);
   const brand = dictionaries.brands.find((b) => b.id === product.brandId);
@@ -58,7 +58,7 @@ export function ProductSummary({ lang, product, dictionaries }: { lang: Locale; 
         <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4">
           {sortedPhotos(product.images).map((photo) => (
             <li key={photo.id}>
-              <PhotoFrame src={myPhotoSrc(product.id, photo.id, 'thumb')} alt={photo.altText ?? ''} unavailable={p.photoUnavailable} />
+              <PhotoFrame src={myPhotoSrc(product.id, photo.id, 'thumb')} alt={photo.altText ?? ''} unavailable={t.common.photoUnavailable} />
             </li>
           ))}
         </ul>

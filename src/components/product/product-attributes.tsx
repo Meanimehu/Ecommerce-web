@@ -12,7 +12,8 @@ import { TextField } from '@/components/form/text-field';
 import { applyServerError, useAppForm } from '@/hooks/use-app-form';
 import { useChangeProduct } from '@/hooks/use-product';
 import { requestIdOf, toAppError } from '@/lib/errors';
-import { getMessages, type Locale } from '@/lib/i18n';
+import { type Locale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import type { Attribute } from '@/types/catalogue';
 import { flattenCategories, type Dictionaries, type ProductView } from '@/types/product';
 
@@ -32,7 +33,7 @@ function attributeSchema(attributes: readonly Attribute[]) {
 }
 
 export function AttributesStep({ lang, product, dictionaries }: { lang: Locale; product: ProductView; dictionaries: Dictionaries }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const p = t.product;
   const category = flattenCategories(dictionaries.categories).find((c) => c.category.id === product.categoryId)?.category;
   const attributes = category?.attributes ?? [];
@@ -53,11 +54,11 @@ export function AttributesStep({ lang, product, dictionaries }: { lang: Locale; 
       </section>
     );
   }
-  return <AttributesForm lang={lang} product={product} attributes={attributes} next={next} />;
+  return <AttributesForm product={product} attributes={attributes} next={next} />;
 }
 
-function AttributesForm({ lang, product, attributes, next }: { lang: Locale; product: ProductView; attributes: readonly Attribute[]; next: string }) {
-  const t = getMessages(lang);
+function AttributesForm({ product, attributes, next }: { product: ProductView; attributes: readonly Attribute[]; next: string }) {
+  const t = useMessages();
   const p = t.product;
   const router = useRouter();
   const toast = useToast();

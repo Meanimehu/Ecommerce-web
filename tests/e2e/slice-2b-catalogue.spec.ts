@@ -36,7 +36,7 @@ test.describe('catalogue lists', () => {
     await expect(admin.getByRole('status').filter({ hasText: 'Saved' })).toBeVisible();
     await admin.getByRole('searchbox', { name: 'Search' }).fill(`62${n}`);
     await admin.getByRole('button', { name: 'Show results' }).click();
-    await expect(admin.getByText(`Test garments ${n}`).first()).toBeVisible();
+    await expect(admin.getByText(`Test garments ${n}`).filter({ visible: true }).first()).toBeVisible();
 
     // Category with a choice attribute: a bad key is shown on that attribute.
     await admin.getByRole('link', { name: 'Categories' }).click();
@@ -56,7 +56,7 @@ test.describe('catalogue lists', () => {
     await attribute.getByLabel('Key').fill('fabric');
     await admin.getByRole('button', { name: 'Save' }).click();
     await expect(admin.getByRole('status').filter({ hasText: 'Saved' })).toBeVisible();
-    await expect(admin.getByRole('cell', { name: `Test kurtas ${n}`, exact: true })).toBeVisible();
+    await expect(admin.getByText(`Test kurtas ${n}`, { exact: true }).filter({ visible: true })).toBeVisible();
     await noAxeViolations(admin);
 
     // Brand: a name already used is refused under the name.

@@ -14,7 +14,8 @@ import { PhotoFrame } from '@/components/product/photo-frame';
 import { ProductStatusChip } from '@/components/product/product-status';
 import { reviewPhotoSrc, useCategoryTree, useDecision, useForReview } from '@/hooks/use-moderation';
 import { messageFor, toAppError, type AppError } from '@/lib/errors';
-import { getMessages, type Locale } from '@/lib/i18n';
+import { type Locale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import { findInTree } from '@/types/catalogue';
 import type { ModerationView } from '@/types/product';
 import { formatRate, formatRupees } from '@/utils/format';
@@ -27,7 +28,7 @@ import { formatRate, formatRupees } from '@/utils/format';
  * own vendor's product (REVIEW_OWN_VENDOR).
  */
 export function ModerationReview({ lang, id }: { lang: Locale; id: string }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const m = t.moderation;
   const review = useForReview(id);
   const own = review.error && toAppError(review.error).code === 'REVIEW_OWN_VENDOR';
@@ -43,14 +44,14 @@ export function ModerationReview({ lang, id }: { lang: Locale; id: string }) {
       ) : review.isError ? (
         <PartError error={review.error} onRetry={() => void review.refetch()} t={t} />
       ) : (
-        <Review lang={lang} view={review.data} />
+        <Review view={review.data} />
       )}
     </div>
   );
 }
 
-function Review({ lang, view }: { lang: Locale; view: ModerationView }) {
-  const t = getMessages(lang);
+function Review({ view }: { view: ModerationView }) {
+  const t = useMessages();
   const m = t.moderation;
   const toast = useToast();
   const decide = useDecision(view.product.id);
@@ -126,7 +127,7 @@ function Review({ lang, view }: { lang: Locale; view: ModerationView }) {
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {view.images.live.map((photo, index) => (
             <li key={photo.id} className="grid gap-1">
-              <PhotoFrame src={reviewPhotoSrc(product.id, photo.id, 'medium')} alt={photo.altText ?? ''} unavailable={t.product.photoUnavailable} />
+              <PhotoFrame src={reviewPhotoSrc(product.id, photo.id, 'medium')} alt={photo.altText ?? ''} unavailable={t.common.photoUnavailable} />
               <p className="type-caption text-ink-2">{index === 0 ? t.product.photos.main : (photo.altText ?? '')}</p>
             </li>
           ))}

@@ -3,7 +3,8 @@
 import { Globe } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { send } from '@/lib/http';
-import { getMessages, type Locale } from '@/lib/i18n';
+import { type Locale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 
 /**
  * Switches language and stays on the same page (Document 4, section 6). A text button with a globe icon showing the
@@ -27,7 +28,7 @@ export function LanguageSwitch({ lang }: { lang: Locale }) {
       }}
     >
       <Globe aria-hidden="true" className="size-5" />
-      {getMessages(lang).languageNames[other]}
+      {useMessages().languageNames[other]}
     </a>
   );
 }

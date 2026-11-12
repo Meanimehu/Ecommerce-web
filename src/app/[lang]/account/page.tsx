@@ -5,7 +5,7 @@ import { requireUser } from '@/components/auth/require-user';
 import { NeedsScript } from '@/components/common/needs-script';
 import { SiteHeader } from '@/components/common/site-header';
 import { AppError } from '@/lib/errors';
-import { getMessages } from '@/lib/i18n';
+import { getMessages } from '@/lib/messages';
 import { isStaff } from '@/types/auth';
 import { formatPhone } from '@/utils/format';
 

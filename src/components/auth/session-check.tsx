@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { endsSession, useSession } from '@/hooks/use-session';
 import { AppError } from '@/lib/errors';
-import { getMessages, type Locale } from '@/lib/i18n';
+import { type Locale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 
 /**
  * Shown by a page whose access token is missing or expired. A page render cannot set cookies, so the browser asks
@@ -16,7 +17,7 @@ import { getMessages, type Locale } from '@/lib/i18n';
  * (hooks/use-session.ts). No clear answer: a message, and the person stays.
  */
 export function SessionCheck({ lang, path }: { lang: Locale; path: string }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const router = useRouter();
   const session = useSession();
   const error = useMemo(

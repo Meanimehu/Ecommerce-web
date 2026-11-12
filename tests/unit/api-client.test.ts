@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import { AppError, messageFor } from '@/lib/errors';
-import { getMessages } from '@/lib/i18n';
+import { getMessages } from '@/lib/messages';
 import { callBackend } from '@/api/client';
 
 const json = (status: number, body: unknown, headers: Record<string, string> = {}) =>

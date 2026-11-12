@@ -12,7 +12,8 @@ import { TextareaField } from '@/components/form/textarea-field';
 import { applyServerError, useAppForm } from '@/hooks/use-app-form';
 import { useChangeProduct, useCreateProduct } from '@/hooks/use-product';
 import { fill, requestIdOf, toAppError } from '@/lib/errors';
-import { getMessages, type Locale } from '@/lib/i18n';
+import { type Locale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import { BasicsSchema, flattenCategories, type BasicsInput, type Dictionaries, type ProductView } from '@/types/product';
 import { formatRate } from '@/utils/format';
 
@@ -24,7 +25,7 @@ import { formatRate } from '@/utils/format';
 const IDS = { title: 'product-title', categoryId: 'product-category', brandId: 'product-brand', description: 'product-description', hsnCode: 'product-hsn', gstRateBps: 'product-gst' } as const;
 
 export function BasicsStep({ lang, product, dictionaries }: { lang: Locale; product: ProductView | null; dictionaries: Dictionaries }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const p = t.product;
   const router = useRouter();
   const toast = useToast();

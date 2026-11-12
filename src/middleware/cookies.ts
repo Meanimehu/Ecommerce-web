@@ -81,3 +81,11 @@ export function unsign<T>(value: string | undefined): T | null {
 
 /** The request header in which proxy.ts gives a page render its own address (path and query). */
 export const PATH_HEADER = 'x-dhaaga-path';
+
+/** The pending add (D2-02): the variant and quantity, or null when the cookie is missing, altered or malformed. */
+export function decodePendingAdd(raw: string | undefined): { variantId: string; quantity: number } | null {
+  const value = unsign<{ v?: unknown; q?: unknown }>(raw);
+  if (typeof value?.v !== 'string' || !/^[0-9a-f-]{36}$/i.test(value.v)) return null;
+  if (typeof value.q !== 'number' || !Number.isInteger(value.q) || value.q < 1 || value.q > 10) return null;
+  return { variantId: value.v, quantity: value.q };
+}

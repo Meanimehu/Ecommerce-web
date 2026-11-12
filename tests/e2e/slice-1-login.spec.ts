@@ -131,6 +131,9 @@ test.describe('session ends (Document 2, section 4)', () => {
     const phone = freshPhone();
     await page.goto('/en/login');
     await logIn(page, phone);
+    // Leave our pages first: an open page notices the ended session by itself (its header asks for the session and
+    // the cart) and would go to the login page while this test navigates.
+    await page.goto('about:blank');
     // End the session at the backend without touching this browser's cookies (as a logout in another tab would).
     await backendLogout((await context.cookies()).find((c) => c.name === '__Host-dhaaga_at')!.value);
     expect((await context.cookies()).map((c) => c.name)).toContain('__Host-dhaaga_rt');
@@ -149,6 +152,7 @@ test.describe('session ends (Document 2, section 4)', () => {
     const phone = freshPhone();
     await page.goto('/en/login');
     await logIn(page, phone);
+    await page.goto('about:blank');
     await blockUser(await backendLogin(process.env.E2E_ADMIN_PHONE ?? '9000000001'), phone);
 
     await page.goto('/en/account');

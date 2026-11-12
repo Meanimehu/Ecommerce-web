@@ -25,6 +25,9 @@ export async function readCode(phone: string): Promise<string> {
 }
 
 export async function logIn(page: Page, phone: string, labels = { phone: 'Mobile number', send: 'Send code', code: 'One-time code', verify: 'Verify and log in' }) {
+  // A click before the page's scripts are ready sends the form the plain browser way and the typed number is lost;
+  // keeping it is the browser form recovery work (D5-05), planned for Slice 4. Until then the test waits for the page.
+  await page.waitForLoadState('networkidle');
   await page.getByLabel(labels.phone).fill(phone);
   await page.getByRole('button', { name: labels.send }).click();
   await expect(page.getByLabel(labels.code, { exact: true })).toBeFocused();

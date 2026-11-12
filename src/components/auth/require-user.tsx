@@ -1,7 +1,8 @@
 import { CircleAlert } from 'lucide-react';
 import { forbidden, notFound, redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
-import { getMessages, isLocale, type Locale } from '@/lib/i18n';
+import { isLocale, type Locale } from '@/lib/i18n';
+import { getMessages } from '@/lib/messages';
 import type { User } from '@/types/auth';
 import { getViewer } from '@/middleware/session';
 import { PATH_HEADER } from '@/middleware/cookies';

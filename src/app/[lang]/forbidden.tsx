@@ -4,7 +4,8 @@ import { Lock } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { StateBlock } from '@/components/common/state-block';
 import { Button } from '@/components/ui/button';
-import { getMessages, isLocale } from '@/lib/i18n';
+import { isLocale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 
 /**
  * The "you don't have access" page, sent with a real 403 (Document 2, section 4; Document 4, section 5): a lock icon,
@@ -13,7 +14,7 @@ import { getMessages, isLocale } from '@/lib/i18n';
 export default function Forbidden() {
   const params = useParams<{ lang: string }>();
   const lang = isLocale(params.lang) ? params.lang : 'en';
-  const t = getMessages(lang);
+  const t = useMessages();
   return (
     <main className="mx-auto grid w-full max-w-[640px] px-4 py-12">
       <StateBlock icon={Lock} title={t.noAccess.title} text={t.noAccess.body}>

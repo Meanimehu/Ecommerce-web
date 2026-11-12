@@ -21,7 +21,8 @@ import { ErrorMessage } from '@/components/common/error-message';
 import { useToast } from '@/components/common/toast';
 import { myPhotoSrc, useChangePhoto, useDeletePhoto, useOrderPhotos, useUploadPhoto } from '@/hooks/use-product';
 import { AppError, fill, messageFor, requestIdOf, toAppError } from '@/lib/errors';
-import { getMessages, type Locale, type Messages } from '@/lib/i18n';
+import { type Locale, type Messages } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import { checkFile, formatSize, UPLOAD_RULES } from '@/lib/uploads';
 import type { Photo, ProductView } from '@/types/product';
 import { cn } from '@/utils/cn';
@@ -49,7 +50,7 @@ export function sortedPhotos(images: readonly Photo[]): Photo[] {
 }
 
 export function PhotosStep({ lang, product }: { lang: Locale; product: ProductView }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const p = t.product;
   const toast = useToast();
   const uploadPhoto = useUploadPhoto(product.id);
@@ -188,7 +189,7 @@ export function PhotosStep({ lang, product }: { lang: Locale; product: ProductVi
 
       <ul className="grid gap-3" aria-label={p.photos.list}>
         {photos.map((photo, index) => (
-          <PhotoRow key={photo.id} lang={lang} product={product} photo={photo} index={index} count={photos.length} busy={order.isPending} onMove={move} />
+          <PhotoRow key={photo.id} product={product} photo={photo} index={index} count={photos.length} busy={order.isPending} onMove={move} />
         ))}
       </ul>
       <p className="type-small text-muted-foreground">{p.photos.help}</p>
@@ -241,8 +242,8 @@ function UploadRow({ upload, t, onCancel, onRetry }: { upload: Upload; t: Messag
   );
 }
 
-function PhotoRow({ lang, product, photo, index, count, busy, onMove }: { lang: Locale; product: ProductView; photo: Photo; index: number; count: number; busy: boolean; onMove: (from: number, to: number) => void }) {
-  const t = getMessages(lang);
+function PhotoRow({ product, photo, index, count, busy, onMove }: { product: ProductView; photo: Photo; index: number; count: number; busy: boolean; onMove: (from: number, to: number) => void }) {
+  const t = useMessages();
   const p = t.product.photos;
   const toast = useToast();
   const change = useChangePhoto(product.id);
@@ -266,7 +267,7 @@ function PhotoRow({ lang, product, photo, index, count, busy, onMove }: { lang: 
       }}
       className="grid gap-3 rounded-1 border border-line p-3 sm:grid-cols-[96px_minmax(0,1fr)_auto]"
     >
-      <PhotoFrame src={myPhotoSrc(product.id, photo.id, 'thumb')} alt={photo.altText ?? ''} unavailable={t.product.photoUnavailable} className="w-24" />
+      <PhotoFrame src={myPhotoSrc(product.id, photo.id, 'thumb')} alt={photo.altText ?? ''} unavailable={t.common.photoUnavailable} className="w-24" />
       <div className="grid content-start gap-2">
         <p className="font-medium text-ink">{label}</p>
         <form

@@ -14,7 +14,8 @@ import { StateBlock } from '@/components/common/state-block';
 import { useMyProducts } from '@/hooks/use-product';
 import { useMyVendor } from '@/hooks/use-vendor';
 import { fill } from '@/lib/errors';
-import { getMessages, type Locale } from '@/lib/i18n';
+import { type Locale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import { PRODUCT_STATUSES, type ProductRow } from '@/types/product';
 import { formatDate } from '@/utils/format';
 import { pageNumber, withQuery } from '@/utils/url';
@@ -29,7 +30,7 @@ import { ProductStatusChip } from './product-status';
 const LIMIT = 20;
 
 export function ProductList({ lang }: { lang: Locale }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const p = t.product;
   const params = useSearchParams();
   const status = params.get('status') ?? '';

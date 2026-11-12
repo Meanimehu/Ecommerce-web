@@ -10,7 +10,8 @@ import { useToast } from '@/components/common/toast';
 import { applyServerError, useAppForm } from '@/hooks/use-app-form';
 import { useApply, useUpdateVendor } from '@/hooks/use-vendor';
 import { requestIdOf, toAppError } from '@/lib/errors';
-import { getMessages, type Locale } from '@/lib/i18n';
+import { type Locale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import { DetailsSchema, SELLER_TYPES, type DetailsInput, type Vendor } from '@/types/vendor';
 
 /**
@@ -26,7 +27,7 @@ const IDS = {
 } as const;
 
 export function DetailsStep({ lang, vendor }: { lang: Locale; vendor: Vendor | null }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const router = useRouter();
   const toast = useToast();
   const apply = useApply();

@@ -26,7 +26,8 @@ import { TextField } from '@/components/form/text-field';
 import { applyServerError, useAppForm } from '@/hooks/use-app-form';
 import { useDeleteVariant, useSaveVariant } from '@/hooks/use-product';
 import { fill, messageFor, requestIdOf, toAppError } from '@/lib/errors';
-import { getMessages, type Locale, type Messages } from '@/lib/i18n';
+import { type Locale, type Messages } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import { paiseToRupees, rupeesToPaise, VariantFormSchema, type Dictionaries, type ProductView, type Variant, type VariantInput } from '@/types/product';
 import { formatRupees } from '@/utils/format';
 
@@ -37,7 +38,7 @@ import { formatRupees } from '@/utils/format';
  * the product has never been approved (the backend decides).
  */
 export function VariantsStep({ lang, product, dictionaries }: { lang: Locale; product: ProductView; dictionaries: Dictionaries }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const p = t.product;
   const toast = useToast();
   const save = useSaveVariant(product.id);
@@ -116,7 +117,7 @@ export function VariantsStep({ lang, product, dictionaries }: { lang: Locale; pr
       ) : null}
       {actionError ? <ErrorMessage text={messageFor(toAppError(actionError), t)} requestId={requestIdOf(actionError)} t={t} /> : null}
       {editing !== null ? (
-        <VariantForm lang={lang} product={product} dictionaries={dictionaries} variant={editing === 'new' ? undefined : editing} onDone={() => setEditing(null)} canCancel={product.variants.length > 0} />
+        <VariantForm product={product} dictionaries={dictionaries} variant={editing === 'new' ? undefined : editing} onDone={() => setEditing(null)} canCancel={product.variants.length > 0} />
       ) : null}
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
         {editing === null ? (
@@ -141,21 +142,19 @@ export function VariantsStep({ lang, product, dictionaries }: { lang: Locale; pr
 const IDS = { sizeCode: 'variant-size', colourCode: 'variant-colour', sku: 'variant-sku', mrp: 'variant-mrp', price: 'variant-price' } as const;
 
 function VariantForm({
-  lang,
   product,
   dictionaries,
   variant,
   onDone,
-  canCancel,
+  canCancel
 }: {
-  lang: Locale;
   product: ProductView;
   dictionaries: Dictionaries;
   variant?: Variant;
   onDone: () => void;
   canCancel: boolean;
 }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const p = t.product;
   const toast = useToast();
   const save = useSaveVariant(product.id);

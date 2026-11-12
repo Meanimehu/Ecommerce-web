@@ -15,7 +15,8 @@ import { LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLogout } from '@/hooks/use-logout';
 import { AppError, messageFor } from '@/lib/errors';
-import { getMessages, type Locale } from '@/lib/i18n';
+import { type Locale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
 import { ErrorMessage } from '@/components/common/error-message';
 
 /**
@@ -24,7 +25,7 @@ import { ErrorMessage } from '@/components/common/error-message';
  * button is the solid error colour (Document 6, 8.2 and 8.10).
  */
 export function LogoutButtons({ lang }: { lang: Locale }) {
-  const t = getMessages(lang);
+  const t = useMessages();
   const logOut = useLogout(lang);
   const busy = logOut.isPending || logOut.isSuccess;
   const error = logOut.error ? (logOut.error instanceof AppError ? logOut.error : new AppError({ code: 'NETWORK', status: 0 })) : null;

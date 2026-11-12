@@ -9,6 +9,7 @@ import { COOKIE, cookieOptions, encodeNext, isSafeLocalPath, LIFETIME_SECONDS, P
  *    after-login cookie, and the address is cleaned (Document 2, section 6; Document 4, section 9).
  * 3. Every page request carries its own address to the server render (PATH_HEADER), so a login guard in a layout can
  *    return the person to the exact page they asked for (Document 2, D2-03).
+ * 4. Pages may load images only from our own site and the public photo host (IMAGE_HOST; Document 3, D3-04).
  * Our own endpoints (/api), Next.js files and static files are left alone.
  */
 const PRIVATE = 'private, no-store';
@@ -37,7 +38,19 @@ export function proxy(request: NextRequest) {
   // here, so a value sent by the browser is never used.
   const headers = new Headers(request.headers);
   headers.set(PATH_HEADER, `${pathname}${search}`);
-  return NextResponse.next({ request: { headers } });
+  const response = NextResponse.next({ request: { headers } });
+  // Pages may load images only from our own site and the public photo host (Document 3, D3-04).
+  const imageHost = imageOrigin();
+  response.headers.set('Content-Security-Policy', `img-src 'self' data: blob:${imageHost ? ` ${imageHost}` : ''}`);
+  return response;
+}
+
+function imageOrigin(): string | null {
+  try {
+    return process.env.IMAGE_HOST ? new URL(process.env.IMAGE_HOST).origin : null;
+  } catch {
+    return null;
+  }
 }
 
 export const config = {
