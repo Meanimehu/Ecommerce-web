@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import * as authApi from '@/api/auth';
 import { BackendErrorCode } from '@/lib/error-codes';
+import { HttpStatus } from '@/lib/http-status';
 import { fail, fromAppError, guardChange, ok, readJson } from '@/middleware/responses';
 
 /** POST /api/auth/code: asks the backend to send a login code (POST /auth/otp/request). */
@@ -12,7 +13,7 @@ export async function POST(request: NextRequest) {
   if (refusedByForgeryCheck) return refusedByForgeryCheck;
 
   const body = RequestCodeBody.safeParse(await readJson(request));
-  if (!body.success) return fail(BackendErrorCode.PhoneInvalid, 400);
+  if (!body.success) return fail(BackendErrorCode.PhoneInvalid, HttpStatus.BadRequest);
 
   try {
     const { data } = await authApi.requestLoginCode({ phone: body.data.phone });

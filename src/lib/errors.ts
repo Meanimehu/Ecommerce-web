@@ -3,6 +3,8 @@
  * the backend's text, and shows our own message for it (D-09).
  */
 import { AppErrorCode, type ErrorCode } from './error-codes';
+import { HttpStatus, isClientError } from './http-status';
+import { isSingular } from '@/utils/format';
 import type { Messages } from './i18n';
 
 /** One backend field error (VALIDATION_FAILED): the backend's field name and its messages. */
@@ -49,19 +51,32 @@ export class AppError extends Error implements AppErrorShape {
   }
 }
 
-export type ErrorKind = keyof Messages['errors']['kinds'];
+const NO_WAIT_SECONDS = 0;
+const SECONDS_PER_MINUTE = 60;
+
+/** Kinds of failure, each with a general message in the catalogue (errors.kinds). */
+export enum ErrorKind {
+  Input = 'input',
+  Access = 'access',
+  Conflict = 'conflict',
+  RateLimit = 'rateLimit',
+  Server = 'server',
+  Network = 'network',
+}
 
 function isConnectionProblem(error: AppErrorShape): boolean {
   return error.code === AppErrorCode.Network || error.code === AppErrorCode.Timeout;
 }
 
 export function kindOf(error: AppErrorShape): ErrorKind {
-  if (isConnectionProblem(error)) return 'network';
-  if (error.status === 429) return 'rateLimit';
-  if (error.status === 401 || error.status === 403) return 'access';
-  if (error.status === 404 || error.status === 409) return 'conflict';
-  if (error.status >= 400 && error.status < 500) return 'input';
-  return 'server';
+  const { status } = error;
+  if (isConnectionProblem(error)) return ErrorKind.Network;
+  if (status === HttpStatus.TooManyRequests) return ErrorKind.RateLimit;
+  if (status === HttpStatus.Unauthorized || status === HttpStatus.Forbidden)
+    return ErrorKind.Access;
+  if (status === HttpStatus.NotFound || status === HttpStatus.Conflict) return ErrorKind.Conflict;
+  if (isClientError(status)) return ErrorKind.Input;
+  return ErrorKind.Server;
 }
 
 /**
@@ -81,13 +96,15 @@ export function messageFor(error: AppErrorShape, messages: Messages): string {
     : messages.errors.kinds[kindOf(error)];
   const message = messageForCode ?? generalMessage;
 
-  return error.status === 429 ? withWaitingTime(message, error, messages) : message;
+  return error.status === HttpStatus.TooManyRequests
+    ? withWaitingTime(message, error, messages)
+    : message;
 }
 
 /** The backend's waiting time before trying again, in seconds, when it sends one. */
 export function retryAfterSecondsOf(error: AppErrorShape): number | null {
   const seconds = Number(error.details?.retryAfterSeconds);
-  return Number.isFinite(seconds) && seconds > 0 ? seconds : null;
+  return Number.isFinite(seconds) && seconds > NO_WAIT_SECONDS ? seconds : null;
 }
 
 /** "Too many requests" with how long to wait, where the backend says (Document 3, section 5). */
@@ -97,14 +114,14 @@ function withWaitingTime(message: string, error: AppErrorShape, messages: Messag
 
   const errorText = messages.errors;
   const wholeSeconds = Math.ceil(retryAfterSeconds);
-  const wholeMinutes = Math.ceil(retryAfterSeconds / 60);
+  const wholeMinutes = Math.ceil(retryAfterSeconds / SECONDS_PER_MINUTE);
 
   let waitingTime: string;
-  if (wholeSeconds === 1) {
+  if (isSingular(wholeSeconds)) {
     waitingTime = errorText.waitSecond;
-  } else if (wholeSeconds < 60) {
+  } else if (wholeSeconds < SECONDS_PER_MINUTE) {
     waitingTime = fill(errorText.waitSeconds, { seconds: wholeSeconds });
-  } else if (wholeMinutes === 1) {
+  } else if (isSingular(wholeMinutes)) {
     waitingTime = errorText.waitMinute;
   } else {
     waitingTime = fill(errorText.waitMinutes, { minutes: wholeMinutes });
@@ -123,7 +140,7 @@ export function fill(text: string, values: Record<string, string | number>): str
 /** Any thrown value as an AppError; something that is not one counts as a lost connection. */
 export function toAppError(error: unknown): AppError {
   if (error instanceof AppError) return error;
-  return new AppError({ code: AppErrorCode.Network, status: 0 });
+  return new AppError({ code: AppErrorCode.Network, status: HttpStatus.NoResponse });
 }
 
 /** The reference number of a failed call, when a real one reached the browser (D5-14). */

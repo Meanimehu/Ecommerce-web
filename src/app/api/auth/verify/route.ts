@@ -2,9 +2,10 @@ import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import * as authApi from '@/api/auth';
 import * as cartApi from '@/api/cart';
-import { BackendErrorCode, type ErrorCode } from '@/lib/error-codes';
+import { BackendErrorCode } from '@/lib/error-codes';
 import { AppError } from '@/lib/errors';
-import { isLocale, type Locale } from '@/lib/i18n';
+import { HttpStatus } from '@/lib/http-status';
+import { DEFAULT_LOCALE, isLocale, type Locale } from '@/lib/i18n';
 import { COOKIE, cookieOptions, decodeNext, decodePendingAdd } from '@/middleware/cookies';
 import {
   fail,
@@ -15,6 +16,7 @@ import {
   setSessionCookies,
 } from '@/middleware/responses';
 import { defaultDestination } from '@/middleware/session';
+import { AddOutcome, type AddNotice } from '@/types/add-notice';
 
 /**
  * POST /api/auth/verify: checks the code with the backend and, when it is right, sets the login
@@ -27,19 +29,14 @@ const VerifyCodeBody = z.object({
   lang: z.string(),
 });
 
-interface PendingAddResult {
-  outcome: 'added' | 'failed' | 'unknown';
-  code?: ErrorCode;
-}
-
 export async function POST(request: NextRequest) {
   const refusedByForgeryCheck = guardChange(request);
   if (refusedByForgeryCheck) return refusedByForgeryCheck;
 
   const body = VerifyCodeBody.safeParse(await readJson(request));
-  if (!body.success) return fail(BackendErrorCode.ValidationFailed, 400);
+  if (!body.success) return fail(BackendErrorCode.ValidationFailed, HttpStatus.BadRequest);
 
-  const lang: Locale = isLocale(body.data.lang) ? body.data.lang : 'en';
+  const lang: Locale = isLocale(body.data.lang) ? body.data.lang : DEFAULT_LOCALE;
 
   try {
     const { data: login } = await authApi.verifyLoginCode({
@@ -83,14 +80,14 @@ export async function POST(request: NextRequest) {
 async function runPendingAdd(
   accessToken: string,
   pendingAdd: { variantId: string; quantity: number },
-): Promise<PendingAddResult> {
+): Promise<AddNotice> {
   try {
     await cartApi.addToCart(accessToken, pendingAdd);
-    return { outcome: 'added' };
+    return { outcome: AddOutcome.Added };
   } catch (error) {
     if (error instanceof AppError && !error.outcomeUnknown) {
-      return { outcome: 'failed', code: error.code };
+      return { outcome: AddOutcome.Failed, code: error.code };
     }
-    return { outcome: 'unknown' };
+    return { outcome: AddOutcome.Unknown };
   }
 }

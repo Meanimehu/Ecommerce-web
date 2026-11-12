@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { get, patch, remove, send } from '@/lib/http';
 import type { Locale } from '@/lib/i18n';
+import { isAddNotice, type AddNotice } from '@/types/add-notice';
 import type { Cart } from '@/types/cart';
 import { withQuery } from '@/utils/url';
 import { useSession } from './use-session';
@@ -54,8 +55,7 @@ export async function addAfterLogin(input: { variantId: string; quantity: number
   window.location.assign(answer.login);
 }
 
-/** What the login answer said about a pending add, kept for the page the person returns to, shown once. */
-export type AddNotice = { outcome: 'added' | 'failed' | 'unknown'; code?: string };
+/** Shown once, on the page the person returns to after logging in. */
 const NOTICE_KEY = 'dhaaga:pending-add';
 
 export function keepAddNotice(notice: AddNotice): void {
@@ -70,8 +70,8 @@ export function takeAddNotice(): AddNotice | null {
   try {
     const raw = sessionStorage.getItem(NOTICE_KEY);
     sessionStorage.removeItem(NOTICE_KEY);
-    const value = raw ? (JSON.parse(raw) as AddNotice) : null;
-    return value && (value.outcome === 'added' || value.outcome === 'failed' || value.outcome === 'unknown') ? value : null;
+    const storedNotice: unknown = raw ? JSON.parse(raw) : null;
+    return isAddNotice(storedNotice) ? storedNotice : null;
   } catch {
     return null;
   }

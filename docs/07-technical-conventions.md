@@ -130,7 +130,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | # | Check | When |
 | --- | --- | --- |
 | T7-1 | Every figure in section 12 against the real backend and the agreed budget-device and slow-connection profiles | First working build |
-| T7-2 | Document 6 performance figures (LCP, INP, CLS, 300 KB, 150 KB, 100 KB per area). **First measurement (11 Nov 2026, Slice 1, transferred, empty cache):** English home 225 KB and English login 273 KB, both within 300 KB; plus 53 KB for the Hindi font on English pages, loaded on demand because the language switch shows "हिन्दी" (Document 6, 5.4: not counted in the total, how to count it is open). Hindi home 278 KB, within. **Hindi login 375 KB, over the 300 KB** (Document 6, section 14, item 3: fonts take 146 KB on Hindi pages, the login page's scripts about 220 KB). Owner decision needed; the end-to-end test reports this page without judging it until then. **Slice 2a (12 Nov 2026):** the build's chunk setting was changed (`next.config.ts`, `turbopackChunking.minChunkSize` 10,000) after the default sent the shared button code three times on the login page; with the new message text English login is 288 KB, English home 223 KB, Hindi home 276 KB, Hindi login 391 KB. **Slice 2d (12 Nov 2026):** the browser now gets only its page's language, and the Vendor and Admin areas' own text only inside those areas (`lib/messages.ts`), so storefront pages do not grow with area screens. English login 296 KB, English home 229 KB, English category page 294 KB, Hindi home 283 KB, Hindi login 399 KB (still the open owner decision) | First working build; Hindi login open |
+| T7-2 | Document 6 performance figures (LCP, INP, CLS, 300 KB, 150 KB, 100 KB per area). **First measurement (11 Nov 2026, Slice 1, transferred, empty cache):** English home 225 KB and English login 273 KB, both within 300 KB; plus 53 KB for the Hindi font on English pages, loaded on demand because the language switch shows "हिन्दी" (Document 6, 5.4: not counted in the total, how to count it is open). Hindi home 278 KB, within. **Hindi login 375 KB, over the 300 KB** (Document 6, section 14, item 3: fonts take 146 KB on Hindi pages, the login page's scripts about 220 KB). Owner decision needed; the end-to-end test reports this page without judging it until then. **Slice 2a (12 Nov 2026):** the build's chunk setting was changed (`next.config.ts`, `turbopackChunking.minChunkSize` 10,000) after the default sent the shared button code three times on the login page; with the new message text English login is 288 KB, English home 223 KB, Hindi home 276 KB, Hindi login 391 KB. **Slice 2d (12 Nov 2026):** the browser now gets only its page's language, and the Vendor and Admin areas' own text only inside those areas (`lib/messages.ts`), so storefront pages do not grow with area screens. English login 296 KB, English home 229 KB, English category page 294 KB, Hindi home 283 KB, Hindi login 399 KB (still the open owner decision). **Code-style pilot (12 Nov 2026):** the named error codes (section 20.4) travel to the browser as a list of 120 codes, about 3 KB on every page: English home 232 KB, English login 298 KB (close to 300), Hindi home 286 KB, Hindi login 402 KB. The add-to-cart outcome is kept in its own file without Zod (`types/add-notice.ts`), because importing it from `types/cart.ts` put Zod (32 KB) on every page | First working build; Hindi login open; English login close to the limit |
 | T7-3 | OpenAPI source: which staging address, and whether it matches production (section 5) | First build |
 | T7-4 | **Request ID (Document 5, V5-5): confirmed 11 Nov 2026.** Our server endpoints include the backend's `requestId` in the error response they send to the browser; an end-to-end test checks it. Errors our server decides by itself carry none, so no made-up number is ever shown (D5-14) | Done |
 | T7-5 | Sitemap size and splitting (section 6) | First build |
@@ -168,6 +168,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 15 | 12 Nov 2026 | Slice 2a: the build's chunk setting and new page-size measurements in T7-2. No decision changed |
 | 16 | 12 Nov 2026 | Slice 2d: page sizes in T7-2 after sending each page only its language's text. No decision changed |
 | 17 | 12 Nov 2026 | D7-16 and section 20 added: the code-style rules the owner asked for after reviewing the code, with the owner's choices (two error-code enums, 100-character lines, storefront addresses renamed). No earlier decision changed; the address change to D4-02 is made with the storefront clean-up |
+| 18 | 12 Nov 2026 | Page sizes after the pilot in T7-2. Section 20 after the owner's review of the login pilot: named values instead of raw comparisons (20.5); screens only draw, form hooks do the work, one `Form` component, `handleSubmit(onValid, onInvalid)` with `mutate` callbacks, every browser failure an `AppError` (20.6). No earlier decision changed |
 
 ## 16. Names: folders and files
 
@@ -249,7 +250,7 @@ Recorded 12 Nov 2026 at the owner's request after a review of the code. The goal
 - **Variables, functions, parameters and state:** camelCase full words. No single letters, including callback parameters: `sellers.map((seller) => …)`, not `(s) => …`. A longer name is fine when it is clearer.
 - **Functions say what they do:** a verb and its object, such as `submitPhoneNumber` or `removeUnavailableLines`. Event handlers are named for what they do, not `onPhone`.
 - **The page's text** is `messages` (from `useMessages()` or `getMessages()`); an area's part may be named for it, such as `loginText`. Never `t`.
-- **In a catch**, the caught value is `caughtError`, and it is turned into an `AppError` straight away: `const error = toAppError(caughtError)`.
+- **In a catch** (only where section 20.6 allows one), the caught value is `caughtError`.
 
 ### 20.2 Layout and formatting
 
@@ -271,13 +272,43 @@ Recorded 12 Nov 2026 at the owner's request after a review of the code. The goal
 - Code compares and sets codes only through these enums, never with a string such as `'NETWORK'`. Message keys in `en.json` and `hi.json` stay the plain code strings, so the catalogue is unchanged.
 - A code the frontend does not know (a newer backend) still reaches the screen and gets the general message for its kind (section 19).
 
-### 20.5 Forms, calls and text
+### 20.5 Named values instead of raw comparisons
 
-- **Submitting a form:** `mutateAsync` inside `try`/`catch`, with `applyServerError` for the backend's answer. Moving focus to the error summary after a failed submit is done by `useErrorSummaryFocus` (`hooks/use-app-form.ts`), not by a counter in every form.
-- **Calls from the browser** go through the hooks in `src/hooks/`; request bodies are typed, from the generated backend request types where the body passes through unchanged.
-- **Text in client components** comes from `useMessages()`. A component takes text as a prop only when a server page also uses it.
+- **Code never compares with, or sets, a raw string or number.** The value gets a name first (an enum or a named constant), and the code uses the name: `sessionNotice === SessionNotice.Blocked`, `error.status === HttpStatus.TooManyRequests`, `error.code === BackendErrorCode.OtpResendWait`, never `=== 'blocked'`, `=== 429` or `=== 'OTP_RESEND_WAIT'`.
+- A string enum keeps the stored or sent value (`SessionNotice.Blocked = 'blocked'`), so nothing stored in the browser or sent to the backend changes.
+- HTTP statuses are `HttpStatus` (`src/lib/http-status.ts`), including `HttpStatus.NoResponse` (0) for an error where no answer arrived; a range is a named check such as `isServerError(status)`. A count that picks "1 second" over "{seconds} seconds" uses `isSingular(count)` (`src/utils/format.ts`).
+- Comparisons with a JavaScript type name (`typeof value === 'string'`) stay as they are until the owner decides otherwise.
 
-### 20.6 How it is rolled out
+### 20.6 Forms and calls from the browser
+
+**Who does what.**
+
+| Part | File | Its one job |
+| --- | --- | --- |
+| The screen | `components/<area>/…` | Draws fields and buttons and wires the submit. No call or error logic |
+| `Form` | `components/form/form.tsx` | The `<form>` tag every form uses: always `method="post"`, the browser's own checks off. Posting means a tap before the scripts load never puts what was typed (a phone number, a code) in the address, where history and server logs keep it |
+| The form hook | `hooks/use-<area>-form.ts` | The form (`useAppForm` with its Zod schema), what to do on success and on each error, the error-summary focus, timers. Returns only what the screen needs |
+| The call hook | `hooks/use-<area>.ts` | One TanStack Query hook per call, with its address, typed input and typed answer |
+| `lib/http.ts` | | The only place the browser calls our server: our forgery header, a time limit, and **every failure becomes an `AppError`** |
+| Our endpoint | `app/api/<area>/…/route.ts` | Checks the request is ours and complete, then calls `src/api/` |
+| `src/api/` | `api/<area>.ts`, `api/client.ts` | The only place our server calls the backend; checks the answer's shape |
+
+**How a submit runs.**
+
+1. The screen: `<Form onSubmit={form.handleSubmit(sendCode, showValidationErrors)}>`. React Hook Form's `handleSubmit` stops the browser's own submit and runs the Zod schema. It calls the first function with the checked values, or the second when a field is wrong.
+2. The form hook's function calls the call hook: `requestLoginCode.mutate(phone, { onSuccess, onError })`. Both are named functions in the hook, so success and every error case are easy to find.
+3. `onError` receives an `AppError`, already typed (`src/types/react-query.d.ts`), because `lib/http.ts` only ever rejects with one. **No `try`/`catch` and no `toAppError` in screens or form hooks.**
+4. An error for a field goes under that field and the others go in the error summary (`applyServerError`); then focus moves to the summary (`useErrorSummaryFocus`). A failed field check moves focus there too.
+
+**Rules.**
+
+- One way to submit: `handleSubmit(onValid, onInvalid)` in the screen, `mutate` with `onSuccess` and `onError` in the form hook.
+- A screen with a form never calls a call hook or `lib/http.ts` itself. A small action without a form (a Remove button) may use the call hook directly.
+- `try`/`catch` is used only where a failure is a normal answer, not a bug: our endpoints and `src/api/` (turning failures into answers), `lib/http.ts`, and reading browser storage.
+- Text in client components comes from `useMessages()`. A component takes text as a prop only when a server page also uses it.
+- Request bodies are typed, from the generated backend request types where the body passes through unchanged.
+
+### 20.7 How it is rolled out
 
 1. The login feature first (the pilot). The owner looks at the result and decides whether these rules stay, change or go.
 2. If they stay, one pull request per area: session and logout, vendor application, admin catalogue, products and moderation, storefront and cart. The storefront pull request also renames the `c` and `p` folders and addresses to `category` and `product`, as the owner chose on 12 Nov 2026, and updates D4-02 and the route table in Document 4 first.
