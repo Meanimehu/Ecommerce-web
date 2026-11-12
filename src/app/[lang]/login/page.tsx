@@ -8,21 +8,27 @@ import { getMessages } from '@/lib/messages';
 
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
-  const { lang } = await params;
-  return { title: isLocale(lang) ? getMessages(lang).login.title : undefined, robots: { index: false, follow: false } };
+interface LoginPageProps {
+  params: Promise<{ lang: string }>;
 }
 
-/** One login page for everyone (Document 2, D2-04; Document 5, section 6.4; approved Stage 5). Not indexed (D4-04). */
-export default async function LoginPage({ params }: { params: Promise<{ lang: string }> }) {
+export async function generateMetadata({ params }: LoginPageProps): Promise<Metadata> {
+  const { lang } = await params;
+  const title = isLocale(lang) ? getMessages(lang).login.title : undefined;
+  return { title, robots: { index: false, follow: false } };
+}
+
+/** One login page for everyone (D2-04). Not indexed (D4-04). */
+export default async function LoginPage({ params }: LoginPageProps) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
-  const t = getMessages(lang);
+
+  const messages = getMessages(lang);
   return (
     <>
       <SiteHeader lang={lang} />
       <main className="mx-auto grid w-full max-w-[452px] gap-4 px-4 py-8 sm:py-12">
-        <NeedsScript t={t} />
+        <NeedsScript t={messages} />
         <LoginForm lang={lang} />
       </main>
     </>

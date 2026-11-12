@@ -1,6 +1,6 @@
 # 7. Technical conventions
 
-> **Status: Approved (9 Nov 2026).** The owner reviewed the decisions D7-01 to D7-10, every group of starting figures and sections 5 to 11, and approved the document as a whole on 9 Nov 2026. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation. D7-11 to D7-15 were approved on 10 Nov 2026. On 11 Nov 2026 the owner approved removing the frontend store and simplifying forgery protection: D7-13 changed, the refresh timings removed (section 17). The same day the owner chose a new folder layout (section 16).
+> **Status: Approved (9 Nov 2026).** The owner reviewed the decisions D7-01 to D7-10, every group of starting figures and sections 5 to 11, and approved the document as a whole on 9 Nov 2026. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation. D7-11 to D7-15 were approved on 10 Nov 2026. On 11 Nov 2026 the owner approved removing the frontend store and simplifying forgery protection: D7-13 changed, the refresh timings removed (section 17). The same day the owner chose a new folder layout (section 16). On 12 Nov 2026 the owner asked for the code-style rules in section 20 (D7-16), tried first on the login feature.
 > Follows Documents 1 to 6. Documentation only; no code is written for this document.
 
 ## 1. Purpose
@@ -26,6 +26,7 @@ The technical rules the first build follows, so that Documents 1 to 6 can leave 
 | D7-13 | **Forgery protection, the same before and after login:** the exact `Origin` check, our fixed request header and `SameSite=Lax` cookies. No token, no anti-forgery cookie and no backend change (section 17.3) | Approved (10 Nov 2026). Changed 11 Nov 2026 (owner approved): the signed token was removed |
 | D7-14 | **Components come from the shadcn/ui tool** (D-03), added into `src/components/ui/` and styled with the Document 6 tokens to the approved Stage 4 look (section 18) | Approved (10 Nov 2026) |
 | D7-15 | **Error messages are written slice by slice.** Each slice adds English and Hindi messages for the backend error codes its screens can show; by launch every code in the backend's catalogue has one (section 19) | Approved (10 Nov 2026) |
+| D7-16 | **Code is written to be read.** Clear names, short lines, one way to do each common job, error codes as enums, comments only where they explain why (section 20). Tried first on the login feature; the owner decides whether it is kept before the rest of the code follows | Asked for by the owner (12 Nov 2026). Pilot on login, owner to confirm |
 
 ## 3. Timeouts (D7-01)
 
@@ -166,6 +167,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 14 | 11 Nov 2026 | Slice 1 part 2: how the fonts are loaded (section 9); first page-size measurements recorded in T7-2, with the Hindi login page over the provisional 300 KB for the owner to decide |
 | 15 | 12 Nov 2026 | Slice 2a: the build's chunk setting and new page-size measurements in T7-2. No decision changed |
 | 16 | 12 Nov 2026 | Slice 2d: page sizes in T7-2 after sending each page only its language's text. No decision changed |
+| 17 | 12 Nov 2026 | D7-16 and section 20 added: the code-style rules the owner asked for after reviewing the code, with the owner's choices (two error-code enums, 100-character lines, storefront addresses renamed). No earlier decision changed; the address change to D4-02 is made with the storefront clean-up |
 
 ## 16. Names: folders and files
 
@@ -236,3 +238,48 @@ Every cookie uses the `__Host-` prefix, `Secure`, `HttpOnly`, `SameSite=Lax`, pa
 - The check of Document 3, section 5 fails when a built screen can show a code that has no message. By launch (Slice 6) it covers every code in the backend's error catalogue (`docs/api/api-contract.md`, section 11).
 - Unknown codes always fall back to a general message chosen by the kind of failure (Document 3, section 5).
 - Hindi messages are drafts until reviewed by someone who writes Hindi (Document 8, section 6).
+
+## 20. Code style (D7-16)
+
+Recorded 12 Nov 2026 at the owner's request after a review of the code. The goal: someone new can open a file, see what it is for, follow the calls and know what each name holds without guessing. These rules change how code is written, never what it does: no behaviour, backend contract or feature changes because of them.
+
+### 20.1 Names
+
+- **Files and folders:** kebab-case, named for what they hold (section 16). No one- or two-letter names.
+- **Variables, functions, parameters and state:** camelCase full words. No single letters, including callback parameters: `sellers.map((seller) => …)`, not `(s) => …`. A longer name is fine when it is clearer.
+- **Functions say what they do:** a verb and its object, such as `submitPhoneNumber` or `removeUnavailableLines`. Event handlers are named for what they do, not `onPhone`.
+- **The page's text** is `messages` (from `useMessages()` or `getMessages()`); an area's part may be named for it, such as `loginText`. Never `t`.
+- **In a catch**, the caught value is `caughtError`, and it is turned into an `AppError` straight away: `const error = toAppError(caughtError)`.
+
+### 20.2 Layout and formatting
+
+- Prettier formats the code: single quotes, trailing commas, **lines up to 100 characters** (`.prettierrc.json`, `npm run format`).
+- No nested `? :` chains in JSX. A screen with several states (loading, error, empty, content) returns early for each, or uses one small named component per state.
+- One expression does one thing. A long condition or a long call gets a named variable or its own lines.
+- Files are sized by what they are responsible for, not kept small for its own sake. No new layer or helper unless it removes real repetition.
+
+### 20.3 Comments
+
+- A comment explains **why**, or something the code cannot show (a backend rule, a browser quirk). It does not repeat what the code says.
+- Where a rule comes from a decision, the comment names it briefly, such as `(D2-02)`. File headers are a sentence or two, not a summary of the documents.
+- No commented-out code.
+
+### 20.4 Error codes
+
+- **`BackendErrorCode`** (`src/types/generated/backend-error-codes.ts`) is generated from the backend's error catalogue together with `backend-error-codes.json` (`npm run gen:error-codes`). Its values are the backend's codes exactly; names are the same words in PascalCase (`OTP_RESEND_WAIT` is `BackendErrorCode.OtpResendWait`). It is never edited by hand, and `npm run check:messages` fails if it differs from the stored catalogue.
+- **`AppErrorCode`** (`src/lib/error-codes.ts`) holds the codes the frontend knows that are not in the backend's catalogue: the ones our own code produces (a lost connection, a timeout, the forgery checks, a response that does not match, a cancelled upload, the general codes our endpoints use), and the two the backend's framework sends outside its catalogue (`NOT_FOUND`, `TOO_MANY_REQUESTS`). The check fails if one of them is ever a catalogue code.
+- Code compares and sets codes only through these enums, never with a string such as `'NETWORK'`. Message keys in `en.json` and `hi.json` stay the plain code strings, so the catalogue is unchanged.
+- A code the frontend does not know (a newer backend) still reaches the screen and gets the general message for its kind (section 19).
+
+### 20.5 Forms, calls and text
+
+- **Submitting a form:** `mutateAsync` inside `try`/`catch`, with `applyServerError` for the backend's answer. Moving focus to the error summary after a failed submit is done by `useErrorSummaryFocus` (`hooks/use-app-form.ts`), not by a counter in every form.
+- **Calls from the browser** go through the hooks in `src/hooks/`; request bodies are typed, from the generated backend request types where the body passes through unchanged.
+- **Text in client components** comes from `useMessages()`. A component takes text as a prop only when a server page also uses it.
+
+### 20.6 How it is rolled out
+
+1. The login feature first (the pilot). The owner looks at the result and decides whether these rules stay, change or go.
+2. If they stay, one pull request per area: session and logout, vendor application, admin catalogue, products and moderation, storefront and cart. The storefront pull request also renames the `c` and `p` folders and addresses to `category` and `product`, as the owner chose on 12 Nov 2026, and updates D4-02 and the route table in Document 4 first.
+3. Files that follow these rules are listed in the lint settings (`eslint.config.mjs`), where one-letter names are an error. When every area is done, the list becomes the whole of `src/`, and the format check joins CI.
+

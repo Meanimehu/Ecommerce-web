@@ -29,7 +29,7 @@ BROWSER                                        OUR SERVER                       
 ───────                                        ──────────                                   ───────
 components/auth/login-form.tsx
    │ uses
-hooks/use-login.ts   (useVerify)
+hooks/use-login.ts   (useVerifyLoginCode)
    │ calls
 lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.ts
               (time limit, forgery label)        │ checks the request    middleware/responses.ts
@@ -51,10 +51,10 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 
 1. `/en/login`: `app/[lang]/login/page.tsx` shows `LoginForm` from `components/auth/login-form.tsx`.
 2. The phone number is checked in the browser by `PhoneSchema` in `types/auth.ts` (only its shape; the backend decides the rest).
-3. "Send code": `useRequestCode` in `hooks/use-login.ts` calls `/api/auth/code` through `lib/http.ts`.
+3. "Send code": `useRequestLoginCode` in `hooks/use-login.ts` calls `/api/auth/code` through `lib/http.ts`.
 4. `app/api/auth/code/route.ts` checks the request comes from our site (`guardChange` in `middleware/responses.ts`),
    then calls `requestLoginCode` in `api/auth.ts`.
-5. The code: `useVerify` calls `/api/auth/verify`, which gets the tokens from the backend and puts them in cookies.
+5. The code: `useVerifyLoginCode` calls `/api/auth/verify`, which gets the tokens from the backend and puts them in cookies.
 6. Every page that needs login calls `requireUser` (`components/auth/require-user.tsx`), which asks `getViewer` in
    `middleware/session.ts` who the person is.
 7. When the access token has expired, `useSession` (`hooks/use-session.ts`) asks `/api/session`, and `refreshSession`
@@ -163,9 +163,9 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | File | What it does |
 | --- | --- |
 | `use-session.ts` | `useSession` (who is logged in), `reloadSession`, `endSession`, the "Please log in again" notice |
-| `use-login.ts` | `useRequestCode`, `useVerify` |
+| `use-login.ts` | `useRequestLoginCode`, `useVerifyLoginCode` |
 | `use-logout.ts` | `useLogout` |
-| `use-app-form.ts` | `useAppForm` (React Hook Form with Zod), `applyServerError` (backend errors under the right field), message keys |
+| `use-app-form.ts` | `useAppForm` (React Hook Form with Zod), `applyServerError` (backend errors under the right field), `useErrorSummaryFocus` (focus after a failed submit), message keys |
 | `use-cart.ts` | The cart and its count, add, change, remove, add after login and its notice |
 | `use-product.ts` | The vendor's products: the form guide, list, one product and every change to it |
 | `use-moderation.ts` | The moderation queue, one product, the decision, the public category tree |
@@ -204,7 +204,8 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `lib/i18n.ts` | The two languages and choosing one |
 | `lib/messages.ts` | `getMessages` for server pages; the shared text and the Vendor and Admin areas' own text |
 | `lib/messages-context.tsx` | `useMessages`: the page's text in the browser, only its language (and area text only inside those areas) |
-| `lib/errors.ts` | `AppError`, and `messageFor`: our own message for any error |
+| `lib/errors.ts` | `AppError`, `toAppError`, and `messageFor`: our own message for any error |
+| `lib/error-codes.ts` | `AppErrorCode` (codes not in the backend catalogue) and `ErrorCode`; re-exports `BackendErrorCode` (Document 7, 20.4) |
 | `utils/format.ts` | Dates and times in IST, rupees, phone numbers, GST rates |
 | `utils/cn.ts` | The class-name helper the shadcn/ui tool expects |
 | `utils/url.ts` | Addresses with their query (`withQuery`), page numbers, picking list filters |
@@ -216,13 +217,14 @@ lib/http.ts   send('/api/auth/verify') ───►  app/api/auth/verify/route.t
 | `types/cart.ts` | Backend Area 5 cart view, the pending add |
 | `types/product.ts` | Backend Area 3b answers (product, variant, photo, form guide, moderation), the product forms, rupees to paise |
 | `types/vendor.ts` | Backend Area 2 answers (vendor, address, document, admin views) and the application forms |
-| `types/generated/` | Request types, the OpenAPI description and the error-code list, made by `npm run gen:types` and `gen:error-codes`; never edited |
+| `types/generated/` | Request types, the OpenAPI description, the error-code list and the `BackendErrorCode` enum, made by `npm run gen:types` and `gen:error-codes`; never edited |
 
 ### Outside `src/`
 
 | Folder | What it holds |
 | --- | --- |
-| `scripts/` | `gen-types`, `gen-error-codes`, `check-messages`, and copying files after a build |
+| `scripts/` | `gen-types`, `gen-error-codes` (the code list and its enum), `check-messages` (also checks the enum), and copying files after a build |
+| `.prettierrc.json`, `eslint.config.mjs` | Formatting (100-character lines) and lint; the files already following Document 7, section 20 are listed in the lint settings |
 | `tests/unit/` | Fast tests of the helpers (Vitest) |
 | `tests/e2e/` | Browser tests against the real backend (Playwright); `fixtures/` holds the garment illustrations used as test photos |
 
