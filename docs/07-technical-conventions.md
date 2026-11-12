@@ -176,7 +176,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 14 | 11 Nov 2026 | Slice 1 part 2: how the fonts are loaded (section 9); first page-size measurements recorded in T7-2, with the Hindi login page over the provisional 300 KB for the owner to decide |
 | 15 | 12 Nov 2026 | Slice 2a: the build's chunk setting and new page-size measurements in T7-2. No decision changed |
 | 16 | 12 Nov 2026 | Slice 2d: page sizes in T7-2 after sending each page only its language's text. No decision changed |
-| 17 | 12 Nov 2026 | **Proposed, awaiting the owner's approval:** D7-16 (code practices, section 20), D7-17 (feature folders one feature at a time; `auth` owns the session, its cookies, login, logout and page access, and is used by other features only through its listed public helpers; `layout` owns page frames; shared code depends on no feature; `api/client.ts` is the only code that calls the backend), D7-18 (plain-text logging through `logServerEvent`, levels set by the helper, details limited by its types, no `JSON.stringify` for logging) and D7-19 (slice by slice) added; Q7-4 to Q7-9 added, Q7-4, Q7-5, Q7-6, Q7-8 and Q7-9 proposed as settled and Q7-7 given a measuring plan; section 16 rewritten for feature folders, with cookie ownership split between shared tools, `auth` and `cart`; section 17.1: trusting the local certificate when the frontend runs in WSL; section 20 added; T7-2 measurements verified, caching stated from the checked headers, gzip and Brotli kept apart |
+| 17 | 12 Nov 2026 | **Proposed, awaiting the owner's approval:** D7-16 (code practices, section 20), D7-17 (feature folders one feature at a time; `auth` owns the session, its cookies, login, logout and page access, and is used by other features only through its listed public helpers; `layout` owns page frames; shared code depends on no feature; `api/client.ts` is the only code that calls the backend), D7-18 (plain-text logging through `logServerEvent`, levels set by the helper, details limited by its types, no `JSON.stringify` for logging) and D7-19 (slice by slice) added; Q7-4 to Q7-9 added, Q7-4, Q7-5, Q7-6, Q7-8 and Q7-9 proposed as settled and Q7-7 given a measuring plan; section 16 rewritten for feature folders, with cookie ownership split between shared tools, `auth` and `cart`; section 17.1: trusting the local certificate when the frontend runs in WSL; section 20 added; T7-2 measurements verified, caching stated from the checked headers, gzip and Brotli kept apart; in 20.9 the hooks that are kept and why; in 20.13 the one-time `sessionKeys` rename (step 3), the split of `types/catalogue.ts` and `api/catalogue.ts` between `catalogue` and `storefront` (steps 5 and 8), and moving `utils/message-checks.ts` to `scripts/` (step 11) |
 
 ## 16. Names: folders and files
 
@@ -386,6 +386,11 @@ Every cookie uses the `__Host-` prefix, `Secure`, `HttpOnly`, `SameSite=Lax`, pa
 - **No `try`/`catch` and no `toAppError` in screens or form hooks.** A call hook may turn one expected error into a value, with a comment saying why (`useMyVendor` returns `null` for `VENDOR_NOT_FOUND`).
 - **A screen with a form never calls a call hook itself.** A small action without a form (a Remove button) may.
 - **A value that must survive a step change belongs to the parent** (the phone form lives in `LoginForm`).
+- **Hooks that are kept, and why (proposed).** Each has a job that would otherwise be repeated in every screen or would put timing work into the screen:
+  - `useMessages` gives a client component the page's text in its language, so text is not passed down through every component.
+  - `useSessionNotice` reads, once, the notice a session end leaves for the login page ("log in again" or "blocked"), and reads it again if a session ends while that page is open.
+  - The resend countdown holds the wait the backend sets before "Send code again" and counts it down on screen.
+  - `useErrorSummaryFocus` tells the error summary that a submit has failed. The summary only appears after the errors are set, so it is the summary that moves focus to itself once it is on screen; the form only signals the failure and never moves focus itself.
 - **Field checks** run when a field is left and on submit (D6-25), and check only a missing value or a wrong shape.
 - **Text** comes from `useMessages()` in client components, from the catalogue in both languages with the same keys (Document 4, section 6; `check:messages` enforces it).
 - **Request bodies are typed,** from the generated backend request types where the body passes through unchanged.
@@ -469,17 +474,22 @@ The code from Slices 0 to 2 is brought to these practices before Slice 3 starts 
    - `auth` moves to `src/features/auth/` (move-only commit).
    - The session work leaves `middleware/`: `middleware/session.ts`; `answerAsUser` and `fileAsUser` from `endpoint.ts`; `fromFailure`, `setSessionCookies` and `clearSessionCookies` from `responses.ts`; and the after-login page cookie helpers from `cookies.ts`. `middleware/` then imports nothing from `auth`, and gains the generic delete-a-cookie tool.
    - Logout and the session are cleaned up, with `logServerEvent` (D7-18).
+   - One-time clean-up (proposed): `SESSION_QUERY_KEY` becomes `sessionKeys`, matching the other features' query-key objects (`cartKeys`, `vendorKeys`). This is a single rename, not a new naming rule.
 
    The owner reviews it before any other feature moves.
 4. **`vendor`.**
-5. **`catalogue`.**
+5. **`catalogue`:** `types/catalogue.ts` and `api/catalogue.ts` are split by ownership (proposed). The admin catalogue lists (their schemas, forms and backend operations) move to `catalogue`. The category tree and the storefront's product cards and product pages stay where they are until step 8 moves them to `storefront`. Behaviour does not change, and nothing is copied: a type or operation that both features use has one owner, and the other feature uses it under 20.4.
 6. **`product`**, with moderation.
 7. **Page addresses (`lib/routes.ts`):** its own pull request, or part of the first feature pull request that needs it. Each later feature pull request moves its own hand-built addresses to the helpers.
-8. **`storefront`:** implements the addresses already recorded in Document 4 (`category`, `product`), using `lib/routes.ts`.
+8. **`storefront`:** implements the addresses already recorded in Document 4 (`category`, `product`), using `lib/routes.ts`. It also moves the remaining parts of `types/catalogue.ts` and `api/catalogue.ts` (the category tree, product cards and product pages) to `storefront` (proposed); the two old files are then gone. Behaviour does not change, and nothing is copied.
 9. **`cart`:**
    - `decodePendingAdd` and the running of the pending add move to `cart`, and the login endpoint calls `cart` for it;
    - the add-to-cart result that login hands to the next page becomes shared code, which ends the loop between `auth` and `cart` (20.4).
 10. **`layout`.**
-11. **Finally:** the lint rule for one-letter names and nested ternaries covers all of `src/`, the format check joins CI, and the temporary file list in `eslint.config.mjs` goes. Then Slice 3 starts.
+11. **Finally:**
+    - the lint rule for one-letter names and nested ternaries covers all of `src/`, the format check joins CI, and the temporary file list in `eslint.config.mjs` goes;
+    - `utils/message-checks.ts` moves to `scripts/` (proposed), after checking again that no app code uses it. Today its only users are the message check (`scripts/check-messages.ts`) and that check's unit test (`tests/unit/messages.test.ts`), whose import changes with it.
+
+    Then Slice 3 starts.
 
 Steps 3 to 10 each start with a move-only commit, and each one also splits or renames the slice-based specs for its feature (20.12, item 8).
