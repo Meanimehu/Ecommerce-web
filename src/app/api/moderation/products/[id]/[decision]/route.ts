@@ -1,7 +1,8 @@
 import type { NextRequest } from 'next/server';
 import * as moderationApi from '@/api/moderation';
-import { answerAsUser, jsonObject } from '@/middleware/endpoint';
+import { jsonObject } from '@/middleware/endpoint';
 import { fail } from '@/middleware/responses';
+import { answerAsUser } from '@/features/auth/server/answer-as-user';
 
 /** POST /api/moderation/products/{id}/approve or reject. */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string; decision: string }> }) {

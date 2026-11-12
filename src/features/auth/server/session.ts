@@ -1,13 +1,13 @@
 import 'server-only';
 import { cookies } from 'next/headers';
 import { cache } from 'react';
-import type { NextRequest } from 'next/server';
+import type { NextRequest, NextResponse } from 'next/server';
 import { AppError } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { isStaff, type User } from '@/features/auth/types';
 import * as authApi from '@/features/auth/server/auth-api';
-import { COOKIE } from '@/middleware/cookies';
-import { clearSessionCookies, guardChange, ok } from '@/middleware/responses';
+import { COOKIE, cookieOptions, deleteCookie, LIFETIME_SECONDS } from '@/middleware/cookies';
+import { fail } from '@/middleware/responses';
 
 /**
  * Who a request is, and keeping them logged in (Document 2, section 4; Document 4, section 9, D4-11).
@@ -155,23 +155,34 @@ export function defaultDestination(roles: readonly string[], lang: Locale): stri
 }
 
 /**
- * Logout and "log out everywhere" (Document 2, section 4). The backend is asked to end the session (its logout needs a
- * valid access token, so the session is refreshed first when needed). The cookies are cleared in this answer whether
- * or not the backend could be reached; a failed backend request is logged without the token.
+ * A request that could not run as the person (Document 4, section 9). Only when the backend confirmed the session is
+ * over are the cookies cleared, in this same answer (D2-05). "Try again" changes no cookie.
  */
-export async function logoutRoute(request: NextRequest, everywhere: boolean) {
-  const refused = guardChange(request);
-  if (refused) return refused;
-  const auth = readAuth(request);
-  if (auth.access || auth.refresh) {
-    try {
-      const result = await asUser(auth, (token) => (everywhere ? authApi.logoutEverywhere(token) : authApi.logout(token)));
-      if (!result.ok && result.outcome === 'temporary') console.warn(JSON.stringify({ event: 'logout_backend_unconfirmed', everywhere }));
-    } catch (error) {
-      console.warn(JSON.stringify({ event: 'logout_backend_failed', code: error instanceof AppError ? error.code : 'unknown', everywhere }));
+export function fromFailure(failure: Failure): NextResponse {
+  switch (failure.outcome) {
+    case 'anonymous':
+      return fail('UNAUTHORIZED', 401);
+    case 'temporary':
+      return fail('SESSION_TEMPORARY', 503);
+    case 'ended': {
+      const blocked = failure.reason === 'blocked';
+      const response = fail(blocked ? 'USER_BLOCKED' : 'SESSION_ENDED', blocked ? 403 : 401);
+      clearSessionCookies(response);
+      return response;
     }
   }
-  const response = ok({ loggedOut: true });
-  clearSessionCookies(response);
-  return response;
+}
+
+export function setSessionCookies(response: NextResponse, cookies: NewCookies): void {
+  response.cookies.set(COOKIE.access, cookies.accessToken, cookieOptions(cookies.expiresIn));
+  response.cookies.set(COOKIE.refresh, cookies.refreshToken, cookieOptions(LIFETIME_SECONDS.refresh));
+}
+
+/**
+ * Ends the session in this answer: the login cookies and the short-lived cookies that go with them; the language
+ * cookie stays (Document 4, section 9). `auth` decides which cookies go; deleting them uses the shared tool, so `auth`
+ * needs only the cart cookie's name, never cart code.
+ */
+export function clearSessionCookies(response: NextResponse): void {
+  for (const name of [COOKIE.access, COOKIE.refresh, COOKIE.pendingAdd, COOKIE.next]) deleteCookie(response, name);
 }

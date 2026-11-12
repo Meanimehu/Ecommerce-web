@@ -1,4 +1,5 @@
 import { createHmac, hkdfSync, timingSafeEqual } from 'node:crypto';
+import type { NextResponse } from 'next/server';
 
 /**
  * Our cookies (Document 4, section 9; Document 7, section 17.2). Every one is `__Host-`, Secure, HttpOnly,
@@ -14,6 +15,8 @@ export const COOKIE = {
   language: '__Host-dhaaga_lang',
 } as const;
 
+export type CookieName = (typeof COOKIE)[keyof typeof COOKIE];
+
 export const LIFETIME_SECONDS = {
   /** Only the browser cookie's lifetime; the backend alone decides whether the refresh token is valid (D7-12). */
   refresh: 30 * 24 * 3600,
@@ -23,6 +26,14 @@ export const LIFETIME_SECONDS = {
 } as const;
 
 export const cookieOptions = (maxAge: number) => ({ httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge }) as const;
+
+/**
+ * Deletes one of our cookies in this answer. Which cookies go, and when, is the rule of the feature that owns them
+ * (Document 7, section 20.4); this is only the tool.
+ */
+export function deleteCookie(response: NextResponse, name: CookieName): void {
+  response.cookies.set(name, '', cookieOptions(0));
+}
 
 /**
  * Only a path in our own site: starts with one "/", no scheme, no host, no backslashes or control characters.
@@ -37,16 +48,6 @@ export function isSafeLocalPath(path: string): boolean {
   } catch {
     return false;
   }
-}
-
-/** The after-login destination: a path inside our own site, signed, and checked again when used. */
-export function encodeNext(path: string): string {
-  return sign({ p: path });
-}
-
-export function decodeNext(raw: string | undefined): string | null {
-  const value = unsign<{ p?: unknown }>(raw);
-  return typeof value?.p === 'string' && isSafeLocalPath(value.p) ? value.p : null;
 }
 
 // Signing the short-lived cookies (pending add, after-login page) with COOKIE_SECRET, so they cannot be altered (D4-07).

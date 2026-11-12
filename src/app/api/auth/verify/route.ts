@@ -4,18 +4,12 @@ import { BackendErrorCode } from '@/lib/error-codes';
 import { AppError } from '@/lib/errors';
 import { HttpStatus } from '@/lib/http-status';
 import { DEFAULT_LOCALE, isLocale, type Locale } from '@/lib/i18n';
-import { COOKIE, cookieOptions, decodeNext, decodePendingAdd } from '@/middleware/cookies';
-import {
-  fail,
-  fromAppError,
-  guardChange,
-  ok,
-  readJson,
-  setSessionCookies,
-} from '@/middleware/responses';
-import * as authApi from '@/features/auth/server/auth-api';
+import { COOKIE, decodePendingAdd, deleteCookie } from '@/middleware/cookies';
+import { fail, fromAppError, guardChange, ok, readJson } from '@/middleware/responses';
 import * as cartApi from '@/api/cart';
-import { defaultDestination } from '@/features/auth/server/session';
+import { forgetPageAfterLogin, readPageAfterLogin } from '@/features/auth/after-login-page';
+import * as authApi from '@/features/auth/server/auth-api';
+import { defaultDestination, setSessionCookies } from '@/features/auth/server/session';
 import { AddOutcome, type AddNotice } from '@/types/add-notice';
 
 /**
@@ -44,7 +38,7 @@ export async function POST(request: NextRequest) {
       code: body.data.code,
     });
 
-    const askedForPage = decodeNext(request.cookies.get(COOKIE.next)?.value);
+    const askedForPage = readPageAfterLogin(request);
     const destination = askedForPage ?? defaultDestination(login.user.roles, lang);
 
     const pendingAdd = decodePendingAdd(request.cookies.get(COOKIE.pendingAdd)?.value);
@@ -64,8 +58,8 @@ export async function POST(request: NextRequest) {
     });
 
     // Both cookies are used once, whatever the outcome (D4-08).
-    response.cookies.set(COOKIE.next, '', cookieOptions(0));
-    response.cookies.set(COOKIE.pendingAdd, '', cookieOptions(0));
+    forgetPageAfterLogin(response);
+    deleteCookie(response, COOKIE.pendingAdd);
     return response;
   } catch (error) {
     return fromAppError(error);

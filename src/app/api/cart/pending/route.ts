@@ -1,8 +1,9 @@
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { isLocale } from '@/lib/i18n';
-import { COOKIE, cookieOptions, encodeNext, isSafeLocalPath, LIFETIME_SECONDS, sign } from '@/middleware/cookies';
+import { COOKIE, cookieOptions, isSafeLocalPath, LIFETIME_SECONDS, sign } from '@/middleware/cookies';
 import { fail, guardChange, ok, readJson } from '@/middleware/responses';
+import { rememberPageAfterLogin } from '@/features/auth/after-login-page';
 import { PendingAddSchema } from '@/types/cart';
 
 /**
@@ -20,6 +21,6 @@ export async function POST(request: NextRequest) {
   const lang = isLocale(body.data.lang) ? body.data.lang : 'en';
   const response = ok({ login: `/${lang}/login` });
   response.cookies.set(COOKIE.pendingAdd, sign({ v: body.data.variantId, q: body.data.quantity }), cookieOptions(LIFETIME_SECONDS.pendingAdd));
-  response.cookies.set(COOKIE.next, encodeNext(body.data.next), cookieOptions(LIFETIME_SECONDS.next));
+  rememberPageAfterLogin(response, body.data.next);
   return response;
 }

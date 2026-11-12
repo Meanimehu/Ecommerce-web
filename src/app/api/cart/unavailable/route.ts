@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
+import { answerAsUser } from '@/features/auth/server/answer-as-user';
 import * as cartApi from '@/api/cart';
-import { answerAsUser } from '@/middleware/endpoint';
 
 /** DELETE /api/cart/unavailable: remove every line that cannot be bought (the backend decides which). */
 export function DELETE(request: NextRequest) {

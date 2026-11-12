@@ -3,10 +3,8 @@ import { randomUUID } from 'node:crypto';
 import { NextResponse, type NextRequest } from 'next/server';
 import { AppError } from '@/lib/errors';
 import { serverConfig } from '@/lib/config';
-import { COOKIE, cookieOptions, LIFETIME_SECONDS } from './cookies';
-import type { Failure, NewCookies } from '@/features/auth/server/session';
 
-/** Helpers for our own endpoints: answers, errors, cookies and the forgery check. */
+/** Helpers for our own endpoints: answers, errors and the forgery check. They know nothing about the session. */
 
 /**
  * Responses of our own endpoints: personal, never cached (Document 2, section 5). An error carries a request id only
@@ -36,35 +34,6 @@ export function fromAppError(error: unknown): NextResponse {
   const requestId = randomUUID();
   console.error(JSON.stringify({ event: 'unexpected_error', requestId, message: error instanceof Error ? error.message : String(error) }));
   return fail('SERVER_ERROR', 500, {}, requestId);
-}
-
-/**
- * A request that could not run as the person (Document 4, section 9). Only when the backend confirmed the session is
- * over are the cookies cleared, in this same answer (D2-05). "Try again" changes no cookie.
- */
-export function fromFailure(failure: Failure): NextResponse {
-  switch (failure.outcome) {
-    case 'anonymous':
-      return fail('UNAUTHORIZED', 401);
-    case 'temporary':
-      return fail('SESSION_TEMPORARY', 503);
-    case 'ended': {
-      const blocked = failure.reason === 'blocked';
-      const response = fail(blocked ? 'USER_BLOCKED' : 'SESSION_ENDED', blocked ? 403 : 401);
-      clearSessionCookies(response);
-      return response;
-    }
-  }
-}
-
-export function setSessionCookies(response: NextResponse, cookies: NewCookies): void {
-  response.cookies.set(COOKIE.access, cookies.accessToken, cookieOptions(cookies.expiresIn));
-  response.cookies.set(COOKIE.refresh, cookies.refreshToken, cookieOptions(LIFETIME_SECONDS.refresh));
-}
-
-/** Clears the login and temporary-flow cookies; the language cookie stays (Document 4, section 9). */
-export function clearSessionCookies(response: NextResponse): void {
-  for (const name of [COOKIE.access, COOKIE.refresh, COOKIE.pendingAdd, COOKIE.next]) response.cookies.set(name, '', cookieOptions(0));
 }
 
 /**

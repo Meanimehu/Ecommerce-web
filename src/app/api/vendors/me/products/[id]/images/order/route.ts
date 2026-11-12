@@ -1,7 +1,8 @@
 import type { NextRequest } from 'next/server';
 import * as productApi from '@/api/product';
-import { answerAsUser, jsonObject } from '@/middleware/endpoint';
+import { jsonObject } from '@/middleware/endpoint';
 import { fail } from '@/middleware/responses';
+import { answerAsUser } from '@/features/auth/server/answer-as-user';
 
 /** PUT /api/vendors/me/products/{id}/images/order: every photo id once; the first becomes the cover. */
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
