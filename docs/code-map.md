@@ -61,7 +61,7 @@ hooks/use-login-form.ts   onSuccess → the code step;  onError(error: AppError)
 
 1. `/en/login`: `app/[lang]/login/page.tsx` shows `LoginForm` from `components/auth/login-form.tsx`. The screen only
    draws; its logic is `usePhoneStep` and `useCodeStep` in `hooks/use-login-form.ts`.
-2. The phone number is checked in the browser by `PhoneSchema` in `types/auth.ts` (only its shape; the backend decides
+2. The phone number is checked in the browser by `PhoneFormSchema` in `types/auth.ts` (only its shape; the backend decides
    the rest), through `form.handleSubmit` on the `Form` (`components/form/form.tsx`, always a post).
 3. "Send code": `sendCode` calls `useRequestLoginCode` (`hooks/use-login.ts`), which posts to `/api/auth/code` through
    `lib/http.ts`.

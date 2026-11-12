@@ -2,32 +2,32 @@ import { describe, expect, it, vi } from 'vitest';
 import { applyServerError, resolveMessage } from '@/hooks/use-app-form';
 import { AppError } from '@/lib/errors';
 import { getMessages } from '@/lib/messages';
-import { CodeSchema, PhoneSchema } from '@/types/auth';
+import { CodeFormSchema, PhoneFormSchema } from '@/types/auth';
 
 const t = getMessages('en');
 
 describe('login checks: only cheap and certain ones (Document 5, section 10; D6-25)', () => {
   it('a missing phone, and a wrong shape, give catalogue keys', () => {
-    expect(PhoneSchema.safeParse({ phone: '' }).error?.issues[0]?.message).toBe('validation.phoneRequired');
-    expect(PhoneSchema.safeParse({ phone: '12345' }).error?.issues[0]?.message).toBe('validation.phoneShape');
+    expect(PhoneFormSchema.safeParse({ phone: '' }).error?.issues[0]?.message).toBe('validation.phoneRequired');
+    expect(PhoneFormSchema.safeParse({ phone: '12345' }).error?.issues[0]?.message).toBe('validation.phoneShape');
   });
   it('accepts the common ways of writing an Indian mobile (Document 2, section 3), the shapes the backend reads', () => {
     for (const phone of ['9876543210', '09876543210', '919876543210', '+919876543210', '+91 98765-43210', '98765 43210']) {
-      expect(PhoneSchema.safeParse({ phone }).success, phone).toBe(true);
+      expect(PhoneFormSchema.safeParse({ phone }).success, phone).toBe(true);
     }
-    expect(PhoneSchema.safeParse({ phone: '+449876543210' }).success).toBe(false);
+    expect(PhoneFormSchema.safeParse({ phone: '+449876543210' }).success).toBe(false);
   });
   it('accepts ten digits, with or without +91 and spaces, and sends them without spaces', () => {
-    expect(PhoneSchema.parse({ phone: '98765 43210' }).phone).toBe('9876543210');
-    expect(PhoneSchema.parse({ phone: '+91 98765 43210' }).phone).toBe('+919876543210');
+    expect(PhoneFormSchema.parse({ phone: '98765 43210' }).phone).toBe('9876543210');
+    expect(PhoneFormSchema.parse({ phone: '+91 98765 43210' }).phone).toBe('+919876543210');
   });
   it('does not copy the backend rule about which numbers are mobiles (that is PHONE_INVALID)', () => {
-    expect(PhoneSchema.safeParse({ phone: '5111111111' }).success).toBe(true);
+    expect(PhoneFormSchema.safeParse({ phone: '5111111111' }).success).toBe(true);
   });
   it('the code: required, six digits', () => {
-    expect(CodeSchema.safeParse({ code: '' }).error?.issues[0]?.message).toBe('validation.codeRequired');
-    expect(CodeSchema.safeParse({ code: '12ab' }).error?.issues[0]?.message).toBe('validation.codeShape');
-    expect(CodeSchema.parse({ code: '123 456' }).code).toBe('123456');
+    expect(CodeFormSchema.safeParse({ code: '' }).error?.issues[0]?.message).toBe('validation.codeRequired');
+    expect(CodeFormSchema.safeParse({ code: '12ab' }).error?.issues[0]?.message).toBe('validation.codeShape');
+    expect(CodeFormSchema.parse({ code: '123 456' }).code).toBe('123456');
   });
   it('keys turn into text in each language; other text is shown as it is', () => {
     expect(resolveMessage('validation.phoneRequired', t)).toBe('Enter your mobile number.');

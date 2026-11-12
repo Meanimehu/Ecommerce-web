@@ -3,20 +3,20 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { applyServerError, useAppForm, useErrorSummaryFocus } from '@/hooks/use-app-form';
-import { keepAddNotice } from '@/hooks/use-cart';
-import { useRequestLoginCode, useVerifyLoginCode, type LoggedIn } from '@/hooks/use-login';
-import { reloadSession } from '@/hooks/use-session';
 import { BackendErrorCode } from '@/lib/error-codes';
 import { retryAfterSecondsOf, type AppError } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { keepAddNotice } from '@/hooks/use-cart';
+import { useRequestLoginCode, useVerifyLoginCode, type LoggedIn } from '@/hooks/use-login';
+import { reloadSession } from '@/hooks/use-session';
 import {
-  CodeSchema,
-  PhoneSchema,
-  type CodeInput,
-  type CodeValues,
-  type PhoneInput,
-  type PhoneValues,
+  CodeFormSchema,
+  PhoneFormSchema,
+  type CodeFormInput,
+  type CodeFormValues,
+  type PhoneFormInput,
+  type PhoneFormValues,
 } from '@/types/auth';
 
 /**
@@ -48,11 +48,11 @@ export type PhoneStepState = ReturnType<typeof usePhoneStep>;
 
 export function usePhoneStep({ onCodeSent }: { onCodeSent: (sentCode: SentCode) => void }) {
   const messages = useMessages();
-  const form = useAppForm<PhoneInput, PhoneValues>(PhoneSchema, { phone: '' });
+  const form = useAppForm<PhoneFormInput, PhoneFormValues>(PhoneFormSchema, { phone: '' });
   const requestLoginCode = useRequestLoginCode();
   const { focusSignal, focusErrorSummary } = useErrorSummaryFocus();
 
-  function sendCode({ phone }: PhoneValues) {
+  function sendCode({ phone }: PhoneFormValues) {
     requestLoginCode.mutate(phone, {
       onSuccess: (codeSent) =>
         onCodeSent({ phone, resendAfterSeconds: codeSent.resendAfterSeconds, notice: null }),
@@ -88,7 +88,7 @@ export function usePhoneStep({ onCodeSent }: { onCodeSent: (sentCode: SentCode) 
 export function useCodeStep({ lang, sentCode }: { lang: Locale; sentCode: SentCode }) {
   const messages = useMessages();
   const queryClient = useQueryClient();
-  const form = useAppForm<CodeInput, CodeValues>(CodeSchema, { code: '' });
+  const form = useAppForm<CodeFormInput, CodeFormValues>(CodeFormSchema, { code: '' });
   const requestLoginCode = useRequestLoginCode();
   const verifyLoginCode = useVerifyLoginCode();
   const { focusSignal, focusErrorSummary } = useErrorSummaryFocus();
@@ -100,7 +100,7 @@ export function useCodeStep({ lang, sentCode }: { lang: Locale; sentCode: SentCo
     form.setFocus('code');
   }, [form]);
 
-  function verifyCode({ code }: CodeValues) {
+  function verifyCode({ code }: CodeFormValues) {
     verifyLoginCode.mutate(
       { phone, code, lang },
       { onSuccess: goToNextPage, onError: (error) => void showVerifyError(error) },

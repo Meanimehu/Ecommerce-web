@@ -65,7 +65,7 @@ const removeSpacesAndDashes = (value: string) => value.replace(/[\s-]/g, '');
 const INDIAN_MOBILE = /^(?:\+91|91|0)?\d{10}$/;
 const SIX_DIGIT_CODE = /^\d{6}$/;
 
-export const PhoneSchema = z.object({
+export const PhoneFormSchema = z.object({
   phone: z
     .string()
     .trim()
@@ -73,10 +73,10 @@ export const PhoneSchema = z.object({
     .refine((value) => INDIAN_MOBILE.test(removeSpacesAndDashes(value)), 'validation.phoneShape')
     .transform(removeSpacesAndDashes),
 });
-export type PhoneInput = z.input<typeof PhoneSchema>;
-export type PhoneValues = z.output<typeof PhoneSchema>;
+export type PhoneFormInput = z.input<typeof PhoneFormSchema>;
+export type PhoneFormValues = z.output<typeof PhoneFormSchema>;
 
-export const CodeSchema = z.object({
+export const CodeFormSchema = z.object({
   code: z
     .string()
     .trim()
@@ -84,5 +84,5 @@ export const CodeSchema = z.object({
     .refine((value) => SIX_DIGIT_CODE.test(removeSpacesAndDashes(value)), 'validation.codeShape')
     .transform(removeSpacesAndDashes),
 });
-export type CodeInput = z.input<typeof CodeSchema>;
-export type CodeValues = z.output<typeof CodeSchema>;
+export type CodeFormInput = z.input<typeof CodeFormSchema>;
+export type CodeFormValues = z.output<typeof CodeFormSchema>;

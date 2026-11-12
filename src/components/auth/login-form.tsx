@@ -6,6 +6,10 @@ import { Form } from '@/components/form/form';
 import { TextField } from '@/components/form/text-field';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
+import { fill } from '@/lib/errors';
+import type { Locale } from '@/lib/i18n';
+import { useMessages } from '@/lib/messages-context';
+import { formatPhone, isSingular } from '@/utils/format';
 import {
   useCodeStep,
   usePhoneStep,
@@ -13,10 +17,6 @@ import {
   type SentCode,
 } from '@/hooks/use-login-form';
 import { SessionNotice, useSessionNotice } from '@/hooks/use-session';
-import { fill } from '@/lib/errors';
-import type { Locale } from '@/lib/i18n';
-import { useMessages } from '@/lib/messages-context';
-import { formatPhone, isSingular } from '@/utils/format';
 
 /**
  * The login screen (Document 5, section 6.4): one page for everyone (D2-04), the phone number

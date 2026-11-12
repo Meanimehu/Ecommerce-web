@@ -1,7 +1,5 @@
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
-import * as authApi from '@/api/auth';
-import * as cartApi from '@/api/cart';
 import { BackendErrorCode } from '@/lib/error-codes';
 import { AppError } from '@/lib/errors';
 import { HttpStatus } from '@/lib/http-status';
@@ -15,6 +13,8 @@ import {
   readJson,
   setSessionCookies,
 } from '@/middleware/responses';
+import * as authApi from '@/api/auth';
+import * as cartApi from '@/api/cart';
 import { defaultDestination } from '@/middleware/session';
 import { AddOutcome, type AddNotice } from '@/types/add-notice';
 

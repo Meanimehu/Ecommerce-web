@@ -1,11 +1,11 @@
 import 'server-only';
+import type { components } from '@/types/generated/backend-api';
 import {
   LoginResultSchema,
   OtpRequestResultSchema,
   RefreshResultSchema,
   UserSchema,
 } from '@/types/auth';
-import type { components } from '@/types/generated/backend-api';
 import { callBackend } from './client';
 
 /**
