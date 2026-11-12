@@ -1,6 +1,6 @@
 # 4. Architecture and routes
 
-> **Status: Approved. D4-01 to D4-04 approved 4 Nov 2026; D4-05 to D4-09 approved 9 Nov 2026; D4-10 approved 10 Nov 2026; merged (PR #5). Section 4 plain-language note and Q4-1 updated 10 Nov 2026 (no decision changed). Simplified 11 Nov 2026 (owner approved): the frontend store is removed; D4-05, D4-06 and D4-10 are withdrawn and replaced by D4-11; D4-08 changed.**
+> **Status: Approved. D4-01 to D4-04 approved 4 Nov 2026; D4-05 to D4-09 approved 9 Nov 2026; D4-10 approved 10 Nov 2026; merged (PR #5). Section 4 plain-language note and Q4-1 updated 10 Nov 2026 (no decision changed). Simplified 11 Nov 2026 (owner approved): the frontend store is removed; D4-05, D4-06 and D4-10 are withdrawn and replaced by D4-11; D4-08 changed.** **Agreed by the owner on 12 Nov 2026:** the storefront addresses use full words, `/category/`, `/brand/` and `/product/` instead of `/c/`, `/b/` and `/p/` (D4-02, section 5). The code follows in the storefront pull request (Document 7, section 20.13).
 > Follows Documents 1 to 3. Documentation only.
 
 ## 1. Purpose
@@ -12,7 +12,7 @@ How the frontend is organised and run: its layers, its pages and addresses, lang
 | ID | Decision | Status |
 | --- | --- | --- |
 | D4-01 | **Every page has a language prefix, `/en` or `/hi`**, in all three areas (storefront, Vendor area, Admin area). The person's choice is remembered for plain visits to the site | Approved (4 Nov 2026) |
-| D4-02 | **Product pages use a readable name plus the id**, for example `/en/p/<id>/slim-fit-chinos`. The frontend builds the readable part from the title; the id is what is looked up. A wrong or old name part redirects to the correct address. No backend change is needed | Approved (4 Nov 2026). Clarified (route form only): the id and the name are separate path segments, because ids are opaque (Document 3, section 7) |
+| D4-02 | **Product pages use a readable name plus the id**, for example `/en/product/<id>/slim-fit-chinos`. The frontend builds the readable part from the title; the id is what is looked up. A wrong or old name part redirects to the correct address. No backend change is needed | Approved (4 Nov 2026). Clarified (route form only): the id and the name are separate path segments, because ids are opaque (Document 3, section 7). **Changed 12 Nov 2026 (owner): the address words are full words, `/product/` instead of `/p/` (with `/category/` and `/brand/`, section 5)** |
 | D4-03 | **Hosting is not chosen now.** The app is built to run as a plain, self-contained Node.js server that any suitable host can run, and the host is chosen at deployment time against the checklist in section 4 | Approved (4 Nov 2026) |
 | D4-04 | **Search engines index only the home page, category pages, brand pages and product pages.** Search results, filter and sort combinations, cart, account, login, vendor and admin pages are marked not to be indexed | Approved (4 Nov 2026) |
 | D4-07 | **Cookie security.** Every cookie we set uses the `__Host-` prefix with `Secure`, path `/`, no domain, and `HttpOnly` and `SameSite=Lax` as shown in section 9. Pending-add and after-login cookies are signed. There is no anti-forgery cookie. Logout and a confirmed session end keep the language cookie. Names and numeric lifetimes are set in Document 7 | Approved (9 Nov 2026) |
@@ -60,9 +60,9 @@ All paths begin with the language prefix `/{lang}`. This lists areas and the mai
 | Area | Routes | Notes |
 | --- | --- | --- |
 | Home | `/{lang}` | Indexed |
-| Category | `/{lang}/c/{category-slug}` | Indexed. The slug is the backend's category slug |
-| Brand | `/{lang}/b/{brand-slug}` | Indexed. The slug is the backend's brand slug |
-| Product | `/{lang}/p/{id}/{name}` | Indexed. The first segment is the full id, the second is the readable name |
+| Category | `/{lang}/category/{category-slug}` | Indexed. The slug is the backend's category slug |
+| Brand | `/{lang}/brand/{brand-slug}` | Indexed. The slug is the backend's brand slug |
+| Product | `/{lang}/product/{id}/{name}` | Indexed. The first segment is the full id, the second is the readable name |
 | Search | `/{lang}/search` | Not indexed |
 | Login | `/{lang}/login` | Not indexed |
 | Cart | `/{lang}/cart` | Not indexed |
@@ -73,7 +73,7 @@ All paths begin with the language prefix `/{lang}`. This lists areas and the mai
 
 **Product addresses (D4-02).**
 - **The id is a separate path segment and is passed through unchanged.** Document 3 treats ids as opaque, so the frontend never splits, parses or guesses at an id's format. It is URL-encoded only as needed to sit in a path, decoded on arrival, and used as given for the lookup.
-- **The name is only for the URL and the canonical redirect.** It is never used for lookup. A request with the id but no name segment (`/{lang}/p/{id}`) is also redirected to the full address.
+- **The name is only for the URL and the canonical redirect.** It is never used for lookup. A request with the id but no name segment (`/{lang}/product/{id}`) is also redirected to the full address.
 - The name part is lower case Latin letters, digits and hyphens made from the title. A title with no such characters (for example one written fully in Hindi) uses a fixed word instead. The title shown on the page is always the vendor's text as written.
 - A request whose id is valid but whose name segment is wrong, old or missing is redirected permanently to the correct address.
 - A product the backend says does not exist or is not visible shows the not-found page with a real 404 status.

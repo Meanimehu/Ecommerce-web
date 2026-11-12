@@ -1,6 +1,6 @@
 # 5. Screens and flows
 
-> **Status: Approved (9 Nov 2026).**
+> **Status: Approved (9 Nov 2026).** Storefront addresses use full words (agreed 12 Nov 2026; Document 4, D4-02): `/category/`, `/brand/`, `/product/`.
 > Follows Documents 1 to 4. Documentation only. Working file for discussion; changes are made in place.
 > **Revision of 9 Nov 2026:** applies the owner's decisions of 9 Nov 2026 (D5-12 to D5-17, and the "Become a vendor" label in D5-10). Nothing else in the approved decisions changes. Document 6 (Design system) records the visual side.
 
@@ -157,9 +157,9 @@ The role column follows `docs/api/api-contract.md`, section 2. "Read" and "chang
 | Screen | Route | Purpose | Backend area |
 | --- | --- | --- | --- |
 | Home | `/{lang}` | Category and brand entry points; New arrivals | 3a |
-| Category | `/{lang}/c/{slug}` | Product grid with filters | 3a |
-| Brand | `/{lang}/b/{slug}` | Product grid for one brand | 3a |
-| Product | `/{lang}/p/{id}/{name}` | Detail and add to cart | 3a, 5 |
+| Category | `/{lang}/category/{slug}` | Product grid with filters | 3a |
+| Brand | `/{lang}/brand/{slug}` | Product grid for one brand | 3a |
+| Product | `/{lang}/product/{id}/{name}` | Detail and add to cart | 3a, 5 |
 | Search | `/{lang}/search` | Results with filters | 3a |
 | Cart | `/{lang}/cart` | Review (D5-02) | 5 |
 | Login | `/{lang}/login` | One-time code login | 1 |
