@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { getMyVendor } from '@/api/vendor';
 import { AreaShell } from '@/components/auth/area-shell';
 import { vendorNav } from '@/components/auth/area-menus';
-import { currentPath, requireUser, Unavailable } from '@/features/auth/components/require-user';
+import { requireUser, Unavailable } from '@/features/auth/components/require-user';
 import { AppError } from '@/lib/errors';
 import { getMessages } from '@/lib/messages';
 
@@ -23,7 +23,7 @@ export async function VendorArea({ langParam, needsVendor, children }: { langPar
     hasVendor = true;
   } catch (error) {
     if (!(error instanceof AppError && error.code === 'VENDOR_NOT_FOUND')) {
-      return <Unavailable lang={lang} path={await currentPath(lang)} />;
+      return <Unavailable lang={lang} />;
     }
     hasVendor = false;
   }

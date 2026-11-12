@@ -233,7 +233,7 @@ Nothing here knows about the session or any feature, and nothing here imports a 
 ### `features/auth/` — login, logout, the session and page access
 
 Other features use only its public helpers (Document 7, section 20.4): `useSession`, `getViewer`, `requireUser` with
-`Unavailable` and `currentPath`, `answerAsUser` and `fileAsUser`, `rememberPageAfterLogin`, `isStaff`, and the `User` and
+`Unavailable`, `answerAsUser` and `fileAsUser`, `rememberPageAfterLogin`, `isStaff`, and the `User` and
 `SessionAnswer` types.
 
 | File | What it does |
@@ -241,7 +241,7 @@ Other features use only its public helpers (Document 7, section 20.4): `useSessi
 | `types.ts` | `User`, `isStaff`, `VENDOR_OWNER_ROLE`, the backend answer schemas, the session answer, the phone and code forms |
 | `after-login-page.ts` | The page to return to after login: `rememberPageAfterLogin`, `readPageAfterLogin`, `forgetPageAfterLogin` (a signed cookie). No server-only import, so `proxy.ts` can use it |
 | `components/login-form.tsx` | The login screen: the phone and code steps, drawing only (logic in `hooks/use-login-form.ts`) |
-| `components/require-user.tsx` | `requireUser`, the guard for pages that need login or a role; `currentPath`; `Unavailable` ("try again shortly") |
+| `components/require-user.tsx` | `requireUser`, the guard for pages that need login or a role; `Unavailable` ("try again shortly", with a link back to the same page); `currentPath`, the page's own address, used only inside |
 | `components/session-check.tsx` | Shown while the browser renews an expired login |
 | `components/logout-buttons.tsx` | "Log out" and "Log out everywhere" |
 | `hooks/use-auth.ts` | The call hooks: `useSession` and `sessionKeys`, `reloadSession`, `useRequestLoginCode`, `useVerifyLoginCode`, `useLogout` |
