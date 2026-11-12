@@ -1,6 +1,8 @@
 import 'server-only';
 import type { NextRequest } from 'next/server';
+import { AppErrorCode } from '@/lib/error-codes';
 import { AppError } from '@/lib/errors';
+import { logServerEvent, ServerEvent } from '@/lib/server-log';
 import { guardChange, ok } from '@/middleware/responses';
 import * as authApi from './auth-api';
 import { asUser, clearSessionCookies, readAuth } from './session';
@@ -17,9 +19,10 @@ export async function logoutRoute(request: NextRequest, everywhere: boolean) {
   if (auth.access || auth.refresh) {
     try {
       const result = await asUser(auth, (token) => (everywhere ? authApi.logoutEverywhere(token) : authApi.logout(token)));
-      if (!result.ok && result.outcome === 'temporary') console.warn(JSON.stringify({ event: 'logout_backend_unconfirmed', everywhere }));
-    } catch (error) {
-      console.warn(JSON.stringify({ event: 'logout_backend_failed', code: error instanceof AppError ? error.code : 'unknown', everywhere }));
+      if (!result.ok && result.outcome === 'temporary') logServerEvent(ServerEvent.LogoutBackendUnconfirmed, { flags: { everywhere } });
+    } catch (caughtError) {
+      const code = caughtError instanceof AppError ? caughtError.code : AppErrorCode.UnknownError;
+      logServerEvent(ServerEvent.LogoutBackendFailed, { code, flags: { everywhere } });
     }
   }
   const response = ok({ loggedOut: true });

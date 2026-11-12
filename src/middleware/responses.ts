@@ -1,8 +1,11 @@
 import 'server-only';
 import { randomUUID } from 'node:crypto';
 import { NextResponse, type NextRequest } from 'next/server';
-import { AppError } from '@/lib/errors';
 import { serverConfig } from '@/lib/config';
+import { AppErrorCode } from '@/lib/error-codes';
+import { AppError } from '@/lib/errors';
+import { HttpStatus } from '@/lib/http-status';
+import { logErrorDetailsOutsideProduction, logServerEvent, ServerEvent } from '@/lib/server-log';
 
 /** Helpers for our own endpoints: answers, errors and the forgery check. They know nothing about the session. */
 
@@ -32,8 +35,9 @@ export function fromAppError(error: unknown): NextResponse {
     );
   }
   const requestId = randomUUID();
-  console.error(JSON.stringify({ event: 'unexpected_error', requestId, message: error instanceof Error ? error.message : String(error) }));
-  return fail('SERVER_ERROR', 500, {}, requestId);
+  logServerEvent(ServerEvent.UnexpectedError, { requestId, code: AppErrorCode.ServerError });
+  logErrorDetailsOutsideProduction(error);
+  return fail(AppErrorCode.ServerError, HttpStatus.ServerError, {}, requestId);
 }
 
 /**
