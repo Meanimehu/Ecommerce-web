@@ -58,6 +58,27 @@ export const BACKEND_CODES_IN_USE = [
   'BRAND_NOT_FOUND',
   'DICTIONARY_VALUE_NOT_FOUND',
   'ATTRIBUTE_SCHEMA_INVALID',
+  // vendor products and moderation (Area 3b): Slice 2c
+  'VENDOR_NOT_APPROVED',
+  'PRODUCT_NOT_FOUND',
+  'PRODUCT_LIMIT',
+  'ATTRIBUTES_INVALID',
+  'PRODUCT_LOCKED',
+  'PRODUCT_STATE_INVALID',
+  'PRODUCT_INCOMPLETE',
+  'VARIANT_HAS_STOCK_HISTORY',
+  'SKU_TAKEN',
+  'VARIANT_DUPLICATE',
+  'VARIANT_LIMIT',
+  'PRICE_INVALID',
+  'VARIANT_NOT_FOUND',
+  'PRICE_CONFLICTS_WITH_SALE',
+  'IMAGE_NOT_FOUND',
+  'IMAGE_INVALID',
+  'IMAGE_LIMIT',
+  'REVIEW_STALE',
+  'REVIEW_OWN_VENDOR',
+  'TAX_CONFIRMATION_REQUIRED',
 ] as const;
 
 /** Codes from the backend's framework, not in its catalogue (api-contract.md, section 3), that a built screen can show. */

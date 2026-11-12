@@ -135,3 +135,22 @@ export function inTreeOrder(categories: readonly Category[]): Category[] {
   visit(null);
   return ordered;
 }
+
+// ---- Storefront (section 1, no login) ----
+
+/** GET /catalogue/categories: the active categories, nested in display order. */
+export type CategoryNode = { id: string; name: string; slug: string; productCount: number; children: CategoryNode[] };
+export const CategoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(() =>
+  z.object({ id: z.string(), name: z.string(), slug: z.string(), productCount: z.number().int(), children: z.array(CategoryNodeSchema) }),
+);
+export const CategoryTreeSchema = z.object({ items: z.array(CategoryNodeSchema) });
+
+/** The node with this id or slug, and the path from the top level down to it. */
+export function findInTree(nodes: readonly CategoryNode[], match: (node: CategoryNode) => boolean, path: CategoryNode[] = []): CategoryNode[] | null {
+  for (const node of nodes) {
+    if (match(node)) return [...path, node];
+    const found = findInTree(node.children, match, [...path, node]);
+    if (found) return found;
+  }
+  return null;
+}

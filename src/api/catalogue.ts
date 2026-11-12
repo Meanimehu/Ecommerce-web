@@ -1,5 +1,5 @@
 import 'server-only';
-import { CATALOGUE_ITEMS, CATALOGUE_LISTS, type CatalogueList, type EditableList } from '@/types/catalogue';
+import { CATALOGUE_ITEMS, CATALOGUE_LISTS, CategoryTreeSchema, type CatalogueList, type EditableList } from '@/types/catalogue';
 import type { Query } from '@/utils/url';
 import { callBackend } from './client';
 
@@ -16,3 +16,7 @@ export const addCatalogueItem = (token: string, list: EditableList, body: Record
 
 export const changeCatalogueItem = (token: string, list: EditableList, id: string, body: Record<string, unknown>) =>
   callBackend({ method: 'PATCH', path: `/admin/catalogue/${list}/${encodeURIComponent(id)}`, kind: 'save', token, body, schema: CATALOGUE_ITEMS[list] });
+
+// ---- Storefront (section 1): no login; the answer is the same for everyone. ----
+
+export const getCategoryTree = () => callBackend({ method: 'GET', path: '/catalogue/categories', kind: 'view', schema: CategoryTreeSchema });
