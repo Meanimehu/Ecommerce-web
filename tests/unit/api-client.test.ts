@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import { AppError, messageFor } from '@/lib/errors';
 import { getMessages } from '@/lib/messages';
-import { callBackend } from '@/api/client';
+import { backendCallName, callBackend } from '@/api/client';
 
 const json = (status: number, body: unknown, headers: Record<string, string> = {}) =>
   new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', ...headers } });
@@ -69,12 +69,20 @@ describe('the backend client (Document 3; D7-01, D7-10)', () => {
 
   it('a response that does not match its schema is never passed on (D3-02)', async () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    const fetchImpl = vi.fn().mockResolvedValue(json(200, { ok: 'yes', secret: 'data' }));
-    const error = (await callBackend({ method: 'GET', path: '/x', kind: 'view', schema: Schema, fetchImpl, sleep: noSleep }).catch((e: unknown) => e)) as AppError;
+    const fetchImpl = vi.fn().mockResolvedValue(json(200, { ok: 'yes', secret: 'data' }, { 'x-request-id': 'req-9' }));
+    const error = (await callBackend({ method: 'GET', path: '/admin/vendors/7f3a9c', kind: 'view', schema: Schema, fetchImpl, sleep: noSleep }).catch((e: unknown) => e)) as AppError;
     expect(error.code).toBe('RESPONSE_MISMATCH');
-    expect(spy.mock.calls[0]?.[0]).toContain('"fields":["ok"]');
-    expect(spy.mock.calls[0]?.[0]).not.toContain('data');
+    // One plain line with the listed call name, never the real address or the data (Document 7, section 20.10).
+    expect(spy).toHaveBeenCalledWith('[req-9] response_mismatch call="GET /admin/vendors/{id}" fields=ok');
     spy.mockRestore();
+  });
+
+  it('a real call is named by its listed path, the most fixed one first', () => {
+    expect(backendCallName('GET', '/admin/vendors/7f3a9c')).toBe('GET /admin/vendors/{id}');
+    expect(backendCallName('GET', '/vendors/me/imports/template')).toBe('GET /vendors/me/imports/template');
+    expect(backendCallName('GET', '/vendors/me/imports/i-42')).toBe('GET /vendors/me/imports/{id}');
+    expect(backendCallName('DELETE', '/cart/items/v-1')).toBe('DELETE /cart/items/{variantId}');
+    expect(backendCallName('GET', '/not/a/backend/path')).toBeUndefined();
   });
 
   it('extra fields from the backend are ignored', async () => {

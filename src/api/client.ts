@@ -6,6 +6,8 @@ import { isIP } from 'node:net';
 import { BackendErrorSchema } from '@/types/error';
 import { serverConfig } from '@/lib/config';
 import { withQuery, type Query } from '@/utils/url';
+import { logServerEvent, ServerEvent } from '@/lib/server-log';
+import { BACKEND_CALLS, type BackendCall } from '@/types/generated/backend-calls';
 
 /**
  * The one place that talks to the backend (Document 3, section 3). Request-specific timeouts, automatic retries for
@@ -115,11 +117,16 @@ async function callOnce<S extends z.ZodType | null>(options: CallOptions<S>): Pr
   if (options.schema === null) return { data: null as never, status: response.status, requestId };
   const checked = options.schema.safeParse(json);
   if (!checked.success) {
-    // The report: endpoint, request id and fields, never the data (Document 3, section 4). Error monitoring is open (Q7-2),
-    // so the server log is where it goes for now. In development and tests the screen also says exactly what is wrong.
+    // The report: the call's listed name, request id and fields, never the data or the real address (Document 3,
+    // section 4; Document 7, section 20.10). Error monitoring is open (Q7-2), so the server log is where it goes for now.
+    // In development and tests the screen also says exactly what is wrong.
     const fields = checked.error.issues.map((issue) => issue.path.join('.') || '(body)');
     const endpoint = `${options.method} ${options.path}`;
-    console.error(JSON.stringify({ event: 'response_mismatch', endpoint, requestId, fields }));
+    logServerEvent(ServerEvent.ResponseMismatch, {
+      requestId,
+      call: backendCallName(options.method, options.path),
+      fields,
+    });
     throw new AppError({
       code: 'RESPONSE_MISMATCH',
       status: 502,
@@ -196,6 +203,26 @@ export async function openBackendFile(options: { path: string; token: string; fe
   const text = await response.text().catch(() => '');
   throw errorFrom(response, text ? safeJson(text) : undefined, false);
 }
+
+/**
+ * The listed name of a real call (`GET /admin/vendors/{id}` for `GET /admin/vendors/7f3a`), for log lines. When two
+ * listed paths fit, the one with more fixed parts wins (`/vendors/me/imports/template` over `/vendors/me/imports/{id}`).
+ * Undefined when none fits.
+ */
+export function backendCallName(method: CallOptions<null>['method'], path: string): BackendCall | undefined {
+  return CALL_PATTERNS.find((pattern) => pattern.method === method && pattern.matches.test(path))?.call;
+}
+
+const CALL_PATTERNS = BACKEND_CALLS.map((call) => {
+  const [method, listedPath = ''] = call.split(' ');
+  const parts = listedPath.split('/');
+  const isParameter = (part: string) => part.startsWith('{');
+  const pattern = parts
+    .map((part) => (isParameter(part) ? '[^/]+' : part.replace(/[.*+?^$()|[\]\\]/g, '\\$&')))
+    .join('/');
+  const fixedParts = parts.filter((part) => !isParameter(part)).length;
+  return { call, method, matches: new RegExp(`^${pattern}$`), fixedParts };
+}).sort((first, second) => second.fixedParts - first.fixedParts);
 
 function safeJson(text: string): unknown {
   try {
