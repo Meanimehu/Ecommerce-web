@@ -69,7 +69,7 @@ export function ProductList({ lang }: { lang: Locale }) {
         <h1 className="type-h2 text-ink">{p.title}</h1>
         {approved ? (
           <Button asChild>
-            <Link href={`${base}/new`} className="no-underline">
+            <Link href={`${base}/add`} className="no-underline">
               {p.add}
             </Link>
           </Button>

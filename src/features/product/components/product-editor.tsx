@@ -106,7 +106,7 @@ function StepNav({ lang, product, current }: { lang: Locale; product: ProductVie
     key,
     label: p.steps[key],
     short: p.steps.short[key],
-    href: product ? `/${lang}/vendor/products/${product.id}?step=${key}` : `/${lang}/vendor/products/new`,
+    href: product ? `/${lang}/vendor/products/${product.id}?step=${key}` : `/${lang}/vendor/products/add`,
     done: done(key),
   }));
   return (

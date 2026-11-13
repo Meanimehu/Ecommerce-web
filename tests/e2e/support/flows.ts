@@ -46,7 +46,7 @@ export async function approveVendor(admin: Page, shop: string) {
 
 /** An approved vendor adds a product through every step (size M, ₹1,999 MRP, ₹1,499.50) and submits it. Returns its address. */
 export async function addAndSubmitProduct(vendor: Page, title: string, sku: string): Promise<string> {
-  await vendor.goto('/en/vendor/products/new');
+  await vendor.goto('/en/vendor/products/add');
   await vendor.getByRole('textbox', { name: 'Title' }).fill(title);
   await vendor.getByRole('combobox', { name: 'Category' }).selectOption({ label: 'Women › Kurtas' });
   await expect(vendor.getByText(/The category's default: HSN \d+, GST \d+%/)).toBeVisible();
