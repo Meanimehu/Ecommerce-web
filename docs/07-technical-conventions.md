@@ -185,6 +185,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 23 | 13 Nov 2026 | Status: step 4, `vendor`, in review (pull request #42). No decision changed |
 | 24 | 13 Nov 2026 | Status: step 4, `vendor`, done (#42); step 5, `catalogue`, in review (#43). **Agreed by the owner:** in 20.9, the form hooks of one feature may share a helper hook inside that feature for the steps they all take. No other decision changed |
 | 25 | 13 Nov 2026 | Status: step 5, `catalogue`, done (#43); step 6, `product`, in review (#44). **Agreed by the owner:** in 20.2, the words inside a group's round brackets and every other folder name in `src/app/` are full words; `vendor/(app)/` becomes `vendor/(needs-vendor)/` and `vendor/products/new/` becomes `vendor/products/add/` (20.13, step 6); in 20.9, one exception for the photo upload queue, which keeps going after the vendor leaves the photos step. No other decision changed |
+| 26 | 13 Nov 2026 | **Agreed by the owner:** in 20.9, a change sends only the changed fields, read through `useAppForm`; in 20.12, item 6, a bug found on the way is fixed in its own pull request before the next step; in item 8, a form that changes saved data has an end-to-end test that edits it and checks the request body and the saved value. Status: the bug fix is pull request #45. No other decision changed |
 
 ## 16. Names: folders and files
 
@@ -408,6 +409,7 @@ Every cookie uses the `__Host-` prefix, `Secure`, `HttpOnly`, `SameSite=Lax`, pa
 - **Field checks** run when a field is left and on submit (D6-25), and check only a missing value or a wrong shape.
 - **Text** comes from `useMessages()` in client components, from the catalogue in both languages with the same keys (Document 4, section 6; `check:messages` enforces it).
 - **Request bodies are typed,** from the generated backend request types where the body passes through unchanged.
+- **A change sends only the changed fields.** The form hook reads them from `form.formState.dirtyFields` when Save is pressed. `useAppForm` reads them once every time the form draws, because React Hook Form keeps them up to date only for a form that does; without that read the list is empty when Save is pressed, and nothing is sent (the bug fixed in pull request #45).
 - **Our endpoints:**
   - An endpoint that acts as the logged-in person uses `auth`'s `answerAsUser` or `fileAsUser`.
   - A public one uses `answerPublic` (`middleware/endpoint.ts`).
@@ -464,9 +466,9 @@ From the reference project the owner shared on 12 Nov 2026 we take descriptive n
 3. **Decide, document, pilot, review, then roll out:** a new pattern or structure is tried on one feature, shown to the owner, and rolled out only after the owner agrees.
 4. **Documents first, then code;** `docs/code-map.md` changes with the structure or the request flow.
 5. **Explain in plain words,** step by step: which file comes in when, and why.
-6. **Behaviour is kept.** What no test covers is checked by reading the existing code. A bug found on the way is reported.
+6. **Behaviour is kept.** What no test covers is checked by reading the existing code. A bug found on the way is reported, then fixed in its own pull request before the next step starts (owner, 13 Nov 2026).
 7. **After every change:** types, lint, the message and enum checks, generated types, unit tests, every end-to-end test on desktop and phone, and the first-load page sizes (T7-2). A change that adds weight to every page is found and fixed.
-8. **Tests:** one end-to-end spec per feature, named after it (for example `auth.spec.ts`). Each pull request adds or updates tests for the behaviour it touches, and a new kind of page joins the page-size test. Each feature pull request splits or renames the existing slice-based specs (`slice-1-login.spec.ts`, `slice-2a-vendor.spec.ts` and so on) that cover it, so that by the end of the clean-up every spec is named after its feature.
+8. **Tests:** one end-to-end spec per feature, named after it (for example `auth.spec.ts`). Each pull request adds or updates tests for the behaviour it touches, and a new kind of page joins the page-size test. A form that changes something already saved has an end-to-end test that edits it, checks the request body that is sent (`nextRequestBody` in `tests/e2e/support/requests.ts`) and checks the value after a reload: a toast or the next page alone does not show that anything was saved. Each feature pull request splits or renames the existing slice-based specs (`slice-1-login.spec.ts`, `slice-2a-vendor.spec.ts` and so on) that cover it, so that by the end of the clean-up every spec is named after its feature.
 9. **Moves are their own commit:** a commit that moves files changes nothing else, so the review shows only renames.
 10. **Pull requests:** one feature each; the documents (20.13, step 1), page addresses (step 7) and the final clean-up (step 11) each have their own. The description says what changed, why, the flow if it changed, the checks run, the page sizes and the open items. Nothing is merged unless the owner says "merge". No assistant attribution lines.
 
@@ -474,7 +476,7 @@ From the reference project the owner shared on 12 Nov 2026 we take descriptive n
 
 The code from Slices 0 to 2 is brought to these practices before Slice 3 starts (D7-19), one pull request per feature, in this order, each reviewed before the next.
 
-**Where it stands (13 Nov 2026):** steps 1 to 3 are done and merged: the documents (#37), login (#36) with the shared `messages` prop (#38), and the `auth` pilot (#39), followed by the logging details the pilot left open (#40). Step 4, `vendor`, is done (#42): `src/features/vendor/`, the first feature cleaned up with the replace-first rule below and with action hooks (20.9). Step 5, `catalogue`, is done (#43): the admin catalogue lists are in `src/features/catalogue/`. **Step 6, `product`, is in review** (pull request #44).
+**Where it stands (13 Nov 2026):** steps 1 to 3 are done and merged: the documents (#37), login (#36) with the shared `messages` prop (#38), and the `auth` pilot (#39), followed by the logging details the pilot left open (#40). Step 4, `vendor`, is done (#42): `src/features/vendor/`, the first feature cleaned up with the replace-first rule below and with action hooks (20.9). Step 5, `catalogue`, is done (#43): the admin catalogue lists are in `src/features/catalogue/`. **Step 6, `product`, is in review** (pull request #44). **Before step 7, a bug fix** (pull request #45): the eight forms that send only the changed fields sent nothing when something already saved was edited.
 
 **How steps 4 to 11 are done (owner, 13 Nov 2026):**
 - They are code-quality changes, not new features: behaviour is kept (20.12, item 6). The one change a person sees is the storefront addresses in step 8, already agreed in Document 4 (D4-02). New features start with Slice 3.
