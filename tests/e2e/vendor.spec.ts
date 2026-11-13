@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { backendLog, freshPhone, pageAs } from './support/login';
+import { nextRequestBody } from './support/requests';
 import { TEST_PDF } from './support/files';
 
 /**
@@ -151,6 +152,15 @@ test.describe('become a vendor, and admin review', () => {
     await page.getByRole('link', { name: 'सुधारें और फिर जमा करें' }).click();
     await expect(page).toHaveURL(/step=details/);
     await noAxeViolations(page);
+
+    // Editing a saved application sends exactly the changed field, and the change is kept (Document 7, 20.12).
+    await page.getByLabel('दुकान का नाम').fill(`${shop} new`);
+    const sent = nextRequestBody(page, 'PATCH', /^\/api\/vendors\/me$/);
+    await page.getByRole('button', { name: 'सहेजें और आगे बढ़ें' }).click();
+    expect(await sent).toEqual({ displayName: `${shop} new` });
+    await expect(page).toHaveURL(/step=address/);
+    await page.goto('/hi/vendor/apply?step=details');
+    await expect(page.getByLabel('दुकान का नाम')).toHaveValue(`${shop} new`);
   });
 
   test('a customer gets a real 403 on the admin vendor screens, and a file over the limit is refused before it is sent', async ({ browser }) => {
