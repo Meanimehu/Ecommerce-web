@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { adminCataloguePath } from '@/lib/routes';
 import { cn } from '@/utils/cn';
 import { formatRate } from '@/utils/format';
 import {
@@ -36,7 +37,6 @@ const CATEGORY_INDENT_PX = 20;
 export function CatalogueScreen({ lang, list }: { lang: Locale; list: EditableList }) {
   const messages = useMessages();
   const catalogueMessages = messages.catalogue;
-  const cataloguePage = `/${lang}/admin/catalogue`;
   return (
     <div className="grid gap-5">
       <h1 className="type-h2 stitch-bottom pb-3 text-ink">{catalogueMessages.title}</h1>
@@ -45,7 +45,7 @@ export function CatalogueScreen({ lang, list }: { lang: Locale; list: EditableLi
           {EDITABLE_LISTS.map((editableList) => (
             <li key={editableList}>
               <Link
-                href={`${cataloguePage}/${editableList}`}
+                href={adminCataloguePath(lang, editableList)}
                 aria-current={editableList === list ? 'page' : undefined}
                 className={cn(
                   'flex min-h-11 items-center border-b-[3px] px-3 type-small no-underline transition-colors duration-100 hover:text-ink',

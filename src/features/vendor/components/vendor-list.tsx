@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { adminVendorPath, adminVendorsPath } from '@/lib/routes';
 import { formatDate, formatPhone } from '@/utils/format';
 import { pageNumber, withQuery } from '@/utils/url';
 import { useVendorList } from '@/features/vendor/hooks/use-vendor';
@@ -40,7 +41,7 @@ export function VendorList({ lang }: { lang: Locale }) {
     page,
     limit: PAGE_SIZE,
   });
-  const listPage = `/${lang}/admin/vendors`;
+  const listPage = adminVendorsPath(lang);
   const hasFilters = Boolean(status || pendingDocuments || searchText);
   const hrefFor = (pageToShow: number) =>
     withQuery(listPage, {
@@ -57,7 +58,7 @@ export function VendorList({ lang }: { lang: Locale }) {
       lead: true,
       cell: (row) => (
         <a
-          href={`${listPage}/${row.id}`}
+          href={adminVendorPath(lang, row.id)}
           className="inline-flex min-h-11 items-center font-medium underline underline-offset-4"
         >
           {row.displayName}

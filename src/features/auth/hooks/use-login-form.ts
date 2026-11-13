@@ -7,6 +7,7 @@ import { BackendErrorCode } from '@/lib/error-codes';
 import { retryAfterSecondsOf, type AppError } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { accountPath } from '@/lib/routes';
 import { keepAddNotice } from '@/hooks/use-cart';
 import {
   CodeFormSchema,
@@ -121,8 +122,7 @@ export function useCodeStep({ lang, sentCode }: { lang: Locale; sentCode: SentCo
     if (error.outcomeUnknown) {
       const session = await reloadSession(queryClient);
       if (session?.user) {
-        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-        window.location.assign(`/${lang}/account`);
+        window.location.assign(accountPath(lang));
         return;
       }
     }

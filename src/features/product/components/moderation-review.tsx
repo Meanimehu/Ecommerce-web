@@ -15,6 +15,7 @@ import { BackendErrorCode } from '@/lib/error-codes';
 import { messageFor, type AppError } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { moderationQueuePath } from '@/lib/routes';
 import { findInTree } from '@/types/catalogue';
 import { reviewPhotoSrc, useProductForReview } from '@/features/product/hooks/use-product';
 import { useProductDecision } from '@/features/product/hooks/use-product-decision';
@@ -44,7 +45,7 @@ export function ModerationReview({ lang, id }: { lang: Locale; id: string }) {
   const moderationMessages = messages.moderation;
   const productForReview = useProductForReview(id);
   const crumbs = [
-    { label: moderationMessages.title, href: `/${lang}/admin/moderation` },
+    { label: moderationMessages.title, href: moderationQueuePath(lang) },
     { label: productForReview.data?.product.title ?? moderationMessages.product },
   ];
 

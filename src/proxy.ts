@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { isLocale, localeOfPath, pickLocale } from '@/lib/i18n';
+import { homePath, loginPath } from '@/lib/routes';
 import { COOKIE, PATH_HEADER } from '@/middleware/cookies';
 import { rememberPageAfterLogin } from '@/features/auth/after-login-page';
 
@@ -21,14 +22,19 @@ export function proxy(request: NextRequest) {
 
   if (!locale) {
     const remembered = request.cookies.get(COOKIE.language)?.value;
-    const target = isLocale(remembered) ? remembered : pickLocale(request.headers.get('accept-language'));
-    const response = NextResponse.redirect(new URL(`/${target}${pathname === '/' ? '' : pathname}${search}`, request.url), 307);
+    const target = isLocale(remembered)
+      ? remembered
+      : pickLocale(request.headers.get('accept-language'));
+    const response = NextResponse.redirect(
+      new URL(`${homePath(target)}${pathname === '/' ? '' : pathname}${search}`, request.url),
+      307,
+    );
     response.headers.set('Cache-Control', PRIVATE);
     return response;
   }
 
-  if (pathname === `/${locale}/login` && searchParams.has('next')) {
-    const response = NextResponse.redirect(new URL(`/${locale}/login`, request.url), 303);
+  if (pathname === loginPath(locale) && searchParams.has('next')) {
+    const response = NextResponse.redirect(new URL(loginPath(locale), request.url), 303);
     response.headers.set('Cache-Control', PRIVATE);
     rememberPageAfterLogin(response, searchParams.get('next') ?? '');
     return response;
@@ -41,7 +47,10 @@ export function proxy(request: NextRequest) {
   const response = NextResponse.next({ request: { headers } });
   // Pages may load images only from our own site and the public photo host (Document 3, D3-04).
   const imageHost = imageOrigin();
-  response.headers.set('Content-Security-Policy', `img-src 'self' data: blob:${imageHost ? ` ${imageHost}` : ''}`);
+  response.headers.set(
+    'Content-Security-Policy',
+    `img-src 'self' data: blob:${imageHost ? ` ${imageHost}` : ''}`,
+  );
   return response;
 }
 

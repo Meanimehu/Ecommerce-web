@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { myProductPath } from '@/lib/routes';
 import {
   findCategoryChoice,
   ProductStep,
@@ -29,7 +30,7 @@ export function AttributesStep({
   const productMessages = useMessages().product;
   const category = findCategoryChoice(dictionaries.categories, product.categoryId)?.category;
   const attributes = category?.attributes ?? [];
-  const nextStepPath = `/${lang}/vendor/products/${product.id}?step=${ProductStep.Variants}`;
+  const nextStepPath = myProductPath(lang, product.id, ProductStep.Variants);
 
   if (attributes.length > 0) {
     return <AttributesForm product={product} attributes={attributes} nextStepPath={nextStepPath} />;

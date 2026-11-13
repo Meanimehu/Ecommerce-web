@@ -6,6 +6,7 @@ import { AppErrorCode, BackendErrorCode } from '@/lib/error-codes';
 import { AppError } from '@/lib/errors';
 import { HttpStatus } from '@/lib/http-status';
 import type { Locale } from '@/lib/i18n';
+import { adminHomePath, homePath, vendorHomePath } from '@/lib/routes';
 import { COOKIE, cookieOptions, deleteCookie, LIFETIME_SECONDS } from '@/middleware/cookies';
 import { fail } from '@/middleware/responses';
 import { isStaff, VENDOR_OWNER_ROLE, type User } from '@/features/auth/types';
@@ -230,9 +231,9 @@ export const getViewer = cache(async (): Promise<Viewer> => {
 
 /** Where a person goes after login when they asked for no page (Document 2, D2-03). */
 export function defaultDestination(roles: readonly string[], lang: Locale): string {
-  if (isStaff(roles)) return `/${lang}/admin`;
-  if (roles.includes(VENDOR_OWNER_ROLE)) return `/${lang}/vendor`;
-  return `/${lang}`;
+  if (isStaff(roles)) return adminHomePath(lang);
+  if (roles.includes(VENDOR_OWNER_ROLE)) return vendorHomePath(lang);
+  return homePath(lang);
 }
 
 /**

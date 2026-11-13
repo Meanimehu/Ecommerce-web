@@ -38,6 +38,8 @@ const codeStyleFiles = [
   'src/types/add-notice.ts',
   'tests/unit/error-codes.test.ts',
   'tests/unit/product.test.ts',
+  'tests/unit/routes.test.ts',
+  'src/lib/routes.ts',
 ];
 
 export default defineConfig([

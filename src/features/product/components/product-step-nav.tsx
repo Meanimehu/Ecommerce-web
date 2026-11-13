@@ -4,6 +4,7 @@ import { Steps, type Step } from '@/components/common/steps';
 import { fill } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { addProductPath, myProductPath } from '@/lib/routes';
 import {
   PRODUCT_STEPS,
   ProductStep,
@@ -33,9 +34,7 @@ export function ProductStepNav({
     step !== ProductStep.Review &&
     !missing.some((missingItem) => productStepFor(missingItem) === step);
   const stepPath = (step: ProductStep) =>
-    product
-      ? `/${lang}/vendor/products/${product.id}?step=${step}`
-      : `/${lang}/vendor/products/add`;
+    product ? myProductPath(lang, product.id, step) : addProductPath(lang);
   const steps: Step[] = PRODUCT_STEPS.map((step) => ({
     key: step,
     label: stepMessages[step],

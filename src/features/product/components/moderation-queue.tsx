@@ -10,6 +10,7 @@ import { StateBlock } from '@/components/common/state-block';
 import { useCategoryTree } from '@/hooks/use-category-tree';
 import type { Locale, Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { moderationProductPath, moderationQueuePath } from '@/lib/routes';
 import { findInTree } from '@/types/catalogue';
 import { useReviewQueue } from '@/features/product/hooks/use-product';
 import { ReviewKind, type ModerationRow } from '@/features/product/types';
@@ -31,7 +32,7 @@ export function ModerationQueue({ lang }: { lang: Locale }) {
   const page = pageNumber(searchParams.get('page'));
   const reviewQueue = useReviewQueue({ queue: ReviewKind.Listing, page, limit: PAGE_SIZE });
   const categoryTree = useCategoryTree();
-  const queuePath = `/${lang}/admin/moderation`;
+  const queuePath = moderationQueuePath(lang);
   const categoryPath = (categoryId: string) =>
     findInTree(categoryTree.data?.items ?? [], (node) => node.id === categoryId)
       ?.map((node) => node.name)
@@ -44,7 +45,7 @@ export function ModerationQueue({ lang }: { lang: Locale }) {
       lead: true,
       cell: (row) => (
         <Link
-          href={`${queuePath}/${row.id}`}
+          href={moderationProductPath(lang, row.id)}
           className="inline-flex min-h-11 items-center font-medium underline underline-offset-4"
         >
           {row.title}

@@ -7,6 +7,7 @@ import { BackendErrorCode } from '@/lib/error-codes';
 import type { AppError } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { vendorApplyPath } from '@/lib/routes';
 import type { Vendor } from '@/features/vendor/types';
 import { useSubmitMyVendor } from './use-vendor';
 
@@ -33,7 +34,7 @@ export function useVendorSubmit({ lang, vendor }: { lang: Locale; vendor: Vendor
 
   function showSubmitted() {
     toast(messages.vendor.review.submitted);
-    router.push(`/${lang}/vendor/apply`);
+    router.push(vendorApplyPath(lang));
   }
 
   function showSubmitError(error: AppError) {

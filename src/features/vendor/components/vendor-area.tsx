@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { AreaShell } from '@/components/auth/area-shell';
 import { vendorNav } from '@/components/auth/area-menus';
 import { getMessages } from '@/lib/messages';
+import { vendorApplyPath } from '@/lib/routes';
 import { requireUser, Unavailable } from '@/features/auth/components/require-user';
 import { findVendorPresence, VendorPresence } from '@/features/vendor/server/vendor-presence';
 
@@ -28,7 +29,7 @@ export async function VendorArea({
   if (vendorPresence === VendorPresence.Unknown) return <Unavailable lang={lang} />;
 
   const hasVendor = vendorPresence === VendorPresence.Exists;
-  if (needsVendor && !hasVendor) redirect(`/${lang}/vendor/apply`);
+  if (needsVendor && !hasVendor) redirect(vendorApplyPath(lang));
 
   return (
     <AreaShell lang={lang} area="vendor" nav={vendorNav(lang, getMessages(lang), hasVendor)}>

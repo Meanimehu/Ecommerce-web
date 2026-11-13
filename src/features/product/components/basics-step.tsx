@@ -10,6 +10,7 @@ import { TextareaField } from '@/components/form/textarea-field';
 import { fill } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { myProductsPath } from '@/lib/routes';
 import { useBasicsForm } from '@/features/product/hooks/use-basics-form';
 import type { Dictionaries, DictionaryCategory, ProductView } from '@/features/product/types';
 import { formatRate } from '@/utils/format';
@@ -140,7 +141,7 @@ export function BasicsStep({
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
         {product ? (
           <Button asChild variant="quiet">
-            <Link href={`/${lang}/vendor/products`}>{productMessages.backToList}</Link>
+            <Link href={myProductsPath(lang)}>{productMessages.backToList}</Link>
           </Button>
         ) : (
           <span />

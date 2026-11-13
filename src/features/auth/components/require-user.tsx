@@ -6,6 +6,7 @@ import { StateBlock } from '@/components/common/state-block';
 import { Button } from '@/components/ui/button';
 import { isLocale, type Locale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
+import { homePath, loginPath } from '@/lib/routes';
 import { PATH_HEADER } from '@/middleware/cookies';
 import { getViewer, ViewerState } from '@/features/auth/server/session';
 import type { User } from '@/features/auth/types';
@@ -24,8 +25,7 @@ export async function requireUser(
   const lang = langParam;
   const path = await currentPath(lang);
   const viewer = await getViewer();
-  if (viewer.state === ViewerState.Anonymous)
-    redirect(`/${lang}/login?next=${encodeURIComponent(path)}`);
+  if (viewer.state === ViewerState.Anonymous) redirect(loginPath(lang, path));
   if (viewer.state === ViewerState.NeedsRefresh)
     return { render: <SessionCheck lang={lang} path={path} /> };
   if (viewer.state === ViewerState.Unavailable) return { render: <Unavailable lang={lang} /> };
@@ -39,7 +39,7 @@ export async function requireUser(
  */
 async function currentPath(lang: Locale): Promise<string> {
   const path = (await headers()).get(PATH_HEADER);
-  return path?.startsWith(`/${lang}`) ? path : `/${lang}`;
+  return path?.startsWith(homePath(lang)) ? path : homePath(lang);
 }
 
 /**

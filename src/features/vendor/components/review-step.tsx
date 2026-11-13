@@ -10,6 +10,7 @@ import { BackendErrorCode } from '@/lib/error-codes';
 import { fill, messageFor } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { vendorApplyPath } from '@/lib/routes';
 import { useVendorSubmit } from '@/features/vendor/hooks/use-vendor-submit';
 import { MissingItem, stepFor, type Vendor } from '@/features/vendor/types';
 
@@ -146,7 +147,7 @@ function ChecklistRow({ lang, item }: { lang: Locale; item: ChecklistItem }) {
       </span>
       {item.isMissing ? (
         <Link
-          href={`/${lang}/vendor/apply?step=${stepFor(item.key)}`}
+          href={vendorApplyPath(lang, stepFor(item.key))}
           className="inline-flex min-h-11 items-center type-small underline underline-offset-4"
         >
           {reviewMessages.goToStep}

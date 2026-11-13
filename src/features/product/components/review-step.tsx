@@ -19,6 +19,7 @@ import { ErrorMessage } from '@/components/common/error-message';
 import { fill, messageFor } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { myProductPath } from '@/lib/routes';
 import { useProductSubmit } from '@/features/product/hooks/use-product-submit';
 import {
   ALWAYS_CHECKED,
@@ -46,7 +47,6 @@ export function ReviewStep({ lang, product }: { lang: Locale; product: ProductVi
   const productSubmit = useProductSubmit({ lang, productId: product.id });
   const { actionError } = productSubmit;
   const { missing } = product;
-  const productPath = `/${lang}/vendor/products/${product.id}`;
   const canDelete = product.status === ProductStatus.Draft && !product.submittedAt;
   // What the product needs: anything the backend lists, then the parts it is always checked on.
   const checklist: ChecklistItem[] = [
@@ -101,7 +101,7 @@ export function ReviewStep({ lang, product }: { lang: Locale; product: ProductVi
               </span>
               {item.isMissing ? (
                 <Link
-                  href={`${productPath}?step=${productStepFor(item.key)}`}
+                  href={myProductPath(lang, product.id, productStepFor(item.key))}
                   className="inline-flex min-h-11 items-center type-small underline underline-offset-4"
                 >
                   {reviewMessages.goToStep}

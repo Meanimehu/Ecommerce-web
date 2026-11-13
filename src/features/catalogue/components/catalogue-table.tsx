@@ -17,6 +17,7 @@ import { Select } from '@/components/ui/select';
 import { fill, messageFor } from '@/lib/errors';
 import { type Locale, type Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { adminCataloguePath } from '@/lib/routes';
 import { pageNumber, withQuery } from '@/utils/url';
 import { useCatalogueList, useChangeCatalogueItem } from '@/features/catalogue/hooks/use-catalogue';
 import type { EditableList } from '@/features/catalogue/types';
@@ -82,7 +83,7 @@ export function CatalogueTable<Item extends CatalogueItem>({
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   const isFormOpen = isAdding || editingItem !== null;
   const formPanel = useRef<HTMLDivElement>(null);
-  const listPage = `/${lang}/admin/catalogue/${list}`;
+  const listPage = adminCataloguePath(lang, list);
   const switchError = changeCatalogueItem.error;
 
   useEffect(() => {

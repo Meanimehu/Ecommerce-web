@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { fill, messageFor } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { vendorApplyPath } from '@/lib/routes';
 import { formatPhone } from '@/utils/format';
 import { useRemoveVendorAddress } from '@/features/vendor/hooks/use-vendor';
 import { ApplyStep, type Vendor, type VendorAddress } from '@/features/vendor/types';
@@ -92,7 +93,7 @@ export function AddressStep({ lang, vendor }: { lang: Locale; vendor: Vendor }) 
           <span />
         )}
         <Button asChild>
-          <Link href={`/${lang}/vendor/apply?step=${ApplyStep.Documents}`} className="no-underline">
+          <Link href={vendorApplyPath(lang, ApplyStep.Documents)} className="no-underline">
             {messages.vendor.continueStep}
           </Link>
         </Button>

@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { fill, messageFor } from '@/lib/errors';
 import { type Locale, type Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { adminVendorsPath } from '@/lib/routes';
 import { formatSize } from '@/lib/uploads';
 import { formatDate, formatPhone, formatTime } from '@/utils/format';
 import { useVendor, vendorDocumentHref } from '@/features/vendor/hooks/use-vendor';
@@ -57,7 +58,7 @@ export function VendorReview({ lang, id }: { lang: Locale; id: string }) {
       <Breadcrumbs
         label={messages.nav.breadcrumbs}
         items={[
-          { label: messages.adminVendors.title, href: `/${lang}/admin/vendors` },
+          { label: messages.adminVendors.title, href: adminVendorsPath(lang) },
           { label: vendor.data?.displayName ?? messages.adminVendors.application },
         ]}
       />
