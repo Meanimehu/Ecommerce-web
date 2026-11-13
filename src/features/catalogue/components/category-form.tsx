@@ -10,7 +10,7 @@ import { SelectField } from '@/components/form/select-field';
 import { TextField } from '@/components/form/text-field';
 import { TextareaField } from '@/components/form/textarea-field';
 import { applyServerError, useAppForm } from '@/hooks/use-app-form';
-import { useActiveHsnCodes, useAllCategories, useSaveCatalogueItem } from '@/hooks/use-catalogue';
+import { useActiveHsnCodes, useAllCategories, useSaveCatalogueItem } from '@/features/catalogue/hooks/use-catalogue';
 import { fill, requestIdOf, toAppError } from '@/lib/errors';
 import { useMessages } from '@/lib/messages-context';
 import {

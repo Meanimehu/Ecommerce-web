@@ -8,7 +8,7 @@ import { ErrorSummary } from '@/components/form/error-summary';
 import { SelectField } from '@/components/form/select-field';
 import { TextField } from '@/components/form/text-field';
 import { applyServerError, useAppForm, type ServerErrorMap } from '@/hooks/use-app-form';
-import { useActiveGstRates, useSaveCatalogueItem } from '@/hooks/use-catalogue';
+import { useActiveGstRates, useSaveCatalogueItem } from '@/features/catalogue/hooks/use-catalogue';
 import { requestIdOf, toAppError } from '@/lib/errors';
 import type { Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';

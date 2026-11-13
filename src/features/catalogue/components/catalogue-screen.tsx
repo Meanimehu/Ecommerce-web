@@ -15,7 +15,7 @@ import { Pagination } from '@/components/common/pagination';
 import { StateBlock } from '@/components/common/state-block';
 import { StatusChip } from '@/components/common/status-chip';
 import { useToast } from '@/components/common/toast';
-import { useCatalogueList, useSaveCatalogueItem } from '@/hooks/use-catalogue';
+import { useCatalogueList, useSaveCatalogueItem } from '@/features/catalogue/hooks/use-catalogue';
 import { fill, messageFor, toAppError } from '@/lib/errors';
 import { type Locale, type Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';

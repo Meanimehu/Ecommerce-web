@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { CatalogueScreen } from '@/components/admin/catalogue-screen';
+import { CatalogueScreen } from '@/features/catalogue/components/catalogue-screen';
 import { requireUser } from '@/features/auth/components/require-user';
 import { isEditableList } from '@/types/catalogue';
 
