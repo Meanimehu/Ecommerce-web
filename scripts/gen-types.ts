@@ -5,7 +5,7 @@
  *   npm run check:types        regenerate the types from the stored description; fail if they differ (runs in CI)
  *   npm run check:types:live   fetch the description again; fail if it differs from the stored copy (a backend change)
  *
- * It also writes the list of backend calls by their listed names (`GET /vendors/{id}`), the only call names a server log
+ * It also writes the list of backend calls by their listed names (`GET /admin/vendors/{id}`), the only call names a server log
  * may hold (Document 7, section 20.10).
  *
  * The description is switched off in production, so it comes from a development or staging backend (D7-02; check T7-3).
