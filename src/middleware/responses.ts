@@ -5,7 +5,12 @@ import { serverConfig } from '@/lib/config';
 import { AppErrorCode } from '@/lib/error-codes';
 import { AppError } from '@/lib/errors';
 import { HttpStatus } from '@/lib/http-status';
-import { logErrorDetailsOutsideProduction, logServerEvent, ServerEvent } from '@/lib/server-log';
+import {
+  errorTypeOf,
+  logErrorDetailsOutsideProduction,
+  logServerEvent,
+  ServerEvent,
+} from '@/lib/server-log';
 
 /** Helpers for our own endpoints: answers, errors and the forgery check. They know nothing about the session. */
 
@@ -35,7 +40,11 @@ export function fromAppError(error: unknown): NextResponse {
     );
   }
   const requestId = randomUUID();
-  logServerEvent(ServerEvent.UnexpectedError, { requestId, code: AppErrorCode.ServerError });
+  logServerEvent(ServerEvent.UnexpectedError, {
+    requestId,
+    code: AppErrorCode.ServerError,
+    errorType: errorTypeOf(error),
+  });
   logErrorDetailsOutsideProduction(error);
   return fail(AppErrorCode.ServerError, HttpStatus.ServerError, {}, requestId);
 }

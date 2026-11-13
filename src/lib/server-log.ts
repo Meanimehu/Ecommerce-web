@@ -1,7 +1,7 @@
 import 'server-only';
 import { serverConfig } from '@/lib/config';
 import type { ErrorCode } from '@/lib/error-codes';
-import type { paths } from '@/types/generated/backend-api';
+import type { BackendCall } from '@/types/generated/backend-calls';
 
 /**
  * The only way our server writes a log (Document 7, section 20.10; D7-18): one plain-text line per
@@ -13,6 +13,7 @@ export enum ServerEvent {
   LogoutBackendUnconfirmed = 'logout_backend_unconfirmed',
   LogoutBackendFailed = 'logout_backend_failed',
   UnexpectedError = 'unexpected_error',
+  ResponseMismatch = 'response_mismatch',
 }
 
 enum LogLevel {
@@ -25,18 +26,33 @@ const EVENT_LEVELS: Record<ServerEvent, LogLevel> = {
   [ServerEvent.LogoutBackendUnconfirmed]: LogLevel.Warning,
   [ServerEvent.LogoutBackendFailed]: LogLevel.Warning,
   [ServerEvent.UnexpectedError]: LogLevel.Error,
+  [ServerEvent.ResponseMismatch]: LogLevel.Error,
 };
 
-type BackendMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+declare const errorTypeBrand: unique symbol;
 
-/** Our calls name paths without the backend's `/api/v1` prefix (`src/api/client.ts` adds it). */
-type BackendPath<Listed> = Listed extends `/api/v1${infer Path}` ? Path : Listed;
+/** The kind of an unexpected error. Only `errorTypeOf` makes one, so no message can get in. */
+export type ErrorType = string & { readonly [errorTypeBrand]: true };
+
+const BUILT_IN_ERRORS = [
+  TypeError,
+  RangeError,
+  SyntaxError,
+  ReferenceError,
+  URIError,
+  EvalError,
+  AggregateError,
+] as const;
 
 /**
- * A backend call by its name in the generated path list (`POST /auth/otp/verify`,
- * `GET /vendors/{id}`), so no value from a real address can appear in a log.
+ * A built-in error's name, `Error` for any other error (its class name may be shortened in a
+ * production build), or `NotAnError` when something else was thrown.
  */
-export type BackendCall = `${BackendMethod} ${BackendPath<Extract<keyof paths, string>>}`;
+export function errorTypeOf(caughtError: unknown): ErrorType {
+  const builtIn = BUILT_IN_ERRORS.find((BuiltInError) => caughtError instanceof BuiltInError);
+  if (builtIn) return builtIn.name as ErrorType;
+  return (caughtError instanceof Error ? 'Error' : 'NotAnError') as ErrorType;
+}
 
 /** The names a true/false detail may have. A new one is added here first. */
 type LogFlag = 'everywhere';
@@ -45,10 +61,12 @@ export interface ServerEventDetails {
   /** Only our own random id or the id the backend sent. */
   requestId?: string;
   code?: ErrorCode;
+  /** A call by its name in the generated list (`GET /admin/vendors/{id}`), never its real address. */
   call?: BackendCall;
   /** Field paths from a schema check, never their values. */
   fields?: readonly string[];
   flags?: Partial<Record<LogFlag, boolean>>;
+  errorType?: ErrorType;
 }
 
 export function logServerEvent(event: ServerEvent, details: ServerEventDetails = {}): void {
@@ -57,6 +75,7 @@ export function logServerEvent(event: ServerEvent, details: ServerEventDetails =
   parts.push(event);
   if (details.call) parts.push(`call="${details.call}"`);
   if (details.code) parts.push(`code=${details.code}`);
+  if (details.errorType) parts.push(`errorType=${details.errorType}`);
   if (details.fields?.length) parts.push(`fields=${details.fields.join(',')}`);
   for (const [name, value] of Object.entries(details.flags ?? {})) parts.push(`${name}=${value}`);
 
