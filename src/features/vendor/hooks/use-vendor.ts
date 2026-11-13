@@ -1,95 +1,216 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { BackendErrorCode } from '@/lib/error-codes';
 import { AppError } from '@/lib/errors';
 import { get, patch, remove, send, upload } from '@/lib/http';
 import type { Page } from '@/types/common';
-import type { VendorAddressFormInput, AdminVendor, AdminVendorRow, Vendor, VendorAddress, VendorDocument } from '@/features/vendor/types';
 import { withQuery, type Query } from '@/utils/url';
+import type {
+  AddVendorAddressBody,
+  AdminVendor,
+  AdminVendorRow,
+  ApplyVendorBody,
+  DocumentDecision,
+  DocumentType,
+  UpdateVendorAddressBody,
+  UpdateVendorBody,
+  Vendor,
+  VendorAddress,
+  VendorDecision,
+  VendorDocument,
+} from '@/features/vendor/types';
 
 /**
- * Vendor application and admin vendor review (backend Area 2), for the screens (D-02). Every call goes to our own
- * /api/vendors and /api/admin/vendors endpoints, never to the backend (D3-03). After a change the application is read
- * again, so the screen shows what the backend now holds, never a guess (Document 5, section 3).
+ * The calls of `vendor`, one hook per call, to our own /api/vendors and /api/admin/vendors
+ * endpoints, never to the backend (D3-03). After a change the application is read again, so the
+ * screen shows what the backend now holds, never a guess (Document 5, section 3).
  */
+const MY_VENDOR_PATH = '/api/vendors/me';
+const myAddressPath = (id: string) => `${MY_VENDOR_PATH}/addresses/${encodeURIComponent(id)}`;
+const myDocumentPath = (id: string) => `${MY_VENDOR_PATH}/documents/${encodeURIComponent(id)}`;
+const adminVendorPath = (id: string) => `/api/admin/vendors/${encodeURIComponent(id)}`;
+const adminDocumentPath = (id: string, documentId: string) =>
+  `${adminVendorPath(id)}/documents/${encodeURIComponent(documentId)}`;
+
 export const vendorKeys = {
   mine: ['vendor', 'me'] as const,
+  /** Every admin read: the lists and each vendor. */
+  admin: ['vendor', 'admin'] as const,
   list: (query: Query) => ['vendor', 'admin', 'list', query] as const,
   one: (id: string) => ['vendor', 'admin', id] as const,
 };
 
-/** The person's own application, or null when they have not applied (VENDOR_NOT_FOUND). */
+// ---- The applicant ----
+
+/**
+ * The person's own application, or null when they have not applied: VENDOR_NOT_FOUND is the
+ * expected answer for someone who has not applied yet, not an error to show (Document 7, 20.9).
+ */
 export function useMyVendor() {
   return useQuery({
     queryKey: vendorKeys.mine,
     queryFn: async () => {
       try {
-        return await get<Vendor>('/api/vendors/me');
-      } catch (error) {
-        if (error instanceof AppError && error.code === 'VENDOR_NOT_FOUND') return null;
-        throw error;
+        return await get<Vendor>(MY_VENDOR_PATH);
+      } catch (caughtError) {
+        if (
+          caughtError instanceof AppError &&
+          caughtError.code === BackendErrorCode.VendorNotFound
+        ) {
+          return null;
+        }
+        throw caughtError;
       }
     },
     staleTime: 0,
   });
 }
 
-/** Changes to the own application; each one reloads the application afterwards, whatever the outcome. */
-function useVendorChange<TInput, TResult>(run: (input: TInput) => Promise<TResult>) {
+/** Every change to the own application reads it again afterwards, whatever the outcome. */
+function useReloadMyVendor() {
   const queryClient = useQueryClient();
-  return useMutation({ mutationFn: run, onSettled: () => queryClient.invalidateQueries({ queryKey: vendorKeys.mine }) });
+  return () => queryClient.invalidateQueries({ queryKey: vendorKeys.mine });
 }
 
-export const useApply = () => useVendorChange((body: Record<string, unknown>) => send<Vendor>('/api/vendors/apply', body));
-export const useUpdateVendor = () => useVendorChange((body: Record<string, unknown>) => patch<Vendor>('/api/vendors/me', body));
-export const useSubmitVendor = () => useVendorChange((termsVersion: string) => send<Vendor>('/api/vendors/me/submit', { termsVersion }));
-
-export const useSaveAddress = () =>
-  useVendorChange(({ id, values }: { id?: string; values: Record<string, unknown> }) =>
-    id ? patch<VendorAddress>(`/api/vendors/me/addresses/${encodeURIComponent(id)}`, values) : send<VendorAddress>('/api/vendors/me/addresses', values),
-  );
-export const useRemoveAddress = () => useVendorChange((id: string) => remove(`/api/vendors/me/addresses/${encodeURIComponent(id)}`));
-export const useRemoveDocument = () => useVendorChange((id: string) => remove(`/api/vendors/me/documents/${encodeURIComponent(id)}`));
-
-export const useUploadDocument = () =>
-  useVendorChange(({ type, file, onProgress, signal }: { type: string; file: File; onProgress: (fraction: number) => void; signal: AbortSignal }) => {
-    const form = new FormData();
-    form.append('type', type);
-    form.append('file', file);
-    return upload<VendorDocument>('/api/vendors/me/documents', form, { onProgress, signal });
+export function useApplyAsVendor() {
+  const reloadMyVendor = useReloadMyVendor();
+  return useMutation({
+    mutationFn: (body: ApplyVendorBody) => send<Vendor>('/api/vendors/apply', body),
+    onSettled: reloadMyVendor,
   });
-
-/** The address of a document for opening it (a plain link: the browser sends the login cookie). */
-export const myDocumentHref = (id: string) => `/api/vendors/me/documents/${encodeURIComponent(id)}/file`;
-
-/** The address form's values as the backend takes them: line2 left out when empty. */
-export function addressBody(values: VendorAddressFormInput): Record<string, unknown> {
-  const { line2, ...rest } = values;
-  return line2?.trim() ? { ...rest, line2: line2.trim() } : rest;
 }
+
+export function useUpdateMyVendor() {
+  const reloadMyVendor = useReloadMyVendor();
+  return useMutation({
+    mutationFn: (body: UpdateVendorBody) => patch<Vendor>(MY_VENDOR_PATH, body),
+    onSettled: reloadMyVendor,
+  });
+}
+
+export function useSubmitMyVendor() {
+  const reloadMyVendor = useReloadMyVendor();
+  return useMutation({
+    mutationFn: (termsVersion: string) =>
+      send<Vendor>(`${MY_VENDOR_PATH}/submit`, { termsVersion }),
+    onSettled: reloadMyVendor,
+  });
+}
+
+export function useAddVendorAddress() {
+  const reloadMyVendor = useReloadMyVendor();
+  return useMutation({
+    mutationFn: (body: AddVendorAddressBody) =>
+      send<VendorAddress>(`${MY_VENDOR_PATH}/addresses`, body),
+    onSettled: reloadMyVendor,
+  });
+}
+
+export function useUpdateVendorAddress() {
+  const reloadMyVendor = useReloadMyVendor();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: UpdateVendorAddressBody }) =>
+      patch<VendorAddress>(myAddressPath(id), body),
+    onSettled: reloadMyVendor,
+  });
+}
+
+export function useRemoveVendorAddress() {
+  const reloadMyVendor = useReloadMyVendor();
+  return useMutation({
+    mutationFn: (id: string) => remove(myAddressPath(id)),
+    onSettled: reloadMyVendor,
+  });
+}
+
+export interface DocumentUploadInput {
+  type: DocumentType;
+  file: File;
+  onProgress: (fraction: number) => void;
+  signal: AbortSignal;
+}
+
+export function useUploadVendorDocument() {
+  const reloadMyVendor = useReloadMyVendor();
+  return useMutation({
+    mutationFn: ({ type, file, onProgress, signal }: DocumentUploadInput) => {
+      const form = new FormData();
+      form.append('type', type);
+      form.append('file', file);
+      return upload<VendorDocument>(`${MY_VENDOR_PATH}/documents`, form, { onProgress, signal });
+    },
+    onSettled: reloadMyVendor,
+  });
+}
+
+export function useRemoveVendorDocument() {
+  const reloadMyVendor = useReloadMyVendor();
+  return useMutation({
+    mutationFn: (id: string) => remove(myDocumentPath(id)),
+    onSettled: reloadMyVendor,
+  });
+}
+
+/** The address of the person's own document, for opening it (a plain link sends the cookies). */
+export const myDocumentHref = (id: string) => `${myDocumentPath(id)}/file`;
 
 // ---- Admin review ----
 
 export function useVendorList(query: Query) {
-  return useQuery({ queryKey: vendorKeys.list(query), queryFn: () => get<Page<AdminVendorRow>>(withQuery('/api/admin/vendors', query)), staleTime: 30_000 });
-}
-
-export function useVendor(id: string) {
-  return useQuery({ queryKey: vendorKeys.one(id), queryFn: () => get<AdminVendor>(`/api/admin/vendors/${encodeURIComponent(id)}`), staleTime: 0 });
-}
-
-/** A decision on a vendor or one of its documents; the vendor and the lists are read again afterwards. */
-export function useVendorDecision(id: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ decision, docId, reason }: { decision: string; docId?: string; reason?: string }) => {
-      const base = `/api/admin/vendors/${encodeURIComponent(id)}`;
-      const path = docId ? `${base}/documents/${encodeURIComponent(docId)}/${decision}` : `${base}/${decision}`;
-      return send<unknown>(path, reason === undefined ? {} : { reason });
-    },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['vendor', 'admin'] }),
+  return useQuery({
+    queryKey: vendorKeys.list(query),
+    queryFn: () => get<Page<AdminVendorRow>>(withQuery('/api/admin/vendors', query)),
+    staleTime: 30_000,
   });
 }
 
-export const vendorDocumentHref = (id: string, docId: string) =>
-  `/api/admin/vendors/${encodeURIComponent(id)}/documents/${encodeURIComponent(docId)}/file`;
+export function useVendor(id: string) {
+  return useQuery({
+    queryKey: vendorKeys.one(id),
+    queryFn: () => get<AdminVendor>(adminVendorPath(id)),
+    staleTime: 0,
+  });
+}
+
+/** After any decision the vendor and the lists are read again. */
+function useReloadAdminVendors() {
+  const queryClient = useQueryClient();
+  return () => queryClient.invalidateQueries({ queryKey: vendorKeys.admin });
+}
+
+/** The reason goes only with the decisions that need one. */
+const reasonBody = (reason: string | undefined) => (reason === undefined ? {} : { reason });
+
+export interface VendorDecisionInput {
+  decision: VendorDecision;
+  reason?: string;
+}
+
+export function useDecideVendor(id: string) {
+  const reloadAdminVendors = useReloadAdminVendors();
+  return useMutation({
+    mutationFn: ({ decision, reason }: VendorDecisionInput) =>
+      send<AdminVendor>(`${adminVendorPath(id)}/${decision}`, reasonBody(reason)),
+    onSettled: reloadAdminVendors,
+  });
+}
+
+export interface DocumentDecisionInput {
+  documentId: string;
+  decision: DocumentDecision;
+  reason?: string;
+}
+
+export function useReviewVendorDocument(id: string) {
+  const reloadAdminVendors = useReloadAdminVendors();
+  return useMutation({
+    mutationFn: ({ documentId, decision, reason }: DocumentDecisionInput) =>
+      send<VendorDocument>(`${adminDocumentPath(id, documentId)}/${decision}`, reasonBody(reason)),
+    onSettled: reloadAdminVendors,
+  });
+}
+
+/** The address of a vendor's document for review, for opening it. */
+export const vendorDocumentHref = (id: string, documentId: string) =>
+  `${adminDocumentPath(id, documentId)}/file`;

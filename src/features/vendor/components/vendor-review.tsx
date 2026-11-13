@@ -1,250 +1,405 @@
 'use client';
 
 import { Check } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
-import { Banner } from '@/components/ui/banner';
-import { Button } from '@/components/ui/button';
+import type { ReactNode } from 'react';
 import { Breadcrumbs } from '@/components/common/breadcrumbs';
 import { ErrorMessage } from '@/components/common/error-message';
 import { LoadingBlock, PartError } from '@/components/common/load-states';
 import { ReasonDialog } from '@/components/common/reason-dialog';
-import { StatusChip, type ChipTone } from '@/components/common/status-chip';
-import { useToast } from '@/components/common/toast';
-import { VendorStatusChip } from '@/features/vendor/components/vendor-status-chip';
-import { useVendor, useVendorDecision, vendorDocumentHref } from '@/features/vendor/hooks/use-vendor';
-import { fill, messageFor, toAppError, type AppError } from '@/lib/errors';
+import { StatusChip } from '@/components/common/status-chip';
+import { Banner } from '@/components/ui/banner';
+import { Button } from '@/components/ui/button';
+import { fill, messageFor } from '@/lib/errors';
 import { type Locale, type Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { formatSize } from '@/lib/uploads';
 import { formatDate, formatPhone, formatTime } from '@/utils/format';
-import type { AdminVendor, VendorDocument } from '@/features/vendor/types';
+import { useVendor, vendorDocumentHref } from '@/features/vendor/hooks/use-vendor';
+import { useVendorDecisions } from '@/features/vendor/hooks/use-vendor-decisions';
+import {
+  DocumentStatus,
+  MISSING_DOCUMENT_PREFIX,
+  VendorStatus,
+  type AdminVendor,
+  type VendorDocument,
+} from '@/features/vendor/types';
+import { DOCUMENT_TONES } from './document-row';
+import { VendorStatusChip } from './vendor-status-chip';
 
 /**
- * One vendor application for review (Document 5, section 8.3; approved Stage 5): the application, its addresses and
- * documents (each opened through our server, then approved or rejected with a reason), and the decision: approve,
- * reject (with a reason), suspend (with a reason) and unsuspend, offered by status. The backend decides whether a
- * change is allowed; when approval is refused it lists what is lacking, and the screen shows that list.
+ * One vendor application for review (Document 5, section 8.3; approved Stage 5): the application,
+ * its addresses and documents (each opened through our server, then approved or rejected with a
+ * reason), and the decision: approve, reject (with a reason), suspend (with a reason) and
+ * unsuspend, offered by status. What each decision does is in
+ * `features/vendor/hooks/use-vendor-decisions.ts`.
  */
-const DOC_TONE: Record<VendorDocument['status'], ChipTone> = { pending: 'info', approved: 'success', rejected: 'error' };
+const REASON_MAX_LENGTH = 500;
+
+/** A document can be decided on only while its application is with the reviewer or approved. */
+const STATUSES_FOR_DOCUMENT_DECISIONS: readonly VendorStatus[] = [
+  VendorStatus.Submitted,
+  VendorStatus.Approved,
+];
+
+/** Statuses in which the next move is the vendor's, not the reviewer's. */
+const STATUSES_WAITING_FOR_VENDOR: readonly VendorStatus[] = [
+  VendorStatus.Draft,
+  VendorStatus.Rejected,
+];
+
+type VendorDecisions = ReturnType<typeof useVendorDecisions>;
 
 export function VendorReview({ lang, id }: { lang: Locale; id: string }) {
-  const t = useMessages();
+  const messages = useMessages();
   const vendor = useVendor(id);
-  const base = `/${lang}/admin/vendors`;
   return (
     <div className="grid max-w-[960px] gap-5">
-      <Breadcrumbs label={t.nav.breadcrumbs} items={[{ label: t.adminVendors.title, href: base }, { label: vendor.data?.displayName ?? t.adminVendors.application }]} />
-      {vendor.isPending ? (
-        <LoadingBlock messages={t} lines={6} />
-      ) : vendor.isError ? (
-        <PartError error={vendor.error} onRetry={() => void vendor.refetch()} messages={t} />
-      ) : (
-        <Review lang={lang} vendor={vendor.data} />
-      )}
+      <Breadcrumbs
+        label={messages.nav.breadcrumbs}
+        items={[
+          { label: messages.adminVendors.title, href: `/${lang}/admin/vendors` },
+          { label: vendor.data?.displayName ?? messages.adminVendors.application },
+        ]}
+      />
+      <VendorReviewContent lang={lang} vendor={vendor} />
     </div>
   );
 }
 
-function Review({ lang, vendor }: { lang: Locale; vendor: AdminVendor }) {
-  const t = useMessages();
-  const toast = useToast();
-  const decide = useVendorDecision(vendor.id);
-  const [error, setError] = useState<AppError | null>(null);
-  const a = t.adminVendors;
-  const none = <span className="text-muted-foreground">{a.notGiven}</span>;
-
-  const run = (decision: string, success: string, extra: { docId?: string; reason?: string } = {}) =>
-    decide.mutateAsync({ decision, ...extra }).then(
-      () => {
-        setError(null);
-        toast(success);
-      },
-      (raw: unknown) => {
-        // A refusal with a reason is shown in its own dialog; the others here.
-        if (extra.reason === undefined) setError(toAppError(raw));
-        throw raw;
-      },
+function VendorReviewContent({
+  lang,
+  vendor,
+}: {
+  lang: Locale;
+  vendor: ReturnType<typeof useVendor>;
+}) {
+  const messages = useMessages();
+  if (vendor.isPending) return <LoadingBlock messages={messages} lines={6} />;
+  if (vendor.isError) {
+    return (
+      <PartError error={vendor.error} onRetry={() => void vendor.refetch()} messages={messages} />
     );
-  const quiet = (promise: Promise<unknown>) => void promise.catch(() => undefined);
-  const outstanding = error?.code === 'VENDOR_DOCUMENTS_PENDING' && Array.isArray(error.details?.outstanding) ? (error.details.outstanding as string[]) : null;
+  }
+  return <Review lang={lang} vendor={vendor.data} />;
+}
+
+function Review({ lang, vendor }: { lang: Locale; vendor: AdminVendor }) {
+  const messages = useMessages();
+  const reviewMessages = messages.adminVendors;
+  const decisions = useVendorDecisions(vendor.id);
+  const notGiven = <span className="text-muted-foreground">{reviewMessages.notGiven}</span>;
+  const sellerTypeLabel = vendor.sellerType
+    ? ((messages.vendor.sellerTypes as Record<string, string>)[vendor.sellerType] ??
+      vendor.sellerType)
+    : null;
 
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-3 stitch-bottom pb-3">
         <h1 className="type-h2 text-ink">{vendor.displayName}</h1>
-        <VendorStatusChip status={vendor.status} t={t} />
+        <VendorStatusChip status={vendor.status} messages={messages} />
       </div>
       {vendor.statusReason ? (
-        <Banner tone={vendor.status === 'suspended' ? 'warning' : 'error'} title={a.statusReason}>
+        <Banner
+          tone={vendor.status === VendorStatus.Suspended ? 'warning' : 'error'}
+          title={reviewMessages.statusReason}
+        >
           <p className="whitespace-pre-line">{vendor.statusReason}</p>
         </Banner>
       ) : null}
 
       <div className="grid gap-5 lg:grid-cols-2">
-        <Card title={a.application}>
+        <Card title={reviewMessages.application}>
           <dl className="grid gap-2">
-            <Row label={t.vendor.fields.legalName}>{vendor.legalName}</Row>
-            <Row label={t.vendor.fields.displayName}>{vendor.displayName}</Row>
-            <Row label={t.vendor.fields.gstin}>{vendor.gstin ?? none}</Row>
-            <Row label={t.vendor.fields.sellerType}>{vendor.sellerType ? ((t.vendor.sellerTypes as Record<string, string>)[vendor.sellerType] ?? vendor.sellerType) : none}</Row>
-            <Row label={t.vendor.fields.contactEmail}>{vendor.contactEmail ?? none}</Row>
-            <Row label={a.ownerPhone}>{vendor.owner.phone ? <span className="tabular-nums">{formatPhone(vendor.owner.phone)}</span> : none}</Row>
-            <Row label={a.submittedAt}>{vendor.submittedAt ? `${formatDate(vendor.submittedAt, lang)}, ${formatTime(vendor.submittedAt, lang)}` : none}</Row>
-            <Row label={a.terms}>{vendor.termsAcceptedVersion ?? none}</Row>
+            <Row label={messages.vendor.fields.legalName}>{vendor.legalName}</Row>
+            <Row label={messages.vendor.fields.displayName}>{vendor.displayName}</Row>
+            <Row label={messages.vendor.fields.gstin}>{vendor.gstin ?? notGiven}</Row>
+            <Row label={messages.vendor.fields.sellerType}>{sellerTypeLabel ?? notGiven}</Row>
+            <Row label={messages.vendor.fields.contactEmail}>{vendor.contactEmail ?? notGiven}</Row>
+            <Row label={reviewMessages.ownerPhone}>
+              {vendor.owner.phone ? (
+                <span className="tabular-nums">{formatPhone(vendor.owner.phone)}</span>
+              ) : (
+                notGiven
+              )}
+            </Row>
+            <Row label={reviewMessages.submittedAt}>
+              {vendor.submittedAt
+                ? `${formatDate(vendor.submittedAt, lang)}, ${formatTime(vendor.submittedAt, lang)}`
+                : notGiven}
+            </Row>
+            <Row label={reviewMessages.terms}>{vendor.termsAcceptedVersion ?? notGiven}</Row>
           </dl>
         </Card>
-        <Card title={a.addresses}>
-          {vendor.addresses.length ? (
-            <ul className="grid gap-3">
-              {vendor.addresses.map((address) => (
-                <li key={address.id} className="grid gap-0.5">
-                  <p className="type-label text-ink">{t.vendor.address.types[address.type]}</p>
-                  <p className="text-ink">{[address.line1, address.line2, address.city, address.state, address.pincode].filter(Boolean).join(', ')}</p>
-                  <p className="type-small text-ink-2 tabular-nums">{formatPhone(address.contactPhone)}</p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-muted-foreground">{a.noAddresses}</p>
-          )}
+        <Card title={reviewMessages.addresses}>
+          <AddressList vendor={vendor} />
         </Card>
       </div>
 
-      <Card title={a.documents}>
+      <Card title={reviewMessages.documents}>
         {vendor.documents.length ? (
           <ul className="grid divide-y divide-line">
-            {vendor.documents.map((doc) => {
-              const label = (t.vendor.documents.types as Record<string, string>)[doc.type] ?? doc.type;
-              return (
-                <li key={doc.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
-                  <div className="grid min-w-0 gap-1">
-                    <p className="font-medium text-ink">
-                      {label}
-                      {doc.onRecord ? <span className="font-normal text-ink-2"> ({a.onRecord})</span> : null}
-                    </p>
-                    <p className="truncate type-small text-ink-2">
-                      {doc.fileName} · {formatSize(doc.sizeBytes)} · {formatDate(doc.createdAt, lang)}
-                    </p>
-                    <div>
-                      <StatusChip tone={DOC_TONE[doc.status]} label={t.vendor.documents.status[doc.status]} />
-                    </div>
-                    {doc.rejectReason ? <p className="type-small text-ink">{fill(t.vendor.documents.rejectedReason, { reason: doc.rejectReason })}</p> : null}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button asChild variant="quiet" size="small">
-                      <a href={vendorDocumentHref(vendor.id, doc.id)} target="_blank" rel="noopener">
-                        {a.viewFile}
-                        <span className="sr-only">: {label}</span>
-                      </a>
-                    </Button>
-                    {doc.status === 'pending' && (vendor.status === 'submitted' || vendor.status === 'approved') ? (
-                      <>
-                        <Button type="button" variant="secondary" size="small" disabled={decide.isPending} onClick={() => quiet(run('approve', a.docApproved, { docId: doc.id }))}>
-                          {a.approveDoc}
-                          <span className="sr-only">: {label}</span>
-                        </Button>
-                        <ReasonDialog
-                          messages={t}
-                          trigger={
-                            <Button type="button" variant="destructive" size="small" disabled={decide.isPending}>
-                              {a.rejectDoc}
-                              <span className="sr-only">: {label}</span>
-                            </Button>
-                          }
-                          title={fill(a.rejectDocTitle, { document: label })}
-                          body={a.rejectDocBody}
-                          label={a.reasonLabel}
-                          confirmLabel={a.rejectDocConfirm}
-                          maxLength={500}
-                          onConfirm={(reason) => run('reject', a.docRejected, { docId: doc.id, reason })}
-                        />
-                      </>
-                    ) : null}
-                  </div>
-                </li>
-              );
-            })}
+            {vendor.documents.map((vendorDocument) => (
+              <DocumentReviewRow
+                key={vendorDocument.id}
+                lang={lang}
+                vendor={vendor}
+                vendorDocument={vendorDocument}
+                decisions={decisions}
+              />
+            ))}
           </ul>
         ) : (
-          <p className="text-muted-foreground">{a.noDocuments}</p>
+          <p className="text-muted-foreground">{reviewMessages.noDocuments}</p>
         )}
       </Card>
 
-      <Card title={a.decision}>
-        {error ? (
-          outstanding ? (
-            <Banner tone="error" role="alert" title={a.outstandingTitle}>
-              <ul className="list-disc ps-5">
-                {outstanding.map((item) => (
-                  <li key={item}>{outstandingLabel(item, t)}</li>
-                ))}
-              </ul>
-            </Banner>
-          ) : (
-            <ErrorMessage text={messageFor(error, t)} requestId={error.requestId} messages={t} />
-          )
-        ) : null}
+      <Card title={reviewMessages.decision}>
+        <DecisionError decisions={decisions} />
         <div className="flex flex-wrap gap-3">
-          {vendor.status === 'submitted' ? (
-            <>
-              <Button type="button" loading={decide.isPending && decide.variables?.decision === 'approve' && !decide.variables.docId} disabled={decide.isPending} onClick={() => quiet(run('approve', a.approved))}>
-                <Check aria-hidden="true" />
-                {a.approve}
-              </Button>
-              <ReasonDialog
-                messages={t}
-                trigger={
-                  <Button type="button" variant="destructive" disabled={decide.isPending}>
-                    {a.reject}
-                  </Button>
-                }
-                title={fill(a.rejectTitle, { name: vendor.displayName })}
-                body={a.rejectBody}
-                label={a.reasonLabel}
-                confirmLabel={a.rejectConfirm}
-                maxLength={500}
-                onConfirm={(reason) => run('reject', a.rejected, { reason })}
-              />
-            </>
-          ) : null}
-          {vendor.status === 'approved' ? (
-            <ReasonDialog
-              messages={t}
-              trigger={
-                <Button type="button" variant="destructive" disabled={decide.isPending}>
-                  {a.suspend}
-                </Button>
-              }
-              title={fill(a.suspendTitle, { name: vendor.displayName })}
-              body={a.suspendBody}
-              label={a.reasonLabel}
-              confirmLabel={a.suspendConfirm}
-              maxLength={500}
-              onConfirm={(reason) => run('suspend', a.suspended, { reason })}
-            />
-          ) : null}
-          {vendor.status === 'suspended' ? (
-            <Button type="button" variant="secondary" loading={decide.isPending} onClick={() => quiet(run('unsuspend', a.unsuspended))}>
-              {a.unsuspend}
-            </Button>
-          ) : null}
+          <VendorDecisionButtons vendor={vendor} decisions={decisions} />
         </div>
-        <p className="type-small text-muted-foreground">{vendor.status === 'draft' || vendor.status === 'rejected' ? a.waitingForVendor : a.decisionHelp}</p>
+        <p className="type-small text-muted-foreground">
+          {STATUSES_WAITING_FOR_VENDOR.includes(vendor.status)
+            ? reviewMessages.waitingForVendor
+            : reviewMessages.decisionHelp}
+        </p>
       </Card>
     </>
   );
 }
 
-/** Words for each item the backend lists as lacking (area-2-vendors.md, POST /admin/vendors/{id}/approve). */
-function outstandingLabel(item: string, t: Messages): string {
-  const known = (t.adminVendors.outstanding as Record<string, string>)[item];
-  if (known) return known;
-  const match = /^document:([a-z_]+)(:file_not_clean)?$/.exec(item);
-  if (match) {
-    const doc = (t.vendor.documents.types as Record<string, string>)[match[1] ?? ''] ?? match[1] ?? item;
-    return fill(match[2] ? t.adminVendors.outstanding.fileNotClean : t.adminVendors.outstanding.document, { document: doc });
+function AddressList({ vendor }: { vendor: AdminVendor }) {
+  const messages = useMessages();
+  if (!vendor.addresses.length) {
+    return <p className="text-muted-foreground">{messages.adminVendors.noAddresses}</p>;
   }
-  return item;
+  return (
+    <ul className="grid gap-3">
+      {vendor.addresses.map((address) => (
+        <li key={address.id} className="grid gap-0.5">
+          <p className="type-label text-ink">{messages.vendor.address.types[address.type]}</p>
+          <p className="text-ink">
+            {[address.line1, address.line2, address.city, address.state, address.pincode]
+              .filter(Boolean)
+              .join(', ')}
+          </p>
+          <p className="type-small text-ink-2 tabular-nums">{formatPhone(address.contactPhone)}</p>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function DocumentReviewRow({
+  lang,
+  vendor,
+  vendorDocument,
+  decisions,
+}: {
+  lang: Locale;
+  vendor: AdminVendor;
+  vendorDocument: VendorDocument;
+  decisions: VendorDecisions;
+}) {
+  const messages = useMessages();
+  const reviewMessages = messages.adminVendors;
+  const label =
+    (messages.vendor.documents.types as Record<string, string>)[vendorDocument.type] ??
+    vendorDocument.type;
+  const canDecide =
+    vendorDocument.status === DocumentStatus.Pending &&
+    STATUSES_FOR_DOCUMENT_DECISIONS.includes(vendor.status);
+
+  return (
+    <li className="flex flex-wrap items-center justify-between gap-3 py-3">
+      <div className="grid min-w-0 gap-1">
+        <p className="font-medium text-ink">
+          {label}
+          {vendorDocument.onRecord ? (
+            <span className="font-normal text-ink-2"> ({reviewMessages.onRecord})</span>
+          ) : null}
+        </p>
+        <p className="truncate type-small text-ink-2">
+          {vendorDocument.fileName} · {formatSize(vendorDocument.sizeBytes)} ·{' '}
+          {formatDate(vendorDocument.createdAt, lang)}
+        </p>
+        <div>
+          <StatusChip
+            tone={DOCUMENT_TONES[vendorDocument.status]}
+            label={messages.vendor.documents.status[vendorDocument.status]}
+          />
+        </div>
+        {vendorDocument.rejectReason ? (
+          <p className="type-small text-ink">
+            {fill(messages.vendor.documents.rejectedReason, {
+              reason: vendorDocument.rejectReason,
+            })}
+          </p>
+        ) : null}
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <Button asChild variant="quiet" size="small">
+          <a href={vendorDocumentHref(vendor.id, vendorDocument.id)} target="_blank" rel="noopener">
+            {reviewMessages.viewFile}
+            <span className="sr-only">: {label}</span>
+          </a>
+        </Button>
+        {canDecide ? (
+          <>
+            <Button
+              type="button"
+              variant="secondary"
+              size="small"
+              disabled={decisions.isDeciding}
+              onClick={() => decisions.approveDocument(vendorDocument.id)}
+            >
+              {reviewMessages.approveDoc}
+              <span className="sr-only">: {label}</span>
+            </Button>
+            <ReasonDialog
+              messages={messages}
+              trigger={
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="small"
+                  disabled={decisions.isDeciding}
+                >
+                  {reviewMessages.rejectDoc}
+                  <span className="sr-only">: {label}</span>
+                </Button>
+              }
+              title={fill(reviewMessages.rejectDocTitle, { document: label })}
+              body={reviewMessages.rejectDocBody}
+              label={reviewMessages.reasonLabel}
+              confirmLabel={reviewMessages.rejectDocConfirm}
+              maxLength={REASON_MAX_LENGTH}
+              onConfirm={decisions.rejectDocument(vendorDocument.id)}
+            />
+          </>
+        ) : null}
+      </div>
+    </li>
+  );
+}
+
+function DecisionError({ decisions }: { decisions: VendorDecisions }) {
+  const messages = useMessages();
+  const { decisionError, outstandingItems } = decisions;
+  if (!decisionError) return null;
+  if (outstandingItems) {
+    return (
+      <Banner tone="error" role="alert" title={messages.adminVendors.outstandingTitle}>
+        <ul className="list-disc ps-5">
+          {outstandingItems.map((item) => (
+            <li key={item}>{outstandingLabel(item, messages)}</li>
+          ))}
+        </ul>
+      </Banner>
+    );
+  }
+  return (
+    <ErrorMessage
+      text={messageFor(decisionError, messages)}
+      requestId={decisionError.requestId}
+      messages={messages}
+    />
+  );
+}
+
+/** The decisions the vendor's status allows: approve or reject, suspend, or unsuspend. */
+function VendorDecisionButtons({
+  vendor,
+  decisions,
+}: {
+  vendor: AdminVendor;
+  decisions: VendorDecisions;
+}) {
+  const messages = useMessages();
+  const reviewMessages = messages.adminVendors;
+
+  switch (vendor.status) {
+    case VendorStatus.Submitted:
+      return (
+        <>
+          <Button
+            type="button"
+            loading={decisions.isApprovingVendor}
+            disabled={decisions.isDeciding}
+            onClick={decisions.approveVendor}
+          >
+            <Check aria-hidden="true" />
+            {reviewMessages.approve}
+          </Button>
+          <ReasonDialog
+            messages={messages}
+            trigger={
+              <Button type="button" variant="destructive" disabled={decisions.isDeciding}>
+                {reviewMessages.reject}
+              </Button>
+            }
+            title={fill(reviewMessages.rejectTitle, { name: vendor.displayName })}
+            body={reviewMessages.rejectBody}
+            label={reviewMessages.reasonLabel}
+            confirmLabel={reviewMessages.rejectConfirm}
+            maxLength={REASON_MAX_LENGTH}
+            onConfirm={decisions.rejectVendor}
+          />
+        </>
+      );
+    case VendorStatus.Approved:
+      return (
+        <ReasonDialog
+          messages={messages}
+          trigger={
+            <Button type="button" variant="destructive" disabled={decisions.isDeciding}>
+              {reviewMessages.suspend}
+            </Button>
+          }
+          title={fill(reviewMessages.suspendTitle, { name: vendor.displayName })}
+          body={reviewMessages.suspendBody}
+          label={reviewMessages.reasonLabel}
+          confirmLabel={reviewMessages.suspendConfirm}
+          maxLength={REASON_MAX_LENGTH}
+          onConfirm={decisions.suspendVendor}
+        />
+      );
+    case VendorStatus.Suspended:
+      return (
+        <Button
+          type="button"
+          variant="secondary"
+          loading={decisions.isChangingVendor}
+          onClick={decisions.unsuspendVendor}
+        >
+          {reviewMessages.unsuspend}
+        </Button>
+      );
+    default:
+      return null;
+  }
+}
+
+const MISSING_DOCUMENT_PATTERN = new RegExp(
+  `^${MISSING_DOCUMENT_PREFIX}([a-z_]+)(:file_not_clean)?$`,
+);
+
+/**
+ * Words for each item the backend lists as lacking (area-2-vendors.md, POST
+ * /admin/vendors/{id}/approve).
+ */
+function outstandingLabel(item: string, messages: Messages): string {
+  const outstandingMessages = messages.adminVendors.outstanding;
+  const known = (outstandingMessages as Record<string, string>)[item];
+  if (known) return known;
+  const match = MISSING_DOCUMENT_PATTERN.exec(item);
+  if (!match) return item;
+  const [, documentType = '', fileNotClean] = match;
+  const documentLabel =
+    (messages.vendor.documents.types as Record<string, string>)[documentType] ?? documentType;
+  const template = fileNotClean ? outstandingMessages.fileNotClean : outstandingMessages.document;
+  return fill(template, { document: documentLabel });
 }
 
 function Card({ title, children }: { title: string; children: ReactNode }) {

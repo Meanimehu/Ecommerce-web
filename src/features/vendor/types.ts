@@ -44,7 +44,10 @@ export enum AddressType {
   Return = 'return',
 }
 
-/** An admin's decision on a vendor: approve and unsuspend take no body; reject and suspend need a reason. */
+/**
+ * An admin's decision on a vendor: approve and unsuspend take no body; reject and suspend need a
+ * reason.
+ */
 export enum VendorDecision {
   Approve = 'approve',
   Reject = 'reject',
