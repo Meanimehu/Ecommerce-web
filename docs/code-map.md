@@ -9,9 +9,9 @@ moved or removed.
 | Folder | What goes in it | Runs in |
 | --- | --- | --- |
 | `app/` | Routing and layouts: pages in `[lang]/`, our own endpoints in `api/` | Both |
-| `features/<feature>/` | One folder per feature, once it has moved (Document 7, D7-17): `components/`, `hooks/`, `server/` (server only) and `types.ts`. **`auth` has moved;** the others follow one at a time | Both; `server/` server only |
-| `components/` | Reusable UI: `ui/` (shadcn), `form/`, `common/`, and one folder per area that has not moved yet (`admin/`, `catalogue/`, `product/`, …). `auth/` still holds the Vendor and Admin area frame, which moves with `layout` | Browser and server pages |
-| `hooks/` | Reusable logic: TanStack Query hooks (our "slices") and the form hook | Browser |
+| `features/<feature>/` | One folder per feature, once it has moved (Document 7, D7-17): `components/`, `hooks/`, `server/` (server only) and `types.ts`. **`auth`, `vendor`, `catalogue` (the admin lists) and `product` have moved;** the others follow one at a time | Both; `server/` server only |
+| `components/` | Reusable UI: `ui/` (shadcn), `form/`, `common/`, and one folder per area that has not moved yet (`catalogue/`, `cart/`, …). `auth/` still holds the Vendor and Admin area frame, which moves with `layout` | Browser and server pages |
+| `hooks/` | Reusable logic: TanStack Query hooks (our "slices") of areas that have not moved, and the form hook | Browser |
 | `api/` | Backend handlers: the calls from our server to the backend | **Server only** |
 | `middleware/` | Shared technical helpers for our endpoints, knowing nothing about the session: answers, the forgery check, public reads, uploads, the cookie list and tools | **Server only** (except `cookies.ts`) |
 | `lib/` | Configs and integrations: settings, the browser's call helper, languages and text, errors, the server log | Both |
@@ -122,11 +122,11 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `[lang]/admin/layout.tsx`, `page.tsx` | Admin area frame (any staff role) and its home with the screens this person's roles can use |
 | `[lang]/admin/vendors/…` | Vendor review: the list, and one application (admin only); the screens are in `features/vendor/` |
 | `[lang]/admin/catalogue/[list]` | Catalogue lists: categories, HSN codes, brands, sizes, colours (admin only); the screens are in `features/catalogue/` |
-| `[lang]/admin/moderation/…` | Product moderation: the queue and one product (moderator, admin) |
+| `[lang]/admin/moderation/…` | Product moderation: the queue and one product (moderator, admin); the screens are in `features/product/` |
 | `[lang]/vendor/layout.tsx` | Vendor area: never indexed, always rendered for the person |
 | `[lang]/vendor/apply/page.tsx` | Become a vendor: open to anyone logged in |
-| `[lang]/vendor/(app)/…` | Every other vendor page: needs a vendor in any status (the `(app)` folder groups them, it is not in the address) |
-| `[lang]/vendor/(app)/products/…` | My products, add a product, one product |
+| `[lang]/vendor/(needs-vendor)/…` | Every other vendor page: needs a vendor in any status (the `(needs-vendor)` folder groups them, it is not in the address) |
+| `[lang]/vendor/(needs-vendor)/products/…` | My products (`products`), add a product (`products/add`), one product (`products/{id}`); the screens are in `features/product/` |
 | `[lang]/error.tsx`, `forbidden.tsx`, `global-error.tsx` | Error page, "no access" page (real 403), last-resort error page |
 | `global-not-found.tsx` | "Not found" with a real 404, in English and Hindi together (the pages sit under a language segment, so Next.js uses one global page) |
 | `api/auth/code`, `api/auth/verify` | Ask for a login code; check it and log in |
@@ -135,7 +135,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `api/vendors/…` | The person's own vendor application: details, addresses, documents (upload and view), submit |
 | `api/admin/vendors/…` | Vendor review: list, one vendor, its documents, and the decisions |
 | `api/admin/catalogue/[list]/…` | The catalogue lists: read, add, change (and switch off or on) |
-| `api/catalogue/dictionaries` | What the product form offers |
+| `api/catalogue/dictionaries` | What the product form offers (the backend's own address; it belongs to `product`) |
 | `api/catalogue/categories` | The public category tree |
 | `api/catalogue/products/…` | Product cards for "Load more"; one product as it is now (before adding to the cart) |
 | `api/cart/…` | The cart: view (with a coupon preview), add, change quantity, remove, remove unavailable |
@@ -154,13 +154,6 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `auth/area-shell.tsx` | (Moves with `layout`.) The frame of the Admin and Vendor areas: top bar (wordmark, area label, language, account) and the side menu |
 | `auth/area-nav.tsx` | The side menu, and the menu button with its drawer below 1024 px |
 | `auth/area-menus.ts` | What each side menu lists, by role (Admin) or by having a vendor (Vendor) |
-| `admin/moderation-queue.tsx`, `moderation-review.tsx` | The moderation queue, and one product with the decision |
-| `product/product-list.tsx` | My products: filters, table, numbered pages |
-| `product/product-editor.tsx` | One product: the five steps while it can change, otherwise its summary |
-| `product/product-basics.tsx`, `product-attributes.tsx`, `product-variants.tsx`, `product-photos.tsx`, `product-review.tsx` | The five steps |
-| `product/product-summary.tsx` | A product the vendor cannot change right now, read-only |
-| `product/product-status.tsx`, `product-steps.ts` | The product status chip; the step names and which step fixes each missing item |
-| `product/photo-frame.tsx` | A product photo in its 4:5 frame, or "Photo unavailable" |
 | `catalogue/product-card.tsx`, `price.tsx` | The storefront product card and price line |
 | `catalogue/load-more.tsx` | The product grid with "Load more" |
 | `catalogue/product-gallery.tsx`, `product-buy.tsx` | The product page's photos; size and colour, stock, Add to cart |
@@ -176,6 +169,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `common/state-block.tsx` | Whole-screen states: error, no access, not found |
 | `common/needs-script.tsx` | The "needs JavaScript" notice |
 | `common/status-chip.tsx` | A status chip: icon, words and a tone |
+| `common/photo-frame.tsx` | A product photo in its 4:5 frame, or "Photo unavailable" (the storefront, the cart and `product` use it) |
 | `common/steps.tsx` | The steps of a long form |
 | `common/data-table.tsx`, `pagination.tsx` | Staff tables (stacked blocks on phones) and numbered pages |
 | `common/breadcrumbs.tsx` | Breadcrumbs (only the parent on phones) |
@@ -194,8 +188,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | --- | --- |
 | `use-app-form.ts` | `useAppForm` (React Hook Form with Zod), `applyServerError` (backend errors under the right field), `useErrorSummaryFocus` (focus after a failed submit), message keys |
 | `use-cart.ts` | The cart and its count, add, change, remove, add after login and its notice |
-| `use-product.ts` | The vendor's products: the form guide, list, one product and every change to it |
-| `use-moderation.ts` | The moderation queue, one product, the decision, the public category tree |
+| `use-category-tree.ts` | The public category tree (moderation shows a category's path with it); `storefront` takes it in step 8 |
 
 ### `api/` — calls to the backend (server only)
 
@@ -203,9 +196,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | --- | --- |
 | `client.ts` | `callBackend`: time limits, retries for reads only, every answer checked against its shape, the customer's address passed on; streamed uploads; `openBackendFile` for private files |
 | `catalogue.ts` | Backend Area 3a, the storefront part: the category tree, product cards, one product (moves with the storefront, step 8; the admin lists are in `features/catalogue/server/`) |
-| `product.ts` | Backend Area 3b: the vendor's products, variants and photos |
 | `cart.ts` | Backend Area 5: the cart |
-| `moderation.ts` | Backend Area 3b: moderation |
 
 ### `middleware/` — shared helpers for our endpoints (server only, except `cookies.ts`)
 
@@ -287,6 +278,32 @@ they move with the storefront (step 8).
 | `hooks/use-gst-rate-options.ts` | The GST choices: the active rates, and the current one if switched off |
 | `server/catalogue-api.ts` | Backend Area 3a, the admin lists: list, add, change |
 
+### `features/product/` — a vendor's products, and their moderation
+
+Backend Area 3b: products, variants, photos, the form guide (`/catalogue/dictionaries`) and moderation. It uses
+`catalogue`'s `Attribute`, `vendor`'s `useMyVendor` and `VendorStatus`, `auth`'s role names, and the shared photo frame.
+
+| File | What it does |
+| --- | --- |
+| `types.ts` | The answer schemas; the enums `ProductStatus`, `VariantStatus`, `TaxSource`, `ReviewKind`, `ProductDecision`, `PhotoSize`, `ProductStep`, `MissingItem`, `UploadState`; the request bodies; the forms (`BasicsFormSchema`, `attributesFormSchema`, `VariantFormSchema`, which turns rupees into paise); small rules: `productStepFor`, `productStepToShow`, `canEditProduct`, `canReviewProducts`, `sortedPhotos`, `flattenCategories`, `findCategoryChoice`, `dictionaryLabel`, `rupeesToPaise`, `paiseToRupees`, `photoSizeOf`, `MAX_PHOTOS` |
+| `components/product-list.tsx` | My products: filters, table, numbered pages |
+| `components/product-editor.tsx` | One product: the five steps while it can change, otherwise its summary; the notices above it |
+| `components/product-step-nav.tsx` | The step bar, with "step 2 of 5" for screen readers |
+| `components/basics-step.tsx`, `attributes-step.tsx`, `variants-step.tsx`, `photos-step.tsx`, `review-step.tsx` | The five steps (logic in their hooks) |
+| `components/attributes-form.tsx`, `variant-form.tsx` | The attributes form and one variant's form |
+| `components/upload-row.tsx`, `photo-row.tsx` | A photo being uploaded; a saved photo with its description, order and Remove |
+| `components/product-summary.tsx` | A product the vendor cannot change right now, read-only |
+| `components/product-status-chip.tsx`, `missing-count-text.ts` | The product status chip; "1 thing missing" |
+| `components/moderation-queue.tsx`, `moderation-review.tsx` | The moderation queue, and one product with the decision |
+| `hooks/use-product.ts` | The call hooks, one per call: the form guide, the vendor's products, variants and photos, and moderation; `productKeys`, `moderationKeys`, the photo addresses |
+| `hooks/use-basics-form.ts`, `use-attributes-form.ts`, `use-variant-form.ts` | One form hook per form: what it sends (a new one: what is filled; a change: only what changed) and where the backend's errors go |
+| `hooks/use-photo-uploads.ts` | The upload queue: one file at a time, progress, Cancel and Retry; it keeps going after the step closes (Document 7, 20.9) |
+| `hooks/use-photo-order.ts`, `use-photo-actions.ts`, `use-variant-actions.ts` | Moving photos; one photo's description and Remove; switching a variant off or on and removing it |
+| `hooks/use-product-submit.ts` | Sending for review, deleting a draft |
+| `hooks/use-product-decision.ts` | A moderator's approve (with the tax confirmation) and reject |
+| `server/product-api.ts` | Backend Area 3b, the vendor's side: the form guide, products, variants, photos |
+| `server/moderation-api.ts` | Backend Area 3b, moderation: the queue, one product, the decision, its photos |
+
 ### `lib/`, `utils/`, `types/`
 
 | File | What it does |
@@ -296,7 +313,7 @@ they move with the storefront (step 8).
 | `lib/http.ts` | Browser calls to our endpoints: `get`, `send`, `patch`, `put`, `remove` and `upload` (with progress and Cancel), with the time limit and the forgery label; every failure is an `AppError` |
 | `lib/http-status.ts` | `HttpStatus` and the range checks (`isSuccess`, `isClientError`, `isServerError`) |
 | `lib/server-log.ts` | `logServerEvent`: the only way our server writes a log, one plain-text line per event (Document 7, 20.10); `errorTypeOf` for an unexpected error's kind. Server only |
-| `lib/uploads.ts` | Upload limits copied from the backend, for a quick check before sending; the photo sizes |
+| `lib/uploads.ts` | Upload limits copied from the backend, for a quick check before sending |
 | `lib/i18n.ts` | The two languages and choosing one |
 | `lib/messages.ts` | `getMessages` for server pages; the shared text and the Vendor and Admin areas' own text |
 | `lib/messages-context.tsx` | `useMessages`: the page's text in the browser, only its language (and area text only inside those areas) |
@@ -312,7 +329,6 @@ they move with the storefront (step 8).
 | `types/cart.ts` | Backend Area 5 cart view, the pending add |
 | `types/add-notice.ts` | `AddOutcome` and `AddNotice`: what happened to a pending add at login. Kept free of Zod because every page's header reads it |
 | `types/react-query.d.ts` | Tells TanStack Query that every error is an `AppError` |
-| `types/product.ts` | Backend Area 3b answers (product, variant, photo, form guide, moderation), the product forms, rupees to paise |
 | `types/generated/` | Request types, the OpenAPI description, the list of backend calls by their listed names (`backend-calls.ts`, used for log lines), the error-code list and the `BackendErrorCode` enum, made by `npm run gen:types` and `gen:error-codes`; never edited |
 
 ### Outside `src/`
