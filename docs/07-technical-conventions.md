@@ -183,6 +183,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 21 | 13 Nov 2026 | Status: the `auth` pilot (#39) and the logging details (#40) are merged. **Agreed by the owner:** in 20.13, steps 4 to 11 are code-quality changes with behaviour kept, and old code is replaced, tested and only then removed, never deleted first. No other decision changed |
 | 22 | 13 Nov 2026 | **Agreed by the owner** for the `vendor` step: 20.9 and section 16 add the action hook (`use-<action>.ts`) for a screen part with call and error logic but no form, under the form hook's rules; section 16 lets a feature's `types.ts` hold small rules about its types (`stepFor`, `isEditable`). No other decision changed |
 | 23 | 13 Nov 2026 | Status: step 4, `vendor`, in review (pull request #42). No decision changed |
+| 24 | 13 Nov 2026 | Status: step 4, `vendor`, done (#42); step 5, `catalogue`, in review (#43). **Agreed by the owner:** in 20.9, the form hooks of one feature may share a helper hook inside that feature for the steps they all take. No other decision changed |
 
 ## 16. Names: folders and files
 
@@ -393,6 +394,7 @@ Every cookie uses the `__Host-` prefix, `Secure`, `HttpOnly`, `SameSite=Lax`, pa
 - **One way to submit:** `handleSubmit(onValid, onInvalid)` in the screen, `mutate` with `onSuccess` and `onError` in the form hook.
 - **One form hook per form,** each in its own file when a feature has more than one form (`use-vendor-address-form.ts`).
 - **One action hook per action part** (`use-document-upload.ts`, `use-vendor-submit.ts`), with the same rules as a form hook: `mutate` with named `onSuccess` and `onError` functions.
+- **Form hooks of one feature may share a helper hook** for the steps they all take, so the steps are not copied into each (`catalogue`'s `use-catalogue-save.ts`: add or change, the toast, and the backend's errors under the right fields). It follows the form hook's rules and is used only inside its feature; each form keeps its own form hook, which decides what that form sends.
 - **No `try`/`catch` and no `toAppError` in screens, form hooks or action hooks.** A call hook may turn one expected error into a value, with a comment saying why (`useMyVendor` returns `null` for `VENDOR_NOT_FOUND`).
 - **A screen with a form never calls a call hook itself.** A small action without a form (a Remove button) may.
 - **A value that must survive a step change belongs to the parent** (the phone form lives in `LoginForm`).
@@ -470,7 +472,7 @@ From the reference project the owner shared on 12 Nov 2026 we take descriptive n
 
 The code from Slices 0 to 2 is brought to these practices before Slice 3 starts (D7-19), one pull request per feature, in this order, each reviewed before the next.
 
-**Where it stands (13 Nov 2026):** steps 1 to 3 are done and merged: the documents (#37), login (#36) with the shared `messages` prop (#38), and the `auth` pilot (#39), followed by the logging details the pilot left open (#40). **Step 4, `vendor`, is in review** (pull request #42): `src/features/vendor/`, the first feature cleaned up with the replace-first rule below and with action hooks (20.9).
+**Where it stands (13 Nov 2026):** steps 1 to 3 are done and merged: the documents (#37), login (#36) with the shared `messages` prop (#38), and the `auth` pilot (#39), followed by the logging details the pilot left open (#40). Step 4, `vendor`, is done (#42): `src/features/vendor/`, the first feature cleaned up with the replace-first rule below and with action hooks (20.9). **Step 5, `catalogue`, is in review** (pull request #43).
 
 **How steps 4 to 11 are done (owner, 13 Nov 2026):**
 - They are code-quality changes, not new features: behaviour is kept (20.12, item 6). The one change a person sees is the storefront addresses in step 8, already agreed in Document 4 (D4-02). New features start with Slice 3.
