@@ -1,35 +1,37 @@
 import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
-import { getMyVendor } from '@/features/vendor/server/vendor-api';
 import { AreaShell } from '@/components/auth/area-shell';
 import { vendorNav } from '@/components/auth/area-menus';
-import { requireUser, Unavailable } from '@/features/auth/components/require-user';
-import { AppError } from '@/lib/errors';
 import { getMessages } from '@/lib/messages';
+import { requireUser, Unavailable } from '@/features/auth/components/require-user';
+import { findVendorPresence, VendorPresence } from '@/features/vendor/server/vendor-presence';
 
 /**
- * Who may open the Vendor area (Document 5, section 4): the application page is open to any logged-in person; every
- * other vendor page needs a vendor in any status, and a person with no vendor is sent to the application page. The
- * application is read from the backend (GET /vendors/me: 404 means no vendor).
+ * Who may open the Vendor area (Document 5, section 4): the application page is open to any
+ * logged-in person; every other vendor page needs a vendor in any status, and a person with no
+ * vendor is sent to the application page.
  */
-export async function VendorArea({ langParam, needsVendor, children }: { langParam: string; needsVendor: boolean; children: ReactNode }) {
+export async function VendorArea({
+  langParam,
+  needsVendor,
+  children,
+}: {
+  langParam: string;
+  needsVendor: boolean;
+  children: ReactNode;
+}) {
   const result = await requireUser(langParam);
   if ('render' in result) return result.render;
   const { lang, token } = result;
-  const t = getMessages(lang);
-  let hasVendor: boolean;
-  try {
-    await getMyVendor(token);
-    hasVendor = true;
-  } catch (error) {
-    if (!(error instanceof AppError && error.code === 'VENDOR_NOT_FOUND')) {
-      return <Unavailable lang={lang} />;
-    }
-    hasVendor = false;
-  }
+
+  const vendorPresence = await findVendorPresence(token);
+  if (vendorPresence === VendorPresence.Unknown) return <Unavailable lang={lang} />;
+
+  const hasVendor = vendorPresence === VendorPresence.Exists;
   if (needsVendor && !hasVendor) redirect(`/${lang}/vendor/apply`);
+
   return (
-    <AreaShell lang={lang} area="vendor" nav={vendorNav(lang, t, hasVendor)}>
+    <AreaShell lang={lang} area="vendor" nav={vendorNav(lang, getMessages(lang), hasVendor)}>
       {children}
     </AreaShell>
   );
