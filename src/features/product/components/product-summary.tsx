@@ -5,7 +5,7 @@ import { flattenCategories, type Dictionaries, type ProductView } from '@/featur
 import { formatRate, formatRupees } from '@/utils/format';
 import { myPhotoSrc } from '@/features/product/hooks/use-product';
 import { PhotoFrame } from '@/components/common/photo-frame';
-import { sortedPhotos } from './product-photos';
+import { sortedPhotos } from './photos-step';
 
 /**
  * A product the vendor cannot change right now (in review, live, or the vendor is not approved): what it holds,

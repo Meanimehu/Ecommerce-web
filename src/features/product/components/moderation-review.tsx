@@ -11,7 +11,7 @@ import { LoadingBlock, PartError } from '@/components/common/load-states';
 import { ReasonDialog } from '@/components/common/reason-dialog';
 import { useToast } from '@/components/common/toast';
 import { PhotoFrame } from '@/components/common/photo-frame';
-import { ProductStatusChip } from '@/features/product/components/product-status';
+import { ProductStatusChip } from './product-status-chip';
 import { reviewPhotoSrc, useDecision, useForReview } from '@/features/product/hooks/use-moderation';
 import { useCategoryTree } from '@/hooks/use-category-tree';
 import { messageFor, toAppError, type AppError } from '@/lib/errors';

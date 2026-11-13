@@ -11,14 +11,14 @@ import { fill } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import type { Dictionaries, ProductView } from '@/features/product/types';
-import { AttributesStep } from './product-attributes';
-import { BasicsStep } from './product-basics';
-import { PhotosStep } from './product-photos';
-import { ReviewStep } from './product-review';
-import { canEditProduct, ProductStatusChip } from './product-status';
+import { AttributesStep } from './attributes-step';
+import { BasicsStep } from './basics-step';
+import { PhotosStep } from './photos-step';
+import { ReviewStep } from './review-step';
+import { canEditProduct, ProductStatusChip } from './product-status-chip';
 import { PRODUCT_STEPS, productStepFor, type ProductStep } from './product-steps';
 import { ProductSummary } from './product-summary';
-import { VariantsStep } from './product-variants';
+import { VariantsStep } from './variants-step';
 
 /**
  * Add or edit a product (Document 5, section 7.3; approved Stage 5): five steps, saved as a draft after the first

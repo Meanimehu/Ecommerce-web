@@ -7,7 +7,7 @@ import { DataTable, type Column } from '@/components/common/data-table';
 import { LoadingBlock, PartError } from '@/components/common/load-states';
 import { Pagination } from '@/components/common/pagination';
 import { StateBlock } from '@/components/common/state-block';
-import { ProductStatusChip } from '@/features/product/components/product-status';
+import { ProductStatusChip } from './product-status-chip';
 import { useQueue } from '@/features/product/hooks/use-moderation';
 import { useCategoryTree } from '@/hooks/use-category-tree';
 import { type Locale } from '@/lib/i18n';

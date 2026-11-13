@@ -19,7 +19,7 @@ import { useMessages } from '@/lib/messages-context';
 import { PRODUCT_STATUSES, type ProductRow } from '@/features/product/types';
 import { formatDate } from '@/utils/format';
 import { pageNumber, withQuery } from '@/utils/url';
-import { ProductStatusChip } from './product-status';
+import { ProductStatusChip } from './product-status-chip';
 
 /**
  * My products (Document 5, section 7.3): numbered pages, a status filter and a title search in the address; each row
