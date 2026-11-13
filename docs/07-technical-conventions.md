@@ -1,6 +1,6 @@
 # 7. Technical conventions
 
-> **Status: Approved (9 Nov 2026).** The owner reviewed the decisions D7-01 to D7-10, every group of starting figures and sections 5 to 11, and approved the document as a whole on 9 Nov 2026. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation. D7-11 to D7-15 were approved on 10 Nov 2026. On 11 Nov 2026 the owner approved removing the frontend store and simplifying forgery protection: D7-13 changed, the refresh timings removed (section 17). The same day the owner chose a new folder layout (section 16). **Agreed by the owner on 12 Nov 2026:** the code practices in section 20 (D7-16), feature folders introduced one feature at a time with `auth` owning everything about the session and `layout` owning page frames (D7-17, section 16), plain-text logging through one helper (D7-18), and working slice by slice (D7-19). The page-size question (Q7-7) stays open until the measurements in its row are reviewed.
+> **Status: Approved (9 Nov 2026).** The owner reviewed the decisions D7-01 to D7-10, every group of starting figures and sections 5 to 11, and approved the document as a whole on 9 Nov 2026. The starting figures in section 12 are **proposed and provisional**: nothing has been measured, and nothing here claims technical validation. D7-11 to D7-15 were approved on 10 Nov 2026. On 11 Nov 2026 the owner approved removing the frontend store and simplifying forgery protection: D7-13 changed, the refresh timings removed (section 17). The same day the owner chose a new folder layout (section 16). **Agreed by the owner on 12 Nov 2026:** the code practices in section 20 (D7-16), feature folders introduced one feature at a time with `auth` owning everything about the session and `layout` owning page frames (D7-17, section 16), plain-text logging through one helper (D7-18), and working slice by slice (D7-19). **13 Nov 2026:** the `auth` pilot is merged (pull request #39), with the logging details in pull request #40; the owner settled how the remaining rollout steps are done (20.13). The page-size question (Q7-7) stays open until the measurements in its row are reviewed.
 > Follows Documents 1 to 6. Documentation only; no code is written for this document.
 
 ## 1. Purpose
@@ -180,6 +180,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 18 | 12 Nov 2026 | Agreed by the owner: in 20.3 other features' public parts sit between shared code and the feature's own files in the import order; in 20.13 the shared components' `t` prop becomes `messages` in its own small pull request after login. No other decision changed |
 | 19 | 12 Nov 2026 | The `auth` pilot (20.13, step 3; pull request #39, for the owner's review): section 16 says `auth` has moved and adds the top-level plain file a feature may have for code `proxy.ts` also uses; the public-helper table in 20.4 takes the pilot's names, and `Unavailable` finds the page's address itself so `currentPath` stays inside `auth` (the owner's choice, 12 Nov 2026); 20.10 says how a call name is written. No decision changed |
 | 20 | 13 Nov 2026 | Agreed by the owner (13 Nov 2026): 20.10 gains the `errorType` detail, so an unexpected error logs its kind as 20.9 and 20.10 already said; a backend call name comes from the generated list of backend calls, which `npm run gen:types` writes and `npm run check:types` keeps in step; the API client's schema-mismatch line uses `logServerEvent` (pull request #40). No other decision changed |
+| 21 | 13 Nov 2026 | Status: the `auth` pilot (#39) and the logging details (#40) are merged. **Agreed by the owner:** in 20.13, steps 4 to 11 are code-quality changes with behaviour kept, and old code is replaced, tested and only then removed, never deleted first. No other decision changed |
 
 ## 16. Names: folders and files
 
@@ -463,7 +464,21 @@ From the reference project the owner shared on 12 Nov 2026 we take descriptive n
 
 ### 20.13 How it is rolled out
 
-The code from Slices 0 to 2 is brought to these practices before Slice 3 starts (D7-19), one pull request per feature, in this order, each reviewed before the next:
+The code from Slices 0 to 2 is brought to these practices before Slice 3 starts (D7-19), one pull request per feature, in this order, each reviewed before the next.
+
+**Where it stands (13 Nov 2026):** steps 1 to 3 are done and merged: the documents (#37), login (#36) with the shared `messages` prop (#38), and the `auth` pilot (#39), followed by the logging details the pilot left open (#40). **Step 4, `vendor`, is next.**
+
+**How steps 4 to 11 are done (owner, 13 Nov 2026):**
+- They are code-quality changes, not new features: behaviour is kept (20.12, item 6). The one change a person sees is the storefront addresses in step 8, already agreed in Document 4 (D4-02). New features start with Slice 3.
+- **The old code is not deleted first.** Each feature is replaced, tested, and only then removed:
+  1. a move-only commit puts the feature's files in `src/features/<feature>/`;
+  2. a file that only needs renames is renamed; a file that is badly built (a screen holding logic, a mixed-up hook) is written again in the new shape, with the old file used only as a reference for what it must do;
+  3. the feature's end-to-end tests must still pass, which shows the new code does everything the old code did;
+  4. what is left of the old code is removed in the same pull request.
+- The site keeps working at every step, and no old structure is left behind at the end.
+- A feature is rebuilt from nothing only if its behaviour itself is wrong, and only when the owner asks for it.
+
+The steps:
 
 1. **Documents, in one docs-only pull request made from the current `main`,** changing no code:
    - Document 7: the status line, decisions D7-16 to D7-19, the open questions, T7-2, section 16, section 17.1 (WSL certificate) and section 20;
