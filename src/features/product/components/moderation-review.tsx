@@ -10,14 +10,15 @@ import { ErrorMessage } from '@/components/common/error-message';
 import { LoadingBlock, PartError } from '@/components/common/load-states';
 import { ReasonDialog } from '@/components/common/reason-dialog';
 import { useToast } from '@/components/common/toast';
-import { PhotoFrame } from '@/components/product/photo-frame';
-import { ProductStatusChip } from '@/components/product/product-status';
-import { reviewPhotoSrc, useCategoryTree, useDecision, useForReview } from '@/hooks/use-moderation';
+import { PhotoFrame } from '@/components/common/photo-frame';
+import { ProductStatusChip } from '@/features/product/components/product-status';
+import { reviewPhotoSrc, useDecision, useForReview } from '@/features/product/hooks/use-moderation';
+import { useCategoryTree } from '@/hooks/use-category-tree';
 import { messageFor, toAppError, type AppError } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { findInTree } from '@/types/catalogue';
-import type { ModerationView } from '@/types/product';
+import type { ModerationView } from '@/features/product/types';
 import { formatRate, formatRupees } from '@/utils/format';
 
 /**

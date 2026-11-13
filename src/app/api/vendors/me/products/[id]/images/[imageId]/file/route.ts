@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server';
-import * as productApi from '@/api/product';
+import * as productApi from '@/features/product/server/product-api';
 import { photoSize } from '@/lib/uploads';
 import { fileAsUser } from '@/features/auth/server/answer-as-user';
 

@@ -1,10 +1,10 @@
 'use client';
 
 import { useMessages } from '@/lib/messages-context';
-import { flattenCategories, type Dictionaries, type ProductView } from '@/types/product';
+import { flattenCategories, type Dictionaries, type ProductView } from '@/features/product/types';
 import { formatRate, formatRupees } from '@/utils/format';
-import { myPhotoSrc } from '@/hooks/use-product';
-import { PhotoFrame } from './photo-frame';
+import { myPhotoSrc } from '@/features/product/hooks/use-product';
+import { PhotoFrame } from '@/components/common/photo-frame';
 import { sortedPhotos } from './product-photos';
 
 /**

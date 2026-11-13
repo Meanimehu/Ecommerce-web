@@ -1,8 +1,8 @@
 import 'server-only';
 import { z } from 'zod';
-import { DictionariesSchema, PhotoSchema, ProductPageSchema, ProductSchema, ProductViewSchema, VariantSchema } from '@/types/product';
+import { DictionariesSchema, PhotoSchema, ProductPageSchema, ProductSchema, ProductViewSchema, VariantSchema } from '@/features/product/types';
 import type { Query } from '@/utils/url';
-import { callBackend, openBackendFile, type UploadBody } from './client';
+import { callBackend, openBackendFile, type UploadBody } from '@/api/client';
 
 /**
  * Backend Area 3b, the vendor's own products (area-3b-products.md, sections 1 to 4): the form guide, products,

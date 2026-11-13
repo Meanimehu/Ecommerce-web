@@ -1,7 +1,7 @@
 import { Check, Clock, EyeOff, List, X } from 'lucide-react';
 import { StatusChip, type ChipTone } from '@/components/common/status-chip';
 import type { Messages } from '@/lib/i18n';
-import type { ProductStatus } from '@/types/product';
+import type { ProductStatus } from '@/features/product/types';
 
 /** The product status chip (Document 6, 8.7): Draft, In review, Approved, Rejected, Unpublished, each with its icon. */
 const LOOK = {

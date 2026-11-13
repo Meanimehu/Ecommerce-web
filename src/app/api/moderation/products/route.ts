@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { answerAsUser } from '@/features/auth/server/answer-as-user';
-import * as moderationApi from '@/api/moderation';
+import * as moderationApi from '@/features/product/server/moderation-api';
 import { pick } from '@/utils/url';
 
 /** GET /api/moderation/products: the review queue (moderator, admin). */

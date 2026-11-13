@@ -19,14 +19,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ErrorMessage } from '@/components/common/error-message';
 import { useToast } from '@/components/common/toast';
-import { myPhotoSrc, useChangePhoto, useDeletePhoto, useOrderPhotos, useUploadPhoto } from '@/hooks/use-product';
+import { myPhotoSrc, useChangePhoto, useDeletePhoto, useOrderPhotos, useUploadPhoto } from '@/features/product/hooks/use-product';
 import { AppError, fill, messageFor, requestIdOf, toAppError } from '@/lib/errors';
 import { type Locale, type Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { checkFile, formatSize, UPLOAD_RULES } from '@/lib/uploads';
-import type { Photo, ProductView } from '@/types/product';
+import type { Photo, ProductView } from '@/features/product/types';
 import { cn } from '@/utils/cn';
-import { PhotoFrame } from './photo-frame';
+import { PhotoFrame } from '@/components/common/photo-frame';
 
 /**
  * Step 4, photos (Document 5, section 7.3; Document 6, section 9 "Uploads"; approved Stage 5): a drop area with a plain

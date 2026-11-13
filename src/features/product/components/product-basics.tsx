@@ -10,11 +10,11 @@ import { SelectField } from '@/components/form/select-field';
 import { TextField } from '@/components/form/text-field';
 import { TextareaField } from '@/components/form/textarea-field';
 import { applyServerError, useAppForm } from '@/hooks/use-app-form';
-import { useChangeProduct, useCreateProduct } from '@/hooks/use-product';
+import { useChangeProduct, useCreateProduct } from '@/features/product/hooks/use-product';
 import { fill, requestIdOf, toAppError } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import { BasicsSchema, flattenCategories, type BasicsInput, type Dictionaries, type ProductView } from '@/types/product';
+import { BasicsSchema, flattenCategories, type BasicsInput, type Dictionaries, type ProductView } from '@/features/product/types';
 import { formatRate } from '@/utils/format';
 
 /**

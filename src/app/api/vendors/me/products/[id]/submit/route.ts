@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { answerAsUser } from '@/features/auth/server/answer-as-user';
-import * as productApi from '@/api/product';
+import * as productApi from '@/features/product/server/product-api';
 
 /** POST /api/vendors/me/products/{id}/submit: send the product for review. */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

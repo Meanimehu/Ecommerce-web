@@ -1,4 +1,4 @@
-import { ModerationQueue } from '@/components/admin/moderation-queue';
+import { ModerationQueue } from '@/features/product/components/moderation-queue';
 import { requireUser } from '@/features/auth/components/require-user';
 
 /** Product moderation queue (Document 5, section 8.3): moderator and admin. */

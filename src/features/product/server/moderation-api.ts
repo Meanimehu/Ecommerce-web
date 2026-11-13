@@ -1,7 +1,7 @@
 import 'server-only';
-import { ModerationPageSchema, ModerationViewSchema } from '@/types/product';
+import { ModerationPageSchema, ModerationViewSchema } from '@/features/product/types';
 import type { Query } from '@/utils/url';
-import { callBackend, openBackendFile } from './client';
+import { callBackend, openBackendFile } from '@/api/client';
 
 /** Backend Area 3b, moderation (area-3b-products.md, section 7): moderator and admin. Nobody reviews their own vendor. */
 const product = (id: string) => `/moderation/products/${encodeURIComponent(id)}`;

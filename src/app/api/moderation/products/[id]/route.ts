@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { answerAsUser } from '@/features/auth/server/answer-as-user';
-import * as moderationApi from '@/api/moderation';
+import * as moderationApi from '@/features/product/server/moderation-api';
 
 /** GET /api/moderation/products/{id}: a product for review. */
 export const dynamic = 'force-dynamic';

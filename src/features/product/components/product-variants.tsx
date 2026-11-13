@@ -24,11 +24,11 @@ import { ErrorSummary } from '@/components/form/error-summary';
 import { SelectField } from '@/components/form/select-field';
 import { TextField } from '@/components/form/text-field';
 import { applyServerError, useAppForm } from '@/hooks/use-app-form';
-import { useDeleteVariant, useSaveVariant } from '@/hooks/use-product';
+import { useDeleteVariant, useSaveVariant } from '@/features/product/hooks/use-product';
 import { fill, messageFor, requestIdOf, toAppError } from '@/lib/errors';
 import { type Locale, type Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import { paiseToRupees, rupeesToPaise, VariantFormSchema, type Dictionaries, type ProductView, type Variant, type VariantInput } from '@/types/product';
+import { paiseToRupees, rupeesToPaise, VariantFormSchema, type Dictionaries, type ProductView, type Variant, type VariantInput } from '@/features/product/types';
 import { formatRupees } from '@/utils/format';
 
 /**

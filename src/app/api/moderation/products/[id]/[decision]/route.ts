@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server';
-import * as moderationApi from '@/api/moderation';
+import * as moderationApi from '@/features/product/server/moderation-api';
 import { jsonObject } from '@/middleware/endpoint';
 import { fail } from '@/middleware/responses';
 import { answerAsUser } from '@/features/auth/server/answer-as-user';

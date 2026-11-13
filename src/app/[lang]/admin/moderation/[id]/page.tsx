@@ -1,4 +1,4 @@
-import { ModerationReview } from '@/components/admin/moderation-review';
+import { ModerationReview } from '@/features/product/components/moderation-review';
 import { requireUser } from '@/features/auth/components/require-user';
 
 /** One product for review (Document 5, section 8.3): moderator and admin, never for the person's own vendor. */

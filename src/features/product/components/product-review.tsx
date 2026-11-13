@@ -19,11 +19,11 @@ import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { ErrorMessage } from '@/components/common/error-message';
 import { useToast } from '@/components/common/toast';
-import { useDeleteProduct, useSubmitProduct } from '@/hooks/use-product';
+import { useDeleteProduct, useSubmitProduct } from '@/features/product/hooks/use-product';
 import { fill, messageFor, toAppError, type AppError } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import type { ProductView } from '@/types/product';
+import type { ProductView } from '@/features/product/types';
 import { productStepFor } from './product-steps';
 
 /**

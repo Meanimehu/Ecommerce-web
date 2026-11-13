@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { productStepFor } from '@/components/product/product-steps';
-import { flattenCategories, paiseToRupees, rupeesToPaise, type DictionaryCategory } from '@/types/product';
+import { productStepFor } from '@/features/product/components/product-steps';
+import { flattenCategories, paiseToRupees, rupeesToPaise, type DictionaryCategory } from '@/features/product/types';
 
 describe('money typed in rupees, sent in paise (D-15; Document 3, section 7)', () => {
   it('turns rupees into whole paise without floating point', () => {

@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { get, patch, put, remove, send, upload } from '@/lib/http';
 import type { Page } from '@/types/common';
-import type { Dictionaries, Photo, Product, ProductRow, ProductView, Variant } from '@/types/product';
+import type { Dictionaries, Photo, Product, ProductRow, ProductView, Variant } from '@/features/product/types';
 import { withQuery, type Query } from '@/utils/url';
 
 /**

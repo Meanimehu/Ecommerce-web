@@ -10,12 +10,12 @@ import { ErrorSummary } from '@/components/form/error-summary';
 import { SelectField } from '@/components/form/select-field';
 import { TextField } from '@/components/form/text-field';
 import { applyServerError, useAppForm } from '@/hooks/use-app-form';
-import { useChangeProduct } from '@/hooks/use-product';
+import { useChangeProduct } from '@/features/product/hooks/use-product';
 import { requestIdOf, toAppError } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import type { Attribute } from '@/features/catalogue/types';
-import { flattenCategories, type Dictionaries, type ProductView } from '@/types/product';
+import { flattenCategories, type Dictionaries, type ProductView } from '@/features/product/types';
 
 /**
  * Step 2, attributes (Document 5, section 7.3): the fields come from the category the backend sends, its parents'

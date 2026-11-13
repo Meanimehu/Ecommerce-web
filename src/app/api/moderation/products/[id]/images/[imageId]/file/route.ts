@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server';
-import * as moderationApi from '@/api/moderation';
+import * as moderationApi from '@/features/product/server/moderation-api';
 import { photoSize } from '@/lib/uploads';
 import { fileAsUser } from '@/features/auth/server/answer-as-user';
 

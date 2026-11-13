@@ -7,12 +7,13 @@ import { DataTable, type Column } from '@/components/common/data-table';
 import { LoadingBlock, PartError } from '@/components/common/load-states';
 import { Pagination } from '@/components/common/pagination';
 import { StateBlock } from '@/components/common/state-block';
-import { ProductStatusChip } from '@/components/product/product-status';
-import { useCategoryTree, useQueue } from '@/hooks/use-moderation';
+import { ProductStatusChip } from '@/features/product/components/product-status';
+import { useQueue } from '@/features/product/hooks/use-moderation';
+import { useCategoryTree } from '@/hooks/use-category-tree';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { findInTree } from '@/types/catalogue';
-import type { ModerationRow } from '@/types/product';
+import type { ModerationRow } from '@/features/product/types';
 import { formatDate } from '@/utils/format';
 import { pageNumber, withQuery } from '@/utils/url';
 

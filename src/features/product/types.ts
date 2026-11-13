@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { AttributeSchema } from '@/features/catalogue/types';
-import { pageOf } from './common';
+import { pageOf } from '@/types/common';
 
 /**
  * Backend Area 3b, vendor products and moderation: response shapes written by hand from the API reference (D3-01),

@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { ProductEditor } from '@/components/product/product-editor';
+import { ProductEditor } from '@/features/product/components/product-editor';
 import { isLocale } from '@/lib/i18n';
 
 /** One product: its steps while it can be changed, otherwise what it holds (Document 5, section 7.3). */

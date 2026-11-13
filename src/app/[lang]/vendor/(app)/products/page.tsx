@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { ProductList } from '@/components/product/product-list';
+import { ProductList } from '@/features/product/components/product-list';
 import { isLocale } from '@/lib/i18n';
 
 /** My products (Document 5, section 7.3). Who may enter: the Vendor area layout. */

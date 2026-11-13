@@ -21,7 +21,7 @@ import { ErrorMessage } from '@/components/common/error-message';
 import { LoadingBlock, PartError } from '@/components/common/load-states';
 import { StateBlock } from '@/components/common/state-block';
 import { StatusChip } from '@/components/common/status-chip';
-import { PhotoFrame } from '@/components/product/photo-frame';
+import { PhotoFrame } from '@/components/common/photo-frame';
 import { useCart, useChangeQuantity, useRemoveLine, useRemoveUnavailable } from '@/hooks/use-cart';
 import { fill, messageFor, toAppError } from '@/lib/errors';
 import { type Locale, type Messages } from '@/lib/i18n';

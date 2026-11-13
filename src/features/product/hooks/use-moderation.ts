@@ -2,9 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { get, send } from '@/lib/http';
-import type { CategoryNode } from '@/types/catalogue';
 import type { Page } from '@/types/common';
-import type { ModerationRow, ModerationView } from '@/types/product';
+import type { ModerationRow, ModerationView } from '@/features/product/types';
 import { withQuery, type Query } from '@/utils/url';
 
 /** Product moderation (backend Area 3b, section 7), through our /api/moderation endpoints. */
@@ -15,9 +14,6 @@ export const useQueue = (query: Query) =>
 
 export const useForReview = (id: string) =>
   useQuery({ queryKey: moderationKeys.one(id), queryFn: () => get<ModerationView>(`/api/moderation/products/${encodeURIComponent(id)}`), staleTime: 0 });
-
-/** The public category tree, for showing a category's name and path. */
-export const useCategoryTree = () => useQuery({ queryKey: ['catalogue', 'tree'], queryFn: () => get<{ items: CategoryNode[] }>('/api/catalogue/categories'), staleTime: 600_000 });
 
 export function useDecision(id: string) {
   const queryClient = useQueryClient();
