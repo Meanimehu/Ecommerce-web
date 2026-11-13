@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AttributeSchema } from './catalogue';
+import { AttributeSchema } from '@/features/catalogue/types';
 import { pageOf } from './common';
 
 /**
