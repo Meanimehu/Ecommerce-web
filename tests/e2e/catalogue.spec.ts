@@ -1,17 +1,44 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { backendLog, freshPhone, pageAs } from './support/login';
+import { nextRequestBody } from './support/requests';
 
 /**
  * Slice 2b (Document 8, Slice 2): an admin creates the catalogue entries a product needs: an HSN code, a category with
- * attributes and default tax, a brand, a size and a colour. Against the real local backend; skipped where it is not
- * running.
+ * attributes and default tax, a brand, a size and a colour; and edits one field of each, checking that exactly that
+ * field is sent. Against the real local backend; skipped where it is not running.
  */
 const ADMIN_PHONE = process.env.E2E_ADMIN_PHONE ?? '9000000001';
 const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 
 async function noAxeViolations(page: Page) {
   expect((await new AxeBuilder({ page }).withTags(WCAG).analyze()).violations).toEqual([]);
+}
+
+/** Adds an entry to a list through its form: the fields by their labels, in order. */
+async function addEntry(admin: Page, list: string, addLabel: string, fields: [string, string][]) {
+  await admin.goto(`/en/admin/catalogue/${list}`);
+  await admin.getByRole('button', { name: addLabel }).click();
+  for (const [label, value] of fields) await admin.getByRole('textbox', { name: label, exact: true }).fill(value);
+  await admin.getByRole('button', { name: 'Save' }).click();
+  await expect(admin.getByRole('status').filter({ hasText: 'Saved' })).toBeVisible();
+}
+
+/**
+ * Edits one field of an entry and checks that exactly that field is sent, and that the list shows the new value after
+ * a reload (Document 7, 20.12, item 8).
+ */
+async function editOneField(admin: Page, list: string, entry: string, label: string, value: string, field: string) {
+  // Searched for, so the entry is on the first page of a long list (the category list has no pages).
+  await admin.goto(`/en/admin/catalogue/${list}?q=${encodeURIComponent(entry)}`);
+  await admin.getByRole('button', { name: new RegExp(`^Edit\\s*: ${entry}$`) }).click();
+  await admin.getByRole('textbox', { name: label, exact: true }).fill(value);
+  const sent = nextRequestBody(admin, 'PATCH', new RegExp(`^/api/admin/catalogue/${list}/[^/]+$`));
+  await admin.getByRole('button', { name: 'Save' }).click();
+  expect(await sent).toEqual({ [field]: value });
+  await expect(admin.getByRole('status').filter({ hasText: 'Saved' })).toBeVisible();
+  await admin.reload();
+  await expect(admin.getByText(value, { exact: true }).filter({ visible: true }).first()).toBeVisible();
 }
 
 test.describe('catalogue lists', () => {
@@ -96,6 +123,21 @@ test.describe('catalogue lists', () => {
     await admin.getByRole('button', { name: 'Save' }).click();
     await expect(admin.getByRole('status').filter({ hasText: 'Saved' })).toBeVisible();
     await noAxeViolations(admin);
+  });
+
+  test('an admin edits one field of each list, and only that field is sent', async ({ browser }) => {
+    const n = String(Date.now()).slice(-6);
+    const admin = await pageAs(browser, ADMIN_PHONE, '/en/admin/catalogue');
+    await addEntry(admin, 'hsn-codes', 'Add HSN code', [['HSN code', `63${n}`], ['Description', `Edit garments ${n}`]]);
+    await editOneField(admin, 'hsn-codes', `63${n}`, 'Description', `Edit garments ${n} changed`, 'description');
+    await addEntry(admin, 'categories', 'Add category', [['Name', `Edit kurtas ${n}`]]);
+    await editOneField(admin, 'categories', `Edit kurtas ${n}`, 'Name', `Edit kurtas ${n} changed`, 'name');
+    await addEntry(admin, 'brands', 'Add brand', [['Name', `Edit Brand ${n}`]]);
+    await editOneField(admin, 'brands', `Edit Brand ${n}`, 'Name', `Edit Brand ${n} changed`, 'name');
+    await addEntry(admin, 'sizes', 'Add size', [['Code', `E${n.slice(-4)}`], ['Label', `Edit size ${n}`]]);
+    await editOneField(admin, 'sizes', `E${n.slice(-4)}`, 'Label', `Edit size ${n} changed`, 'label');
+    await addEntry(admin, 'colours', 'Add colour', [['Code', `E${n}`], ['Label', `Edit colour ${n}`]]);
+    await editOneField(admin, 'colours', `E${n}`, 'Label', `Edit colour ${n} changed`, 'label');
   });
 
   test('the Hindi page, and a customer gets a real 403', async ({ browser }) => {

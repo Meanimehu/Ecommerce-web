@@ -186,7 +186,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 
 | File | What it does |
 | --- | --- |
-| `use-app-form.ts` | `useAppForm` (React Hook Form with Zod), `applyServerError` (backend errors under the right field), `useErrorSummaryFocus` (focus after a failed submit), message keys |
+| `use-app-form.ts` | `useAppForm` (React Hook Form with Zod; it keeps the changed fields up to date, so an edit sends only what changed), `applyServerError` (backend errors under the right field), `useErrorSummaryFocus` (focus after a failed submit), message keys |
 | `use-cart.ts` | The cart and its count, add, change, remove, add after login and its notice |
 | `use-category-tree.ts` | The public category tree (moderation shows a category's path with it); `storefront` takes it in step 8 |
 
@@ -338,7 +338,7 @@ Backend Area 3b: products, variants, photos, the form guide (`/catalogue/diction
 | `scripts/` | `gen-types`, `gen-error-codes` (the code list and its enum), `check-messages` (also checks the enum), and copying files after a build |
 | `.prettierrc.json`, `eslint.config.mjs` | Formatting (100-character lines) and lint; the files already following Document 7, section 20 are listed in the lint settings |
 | `tests/unit/` | Fast tests of the helpers (Vitest) |
-| `tests/e2e/` | Browser tests against the real backend (Playwright); `fixtures/` holds the garment illustrations used as test photos |
+| `tests/e2e/` | Browser tests against the real backend (Playwright), one spec per feature; `support/` holds the shared steps (`login.ts`, `flows.ts`) and `requests.ts` (`nextRequestBody`: what a click really sent); `fixtures/` holds the garment illustrations used as test photos |
 
 ## To change something, look here
 

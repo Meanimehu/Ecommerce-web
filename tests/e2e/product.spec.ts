@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { addAndSubmitProduct as addAndSubmit } from './support/flows';
 import { backendLog, freshPhone, pageAs } from './support/login';
+import { nextRequestBody } from './support/requests';
 
 /**
  * Slice 2c (Document 8, Slice 2): an approved vendor adds a product with a variant and photos and submits it; a
@@ -48,6 +49,31 @@ test.describe('vendor products and moderation', () => {
     await vendor.getByRole('link', { name: /Review/ }).first().click();
     await expect(vendor.getByText('At least one variant that is on: missing')).toBeVisible();
     await noAxeViolations(vendor);
+
+    // Editing the saved draft and a saved variant sends exactly the changed field, and the change is kept
+    // (Document 7, 20.12).
+    const draft = vendor.url().replace(/\?.*$/, '');
+    await vendor.goto(`${draft}?step=basics`);
+    await vendor.getByRole('textbox', { name: 'Title' }).fill(`Test kurta ${n} edited`);
+    const sentTitle = nextRequestBody(vendor, 'PATCH', /^\/api\/vendors\/me\/products\/[^/]+$/);
+    await vendor.getByRole('button', { name: 'Save and continue' }).click();
+    expect(await sentTitle).toEqual({ title: `Test kurta ${n} edited` });
+    await expect(vendor).toHaveURL(/step=attributes/);
+    await vendor.reload();
+    await expect(vendor.getByRole('heading', { name: `Test kurta ${n} edited`, level: 1 })).toBeVisible();
+    await vendor.goto(`${draft}?step=variants`);
+    await vendor.getByRole('textbox', { name: 'SKU' }).fill(`T${n}-E`);
+    await vendor.getByRole('textbox', { name: 'MRP (₹)' }).fill('999');
+    await vendor.getByRole('textbox', { name: 'Selling price (₹)' }).fill('899');
+    await vendor.getByRole('button', { name: 'Save variant' }).click();
+    await expect(vendor.getByText('₹899', { exact: true }).filter({ visible: true }).first()).toBeVisible();
+    await vendor.getByRole('button', { name: new RegExp(`^Edit\\s*: .*T${n}-E$`) }).click();
+    await vendor.getByRole('textbox', { name: 'Selling price (₹)' }).fill('799');
+    const sentPrice = nextRequestBody(vendor, 'PATCH', /^\/api\/vendors\/me\/products\/[^/]+\/variants\/[^/]+$/);
+    await vendor.getByRole('button', { name: 'Save variant' }).click();
+    expect(await sentPrice).toEqual({ pricePaise: 79900 });
+    await vendor.reload();
+    await expect(vendor.getByText('₹799', { exact: true }).filter({ visible: true }).first()).toBeVisible();
 
     // The full path, then the moderator.
     const title = `Test kurta ${n} full`;
