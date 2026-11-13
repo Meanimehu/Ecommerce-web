@@ -9,5 +9,3 @@ export function VendorStatusChip({ status, t }: { status: VendorStatus; t: Messa
   return <StatusChip tone={TONE[status]} label={t.vendor.status[status]} />;
 }
 
-/** The application can be changed by its owner only in these statuses (area-2-vendors.md, "How the application works"). */
-export const isEditable = (status: VendorStatus) => status === 'draft' || status === 'rejected';

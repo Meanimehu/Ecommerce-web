@@ -27,7 +27,7 @@ import { fill, messageFor, requestIdOf, toAppError } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { formatPhone } from '@/utils/format';
-import { AddressSchema, type AddressInput, type Vendor, type VendorAddress } from '@/features/vendor/types';
+import { AddressType, VendorAddressFormSchema, type VendorAddressFormInput, type Vendor, type VendorAddress } from '@/features/vendor/types';
 
 /**
  * Step 2, pickup address (Document 5, section 7.1): the addresses on the application, each with Edit and Remove, and a
@@ -134,8 +134,8 @@ function AddressForm({ address, onDone, canCancel = true }: { address?: VendorAd
   const toast = useToast();
   const save = useSaveAddress();
   const [focus, setFocus] = useState(0);
-  const form = useAppForm<AddressInput, AddressInput>(AddressSchema, {
-    type: address?.type ?? 'pickup',
+  const form = useAppForm<VendorAddressFormInput, VendorAddressFormInput>(VendorAddressFormSchema, {
+    type: address?.type ?? AddressType.Pickup,
     line1: address?.line1 ?? '',
     line2: address?.line2 ?? '',
     city: address?.city ?? '',

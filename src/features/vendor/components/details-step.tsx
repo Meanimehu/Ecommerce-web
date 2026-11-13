@@ -12,7 +12,7 @@ import { useApply, useUpdateVendor } from '@/features/vendor/hooks/use-vendor';
 import { requestIdOf, toAppError } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import { DetailsSchema, SELLER_TYPES, type DetailsInput, type Vendor } from '@/features/vendor/types';
+import { VendorDetailsFormSchema, SELLER_TYPES, type VendorDetailsFormInput, type Vendor } from '@/features/vendor/types';
 
 /**
  * Step 1, business details (Document 5, section 7.1). A new application is started with POST /vendors/apply; after that
@@ -34,7 +34,7 @@ export function DetailsStep({ lang, vendor }: { lang: Locale; vendor: Vendor | n
   const update = useUpdateVendor();
   const [focus, setFocus] = useState(0);
   const [after, setAfter] = useState<'continue' | 'later'>('continue');
-  const form = useAppForm<DetailsInput, DetailsInput>(DetailsSchema, {
+  const form = useAppForm<VendorDetailsFormInput, VendorDetailsFormInput>(VendorDetailsFormSchema, {
     legalName: vendor?.legalName ?? '',
     displayName: vendor?.displayName ?? '',
     gstin: vendor?.gstin ?? '',
@@ -49,7 +49,7 @@ export function DetailsStep({ lang, vendor }: { lang: Locale; vendor: Vendor | n
       async (values) => {
         const dirty = form.formState.dirtyFields;
         const body: Record<string, unknown> = {};
-        for (const key of Object.keys(values) as (keyof DetailsInput)[]) {
+        for (const key of Object.keys(values) as (keyof VendorDetailsFormInput)[]) {
           if (vendor && !dirty[key]) continue;
           const value = values[key]?.trim() ?? '';
           if (key === 'gstin') {

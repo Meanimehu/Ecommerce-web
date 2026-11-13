@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { pageWindow } from '@/components/common/pagination';
-import { stepFor } from '@/features/vendor/components/apply-steps';
+import { stepFor } from '@/features/vendor/types';
 import { checkFile, formatSize } from '@/lib/uploads';
 import { expiresWithin } from '@/features/auth/server/session';
 import { pageNumber, pick, withQuery } from '@/utils/url';

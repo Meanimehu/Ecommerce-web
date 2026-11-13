@@ -10,13 +10,12 @@ import { useMyVendor } from '@/features/vendor/hooks/use-vendor';
 import { fill } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import type { Vendor } from '@/features/vendor/types';
+import { APPLY_STEPS, isEditable, stepFor, type ApplyStep, type Vendor } from '@/features/vendor/types';
 import { AddressStep } from './address-step';
 import { DetailsStep } from './details-step';
 import { DocumentsStep } from './documents-step';
 import { ReviewStep } from './review-step';
-import { STEP_KEYS, stepFor, type StepKey } from './apply-steps';
-import { isEditable, VendorStatusChip } from './vendor-status-chip';
+import { VendorStatusChip } from './vendor-status-chip';
 
 /**
  * Become a vendor (Document 5, section 7.1; approved Stage 5): a start page with the application status, then four
@@ -27,7 +26,7 @@ export function ApplyScreen({ lang }: { lang: Locale }) {
   const t = useMessages();
   const params = useSearchParams();
   const asked = params.get('step');
-  const step = (STEP_KEYS as readonly string[]).includes(asked ?? '') ? (asked as StepKey) : null;
+  const step = (APPLY_STEPS as readonly string[]).includes(asked ?? '') ? (asked as ApplyStep) : null;
   const mine = useMyVendor();
   const base = `/${lang}/vendor/apply`;
 
@@ -41,17 +40,17 @@ export function ApplyScreen({ lang }: { lang: Locale }) {
     } else if (!step || !isEditable(vendor.status)) {
       body = <StatusCard lang={lang} vendor={vendor} />;
     } else {
-      const done: Record<StepKey, boolean> = {
+      const done: Record<ApplyStep, boolean> = {
         details: !vendor.missing.some((m) => stepFor(m) === 'details'),
         address: !vendor.missing.includes('pickup_address'),
         documents: !vendor.missing.some((m) => stepFor(m) === 'documents'),
         review: false,
       };
-      const steps: Step[] = STEP_KEYS.map((key) => ({ key, label: t.vendor.steps[key], short: t.vendor.steps.short[key], href: `${base}?step=${key}`, done: done[key] }));
+      const steps: Step[] = APPLY_STEPS.map((key) => ({ key, label: t.vendor.steps[key], short: t.vendor.steps.short[key], href: `${base}?step=${key}`, done: done[key] }));
       body = (
         <div className="grid gap-5">
           <Steps steps={steps} current={step} label={t.vendor.steps.label} doneLabel={t.vendor.steps.done} />
-          <p className="sr-only">{fill(t.vendor.stepOf, { step: STEP_KEYS.indexOf(step) + 1, count: STEP_KEYS.length, name: t.vendor.steps[step] })}</p>
+          <p className="sr-only">{fill(t.vendor.stepOf, { step: APPLY_STEPS.indexOf(step) + 1, count: APPLY_STEPS.length, name: t.vendor.steps[step] })}</p>
           {step === 'details' ? <DetailsStep lang={lang} vendor={vendor} /> : null}
           {step === 'address' ? <AddressStep lang={lang} vendor={vendor} /> : null}
           {step === 'documents' ? <DocumentsStep lang={lang} vendor={vendor} /> : null}

@@ -13,8 +13,7 @@ import { useSubmitVendor } from '@/features/vendor/hooks/use-vendor';
 import { fill, messageFor, toAppError, type AppError } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import type { Vendor } from '@/features/vendor/types';
-import { stepFor } from './apply-steps';
+import { stepFor, type Vendor } from '@/features/vendor/types';
 
 /**
  * Step 4, review and submit (Document 5, section 7.1; approved Stage 5). The backend's `missing` list is a checklist,

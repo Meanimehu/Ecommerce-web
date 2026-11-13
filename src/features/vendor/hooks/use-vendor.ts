@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AppError } from '@/lib/errors';
 import { get, patch, remove, send, upload } from '@/lib/http';
 import type { Page } from '@/types/common';
-import type { AddressInput, AdminVendor, AdminVendorRow, Vendor, VendorAddress, VendorDocument } from '@/features/vendor/types';
+import type { VendorAddressFormInput, AdminVendor, AdminVendorRow, Vendor, VendorAddress, VendorDocument } from '@/features/vendor/types';
 import { withQuery, type Query } from '@/utils/url';
 
 /**
@@ -63,7 +63,7 @@ export const useUploadDocument = () =>
 export const myDocumentHref = (id: string) => `/api/vendors/me/documents/${encodeURIComponent(id)}/file`;
 
 /** The address form's values as the backend takes them: line2 left out when empty. */
-export function addressBody(values: AddressInput): Record<string, unknown> {
+export function addressBody(values: VendorAddressFormInput): Record<string, unknown> {
   const { line2, ...rest } = values;
   return line2?.trim() ? { ...rest, line2: line2.trim() } : rest;
 }
