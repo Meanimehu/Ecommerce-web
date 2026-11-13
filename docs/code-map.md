@@ -121,7 +121,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `[lang]/account/page.tsx` | Account: log out, log out everywhere, the areas this person may open |
 | `[lang]/admin/layout.tsx`, `page.tsx` | Admin area frame (any staff role) and its home with the screens this person's roles can use |
 | `[lang]/admin/vendors/…` | Vendor review: the list, and one application (admin only); the screens are in `features/vendor/` |
-| `[lang]/admin/catalogue/[list]` | Catalogue lists: categories, HSN codes, brands, sizes, colours (admin only) |
+| `[lang]/admin/catalogue/[list]` | Catalogue lists: categories, HSN codes, brands, sizes, colours (admin only); the screens are in `features/catalogue/` |
 | `[lang]/admin/moderation/…` | Product moderation: the queue and one product (moderator, admin) |
 | `[lang]/vendor/layout.tsx` | Vendor area: never indexed, always rendered for the person |
 | `[lang]/vendor/apply/page.tsx` | Become a vendor: open to anyone logged in |
@@ -154,9 +154,6 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `auth/area-shell.tsx` | (Moves with `layout`.) The frame of the Admin and Vendor areas: top bar (wordmark, area label, language, account) and the side menu |
 | `auth/area-nav.tsx` | The side menu, and the menu button with its drawer below 1024 px |
 | `auth/area-menus.ts` | What each side menu lists, by role (Admin) or by having a vendor (Vendor) |
-| `admin/catalogue-screen.tsx` | Catalogue lists: the list tabs and one table pattern (status, Edit, Switch off or on, Add) |
-| `admin/catalogue-forms.tsx` | The add and change forms of HSN codes, brands, sizes and colours, and the frame they share |
-| `admin/category-form.tsx` | The category form with its attributes |
 | `admin/moderation-queue.tsx`, `moderation-review.tsx` | The moderation queue, and one product with the decision |
 | `product/product-list.tsx` | My products: filters, table, numbered pages |
 | `product/product-editor.tsx` | One product: the five steps while it can change, otherwise its summary |
@@ -199,14 +196,13 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `use-cart.ts` | The cart and its count, add, change, remove, add after login and its notice |
 | `use-product.ts` | The vendor's products: the form guide, list, one product and every change to it |
 | `use-moderation.ts` | The moderation queue, one product, the decision, the public category tree |
-| `use-catalogue.ts` | The catalogue lists: `useCatalogueList`, `useSaveCatalogueItem`, active GST rates and HSN codes |
 
 ### `api/` — calls to the backend (server only)
 
 | File | What it does |
 | --- | --- |
 | `client.ts` | `callBackend`: time limits, retries for reads only, every answer checked against its shape, the customer's address passed on; streamed uploads; `openBackendFile` for private files |
-| `catalogue.ts` | Backend Area 3a: the admin catalogue lists, and the storefront (category tree, product cards, one product) |
+| `catalogue.ts` | Backend Area 3a, the storefront part: the category tree, product cards, one product (moves with the storefront, step 8; the admin lists are in `features/catalogue/server/`) |
 | `product.ts` | Backend Area 3b: the vendor's products, variants and photos |
 | `cart.ts` | Backend Area 5: the cart |
 | `moderation.ts` | Backend Area 3b: moderation |
@@ -269,6 +265,28 @@ example `useMyVendor`, which `product` uses); `app/` pages also use `findVendorP
 | `server/vendor-api.ts` | Backend Area 2: the application and the admin review, made through `api/client.ts` |
 | `server/vendor-presence.ts` | `findVendorPresence`: whether the person has a vendor (`Exists`, `None`, or `Unknown` when the backend cannot be asked), for the vendor area and the account page |
 
+### `features/catalogue/` — the admin catalogue lists
+
+Categories, HSN codes, brands, sizes and colours; GST rates are read here only as choices. Other features use its types
+(`product` uses `Attribute` and `AttributeSchema`). The storefront's category tree and product cards are not here yet:
+they move with the storefront (step 8).
+
+| File | What it does |
+| --- | --- |
+| `types.ts` | The list schemas; the enums `CatalogueList`, `AttributeType`, `SizeGroup`; `EDITABLE_LISTS` (the tab order); the request bodies (`AddBody`, `ChangeBody`); the forms; small rules: `attributeBody`, `inTreeOrder`, `rateField`, `rateValue`, `MAX_CATEGORY_DEPTH` |
+| `components/catalogue-screen.tsx` | The list tabs, and each list's columns and form |
+| `components/catalogue-table.tsx` | The one table pattern: filters, status, Edit, Switch off or on, Add, pages |
+| `components/catalogue-form-frame.tsx` | The frame every form shares: a heading that takes focus, the error summary, Save and Cancel |
+| `components/hsn-code-form.tsx`, `brand-form.tsx`, `size-form.tsx`, `colour-form.tsx` | The add and change forms (logic in their hooks) |
+| `components/category-form.tsx`, `attribute-row.tsx` | The category form and one attribute (logic in `hooks/use-category-form.ts`) |
+| `components/read-only-value.tsx` | A value that cannot be changed, such as a code |
+| `hooks/use-catalogue.ts` | The call hooks: `useCatalogueList`, `useActiveGstRates`, `useActiveHsnCodes`, `useAllCategories`, `useAddCatalogueItem`, `useChangeCatalogueItem`; `catalogueKeys` |
+| `hooks/use-catalogue-save.ts` | The save steps the forms share: add or change, the toast, the backend's errors under the right fields |
+| `hooks/use-hsn-code-form.ts`, `use-brand-form.ts`, `use-size-form.ts`, `use-colour-form.ts` | One form hook per form: what it sends (a new entry: what is filled; a change: only what changed; never the code) |
+| `hooks/use-category-form.ts` | The category form: the parent choices, the attributes, and the backend's attribute problems |
+| `hooks/use-gst-rate-options.ts` | The GST choices: the active rates, and the current one if switched off |
+| `server/catalogue-api.ts` | Backend Area 3a, the admin lists: list, add, change |
+
 ### `lib/`, `utils/`, `types/`
 
 | File | What it does |
@@ -290,7 +308,7 @@ example `useMyVendor`, which `product` uses); `app/` pages also use `findVendorP
 | `utils/message-checks.ts` | What `npm run check:messages` checks (not used by the site) |
 | `types/error.ts` | The backend's error answer |
 | `types/common.ts` | Shapes every area shares: a page of a list, a reason |
-| `types/catalogue.ts` | Backend Area 3a lists (GST rate, HSN code, category with attributes, brand, size, colour), their forms, tree order; the storefront's category tree, product card, product, and product addresses |
+| `types/catalogue.ts` | Backend Area 3a, the storefront part: the category tree, product card, product, and product addresses (moves with the storefront, step 8; the admin lists are in `features/catalogue/types.ts`) |
 | `types/cart.ts` | Backend Area 5 cart view, the pending add |
 | `types/add-notice.ts` | `AddOutcome` and `AddNotice`: what happened to a pending add at login. Kept free of Zod because every page's header reads it |
 | `types/react-query.d.ts` | Tells TanStack Query that every error is an `AppError` |
