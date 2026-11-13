@@ -181,6 +181,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 19 | 12 Nov 2026 | The `auth` pilot (20.13, step 3; pull request #39, for the owner's review): section 16 says `auth` has moved and adds the top-level plain file a feature may have for code `proxy.ts` also uses; the public-helper table in 20.4 takes the pilot's names, and `Unavailable` finds the page's address itself so `currentPath` stays inside `auth` (the owner's choice, 12 Nov 2026); 20.10 says how a call name is written. No decision changed |
 | 20 | 13 Nov 2026 | Agreed by the owner (13 Nov 2026): 20.10 gains the `errorType` detail, so an unexpected error logs its kind as 20.9 and 20.10 already said; a backend call name comes from the generated list of backend calls, which `npm run gen:types` writes and `npm run check:types` keeps in step; the API client's schema-mismatch line uses `logServerEvent` (pull request #40). No other decision changed |
 | 21 | 13 Nov 2026 | Status: the `auth` pilot (#39) and the logging details (#40) are merged. **Agreed by the owner:** in 20.13, steps 4 to 11 are code-quality changes with behaviour kept, and old code is replaced, tested and only then removed, never deleted first. No other decision changed |
+| 22 | 13 Nov 2026 | **Agreed by the owner** for the `vendor` step: 20.9 and section 16 add the action hook (`use-<action>.ts`) for a screen part with call and error logic but no form, under the form hook's rules; section 16 lets a feature's `types.ts` hold small rules about its types (`stepFor`, `isEditable`). No other decision changed |
 
 ## 16. Names: folders and files
 
@@ -191,9 +192,9 @@ Recorded 10 Nov 2026; folders by kind of code chosen by the owner on 11 Nov 2026
 | `src/app/` | Routing only; Next.js fixes these names. Pages under `[lang]/` (D4-01), our endpoints under `api/` (addresses `/api/...`). Pages are thin and show a feature's screen; endpoints call a feature's server code. Never moved into `features/`, because Next.js reads addresses from it |
 | `src/proxy.ts` | The page middleware (Document 4, section 6). Next.js fixes this file name |
 | `src/features/<feature>/components/` | The feature's screens and their parts |
-| `src/features/<feature>/hooks/` | `use-<feature>.ts`: the feature's call hooks, one per API call. `use-<form>-form.ts`: one file per form |
+| `src/features/<feature>/hooks/` | `use-<feature>.ts`: the feature's call hooks, one per API call. `use-<form>-form.ts`: one file per form. `use-<action>.ts`: one file per action part that has call and error logic but no form (20.9) |
 | `src/features/<feature>/server/` | **Server only:** the feature's backend operations (`<feature>-api.ts`): which call, its input, its answer schema and its rules, each made through `api/client.ts`. Also the server logic the feature's endpoints share |
-| `src/features/<feature>/types.ts` | The feature's Zod schemas and the types made from them, forms included |
+| `src/features/<feature>/types.ts` | The feature's Zod schemas and the types made from them, forms included, its enums, and small rules about those types that screens and hooks share (for example `vendor`'s `stepFor`, which step fixes a missing item, and `isEditable`, which statuses its owner may change) |
 | `src/features/<feature>/<name>.ts` | A plain file at the top of the feature for code that `proxy.ts` uses as well as the server, so it cannot be server only and must not load Zod: `auth`'s `after-login-page.ts` |
 | `src/components/ui/`, `form/`, `common/` | Shared UI: shadcn/ui components (D7-14), form parts (`Form`, fields, the error summary), and pieces two or more features use |
 | `src/lib/` | Shared code that knows the app: settings, the browser's call helper, errors and error codes, HTTP statuses, languages and messages, page addresses (`routes.ts`), the server log helper (`server-log.ts`) |
@@ -374,6 +375,7 @@ Every cookie uses the `__Host-` prefix, `Secure`, `HttpOnly`, `SameSite=Lax`, pa
 | The screen | `features/<feature>/components/…` | Draws fields and buttons and wires the submit. No call or error logic |
 | `Form` | `components/form/form.tsx` | The `<form>` every form uses: always `method="post"`, the browser's own checks off, so a tap before the scripts load never puts what was typed in the address |
 | The form hook | `features/<feature>/hooks/use-<form>-form.ts` | The form (`useAppForm` with its schema), what happens on success and on each error, the error-summary focus, timers |
+| The action hook | `features/<feature>/hooks/use-<action>.ts` | For a screen part that runs calls and handles their errors but has no form (an upload row, a submit button with a checkbox, a set of admin decisions): what happens on each action, on success and on each error, and the state the part shows (progress, a message) |
 | The call hook | `features/<feature>/hooks/use-<feature>.ts` | One TanStack Query hook per call, with its address, typed input and typed answer |
 | `lib/http.ts` | | The only place the browser calls our server: our forgery header, a time limit, and every failure becomes an `AppError` |
 | Our endpoint | `app/api/<area>/…/route.ts` | Checks the request and calls the feature's server code |
@@ -389,7 +391,8 @@ Every cookie uses the `__Host-` prefix, `Secure`, `HttpOnly`, `SameSite=Lax`, pa
 **Rules.**
 - **One way to submit:** `handleSubmit(onValid, onInvalid)` in the screen, `mutate` with `onSuccess` and `onError` in the form hook.
 - **One form hook per form,** each in its own file when a feature has more than one form (`use-vendor-address-form.ts`).
-- **No `try`/`catch` and no `toAppError` in screens or form hooks.** A call hook may turn one expected error into a value, with a comment saying why (`useMyVendor` returns `null` for `VENDOR_NOT_FOUND`).
+- **One action hook per action part** (`use-document-upload.ts`, `use-vendor-submit.ts`), with the same rules as a form hook: `mutate` with named `onSuccess` and `onError` functions.
+- **No `try`/`catch` and no `toAppError` in screens, form hooks or action hooks.** A call hook may turn one expected error into a value, with a comment saying why (`useMyVendor` returns `null` for `VENDOR_NOT_FOUND`).
 - **A screen with a form never calls a call hook itself.** A small action without a form (a Remove button) may.
 - **A value that must survive a step change belongs to the parent** (the phone form lives in `LoginForm`).
 - **Hooks that are kept, and why.** Each has a job that would otherwise be repeated in every screen or would put timing work into the screen:
