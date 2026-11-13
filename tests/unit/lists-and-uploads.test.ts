@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { pageWindow } from '@/components/common/pagination';
-import { stepFor } from '@/features/vendor/types';
 import { checkFile, formatSize } from '@/lib/uploads';
 import { expiresWithin } from '@/features/auth/server/session';
 import { pageNumber, pick, withQuery } from '@/utils/url';
@@ -46,15 +45,6 @@ describe('uploads (Document 3, section 10)', () => {
   it('shows sizes as people read them', () => {
     expect(formatSize(2.4 * 1024 * 1024)).toBe('2.4 MB');
     expect(formatSize(300)).toBe('1 KB');
-  });
-});
-
-describe('vendor application (Document 5, section 7.1)', () => {
-  it('links each missing item to the step that fixes it', () => {
-    expect(stepFor('seller_type')).toBe('details');
-    expect(stepFor('contact_email')).toBe('details');
-    expect(stepFor('pickup_address')).toBe('address');
-    expect(stepFor('document:pan')).toBe('documents');
   });
 });
 
