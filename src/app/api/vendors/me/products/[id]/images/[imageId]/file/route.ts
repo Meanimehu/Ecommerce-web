@@ -1,12 +1,18 @@
 import type { NextRequest } from 'next/server';
-import * as productApi from '@/features/product/server/product-api';
-import { photoSize } from '@/lib/uploads';
 import { fileAsUser } from '@/features/auth/server/answer-as-user';
+import * as productApi from '@/features/product/server/product-api';
+import { photoSizeOf } from '@/features/product/types';
 
-/** GET /api/vendors/me/products/{id}/images/{imageId}/file?size=: a private photo, streamed through our server (D3-04). */
+/**
+ * GET /api/vendors/me/products/{id}/images/{imageId}/file?size=: a private photo, streamed through
+ * our server (D3-04).
+ */
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string; imageId: string }> }) {
+type Context = { params: Promise<{ id: string; imageId: string }> };
+
+export async function GET(request: NextRequest, { params }: Context) {
   const { id, imageId } = await params;
-  return fileAsUser(request, (token) => productApi.openMyPhoto(token, id, imageId, photoSize(request.nextUrl.searchParams.get('size'))));
+  const size = photoSizeOf(request.nextUrl.searchParams.get('size'));
+  return fileAsUser(request, (token) => productApi.openMyPhoto(token, id, imageId, size));
 }

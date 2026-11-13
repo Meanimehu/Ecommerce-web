@@ -5,7 +5,9 @@ import * as moderationApi from '@/features/product/server/moderation-api';
 /** GET /api/moderation/products/{id}: a product for review. */
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+type Context = { params: Promise<{ id: string }> };
+
+export async function GET(request: NextRequest, { params }: Context) {
   const { id } = await params;
-  return answerAsUser(request, (token) => moderationApi.getForReview(token, id));
+  return answerAsUser(request, (token) => moderationApi.getProductForReview(token, id));
 }

@@ -4,115 +4,200 @@ import { useSearchParams } from 'next/navigation';
 import { Banner } from '@/components/ui/banner';
 import { Breadcrumbs } from '@/components/common/breadcrumbs';
 import { LoadingBlock, PartError } from '@/components/common/load-states';
-import { Steps, type Step } from '@/components/common/steps';
-import { useDictionaries, useMyProduct } from '@/features/product/hooks/use-product';
-import { useMyVendor } from '@/features/vendor/hooks/use-vendor';
-import { fill } from '@/lib/errors';
-import { type Locale } from '@/lib/i18n';
+import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import type { Dictionaries, ProductView } from '@/features/product/types';
+import { useMyVendor } from '@/features/vendor/hooks/use-vendor';
+import { VendorStatus } from '@/features/vendor/types';
+import { useDictionaries, useMyProduct } from '@/features/product/hooks/use-product';
+import {
+  canEditProduct,
+  ProductStatus,
+  ProductStep,
+  productStepToShow,
+  type Dictionaries,
+  type ProductView,
+} from '@/features/product/types';
 import { AttributesStep } from './attributes-step';
 import { BasicsStep } from './basics-step';
 import { PhotosStep } from './photos-step';
-import { ReviewStep } from './review-step';
-import { canEditProduct, ProductStatusChip } from './product-status-chip';
-import { PRODUCT_STEPS, productStepFor, type ProductStep } from './product-steps';
+import { ProductStatusChip } from './product-status-chip';
+import { ProductStepNav } from './product-step-nav';
 import { ProductSummary } from './product-summary';
+import { ReviewStep } from './review-step';
 import { VariantsStep } from './variants-step';
 
 /**
- * Add or edit a product (Document 5, section 7.3; approved Stage 5): five steps, saved as a draft after the first
- * (basics, attributes, variants, photos, review), with the step in the address. A product in review or live is shown
- * read-only: an approved product is changed through a revision (Slice 4). A rejected product shows the moderator's
- * reason at the top. A vendor that is not approved sees everything and changes nothing (Document 5, section 7.5).
+ * Add or edit a product (Document 5, section 7.3; approved Stage 5): five steps, saved as a draft
+ * after the first (basics, attributes, variants, photos, review), with the step in the address. A
+ * product in review or live is shown read-only: an approved product is changed through a revision
+ * (Slice 4). A rejected product shows the moderator's reason at the top. A vendor that is not
+ * approved sees everything and changes nothing (Document 5, section 7.5).
  */
 export function ProductEditor({ lang, id }: { lang: Locale; id: string | null }) {
-  const t = useMessages();
-  const p = t.product;
-  const params = useSearchParams();
+  const messages = useMessages();
+  const productMessages = messages.product;
+  const searchParams = useSearchParams();
   const dictionaries = useDictionaries();
-  const vendor = useMyVendor();
-  const product = useMyProduct(id);
-  const base = `/${lang}/vendor/products`;
-  const crumbs = [{ label: p.title, href: base }, { label: id ? (product.data?.title ?? p.product) : p.add }];
+  const myVendor = useMyVendor();
+  const myProduct = useMyProduct(id);
+  const isLoading =
+    dictionaries.isPending || myVendor.isPending || (id !== null && myProduct.isPending);
+  const loadError = dictionaries.error ?? myVendor.error ?? (id !== null ? myProduct.error : null);
+  const crumbs = [
+    { label: productMessages.title, href: `/${lang}/vendor/products` },
+    { label: id ? (myProduct.data?.title ?? productMessages.product) : productMessages.add },
+  ];
 
-  const loading = dictionaries.isPending || vendor.isPending || (id !== null && product.isPending);
-  const failed = dictionaries.error ?? vendor.error ?? (id !== null ? product.error : null);
-  let body;
-  if (loading) body = <LoadingBlock messages={t} lines={6} />;
-  else if (failed) body = <PartError error={failed} onRetry={() => void Promise.all([dictionaries.refetch(), vendor.refetch(), id ? product.refetch() : null])} messages={t} />;
-  else {
-    const dict = dictionaries.data as Dictionaries;
-    const approved = vendor.data?.status === 'approved';
+  function reloadAll() {
+    void Promise.all([dictionaries.refetch(), myVendor.refetch(), id ? myProduct.refetch() : null]);
+  }
+
+  function editorBody() {
+    if (isLoading) return <LoadingBlock messages={messages} lines={6} />;
+    if (loadError) return <PartError error={loadError} onRetry={reloadAll} messages={messages} />;
+    // Loaded: the dictionaries are there, and the product too when there is one.
+    const loadedDictionaries = dictionaries.data as Dictionaries;
+    const isVendorApproved = myVendor.data?.status === VendorStatus.Approved;
     if (!id) {
-      body = approved ? (
-        <div className="grid gap-5">
-          <StepNav lang={lang} product={null} current="basics" />
-          <BasicsStep lang={lang} product={null} dictionaries={dict} />
-        </div>
-      ) : (
-        <Banner tone="info">{p.notApproved}</Banner>
-      );
-    } else {
-      const view = product.data as ProductView;
-      const asked = params.get('step');
-      const step = (PRODUCT_STEPS as readonly string[]).includes(asked ?? '') ? (asked as ProductStep) : view.missing[0] ? productStepFor(view.missing[0]) : 'review';
-      const editable = approved && canEditProduct(view.status);
-      body = (
-        <div className="grid gap-5">
-          <div className="flex flex-wrap items-center justify-between gap-3 stitch-bottom pb-3">
-            <h1 className="type-h2 text-ink">{view.title}</h1>
-            <ProductStatusChip status={view.status} t={t} />
-          </div>
-          {view.statusReason && (view.status === 'rejected' || view.status === 'unpublished') ? (
-            <Banner tone="error" title={p.moderatorReason}>
-              {/* The moderator's own words, as the backend sends them. */}
-              <p className="whitespace-pre-line">{view.statusReason}</p>
-            </Banner>
-          ) : null}
-          {!approved ? <Banner tone="info">{p.notApproved}</Banner> : view.status === 'submitted' ? <Banner tone="info">{p.inReview}</Banner> : view.status === 'approved' ? <Banner tone="success">{p.live}</Banner> : null}
-          {editable ? (
-            <>
-              <StepNav lang={lang} product={view} current={step} />
-              {step === 'basics' ? <BasicsStep lang={lang} product={view} dictionaries={dict} /> : null}
-              {step === 'attributes' ? <AttributesStep lang={lang} product={view} dictionaries={dict} /> : null}
-              {step === 'variants' ? <VariantsStep lang={lang} product={view} dictionaries={dict} /> : null}
-              {step === 'photos' ? <PhotosStep lang={lang} product={view} /> : null}
-              {step === 'review' ? <ReviewStep lang={lang} product={view} /> : null}
-            </>
-          ) : (
-            <ProductSummary product={view} dictionaries={dict} />
-          )}
-        </div>
+      return (
+        <NewProduct
+          lang={lang}
+          dictionaries={loadedDictionaries}
+          isVendorApproved={isVendorApproved}
+        />
       );
     }
+    return (
+      <ExistingProduct
+        lang={lang}
+        product={myProduct.data as ProductView}
+        dictionaries={loadedDictionaries}
+        isVendorApproved={isVendorApproved}
+        askedStep={searchParams.get('step')}
+      />
+    );
   }
 
   return (
     <div className="grid max-w-[880px] gap-5">
-      <Breadcrumbs label={t.nav.breadcrumbs} items={crumbs} />
-      {!id ? <h1 className="type-h2 stitch-bottom pb-3 text-ink">{p.add}</h1> : null}
-      {body}
+      <Breadcrumbs label={messages.nav.breadcrumbs} items={crumbs} />
+      {!id ? <h1 className="type-h2 stitch-bottom pb-3 text-ink">{productMessages.add}</h1> : null}
+      {editorBody()}
     </div>
   );
 }
 
-function StepNav({ lang, product, current }: { lang: Locale; product: ProductView | null; current: ProductStep }) {
-  const t = useMessages();
-  const p = t.product;
-  const missing = product?.missing ?? [];
-  const done = (step: ProductStep) => product !== null && step !== 'review' && !missing.some((m) => productStepFor(m) === step);
-  const steps: Step[] = PRODUCT_STEPS.map((key) => ({
-    key,
-    label: p.steps[key],
-    short: p.steps.short[key],
-    href: product ? `/${lang}/vendor/products/${product.id}?step=${key}` : `/${lang}/vendor/products/add`,
-    done: done(key),
-  }));
+/** A product that is not made yet: only the first step, and only for an approved vendor. */
+function NewProduct({
+  lang,
+  dictionaries,
+  isVendorApproved,
+}: {
+  lang: Locale;
+  dictionaries: Dictionaries;
+  isVendorApproved: boolean;
+}) {
+  const productMessages = useMessages().product;
+  if (!isVendorApproved) return <Banner tone="info">{productMessages.notApproved}</Banner>;
   return (
-    <>
-      <Steps steps={product ? steps : steps.slice(0, 1)} current={current} label={p.steps.label} doneLabel={p.steps.done} />
-      <p className="sr-only">{fill(p.stepOf, { step: PRODUCT_STEPS.indexOf(current) + 1, count: PRODUCT_STEPS.length, name: p.steps[current] })}</p>
-    </>
+    <div className="grid gap-5">
+      <ProductStepNav lang={lang} product={null} currentStep={ProductStep.Basics} />
+      <BasicsStep lang={lang} product={null} dictionaries={dictionaries} />
+    </div>
   );
+}
+
+function ExistingProduct({
+  lang,
+  product,
+  dictionaries,
+  isVendorApproved,
+  askedStep,
+}: {
+  lang: Locale;
+  product: ProductView;
+  dictionaries: Dictionaries;
+  isVendorApproved: boolean;
+  askedStep: string | null;
+}) {
+  const messages = useMessages();
+  const productMessages = messages.product;
+  const currentStep = productStepToShow(askedStep, product.missing);
+  const isEditable = isVendorApproved && canEditProduct(product.status);
+  const hasModeratorReason =
+    Boolean(product.statusReason) &&
+    (product.status === ProductStatus.Rejected || product.status === ProductStatus.Unpublished);
+
+  return (
+    <div className="grid gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 stitch-bottom pb-3">
+        <h1 className="type-h2 text-ink">{product.title}</h1>
+        <ProductStatusChip status={product.status} messages={messages} />
+      </div>
+      {hasModeratorReason ? (
+        <Banner tone="error" title={productMessages.moderatorReason}>
+          {/* The moderator's own words, as the backend sends them. */}
+          <p className="whitespace-pre-line">{product.statusReason}</p>
+        </Banner>
+      ) : null}
+      <ProductNotice status={product.status} isVendorApproved={isVendorApproved} />
+      {isEditable ? (
+        <>
+          <ProductStepNav lang={lang} product={product} currentStep={currentStep} />
+          <CurrentStep
+            lang={lang}
+            step={currentStep}
+            product={product}
+            dictionaries={dictionaries}
+          />
+        </>
+      ) : (
+        <ProductSummary product={product} dictionaries={dictionaries} />
+      )}
+    </div>
+  );
+}
+
+/** Why the product cannot be changed now, if it cannot: the vendor, or its status. */
+function ProductNotice({
+  status,
+  isVendorApproved,
+}: {
+  status: ProductStatus;
+  isVendorApproved: boolean;
+}) {
+  const productMessages = useMessages().product;
+  if (!isVendorApproved) return <Banner tone="info">{productMessages.notApproved}</Banner>;
+  if (status === ProductStatus.Submitted) {
+    return <Banner tone="info">{productMessages.inReview}</Banner>;
+  }
+  if (status === ProductStatus.Approved) {
+    return <Banner tone="success">{productMessages.live}</Banner>;
+  }
+  return null;
+}
+
+function CurrentStep({
+  lang,
+  step,
+  product,
+  dictionaries,
+}: {
+  lang: Locale;
+  step: ProductStep;
+  product: ProductView;
+  dictionaries: Dictionaries;
+}) {
+  switch (step) {
+    case ProductStep.Basics:
+      return <BasicsStep lang={lang} product={product} dictionaries={dictionaries} />;
+    case ProductStep.Attributes:
+      return <AttributesStep lang={lang} product={product} dictionaries={dictionaries} />;
+    case ProductStep.Variants:
+      return <VariantsStep lang={lang} product={product} dictionaries={dictionaries} />;
+    case ProductStep.Photos:
+      return <PhotosStep lang={lang} product={product} />;
+    case ProductStep.Review:
+      return <ReviewStep lang={lang} product={product} />;
+  }
 }

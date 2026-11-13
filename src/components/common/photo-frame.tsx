@@ -31,17 +31,27 @@ export function PhotoFrame({
   dimmed?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
-  const image = useRef<HTMLImageElement>(null);
+  const photoImage = useRef<HTMLImageElement>(null);
   // A photo rendered on the server can fail before the page's scripts run, so its error event is missed: check once.
   useEffect(() => {
-    const img = image.current;
-    if (img?.complete && img.naturalWidth === 0) setFailed(true);
+    const image = photoImage.current;
+    if (image?.complete && image.naturalWidth === 0) setFailed(true);
   }, [src]);
   return (
     <div className={cn('relative aspect-[4/5] overflow-hidden rounded-1 bg-sunken', className)}>
       {src && !failed ? (
         // eslint-disable-next-line @next/next/no-img-element -- the backend makes the sizes; Next.js image processing is not used (D3-04)
-        <img ref={image} src={src} srcSet={srcSet} sizes={sizes} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async" className={cn('size-full object-contain', dimmed && 'opacity-60')} onError={() => setFailed(true)} />
+        <img
+          ref={photoImage}
+          src={src}
+          srcSet={srcSet}
+          sizes={sizes}
+          alt={alt}
+          loading={eager ? 'eager' : 'lazy'}
+          decoding="async"
+          className={cn('size-full object-contain', dimmed && 'opacity-60')}
+          onError={() => setFailed(true)}
+        />
       ) : (
         <div className="flex size-full flex-col items-center justify-center gap-1 p-2 text-center text-ink-2">
           <Shirt aria-hidden="true" strokeWidth={1.5} className="size-8" />
