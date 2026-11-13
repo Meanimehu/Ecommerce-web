@@ -2,35 +2,73 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { get, patch, send } from '@/lib/http';
-import type { Category, CatalogueList, EditableList, GstRate, HsnCode } from '@/features/catalogue/types';
 import type { Page } from '@/types/common';
 import { withQuery, type Query } from '@/utils/url';
+import {
+  CatalogueList,
+  type AddBody,
+  type Category,
+  type ChangeBody,
+  type EditableList,
+  type GstRate,
+  type HsnCode,
+} from '@/features/catalogue/types';
 
 /**
- * The admin catalogue lists (backend Area 3a), for the screens (D-02), through our /api/admin/catalogue endpoints.
- * After a change the list is read again, so the screen shows what the backend holds (its answer to a change can carry
- * an older updatedAt: area-3a-catalogue.md, "Rules for the admin lists").
+ * The calls of `catalogue`, one hook per call, through our /api/admin/catalogue endpoints (D-02).
+ * After a change the lists are read again, so the screen shows what the backend holds: its answer
+ * to a change can carry an older updatedAt (area-3a-catalogue.md, "Rules for the admin lists").
  */
-export const catalogueKeys = { list: (list: CatalogueList, query: Query = {}) => ['catalogue', 'admin', list, query] as const };
+const listPath = (list: CatalogueList) => `/api/admin/catalogue/${list}`;
 
-export function useCatalogueList<T>(list: CatalogueList, query: Query = {}) {
+/** The backend's largest page: enough for every active GST rate and HSN code as a choice. */
+const LARGEST_PAGE = 100;
+
+export const catalogueKeys = {
+  /** Every admin catalogue read. */
+  admin: ['catalogue', 'admin'] as const,
+  list: (list: CatalogueList, query: Query = {}) => ['catalogue', 'admin', list, query] as const,
+};
+
+export function useCatalogueList<Item>(list: CatalogueList, query: Query = {}) {
   return useQuery({
     queryKey: catalogueKeys.list(list, query),
-    queryFn: () => get<Page<T> | { items: T[] }>(withQuery(`/api/admin/catalogue/${list}`, query)),
+    queryFn: () => get<Page<Item> | { items: Item[] }>(withQuery(listPath(list), query)),
     staleTime: 30_000,
   });
 }
 
-/** Active GST rates and HSN codes, for the default-tax choices (up to 100 each, the backend's largest page). */
-export const useActiveGstRates = () => useCatalogueList<GstRate>('gst-rates', { isActive: 'true', limit: 100 });
-export const useActiveHsnCodes = () => useCatalogueList<HsnCode>('hsn-codes', { isActive: 'true', limit: 100 });
-export const useAllCategories = () => useCatalogueList<Category>('categories');
+/** Active GST rates and HSN codes, for the default-tax choices. */
+export const useActiveGstRates = () =>
+  useCatalogueList<GstRate>(CatalogueList.GstRates, { isActive: 'true', limit: LARGEST_PAGE });
+export const useActiveHsnCodes = () =>
+  useCatalogueList<HsnCode>(CatalogueList.HsnCodes, { isActive: 'true', limit: LARGEST_PAGE });
+export const useAllCategories = () => useCatalogueList<Category>(CatalogueList.Categories);
 
-export function useSaveCatalogueItem(list: EditableList) {
+function useReloadCatalogue() {
   const queryClient = useQueryClient();
+  return () => queryClient.invalidateQueries({ queryKey: catalogueKeys.admin });
+}
+
+export function useAddCatalogueItem<List extends EditableList>(list: List) {
+  const reloadCatalogue = useReloadCatalogue();
   return useMutation({
-    mutationFn: ({ id, body }: { id?: string; body: Record<string, unknown> }) =>
-      id ? patch<unknown>(`/api/admin/catalogue/${list}/${encodeURIComponent(id)}`, body) : send<unknown>(`/api/admin/catalogue/${list}`, body),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['catalogue', 'admin'] }),
+    mutationFn: (body: AddBody<List>) => send<unknown>(listPath(list), body),
+    onSettled: reloadCatalogue,
+  });
+}
+
+export interface CatalogueChange<List extends EditableList> {
+  id: string;
+  body: ChangeBody<List>;
+}
+
+/** Changes one entry; switching it off or on is a change of isActive. */
+export function useChangeCatalogueItem<List extends EditableList>(list: List) {
+  const reloadCatalogue = useReloadCatalogue();
+  return useMutation({
+    mutationFn: ({ id, body }: CatalogueChange<List>) =>
+      patch<unknown>(`${listPath(list)}/${encodeURIComponent(id)}`, body),
+    onSettled: reloadCatalogue,
   });
 }
