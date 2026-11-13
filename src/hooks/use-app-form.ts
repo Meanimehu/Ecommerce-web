@@ -19,18 +19,25 @@ import type { Messages } from '@/lib/i18n';
  * it, and an error clears as soon as the value is valid (D6-25). After a failed submit focus goes
  * to the error summary, never to a field (Document 5, section 10). The schema checks only a missing
  * value or a wrong shape; content rules are the backend's.
+ *
+ * A form that changes something already saved sends only the changed fields: its form hook reads
+ * `form.formState.dirtyFields` when Save is pressed (Document 7, 20.9). React Hook Form keeps that
+ * list up to date only for a form that reads it while it draws, so it is read here on every draw;
+ * without this it is still empty when Save is pressed, and nothing is sent.
  */
 export function useAppForm<TValues extends FieldValues, TOutput extends FieldValues = TValues>(
   schema: z.ZodType<TOutput, TValues>,
   defaultValues: DefaultValues<TValues>,
 ) {
-  return useForm<TValues, unknown, TOutput>({
+  const form = useForm<TValues, unknown, TOutput>({
     resolver: zodResolver(schema),
     defaultValues,
     mode: 'onTouched',
     reValidateMode: 'onChange',
     shouldFocusError: false,
   });
+  void form.formState.dirtyFields;
+  return form;
 }
 
 /**
