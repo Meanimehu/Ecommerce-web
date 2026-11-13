@@ -1,4 +1,4 @@
-import { PhotoFrame } from '@/components/product/photo-frame';
+import { PhotoFrame } from '@/components/common/photo-frame';
 import type { Locale, Messages } from '@/lib/i18n';
 import { productPath, type ProductCard as Card } from '@/types/catalogue';
 import { Price } from './price';

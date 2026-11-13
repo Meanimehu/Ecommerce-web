@@ -178,7 +178,7 @@ The application page is open to any logged-in person. Every other row needs a pe
 | Vendor application | `/{lang}/vendor/apply` | Section 7.1 | 2 | Any logged-in person (own application) |
 | Vendor home | `/{lang}/vendor` | Needs-attention list | 2, 3b, 4, 5 | n/a |
 | Business profile | `/{lang}/vendor/profile` | Details, addresses, documents | 2 | Per application status (section 4); the backend decides |
-| Products (list, new, edit) | `/{lang}/vendor/products...` | Section 7.3 | 3b | Approved vendor |
+| Products (list, add, edit) | `/{lang}/vendor/products`, `/{lang}/vendor/products/add`, `/{lang}/vendor/products/{id}` | Section 7.3 | 3b | Approved vendor |
 | Imports | `/{lang}/vendor/imports...` | CSV import | 3b | Upload and confirm: approved vendor. Read and template: any vendor status |
 | Stock | `/{lang}/vendor/stock...` | Section 7.4 | 4 | Approved vendor |
 | Sales | `/{lang}/vendor/sales...` | Time-boxed sale prices: list, create, cancel. Not editable (cancel and recreate) | 5 | Create and cancel: approved vendor. Read: any vendor status |
@@ -320,3 +320,4 @@ Cases where the screen shows data that has since changed on the server, with the
 | 23 | Open items reviewed on 9 Nov 2026: V5-5 (needs an implementation check), Q5-1 (banners and featured lists) and Q5-4 (Document 4 note) stay open; no new decision was made. "Vendor area" and "Admin area" wording aligned in Documents 1, 2 and 4 | 14, 16 | Done |
 | 24 | Final decisions of 9 Nov 2026 applied: home hero is one static product cover photo with no button, banners and featured lists deferred (D5-16, Q5-1); wordmark in the header (5); V5-5 traced and the smallest fix identified, still open; Q5-4 settled (D4-09) | 2, 5, 6.1, 14, 16 | Done; V5-5 open |
 | 25 | Hero details (D5-17); V5-5 pointed to Document 7 (T7-4); Q4-3, Q4-4, Q3-1, Q3-3 and Q-2 now answered in Document 7 | 2, 14, 16 | Done; V5-5 open |
+| 26 | 13 Nov 2026: the vendor's product addresses written out; the page for adding a product is `/{lang}/vendor/products/add` (owner; Document 7, 20.2 and 20.13 step 6). No decision changed | 8 | Done |

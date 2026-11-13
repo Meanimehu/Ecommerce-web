@@ -45,6 +45,9 @@ export const VENDOR_OWNER_ROLE = 'vendor_owner';
 /** The staff role that reviews vendors and runs the admin lists (api-contract.md, section 2). */
 export const ADMIN_ROLE = 'admin';
 
+/** The staff role that reviews vendors' products (api-contract.md, section 2). */
+export const MODERATOR_ROLE = 'moderator';
+
 /** Staff roles: api-contract.md, section 2. */
 export const STAFF_ROLES = ['admin', 'moderator', 'finance', 'support', 'marketing'] as const;
 

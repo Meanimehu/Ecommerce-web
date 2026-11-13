@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PhotoFrame } from '@/components/product/photo-frame';
+import { PhotoFrame } from '@/components/common/photo-frame';
 import { fill } from '@/lib/errors';
 import { useMessages } from '@/lib/messages-context';
 import type { ProductDetail } from '@/types/catalogue';
