@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { CatalogueScreen } from '@/features/catalogue/components/catalogue-screen';
 import { requireUser } from '@/features/auth/components/require-user';
-import { isEditableList } from '@/types/catalogue';
+import { isEditableList } from '@/features/catalogue/types';
 
 /** One catalogue list (Document 5, section 8.3): admin only. */
 export default async function CatalogueListPage({ params }: { params: Promise<{ lang: string; list: string }> }) {

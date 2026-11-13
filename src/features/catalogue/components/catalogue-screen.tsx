@@ -19,7 +19,7 @@ import { useCatalogueList, useSaveCatalogueItem } from '@/features/catalogue/hoo
 import { fill, messageFor, toAppError } from '@/lib/errors';
 import { type Locale, type Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import { EDITABLE_LISTS, inTreeOrder, type Brand, type Category, type Colour, type EditableList, type HsnCode, type Size } from '@/types/catalogue';
+import { EDITABLE_LISTS, inTreeOrder, type Brand, type Category, type Colour, type EditableList, type HsnCode, type Size } from '@/features/catalogue/types';
 import { cn } from '@/utils/cn';
 import { formatRate } from '@/utils/format';
 import { pageNumber, withQuery } from '@/utils/url';

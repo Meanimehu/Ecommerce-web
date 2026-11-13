@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { get, patch, send } from '@/lib/http';
-import type { Category, CatalogueList, EditableList, GstRate, HsnCode } from '@/types/catalogue';
+import type { Category, CatalogueList, EditableList, GstRate, HsnCode } from '@/features/catalogue/types';
 import type { Page } from '@/types/common';
 import { withQuery, type Query } from '@/utils/url';
 

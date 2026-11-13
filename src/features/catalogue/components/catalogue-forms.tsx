@@ -24,7 +24,7 @@ import {
   type GstRate,
   type HsnCode,
   type Size,
-} from '@/types/catalogue';
+} from '@/features/catalogue/types';
 import { formatRate } from '@/utils/format';
 
 /**

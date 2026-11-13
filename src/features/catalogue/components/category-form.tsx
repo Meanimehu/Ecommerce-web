@@ -23,7 +23,7 @@ import {
   type Category,
   type CategoryFormInput,
   type HsnCode,
-} from '@/types/catalogue';
+} from '@/features/catalogue/types';
 import { CatalogueFormFrame, useRateOptions } from './catalogue-forms';
 
 /**

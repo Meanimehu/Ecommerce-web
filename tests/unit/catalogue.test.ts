@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { attributeBody, inTreeOrder, type Category } from '@/types/catalogue';
+import { attributeBody, inTreeOrder, type Category } from '@/features/catalogue/types';
 import { formatRate } from '@/utils/format';
 
 const category = (id: string, parentId: string | null, name: string, sortOrder = 0): Category => ({

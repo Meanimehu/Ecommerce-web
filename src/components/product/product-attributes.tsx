@@ -14,7 +14,7 @@ import { useChangeProduct } from '@/hooks/use-product';
 import { requestIdOf, toAppError } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import type { Attribute } from '@/types/catalogue';
+import type { Attribute } from '@/features/catalogue/types';
 import { flattenCategories, type Dictionaries, type ProductView } from '@/types/product';
 
 /**

@@ -1,9 +1,9 @@
 import type { NextRequest } from 'next/server';
-import * as catalogueApi from '@/api/catalogue';
+import * as catalogueApi from '@/features/catalogue/server/catalogue-api';
 import { jsonObject } from '@/middleware/endpoint';
 import { fail } from '@/middleware/responses';
 import { answerAsUser } from '@/features/auth/server/answer-as-user';
-import { isEditableList } from '@/types/catalogue';
+import { isEditableList } from '@/features/catalogue/types';
 
 /** PATCH /api/admin/catalogue/{list}/{id}: change one entry, or switch it off or on (isActive). */
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ list: string; id: string }> }) {

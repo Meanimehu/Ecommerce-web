@@ -1,9 +1,9 @@
 import type { NextRequest } from 'next/server';
-import * as catalogueApi from '@/api/catalogue';
+import * as catalogueApi from '@/features/catalogue/server/catalogue-api';
 import { jsonObject } from '@/middleware/endpoint';
 import { fail } from '@/middleware/responses';
 import { answerAsUser } from '@/features/auth/server/answer-as-user';
-import { isCatalogueList, isEditableList } from '@/types/catalogue';
+import { isCatalogueList, isEditableList } from '@/features/catalogue/types';
 import { pick } from '@/utils/url';
 
 /** GET and POST /api/admin/catalogue/{list}: read a catalogue list, or add to it (area-3a-catalogue.md). */
