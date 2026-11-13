@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { AppError } from '@/lib/errors';
-import { refreshSession } from '@/middleware/session';
+import { refreshSession } from '@/features/auth/server/session';
 
 const fresh = { accessToken: 'new-access', refreshToken: 'new-refresh', expiresIn: 86400 };
 

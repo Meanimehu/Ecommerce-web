@@ -1,7 +1,8 @@
 import type { NextRequest } from 'next/server';
 import * as productApi from '@/api/product';
-import { answerAsUser, jsonObject } from '@/middleware/endpoint';
+import { jsonObject } from '@/middleware/endpoint';
 import { fail } from '@/middleware/responses';
+import { answerAsUser } from '@/features/auth/server/answer-as-user';
 
 /** GET, PATCH and DELETE /api/vendors/me/products/{id}: one product in full, a change, or deleting a draft. */
 export const dynamic = 'force-dynamic';

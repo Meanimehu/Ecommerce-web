@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import { getMyVendor } from '@/api/vendor';
-import { LogoutButtons } from '@/components/auth/logout-buttons';
-import { requireUser } from '@/components/auth/require-user';
+import { LogoutButtons } from '@/features/auth/components/logout-buttons';
+import { requireUser } from '@/features/auth/components/require-user';
 import { NeedsScript } from '@/components/common/needs-script';
 import { SiteHeader } from '@/components/common/site-header';
 import { AppError } from '@/lib/errors';
 import { getMessages } from '@/lib/messages';
-import { isStaff } from '@/types/auth';
+import { isStaff } from '@/features/auth/types';
 import { formatPhone } from '@/utils/format';
 
 export const dynamic = 'force-dynamic';

@@ -1,7 +1,8 @@
 import type { NextRequest } from 'next/server';
 import * as catalogueApi from '@/api/catalogue';
-import { answerAsUser, jsonObject } from '@/middleware/endpoint';
+import { jsonObject } from '@/middleware/endpoint';
 import { fail } from '@/middleware/responses';
+import { answerAsUser } from '@/features/auth/server/answer-as-user';
 import { isCatalogueList, isEditableList } from '@/types/catalogue';
 import { pick } from '@/utils/url';
 

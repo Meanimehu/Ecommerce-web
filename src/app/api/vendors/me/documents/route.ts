@@ -1,8 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import * as vendorApi from '@/api/vendor';
 import { UPLOAD_RULES } from '@/lib/uploads';
-import { answerAsUser, uploadFrom } from '@/middleware/endpoint';
+import { uploadFrom } from '@/middleware/endpoint';
 import { guardChange } from '@/middleware/responses';
+import { answerAsUser } from '@/features/auth/server/answer-as-user';
 
 /**
  * POST /api/vendors/me/documents: upload one KYC document, passed on to the backend as it arrives (Document 3,

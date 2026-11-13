@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { requireUser } from '@/components/auth/require-user';
+import { requireUser } from '@/features/auth/components/require-user';
 import { CartScreen } from '@/components/cart/cart-screen';
 import { NeedsScript } from '@/components/common/needs-script';
 import { SiteHeader } from '@/components/common/site-header';

@@ -1,8 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import * as productApi from '@/api/product';
 import { UPLOAD_RULES } from '@/lib/uploads';
-import { answerAsUser, uploadFrom } from '@/middleware/endpoint';
+import { uploadFrom } from '@/middleware/endpoint';
 import { guardChange } from '@/middleware/responses';
+import { answerAsUser } from '@/features/auth/server/answer-as-user';
 
 /** POST /api/vendors/me/products/{id}/images: upload one photo, streamed to the backend and sent once only. */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

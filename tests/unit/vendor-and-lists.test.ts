@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { pageWindow } from '@/components/common/pagination';
 import { stepFor } from '@/components/vendor/apply-steps';
 import { checkFile, formatSize } from '@/lib/uploads';
-import { expiresWithin } from '@/middleware/session';
+import { expiresWithin } from '@/features/auth/server/session';
 import { pageNumber, pick, withQuery } from '@/utils/url';
 
 describe('list addresses (Document 4, section 7; Document 5, section 3)', () => {

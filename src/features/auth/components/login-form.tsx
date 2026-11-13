@@ -15,12 +15,13 @@ import {
   usePhoneStep,
   type PhoneStepState,
   type SentCode,
-} from '@/hooks/use-login-form';
-import { SessionNotice, useSessionNotice } from '@/hooks/use-session';
+} from '@/features/auth/hooks/use-login-form';
+import { SessionNotice, useSessionNotice } from '@/features/auth/hooks/use-session-end';
 
 /**
  * The login screen (Document 5, section 6.4): one page for everyone (D2-04), the phone number
- * first, then the code. It only draws; what happens on submit is in hooks/use-login-form.ts.
+ * first, then the code. It only draws; what happens on submit is in
+ * `features/auth/hooks/use-login-form.ts`.
  */
 const FIELD_IDS = { phone: 'login-phone', code: 'login-code' } as const;
 

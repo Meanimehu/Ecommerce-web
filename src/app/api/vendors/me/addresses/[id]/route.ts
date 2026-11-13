@@ -1,7 +1,8 @@
 import type { NextRequest } from 'next/server';
 import * as vendorApi from '@/api/vendor';
-import { answerAsUser, jsonObject } from '@/middleware/endpoint';
+import { jsonObject } from '@/middleware/endpoint';
 import { fail } from '@/middleware/responses';
+import { answerAsUser } from '@/features/auth/server/answer-as-user';
 
 /** PATCH and DELETE /api/vendors/me/addresses/{id}: change or remove one address. */
 type Context = { params: Promise<{ id: string }> };

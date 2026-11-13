@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import * as productApi from '@/api/product';
-import { fileAsUser } from '@/middleware/endpoint';
 import { photoSize } from '@/lib/uploads';
+import { fileAsUser } from '@/features/auth/server/answer-as-user';
 
 /** GET /api/vendors/me/products/{id}/images/{imageId}/file?size=: a private photo, streamed through our server (D3-04). */
 export const dynamic = 'force-dynamic';

@@ -1,12 +1,12 @@
 import 'server-only';
+import { callBackend } from '@/api/client';
 import type { components } from '@/types/generated/backend-api';
 import {
   LoginResultSchema,
   OtpRequestResultSchema,
   RefreshResultSchema,
   UserSchema,
-} from '@/types/auth';
-import { callBackend } from './client';
+} from '@/features/auth/types';
 
 /**
  * Backend Area 1: login and session calls. Request bodies are the generated backend types (D7-02).

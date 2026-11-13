@@ -1,7 +1,8 @@
 import type { NextRequest } from 'next/server';
 import * as vendorApi from '@/api/vendor';
-import { answerAsUser, jsonObject } from '@/middleware/endpoint';
+import { jsonObject } from '@/middleware/endpoint';
 import { fail } from '@/middleware/responses';
+import { answerAsUser } from '@/features/auth/server/answer-as-user';
 
 /** POST /api/vendors/me/submit: submit the application with the terms version the person accepted. */
 export async function POST(request: NextRequest) {

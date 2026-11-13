@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import * as moderationApi from '@/api/moderation';
-import { fileAsUser } from '@/middleware/endpoint';
 import { photoSize } from '@/lib/uploads';
+import { fileAsUser } from '@/features/auth/server/answer-as-user';
 
 /** GET /api/moderation/products/{id}/images/{imageId}/file?size=: a photo under review, streamed (D3-04). */
 export const dynamic = 'force-dynamic';

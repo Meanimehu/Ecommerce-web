@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { CatalogueScreen } from '@/components/admin/catalogue-screen';
-import { requireUser } from '@/components/auth/require-user';
+import { requireUser } from '@/features/auth/components/require-user';
 import { isEditableList } from '@/types/catalogue';
 
 /** One catalogue list (Document 5, section 8.3): admin only. */

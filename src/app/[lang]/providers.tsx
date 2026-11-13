@@ -5,8 +5,8 @@ import { useState, type ReactNode } from 'react';
 import { ToastProvider } from '@/components/common/toast';
 import type { Messages } from '@/lib/i18n';
 import { MessagesProvider } from '@/lib/messages-context';
-import { endSession, endsSession } from '@/hooks/use-session';
 import { AppError } from '@/lib/errors';
+import { endSession, endsSession } from '@/features/auth/hooks/use-session-end';
 
 /**
  * The browser data layer (Document 1, D-02). One cache per browser tab, cleared on logout or a change of person

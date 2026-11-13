@@ -39,6 +39,9 @@ export const RefreshResultSchema = z.object({
   expiresIn: z.number().int().positive(),
 });
 
+/** The role an approved vendor's owner has (api-contract.md, section 2). */
+export const VENDOR_OWNER_ROLE = 'vendor_owner';
+
 /** Staff roles: api-contract.md, section 2. */
 export const STAFF_ROLES = ['admin', 'moderator', 'finance', 'support', 'marketing'] as const;
 

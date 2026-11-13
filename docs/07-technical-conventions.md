@@ -178,10 +178,11 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 16 | 12 Nov 2026 | Slice 2d: page sizes in T7-2 after sending each page only its language's text. No decision changed |
 | 17 | 12 Nov 2026 | **Agreed by the owner (12 Nov 2026):** D7-16 (code practices, section 20), D7-17 (feature folders one feature at a time; `auth` owns the session, its cookies, login, logout and page access, and is used by other features only through its listed public helpers; `layout` owns page frames; shared code depends on no feature; `api/client.ts` is the only code that calls the backend), D7-18 (plain-text logging through `logServerEvent`, levels set by the helper, details limited by its types, no `JSON.stringify` for logging) and D7-19 (slice by slice) added; Q7-4 to Q7-9 added, Q7-4, Q7-5, Q7-6, Q7-8 and Q7-9 settled and Q7-7 given a measuring plan; section 16 rewritten for feature folders, with cookie ownership split between shared tools, `auth` and `cart`; section 17.1: trusting the local certificate when the frontend runs in WSL; section 20 added; T7-2 measurements verified, caching stated from the checked headers, gzip and Brotli kept apart; in 20.1 the `<feature>Keys` naming exception for query-key objects; in 20.9 the hooks that are kept and why; in 20.13 the one-time `sessionKeys` rename (step 3), the split of `types/catalogue.ts` and `api/catalogue.ts` between `catalogue` and `storefront` (steps 5 and 8), and moving `utils/message-checks.ts` to `scripts/` (step 11); the photo frame moves to shared code with `product` (step 6) and the category-tree call hook to `storefront` (step 8); which steps start with a move-only commit; which pull requests are not one feature |
 | 18 | 12 Nov 2026 | Agreed by the owner: in 20.3 other features' public parts sit between shared code and the feature's own files in the import order; in 20.13 the shared components' `t` prop becomes `messages` in its own small pull request after login. No other decision changed |
+| 19 | 12 Nov 2026 | The `auth` pilot (20.13, step 3; pull request #39, for the owner's review): section 16 says `auth` has moved and adds the top-level plain file a feature may have for code `proxy.ts` also uses; the public-helper table in 20.4 takes the pilot's names, and `Unavailable` finds the page's address itself so `currentPath` stays inside `auth` (the owner's choice, 12 Nov 2026); 20.10 says how a call name is written. No decision changed |
 
 ## 16. Names: folders and files
 
-Recorded 10 Nov 2026; folders by kind of code chosen by the owner on 11 Nov 2026; **feature folders agreed on 12 Nov 2026 (D7-17), introduced one feature at a time.** Until a feature has moved, its files stay in the earlier layout (`components/<area>/`, `hooks/use-<area>.ts`, `api/<area>.ts`, `types/<area>.ts`), and the session work stays in `middleware/` until the `auth` pilot moves it (20.13, step 3). `docs/code-map.md` says where each file is.
+Recorded 10 Nov 2026; folders by kind of code chosen by the owner on 11 Nov 2026; **feature folders agreed on 12 Nov 2026 (D7-17), introduced one feature at a time.** Until a feature has moved, its files stay in the earlier layout (`components/<area>/`, `hooks/use-<area>.ts`, `api/<area>.ts`, `types/<area>.ts`). **`auth` has moved** (20.13, step 3, pull request #39), with the session work that was in `middleware/`; reading the pending-add cookie stays in `middleware/cookies.ts` until the `cart` step (step 9). `docs/code-map.md` says where each file is.
 
 | Folder | What goes in it |
 | --- | --- |
@@ -191,6 +192,7 @@ Recorded 10 Nov 2026; folders by kind of code chosen by the owner on 11 Nov 2026
 | `src/features/<feature>/hooks/` | `use-<feature>.ts`: the feature's call hooks, one per API call. `use-<form>-form.ts`: one file per form |
 | `src/features/<feature>/server/` | **Server only:** the feature's backend operations (`<feature>-api.ts`): which call, its input, its answer schema and its rules, each made through `api/client.ts`. Also the server logic the feature's endpoints share |
 | `src/features/<feature>/types.ts` | The feature's Zod schemas and the types made from them, forms included |
+| `src/features/<feature>/<name>.ts` | A plain file at the top of the feature for code that `proxy.ts` uses as well as the server, so it cannot be server only and must not load Zod: `auth`'s `after-login-page.ts` |
 | `src/components/ui/`, `form/`, `common/` | Shared UI: shadcn/ui components (D7-14), form parts (`Form`, fields, the error summary), and pieces two or more features use |
 | `src/lib/` | Shared code that knows the app: settings, the browser's call helper, errors and error codes, HTTP statuses, languages and messages, page addresses (`routes.ts`), the server log helper (`server-log.ts`) |
 | `src/api/client.ts` | **The shared, server-only backend transport client.** Feature server code uses it to make backend calls. It owns the actual HTTP communication: the backend address, time limits, retrying safe reads only, request ids, and checking each answer against the schema the feature gives it. Each feature owns its backend operations, their inputs, their answers and their business rules |
@@ -308,13 +310,13 @@ Every cookie uses the `__Host-` prefix, `Secure`, `HttpOnly`, `SameSite=Lax`, pa
     | --- | --- | --- |
     | `useSession` | browser | Who is logged in, for showing things |
     | `getViewer` | server, page render | Who is logged in |
-    | `requireUser` and its "not available" view | server, pages | The page guard |
+    | `requireUser` and its "not available" view (`Unavailable`) | server, pages | The page guard. `Unavailable` finds the page's own address for its "Try again" link, so no other feature needs the address helper (`currentPath`), which stays inside `auth` |
     | `answerAsUser`, `fileAsUser` | server, endpoints | Run a backend call, or open a private file, as the person |
-    | the after-login page cookie helper | server | Remember the page to return to after login |
+    | `rememberPageAfterLogin` | server, `proxy.ts` | Remember the page to return to after login |
     | `isStaff` | anywhere | Whether a person has a staff role |
-    | the `User` and session answer types | anywhere | The person's shape |
+    | the `User` and `SessionAnswer` types | anywhere | The person's shape |
 
-    The names are today's; the `auth` pilot may rename them to section 20.1 names, and this table changes with them.
+    The names are those of the `auth` pilot (pull request #39). `app/` may also use `auth`'s screens (`LoginForm`, `LogoutButtons`) and, in `providers.tsx`, its session-end handler (`endsSession`, `endSession`).
 - **A feature never uses another feature's screens or form hooks,** and nothing outside `auth` uses its other files (its backend calls, token renewal, its cookie writing).
 - **Who places screens on a page:** only `src/app/` (pages, endpoints and `proxy.ts`) and `layout` put feature screens together. A page may show `LoginForm` from `auth` and the header from `layout`; a feature's own screen never contains another feature's screen.
 - **A component two features need** moves to `components/common/` (for example the photo frame).
@@ -417,7 +419,7 @@ Every cookie uses the `__Host-` prefix, `Secure`, `HttpOnly`, `SameSite=Lax`, pa
 - **Events and levels:**
   - each event is a member of the `ServerEvent` enum;
   - the helper keeps one table that gives every event its level (warning or error), and TypeScript fails the build if an event has no level;
-  - it writes one plain-text line in the backend's style, for example `[requestId] logout_backend_failed code=SESSION_ENDED everywhere=true`.
+  - it writes one plain-text line in the backend's style, for example `[requestId] logout_backend_failed code=SESSION_ENDED everywhere=true`; a backend call name holds a space, so it is written in quotes (`call="POST /auth/logout"`).
 - **No `JSON.stringify` for logging,** in the helper or anywhere else. Any Node.js host records each console line. A structured format is considered only if a log or monitoring service the owner chooses needs one (Q7-2), and only with the owner's approval. Other uses of `JSON.stringify` that are not logging stay as they are: sending request bodies, signed cookie values, browser storage.
 - **What the helper's types allow.** The details argument accepts only these fields; any other field fails to compile:
 

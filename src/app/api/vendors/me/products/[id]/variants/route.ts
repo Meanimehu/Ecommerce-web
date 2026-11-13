@@ -1,7 +1,8 @@
 import type { NextRequest } from 'next/server';
 import * as productApi from '@/api/product';
-import { answerAsUser, jsonObject } from '@/middleware/endpoint';
+import { jsonObject } from '@/middleware/endpoint';
 import { fail } from '@/middleware/responses';
+import { answerAsUser } from '@/features/auth/server/answer-as-user';
 
 /** POST /api/vendors/me/products/{id}/variants: add a variant (one per size and colour). */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

@@ -9,18 +9,20 @@ moved or removed.
 | Folder | What goes in it | Runs in |
 | --- | --- | --- |
 | `app/` | Routing and layouts: pages in `[lang]/`, our own endpoints in `api/` | Both |
-| `components/` | Reusable UI: `ui/` (shadcn), `form/`, `common/`, and one folder per area (`auth/`, `vendor/`, `admin/`) | Browser and server pages |
+| `features/<feature>/` | One folder per feature, once it has moved (Document 7, D7-17): `components/`, `hooks/`, `server/` (server only) and `types.ts`. **`auth` has moved;** the others follow one at a time | Both; `server/` server only |
+| `components/` | Reusable UI: `ui/` (shadcn), `form/`, `common/`, and one folder per area that has not moved yet (`vendor/`, `admin/`, …). `auth/` still holds the Vendor and Admin area frame, which moves with `layout` | Browser and server pages |
 | `hooks/` | Reusable logic: TanStack Query hooks (our "slices") and the form hook | Browser |
 | `api/` | Backend handlers: the calls from our server to the backend | **Server only** |
-| `middleware/` | Login and request handling: who the person is, renewing the login, cookies, endpoint answers | **Server only** |
-| `lib/` | Configs and integrations: settings, the browser's call helper, languages and text, errors | Both |
+| `middleware/` | Shared technical helpers for our endpoints, knowing nothing about the session: answers, the forgery check, public reads, uploads, the cookie list and tools | **Server only** (except `cookies.ts`) |
+| `lib/` | Configs and integrations: settings, the browser's call helper, languages and text, errors, the server log | Both |
 | `utils/` | Helper functions: money, dates, phone numbers | Both |
 | `types/` | Types and the Zod shapes they come from; `generated/` for tool-made files | Both |
 | `messages/` | `en.json` and `hi.json`: every text on screen | Both |
 | `proxy.ts` | The page middleware: language redirect, keeping the after-login page, the page's own address for layout guards, images only from our site and the photo host | Server |
 
-The same area name is used in every folder: everything about login is `components/auth/`, `hooks/use-login.ts`,
-`api/auth.ts`, `types/auth.ts`. A cart would be `components/cart/`, `hooks/use-cart.ts`, `api/cart.ts`, `types/cart.ts`.
+A feature that has moved keeps everything in its folder: everything about login and the session is in
+`features/auth/`. A feature that has not moved yet uses the same name in each old folder: the cart is
+`components/cart/`, `hooks/use-cart.ts`, `api/cart.ts`, `types/cart.ts`.
 
 ## How a request travels
 
@@ -29,29 +31,30 @@ The login code, from the button to the backend and back (Document 7, section 20.
 ```
 BROWSER                                              OUR SERVER                             BACKEND
 ───────                                              ──────────                             ───────
-components/auth/login-form.tsx   draws only
+features/auth/components/login-form.tsx   draws only
   <Form onSubmit={form.handleSubmit(sendCode, showValidationErrors)}>
    │ field check fails → showValidationErrors (summary takes focus); passes → sendCode
    ▼
-hooks/use-login-form.ts   usePhoneStep: sendCode, onSuccess, onError
+features/auth/hooks/use-login-form.ts   usePhoneStep: sendCode, onSuccess, onError
    │ requestLoginCode.mutate(phone, { onSuccess, onError })
    ▼
-hooks/use-login.ts   useRequestLoginCode: the address and the typed answer
+features/auth/hooks/use-auth.ts   useRequestLoginCode: the address and the typed answer
    │
    ▼
 lib/http.ts   send('/api/auth/code') ──────────►  app/api/auth/code/route.ts
   time limit, forgery header,                        │ guardChange: is it from our site?
   every failure becomes an AppError                  ▼
-                                                   api/auth.ts  requestLoginCode()
+                                                   features/auth/server/auth-api.ts
+                                                     requestLoginCode()
                                                      │
                                                    api/client.ts  callBackend() ──────────►  /api/v1/auth/otp/request
-                                                     │ answer checked against types/auth.ts
+                                                     │ answer checked against features/auth/types.ts
    ◄─────────────────────────────────────────────  ok(answer) or the same error code
    ▼
-hooks/use-login-form.ts   onSuccess → the code step;  onError(error: AppError) → message + focus
+features/auth/hooks/use-login-form.ts   onSuccess → the code step;  onError(error: AppError) → message + focus
 ```
 
-- The browser never calls the backend; only `api/` does, on our server (Document 3, D3-03). Public photos are the one
+- The browser never calls the backend; only `api/client.ts` does, on our server (Document 3, D3-03). Public photos are the one
   exception (D3-04).
 - `lib/http.ts` is the browser's "interceptor" and `api/client.ts` is the server's: every call goes through them.
 - `app/[lang]/providers.tsx` holds the one `QueryClient` (the "store"). Its error handler ends the session from any
@@ -59,27 +62,49 @@ hooks/use-login-form.ts   onSuccess → the code step;  onError(error: AppError)
 
 ## Logging in, step by step
 
-1. `/en/login`: `app/[lang]/login/page.tsx` shows `LoginForm` from `components/auth/login-form.tsx`. The screen only
+All the files named here without a folder are in `features/auth/`.
+
+1. `/en/login`: `app/[lang]/login/page.tsx` shows `LoginForm` from `components/login-form.tsx`. The screen only
    draws; its logic is `usePhoneStep` and `useCodeStep` in `hooks/use-login-form.ts`.
-2. The phone number is checked in the browser by `PhoneFormSchema` in `types/auth.ts` (only its shape; the backend decides
+2. The phone number is checked in the browser by `PhoneFormSchema` in `types.ts` (only its shape; the backend decides
    the rest), through `form.handleSubmit` on the `Form` (`components/form/form.tsx`, always a post).
-3. "Send code": `sendCode` calls `useRequestLoginCode` (`hooks/use-login.ts`), which posts to `/api/auth/code` through
+3. "Send code": `sendCode` calls `useRequestLoginCode` (`hooks/use-auth.ts`), which posts to `/api/auth/code` through
    `lib/http.ts`.
 4. `app/api/auth/code/route.ts` checks the request comes from our site (`guardChange` in `middleware/responses.ts`),
-   then calls `requestLoginCode` in `api/auth.ts`.
+   then calls `requestLoginCode` in `server/auth-api.ts`.
 5. The answer comes back to `onSuccess` (go to the code step) or `onError` (an `AppError`: the message under the field
    or in the summary, then focus on the summary). A code sent a moment ago (`OTP_RESEND_WAIT`) still goes to the code
    step and shows the wait.
 6. The code: `verifyCode` calls `useVerifyLoginCode`, which posts to `/api/auth/verify`. That endpoint gets the tokens
-   from the backend, puts them in cookies, runs a pending "Add to cart" once, and says which page comes next.
+   from the backend, puts them in cookies (`setSessionCookies`, `server/session.ts`), runs a pending "Add to cart" once,
+   and says which page comes next: the page remembered by `after-login-page.ts`, else `defaultDestination`.
    "Send code again" (`resendCode`) uses the same call as step 3.
-7. Every page that needs login calls `requireUser` (`components/auth/require-user.tsx`), which asks `getViewer` in
-   `middleware/session.ts` who the person is.
-8. When the access token has expired, `useSession` (`hooks/use-session.ts`) asks `/api/session`, and `refreshSession`
-   in `middleware/session.ts` gets new tokens. Two requests at once share one refresh; tabs and servers at once are
+7. Every page that needs login calls `requireUser` (`components/require-user.tsx`), which asks `getViewer` in
+   `server/session.ts` who the person is.
+8. When the access token has expired, `useSession` (`hooks/use-auth.ts`) asks `/api/session`, and `refreshSession`
+   in `server/session.ts` gets new tokens. Two requests at once share one refresh; tabs and servers at once are
    covered by the backend's 10 seconds (Document 4, D4-11).
-9. If the backend says the session is over, that answer clears the cookies, and `endSession` in
-   `hooks/use-session.ts` takes the person to the login page with "Please log in again".
+9. If the backend says the session is over, that answer clears the cookies (`fromFailure` and `clearSessionCookies`
+   in `server/session.ts`), and `endSession` in `hooks/use-session-end.ts` takes the person to the login page with
+   "Please log in again".
+
+## A call made as the logged-in person
+
+Every endpoint that acts as the person (a vendor saving their details, an admin approving) works the same way:
+
+1. The screen's call hook sends the request through `lib/http.ts`, for example `PATCH /api/vendors/me`.
+2. `app/api/vendors/me/route.ts` calls `answerAsUser` (`features/auth/server/answer-as-user.ts`).
+3. For a change, `answerAsUser` first runs the forgery check (`guardChange`, shared, `middleware/responses.ts`).
+4. `asUser` (`features/auth/server/session.ts`) reads the login cookies and runs the call with the access token. When
+   the token is missing or expired it renews it once (`refreshSession`, through `server/auth-api.ts` and
+   `api/client.ts`) and repeats the call.
+5. If the request cannot run as the person, `fromFailure` (`auth`) answers: 401 when nobody is logged in, 503 "try
+   again" with no cookie changed, or 401/403 with the cookies cleared when the backend confirmed the session is over.
+6. If the call runs and the backend refuses it, `fromAppError` (shared) passes the backend's code on. If it works, the
+   answer goes back, with any renewed cookies set by `setSessionCookies` (`auth`).
+
+Logout is `app/api/auth/logout/route.ts` → `logoutRoute` (`features/auth/server/logout.ts`): the backend is asked to end
+the session, a failure is logged with `logServerEvent`, and `clearSessionCookies` clears the cookies either way.
 
 ## Every file
 
@@ -126,11 +151,7 @@ hooks/use-login-form.ts   onSuccess → the code step;  onError(error: AppError)
 
 | File | What it does |
 | --- | --- |
-| `auth/login-form.tsx` | The login screen: the phone and code steps, drawing only (logic in `hooks/use-login-form.ts`) |
-| `auth/require-user.tsx` | Guard for pages that need login or a role |
-| `auth/session-check.tsx` | Shown while the browser renews an expired login |
-| `auth/logout-buttons.tsx` | "Log out" and "Log out everywhere" |
-| `auth/area-shell.tsx` | The frame of the Admin and Vendor areas: top bar (wordmark, area label, language, account) and the side menu |
+| `auth/area-shell.tsx` | (Moves with `layout`.) The frame of the Admin and Vendor areas: top bar (wordmark, area label, language, account) and the side menu |
 | `auth/area-nav.tsx` | The side menu, and the menu button with its drawer below 1024 px |
 | `auth/area-menus.ts` | What each side menu lists, by role (Admin) or by having a vendor (Vendor) |
 | `vendor/vendor-area.tsx` | Who may open which vendor page; the application page is open to anyone logged in |
@@ -181,10 +202,6 @@ hooks/use-login-form.ts   onSuccess → the code step;  onError(error: AppError)
 
 | File | What it does |
 | --- | --- |
-| `use-session.ts` | `useSession` (who is logged in), `reloadSession`, `endSession`, `SessionNotice` and `useSessionNotice` (the "Please log in again" or blocked notice) |
-| `use-login.ts` | The two login calls: `useRequestLoginCode`, `useVerifyLoginCode` |
-| `use-login-form.ts` | The login form's logic: `usePhoneStep` and `useCodeStep` (submit, success, each error, resend countdown) |
-| `use-logout.ts` | `useLogout` |
 | `use-app-form.ts` | `useAppForm` (React Hook Form with Zod), `applyServerError` (backend errors under the right field), `useErrorSummaryFocus` (focus after a failed submit), message keys |
 | `use-cart.ts` | The cart and its count, add, change, remove, add after login and its notice |
 | `use-product.ts` | The vendor's products: the form guide, list, one product and every change to it |
@@ -197,21 +214,43 @@ hooks/use-login-form.ts   onSuccess → the code step;  onError(error: AppError)
 | File | What it does |
 | --- | --- |
 | `client.ts` | `callBackend`: time limits, retries for reads only, every answer checked against its shape, the customer's address passed on; streamed uploads; `openBackendFile` for private files |
-| `auth.ts` | The login and session calls of backend Area 1 |
 | `vendor.ts` | Backend Area 2: the vendor application and the admin review |
 | `catalogue.ts` | Backend Area 3a: the admin catalogue lists, and the storefront (category tree, product cards, one product) |
 | `product.ts` | Backend Area 3b: the vendor's products, variants and photos |
 | `cart.ts` | Backend Area 5: the cart |
 | `moderation.ts` | Backend Area 3b: moderation |
 
-### `middleware/` — login and request handling (server only)
+### `middleware/` — shared helpers for our endpoints (server only, except `cookies.ts`)
+
+Nothing here knows about the session or any feature, and nothing here imports a feature.
 
 | File | What it does |
 | --- | --- |
-| `session.ts` | Who a request is (`asUser`, `getViewer`), renewing the login (`refreshSession`), logout, where to go after login |
-| `responses.ts` | Answers and errors of our endpoints, setting and clearing cookies, the forgery check |
-| `cookies.ts` | Cookie names, lifetimes and settings, and the signed after-login cookie. Also used by `proxy.ts` |
-| `endpoint.ts` | What every endpoint for the browser does: `answerAsUser` (forgery check, run as the person, renew the login, answer), `answerPublic` (a public read), `uploadFrom` (a streamed upload), `fileAsUser` (a private file) |
+| `responses.ts` | `ok`, `fail`, `fromAppError` (non-session failures; an unexpected one is logged with its request id), the forgery check (`guardChange`), reading a JSON body |
+| `endpoint.ts` | `answerPublic` (a public read), `jsonObject` (a JSON object body), `uploadFrom` (a streamed upload) |
+| `cookies.ts` | Cookie names, lifetimes and settings, `deleteCookie`, signing, the safe-local-path check, the page-address header, and (until the `cart` step) reading the pending add. Also used by `proxy.ts` |
+
+### `features/auth/` — login, logout, the session and page access
+
+Other features use only its public helpers (Document 7, section 20.4): `useSession`, `getViewer`, `requireUser` with
+`Unavailable`, `answerAsUser` and `fileAsUser`, `rememberPageAfterLogin`, `isStaff`, and the `User` and
+`SessionAnswer` types.
+
+| File | What it does |
+| --- | --- |
+| `types.ts` | `User`, `isStaff`, `VENDOR_OWNER_ROLE`, the backend answer schemas, the session answer, the phone and code forms |
+| `after-login-page.ts` | The page to return to after login: `rememberPageAfterLogin`, `readPageAfterLogin`, `forgetPageAfterLogin` (a signed cookie). No server-only import, so `proxy.ts` can use it |
+| `components/login-form.tsx` | The login screen: the phone and code steps, drawing only (logic in `hooks/use-login-form.ts`) |
+| `components/require-user.tsx` | `requireUser`, the guard for pages that need login or a role; `Unavailable` ("try again shortly", with a link back to the same page); `currentPath`, the page's own address, used only inside |
+| `components/session-check.tsx` | Shown while the browser renews an expired login |
+| `components/logout-buttons.tsx` | "Log out" and "Log out everywhere" |
+| `hooks/use-auth.ts` | The call hooks: `useSession` and `sessionKeys`, `reloadSession`, `useRequestLoginCode`, `useVerifyLoginCode`, `useLogout` |
+| `hooks/use-login-form.ts` | The login form's logic: `usePhoneStep` and `useCodeStep` (submit, success, each error, resend countdown) |
+| `hooks/use-session-end.ts` | `endSession` and `endsSession` (ending the session in the browser from any screen), `SessionNotice` and `useSessionNotice` (the "Please log in again" or blocked notice) |
+| `server/auth-api.ts` | The login and session calls of backend Area 1, made through `api/client.ts` |
+| `server/session.ts` | Who a request is (`readAuth`, `asUser`, `getViewer`), renewing the login (`refreshSession`), the session cookies (`setSessionCookies`, `clearSessionCookies`), the answer when a session fails (`fromFailure`), where to go after login (`defaultDestination`) |
+| `server/answer-as-user.ts` | `answerAsUser` (forgery check for a change, run as the person, renew the login, answer) and `fileAsUser` (a private file) |
+| `server/logout.ts` | `logoutRoute`: logout and "log out everywhere" |
 
 ### `lib/`, `utils/`, `types/`
 
@@ -221,6 +260,7 @@ hooks/use-login-form.ts   onSuccess → the code step;  onError(error: AppError)
 | `lib/fonts.ts` | Outfit and Noto Sans Devanagari, from our own site, each loaded only for the characters it covers |
 | `lib/http.ts` | Browser calls to our endpoints: `get`, `send`, `patch`, `put`, `remove` and `upload` (with progress and Cancel), with the time limit and the forgery label; every failure is an `AppError` |
 | `lib/http-status.ts` | `HttpStatus` and the range checks (`isSuccess`, `isClientError`, `isServerError`) |
+| `lib/server-log.ts` | `logServerEvent`: the only way our server writes a log, one plain-text line per event (Document 7, 20.10). Server only |
 | `lib/uploads.ts` | Upload limits copied from the backend, for a quick check before sending; the photo sizes |
 | `lib/i18n.ts` | The two languages and choosing one |
 | `lib/messages.ts` | `getMessages` for server pages; the shared text and the Vendor and Admin areas' own text |
@@ -231,7 +271,6 @@ hooks/use-login-form.ts   onSuccess → the code step;  onError(error: AppError)
 | `utils/cn.ts` | The class-name helper the shadcn/ui tool expects |
 | `utils/url.ts` | Addresses with their query (`withQuery`), page numbers, picking list filters |
 | `utils/message-checks.ts` | What `npm run check:messages` checks (not used by the site) |
-| `types/auth.ts` | User, login and session answers, the phone and code forms |
 | `types/error.ts` | The backend's error answer |
 | `types/common.ts` | Shapes every area shares: a page of a list, a reason |
 | `types/catalogue.ts` | Backend Area 3a lists (GST rate, HSN code, category with attributes, brand, size, colour), their forms, tree order; the storefront's category tree, product card, product, and product addresses |
@@ -258,11 +297,12 @@ hooks/use-login-form.ts   onSuccess → the code step;  onError(error: AppError)
 | Change a text on screen | `messages/en.json` and `hi.json` (both). Text only the Vendor or Admin area uses goes in a section listed in `AREA_SECTIONS` (`lib/messages.ts`) |
 | Change a colour, size or type style | `app/globals.css` (tokens) or the component in `components/ui/` |
 | Change what a backend error says | `errors.codes` in the same two files |
-| Change a form's checks | Its schema in `types/<area>.ts` |
-| Add a backend call | `api/<area>.ts`, with its answer shape in `types/<area>.ts` |
-| Add an endpoint for the browser | `app/api/<area>/…/route.ts`, using `asUser` and `responses.ts` from `middleware/` |
-| Use it on a screen | A hook in `hooks/use-<area>.ts`, then the component in `components/<area>/` |
+| Change a form's checks | Its schema in `features/<feature>/types.ts`, or `types/<area>.ts` for a feature that has not moved |
+| Add a backend call | `features/<feature>/server/<feature>-api.ts` (or `api/<area>.ts` before the feature moves), with its answer shape in its types |
+| Add an endpoint for the browser | `app/api/<area>/…/route.ts`, using `answerAsUser` or `fileAsUser` from `features/auth/server/answer-as-user.ts` when it acts as the person, and `middleware/` for the rest |
+| Use it on a screen | A call hook in the feature's `hooks/use-<feature>.ts`, then the component in its `components/` |
 | Change how backend calls behave (timeouts, retries) | `api/client.ts` |
 | Change a cookie's lifetime | `middleware/cookies.ts` |
 | Change who may open a page | The page's layout, using `requireUser` |
-| Change where people go after login | `defaultDestination` in `middleware/session.ts` |
+| Change where people go after login | `defaultDestination` in `features/auth/server/session.ts` |
+| Log something on the server | Add a `ServerEvent` with its level in `lib/server-log.ts`, then call `logServerEvent` |

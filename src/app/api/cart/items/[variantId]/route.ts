@@ -1,7 +1,8 @@
 import type { NextRequest } from 'next/server';
 import * as cartApi from '@/api/cart';
-import { answerAsUser, jsonObject } from '@/middleware/endpoint';
+import { jsonObject } from '@/middleware/endpoint';
 import { fail } from '@/middleware/responses';
+import { answerAsUser } from '@/features/auth/server/answer-as-user';
 
 /** PATCH (quantity) and DELETE /api/cart/items/{variantId}. */
 type Context = { params: Promise<{ variantId: string }> };

@@ -1,7 +1,8 @@
 import type { NextRequest } from 'next/server';
 import * as productApi from '@/api/product';
-import { answerAsUser, jsonObject } from '@/middleware/endpoint';
+import { jsonObject } from '@/middleware/endpoint';
 import { fail } from '@/middleware/responses';
+import { answerAsUser } from '@/features/auth/server/answer-as-user';
 
 /** PATCH (alt text) and DELETE /api/vendors/me/products/{id}/images/{imageId}. */
 type Context = { params: Promise<{ id: string; imageId: string }> };
