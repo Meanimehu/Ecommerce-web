@@ -6,7 +6,7 @@ import { Breadcrumbs } from '@/components/common/breadcrumbs';
 import { LoadingBlock, PartError } from '@/components/common/load-states';
 import { Steps, type Step } from '@/components/common/steps';
 import { useDictionaries, useMyProduct } from '@/hooks/use-product';
-import { useMyVendor } from '@/hooks/use-vendor';
+import { useMyVendor } from '@/features/vendor/hooks/use-vendor';
 import { fill } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';

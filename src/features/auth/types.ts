@@ -42,6 +42,9 @@ export const RefreshResultSchema = z.object({
 /** The role an approved vendor's owner has (api-contract.md, section 2). */
 export const VENDOR_OWNER_ROLE = 'vendor_owner';
 
+/** The staff role that reviews vendors and runs the admin lists (api-contract.md, section 2). */
+export const ADMIN_ROLE = 'admin';
+
 /** Staff roles: api-contract.md, section 2. */
 export const STAFF_ROLES = ['admin', 'moderator', 'finance', 'support', 'marketing'] as const;
 

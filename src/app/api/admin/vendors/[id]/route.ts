@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { answerAsUser } from '@/features/auth/server/answer-as-user';
-import * as vendorApi from '@/api/vendor';
+import * as vendorApi from '@/features/vendor/server/vendor-api';
 
 /** GET /api/admin/vendors/{id}: one vendor with its addresses and documents. */
 export const dynamic = 'force-dynamic';

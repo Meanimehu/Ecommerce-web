@@ -10,7 +10,7 @@ moved or removed.
 | --- | --- | --- |
 | `app/` | Routing and layouts: pages in `[lang]/`, our own endpoints in `api/` | Both |
 | `features/<feature>/` | One folder per feature, once it has moved (Document 7, D7-17): `components/`, `hooks/`, `server/` (server only) and `types.ts`. **`auth` has moved;** the others follow one at a time | Both; `server/` server only |
-| `components/` | Reusable UI: `ui/` (shadcn), `form/`, `common/`, and one folder per area that has not moved yet (`vendor/`, `admin/`, …). `auth/` still holds the Vendor and Admin area frame, which moves with `layout` | Browser and server pages |
+| `components/` | Reusable UI: `ui/` (shadcn), `form/`, `common/`, and one folder per area that has not moved yet (`admin/`, `catalogue/`, `product/`, …). `auth/` still holds the Vendor and Admin area frame, which moves with `layout` | Browser and server pages |
 | `hooks/` | Reusable logic: TanStack Query hooks (our "slices") and the form hook | Browser |
 | `api/` | Backend handlers: the calls from our server to the backend | **Server only** |
 | `middleware/` | Shared technical helpers for our endpoints, knowing nothing about the session: answers, the forgery check, public reads, uploads, the cookie list and tools | **Server only** (except `cookies.ts`) |
@@ -120,7 +120,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `[lang]/login/page.tsx` | The login page |
 | `[lang]/account/page.tsx` | Account: log out, log out everywhere, the areas this person may open |
 | `[lang]/admin/layout.tsx`, `page.tsx` | Admin area frame (any staff role) and its home with the screens this person's roles can use |
-| `[lang]/admin/vendors/…` | Vendor review: the list, and one application (admin only) |
+| `[lang]/admin/vendors/…` | Vendor review: the list, and one application (admin only); the screens are in `features/vendor/` |
 | `[lang]/admin/catalogue/[list]` | Catalogue lists: categories, HSN codes, brands, sizes, colours (admin only) |
 | `[lang]/admin/moderation/…` | Product moderation: the queue and one product (moderator, admin) |
 | `[lang]/vendor/layout.tsx` | Vendor area: never indexed, always rendered for the person |
@@ -154,13 +154,6 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `auth/area-shell.tsx` | (Moves with `layout`.) The frame of the Admin and Vendor areas: top bar (wordmark, area label, language, account) and the side menu |
 | `auth/area-nav.tsx` | The side menu, and the menu button with its drawer below 1024 px |
 | `auth/area-menus.ts` | What each side menu lists, by role (Admin) or by having a vendor (Vendor) |
-| `vendor/vendor-area.tsx` | Who may open which vendor page; the application page is open to anyone logged in |
-| `vendor/apply-screen.tsx` | Become a vendor: the status card and the four steps |
-| `vendor/apply-steps.ts` | The step names and which step fixes each missing item |
-| `vendor/apply-details.tsx`, `apply-address.tsx`, `apply-documents.tsx`, `apply-review.tsx` | The four steps: details, addresses, documents (upload with progress), review with the terms and submit |
-| `vendor/vendor-status.tsx` | The vendor status chip, and which statuses can be changed |
-| `admin/vendor-list.tsx` | Vendor review list with its filters and pages |
-| `admin/vendor-review.tsx` | One application: details, addresses, documents and the decisions |
 | `admin/catalogue-screen.tsx` | Catalogue lists: the list tabs and one table pattern (status, Edit, Switch off or on, Add) |
 | `admin/catalogue-forms.tsx` | The add and change forms of HSN codes, brands, sizes and colours, and the frame they share |
 | `admin/category-form.tsx` | The category form with its attributes |
@@ -207,14 +200,12 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `use-product.ts` | The vendor's products: the form guide, list, one product and every change to it |
 | `use-moderation.ts` | The moderation queue, one product, the decision, the public category tree |
 | `use-catalogue.ts` | The catalogue lists: `useCatalogueList`, `useSaveCatalogueItem`, active GST rates and HSN codes |
-| `use-vendor.ts` | The own application (`useMyVendor` and its changes, document upload) and the admin review (`useVendorList`, `useVendor`, `useVendorDecision`) |
 
 ### `api/` — calls to the backend (server only)
 
 | File | What it does |
 | --- | --- |
 | `client.ts` | `callBackend`: time limits, retries for reads only, every answer checked against its shape, the customer's address passed on; streamed uploads; `openBackendFile` for private files |
-| `vendor.ts` | Backend Area 2: the vendor application and the admin review |
 | `catalogue.ts` | Backend Area 3a: the admin catalogue lists, and the storefront (category tree, product cards, one product) |
 | `product.ts` | Backend Area 3b: the vendor's products, variants and photos |
 | `cart.ts` | Backend Area 5: the cart |
@@ -238,7 +229,7 @@ Other features use only its public helpers (Document 7, section 20.4): `useSessi
 
 | File | What it does |
 | --- | --- |
-| `types.ts` | `User`, `isStaff`, `VENDOR_OWNER_ROLE`, the backend answer schemas, the session answer, the phone and code forms |
+| `types.ts` | `User`, `isStaff`, `VENDOR_OWNER_ROLE`, `ADMIN_ROLE`, the backend answer schemas, the session answer, the phone and code forms |
 | `after-login-page.ts` | The page to return to after login: `rememberPageAfterLogin`, `readPageAfterLogin`, `forgetPageAfterLogin` (a signed cookie). No server-only import, so `proxy.ts` can use it |
 | `components/login-form.tsx` | The login screen: the phone and code steps, drawing only (logic in `hooks/use-login-form.ts`) |
 | `components/require-user.tsx` | `requireUser`, the guard for pages that need login or a role; `Unavailable` ("try again shortly", with a link back to the same page); `currentPath`, the page's own address, used only inside |
@@ -251,6 +242,32 @@ Other features use only its public helpers (Document 7, section 20.4): `useSessi
 | `server/session.ts` | Who a request is (`readAuth`, `asUser`, `getViewer`), renewing the login (`refreshSession`), the session cookies (`setSessionCookies`, `clearSessionCookies`), the answer when a session fails (`fromFailure`), where to go after login (`defaultDestination`) |
 | `server/answer-as-user.ts` | `answerAsUser` (forgery check for a change, run as the person, renew the login, answer) and `fileAsUser` (a private file) |
 | `server/logout.ts` | `logoutRoute`: logout and "log out everywhere" |
+
+### `features/vendor/` — becoming a vendor, and the admin's vendor review
+
+Admin is a role, not a feature, so the admin's vendor screens are here too. Other features use its call hooks (for
+example `useMyVendor`, which `product` uses); `app/` pages also use `findVendorPresence`.
+
+| File | What it does |
+| --- | --- |
+| `types.ts` | The backend answer schemas (vendor, address, document, admin views); the enums (`VendorStatus`, `SellerType`, `DocumentType`, `DocumentStatus`, `AddressType`, `VendorDecision`, `DocumentDecision`, `MissingItem`, `ApplyStep`); the request bodies from the generated types; the two forms (`VendorDetailsFormSchema`, `VendorAddressFormSchema`); the small rules `stepFor` (which step fixes a missing item) and `isEditable` (which statuses the owner may change) |
+| `components/vendor-area.tsx` | `VendorArea`: who may open which vendor page; the application page is open to anyone logged in |
+| `components/apply-screen.tsx` | Become a vendor: the status card with its one way on, and the four steps |
+| `components/details-step.tsx` | Step 1, business details (logic in `hooks/use-vendor-details-form.ts`) |
+| `components/address-step.tsx`, `address-form.tsx` | Step 2: the addresses with Edit and Remove, and the add/change form (logic in `hooks/use-vendor-address-form.ts`) |
+| `components/documents-step.tsx`, `document-row.tsx` | Step 3: one row per document type, with upload, progress, Cancel, View and Remove (logic in `hooks/use-document-upload.ts`) |
+| `components/review-step.tsx` | Step 4: the checklist, the terms and Submit (logic in `hooks/use-vendor-submit.ts`) |
+| `components/vendor-status-chip.tsx` | The vendor status chip |
+| `components/vendor-list.tsx` | Admin: the vendor review list with its filters and pages |
+| `components/vendor-review.tsx` | Admin: one application, its documents and the decisions (logic in `hooks/use-vendor-decisions.ts`) |
+| `hooks/use-vendor.ts` | The call hooks, one per call: `useMyVendor`, `useApplyAsVendor`, `useUpdateMyVendor`, `useSubmitMyVendor`, `useAddVendorAddress`, `useUpdateVendorAddress`, `useRemoveVendorAddress`, `useUploadVendorDocument`, `useRemoveVendorDocument`, `useVendorList`, `useVendor`, `useDecideVendor`, `useReviewVendorDocument`; `vendorKeys` |
+| `hooks/use-vendor-details-form.ts` | The details form: a new application sends every detail, an existing one only what changed; `GSTIN_TAKEN` goes under its field |
+| `hooks/use-vendor-address-form.ts` | The address form: add or change; an emptied second line is removed |
+| `hooks/use-document-upload.ts` | Action hook: check the file, upload with progress and Cancel, an unknown outcome |
+| `hooks/use-vendor-submit.ts` | Action hook: submit with the terms version; changed terms clear the box |
+| `hooks/use-vendor-decisions.ts` | Action hook: the admin's decisions on the vendor and each document; what approval still lacks |
+| `server/vendor-api.ts` | Backend Area 2: the application and the admin review, made through `api/client.ts` |
+| `server/vendor-presence.ts` | `findVendorPresence`: whether the person has a vendor (`Exists`, `None`, or `Unknown` when the backend cannot be asked), for the vendor area and the account page |
 
 ### `lib/`, `utils/`, `types/`
 
@@ -278,7 +295,6 @@ Other features use only its public helpers (Document 7, section 20.4): `useSessi
 | `types/add-notice.ts` | `AddOutcome` and `AddNotice`: what happened to a pending add at login. Kept free of Zod because every page's header reads it |
 | `types/react-query.d.ts` | Tells TanStack Query that every error is an `AppError` |
 | `types/product.ts` | Backend Area 3b answers (product, variant, photo, form guide, moderation), the product forms, rupees to paise |
-| `types/vendor.ts` | Backend Area 2 answers (vendor, address, document, admin views) and the application forms |
 | `types/generated/` | Request types, the OpenAPI description, the list of backend calls by their listed names (`backend-calls.ts`, used for log lines), the error-code list and the `BackendErrorCode` enum, made by `npm run gen:types` and `gen:error-codes`; never edited |
 
 ### Outside `src/`
