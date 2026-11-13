@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getMyVendor } from '@/api/vendor';
+import { getMyVendor } from '@/features/vendor/server/vendor-api';
 import { LogoutButtons } from '@/features/auth/components/logout-buttons';
 import { requireUser } from '@/features/auth/components/require-user';
 import { NeedsScript } from '@/components/common/needs-script';

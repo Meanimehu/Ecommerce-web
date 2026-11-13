@@ -10,14 +10,14 @@ import { LoadingBlock, PartError } from '@/components/common/load-states';
 import { ReasonDialog } from '@/components/common/reason-dialog';
 import { StatusChip, type ChipTone } from '@/components/common/status-chip';
 import { useToast } from '@/components/common/toast';
-import { VendorStatusChip } from '@/components/vendor/vendor-status';
-import { useVendor, useVendorDecision, vendorDocumentHref } from '@/hooks/use-vendor';
+import { VendorStatusChip } from '@/features/vendor/components/vendor-status-chip';
+import { useVendor, useVendorDecision, vendorDocumentHref } from '@/features/vendor/hooks/use-vendor';
 import { fill, messageFor, toAppError, type AppError } from '@/lib/errors';
 import { type Locale, type Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { formatSize } from '@/lib/uploads';
 import { formatDate, formatPhone, formatTime } from '@/utils/format';
-import type { AdminVendor, VendorDocument } from '@/types/vendor';
+import type { AdminVendor, VendorDocument } from '@/features/vendor/types';
 
 /**
  * One vendor application for review (Document 5, section 8.3; approved Stage 5): the application, its addresses and

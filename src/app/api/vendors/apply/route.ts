@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server';
-import * as vendorApi from '@/api/vendor';
+import * as vendorApi from '@/features/vendor/server/vendor-api';
 import { jsonObject } from '@/middleware/endpoint';
 import { fail } from '@/middleware/responses';
 import { answerAsUser } from '@/features/auth/server/answer-as-user';

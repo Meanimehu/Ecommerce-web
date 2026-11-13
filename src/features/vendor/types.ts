@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { pageOf } from './common';
+import { pageOf } from '@/types/common';
 
 /**
  * Backend Area 2, Vendors: response shapes written by hand from the API reference (D3-01), and the application forms.

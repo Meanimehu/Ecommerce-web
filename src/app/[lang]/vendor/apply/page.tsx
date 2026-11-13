@@ -1,5 +1,5 @@
-import { ApplyScreen } from '@/components/vendor/apply-screen';
-import { VendorArea } from '@/components/vendor/vendor-area';
+import { ApplyScreen } from '@/features/vendor/components/apply-screen';
+import { VendorArea } from '@/features/vendor/components/vendor-area';
 import { isLocale } from '@/lib/i18n';
 
 /** Become a vendor (Document 5, section 7.1): open to any logged-in person. */

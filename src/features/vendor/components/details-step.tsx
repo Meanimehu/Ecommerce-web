@@ -8,11 +8,11 @@ import { SelectField } from '@/components/form/select-field';
 import { TextField } from '@/components/form/text-field';
 import { useToast } from '@/components/common/toast';
 import { applyServerError, useAppForm } from '@/hooks/use-app-form';
-import { useApply, useUpdateVendor } from '@/hooks/use-vendor';
+import { useApply, useUpdateVendor } from '@/features/vendor/hooks/use-vendor';
 import { requestIdOf, toAppError } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import { DetailsSchema, SELLER_TYPES, type DetailsInput, type Vendor } from '@/types/vendor';
+import { DetailsSchema, SELLER_TYPES, type DetailsInput, type Vendor } from '@/features/vendor/types';
 
 /**
  * Step 1, business details (Document 5, section 7.1). A new application is started with POST /vendors/apply; after that

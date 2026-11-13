@@ -19,12 +19,12 @@ import { Button } from '@/components/ui/button';
 import { ErrorMessage } from '@/components/common/error-message';
 import { StatusChip, type ChipTone } from '@/components/common/status-chip';
 import { useToast } from '@/components/common/toast';
-import { myDocumentHref, useRemoveDocument, useUploadDocument } from '@/hooks/use-vendor';
+import { myDocumentHref, useRemoveDocument, useUploadDocument } from '@/features/vendor/hooks/use-vendor';
 import { AppError, fill, messageFor, requestIdOf, toAppError } from '@/lib/errors';
 import { type Locale, type Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { checkFile, formatSize, UPLOAD_RULES } from '@/lib/uploads';
-import { DOCUMENT_TYPES, type DocumentType, type Vendor, type VendorDocument } from '@/types/vendor';
+import { DOCUMENT_TYPES, type DocumentType, type Vendor, type VendorDocument } from '@/features/vendor/types';
 import { cn } from '@/utils/cn';
 
 /**

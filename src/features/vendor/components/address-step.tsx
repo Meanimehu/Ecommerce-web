@@ -22,12 +22,12 @@ import { ErrorSummary } from '@/components/form/error-summary';
 import { SelectField } from '@/components/form/select-field';
 import { TextField } from '@/components/form/text-field';
 import { applyServerError, useAppForm } from '@/hooks/use-app-form';
-import { addressBody, useRemoveAddress, useSaveAddress } from '@/hooks/use-vendor';
+import { addressBody, useRemoveAddress, useSaveAddress } from '@/features/vendor/hooks/use-vendor';
 import { fill, messageFor, requestIdOf, toAppError } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { formatPhone } from '@/utils/format';
-import { AddressSchema, type AddressInput, type Vendor, type VendorAddress } from '@/types/vendor';
+import { AddressSchema, type AddressInput, type Vendor, type VendorAddress } from '@/features/vendor/types';
 
 /**
  * Step 2, pickup address (Document 5, section 7.1): the addresses on the application, each with Edit and Remove, and a

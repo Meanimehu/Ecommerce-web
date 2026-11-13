@@ -1,7 +1,7 @@
 import 'server-only';
-import { AdminVendorPageSchema, AdminVendorSchema, VendorAddressSchema, VendorDocumentSchema, VendorSchema } from '@/types/vendor';
+import { AdminVendorPageSchema, AdminVendorSchema, VendorAddressSchema, VendorDocumentSchema, VendorSchema } from '@/features/vendor/types';
 import type { Query } from '@/utils/url';
-import { callBackend, openBackendFile, type UploadBody } from './client';
+import { callBackend, openBackendFile, type UploadBody } from '@/api/client';
 
 /**
  * Backend Area 2, Vendors (area-2-vendors.md): the application by its owner, and the admin review. One function per

@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AppError } from '@/lib/errors';
 import { get, patch, remove, send, upload } from '@/lib/http';
 import type { Page } from '@/types/common';
-import type { AddressInput, AdminVendor, AdminVendorRow, Vendor, VendorAddress, VendorDocument } from '@/types/vendor';
+import type { AddressInput, AdminVendor, AdminVendorRow, Vendor, VendorAddress, VendorDocument } from '@/features/vendor/types';
 import { withQuery, type Query } from '@/utils/url';
 
 /**

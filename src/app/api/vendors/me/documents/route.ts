@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import * as vendorApi from '@/api/vendor';
+import * as vendorApi from '@/features/vendor/server/vendor-api';
 import { UPLOAD_RULES } from '@/lib/uploads';
 import { uploadFrom } from '@/middleware/endpoint';
 import { guardChange } from '@/middleware/responses';

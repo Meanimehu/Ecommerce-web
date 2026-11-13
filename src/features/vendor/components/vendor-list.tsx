@@ -9,12 +9,12 @@ import { DataTable, type Column } from '@/components/common/data-table';
 import { LoadingBlock, PartError } from '@/components/common/load-states';
 import { Pagination } from '@/components/common/pagination';
 import { StateBlock } from '@/components/common/state-block';
-import { VendorStatusChip } from '@/components/vendor/vendor-status';
-import { useVendorList } from '@/hooks/use-vendor';
+import { VendorStatusChip } from '@/features/vendor/components/vendor-status-chip';
+import { useVendorList } from '@/features/vendor/hooks/use-vendor';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { formatDate, formatPhone } from '@/utils/format';
-import { VENDOR_STATUSES, type AdminVendorRow } from '@/types/vendor';
+import { VENDOR_STATUSES, type AdminVendorRow } from '@/features/vendor/types';
 import { pageNumber, withQuery } from '@/utils/url';
 
 /**

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
-import { getMyVendor } from '@/api/vendor';
+import { getMyVendor } from '@/features/vendor/server/vendor-api';
 import { AreaShell } from '@/components/auth/area-shell';
 import { vendorNav } from '@/components/auth/area-menus';
 import { requireUser, Unavailable } from '@/features/auth/components/require-user';

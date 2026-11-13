@@ -9,11 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ErrorMessage } from '@/components/common/error-message';
 import { useToast } from '@/components/common/toast';
-import { useSubmitVendor } from '@/hooks/use-vendor';
+import { useSubmitVendor } from '@/features/vendor/hooks/use-vendor';
 import { fill, messageFor, toAppError, type AppError } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import type { Vendor } from '@/types/vendor';
+import type { Vendor } from '@/features/vendor/types';
 import { stepFor } from './apply-steps';
 
 /**

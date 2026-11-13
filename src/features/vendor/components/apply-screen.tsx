@@ -6,17 +6,17 @@ import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { LoadingBlock, PartError } from '@/components/common/load-states';
 import { Steps, type Step } from '@/components/common/steps';
-import { useMyVendor } from '@/hooks/use-vendor';
+import { useMyVendor } from '@/features/vendor/hooks/use-vendor';
 import { fill } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import type { Vendor } from '@/types/vendor';
-import { AddressStep } from './apply-address';
-import { DetailsStep } from './apply-details';
-import { DocumentsStep } from './apply-documents';
-import { ReviewStep } from './apply-review';
+import type { Vendor } from '@/features/vendor/types';
+import { AddressStep } from './address-step';
+import { DetailsStep } from './details-step';
+import { DocumentsStep } from './documents-step';
+import { ReviewStep } from './review-step';
 import { STEP_KEYS, stepFor, type StepKey } from './apply-steps';
-import { isEditable, VendorStatusChip } from './vendor-status';
+import { isEditable, VendorStatusChip } from './vendor-status-chip';
 
 /**
  * Become a vendor (Document 5, section 7.1; approved Stage 5): a start page with the application status, then four
