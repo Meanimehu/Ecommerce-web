@@ -18,6 +18,12 @@ const codeStyleFiles = [
   'src/features/catalogue/**/*.{ts,tsx}',
   'src/app/api/admin/catalogue/**/*.ts',
   'src/app/[[]lang]/admin/catalogue/**/*.tsx',
+  'src/features/product/**/*.{ts,tsx}',
+  'src/app/api/moderation/**/*.ts',
+  'src/app/api/catalogue/dictionaries/route.ts',
+  'src/app/[[]lang]/admin/moderation/**/*.tsx',
+  'src/components/common/photo-frame.tsx',
+  'src/hooks/use-category-tree.ts',
   'src/app/api/vendors/**/*.ts',
   'src/app/api/admin/vendors/**/*.ts',
   'src/app/[[]lang]/vendor/**/*.tsx',
@@ -31,6 +37,7 @@ const codeStyleFiles = [
   'src/types/react-query.d.ts',
   'src/types/add-notice.ts',
   'tests/unit/error-codes.test.ts',
+  'tests/unit/product.test.ts',
 ];
 
 export default defineConfig([
