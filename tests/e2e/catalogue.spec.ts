@@ -58,7 +58,7 @@ test.describe('catalogue lists', () => {
   test('an admin adds an HSN code, a category with an attribute, a brand, a size and a colour', async ({
     browser,
   }) => {
-    const n = String(Date.now()).slice(-6);
+    const stamp = String(Date.now()).slice(-6);
     const admin = await pageAs(browser, ADMIN_PHONE, '/en/admin/catalogue');
     await expect(admin).toHaveURL(/\/en\/admin\/catalogue\/categories$/);
     await expect(admin.getByRole('heading', { name: 'Catalogue lists', level: 1 })).toBeVisible();
@@ -67,25 +67,25 @@ test.describe('catalogue lists', () => {
     // HSN code
     await admin.getByRole('link', { name: 'HSN codes' }).click();
     await admin.getByRole('button', { name: 'Add HSN code' }).click();
-    await admin.getByRole('textbox', { name: 'HSN code', exact: true }).fill(`62${n}`);
+    await admin.getByRole('textbox', { name: 'HSN code', exact: true }).fill(`62${stamp}`);
     await admin
       .getByRole('textbox', { name: 'Description', exact: true })
-      .fill(`Test garments ${n}`);
+      .fill(`Test garments ${stamp}`);
     await admin.getByRole('combobox', { name: 'Default GST rate' }).selectOption({ label: '12%' });
     await noAxeViolations(admin);
     await admin.getByRole('button', { name: 'Save' }).click();
     await expect(admin.getByRole('status').filter({ hasText: 'Saved' })).toBeVisible();
-    await admin.getByRole('searchbox', { name: 'Search' }).fill(`62${n}`);
+    await admin.getByRole('searchbox', { name: 'Search' }).fill(`62${stamp}`);
     await admin.getByRole('button', { name: 'Show results' }).click();
     await expect(
-      admin.getByText(`Test garments ${n}`).filter({ visible: true }).first(),
+      admin.getByText(`Test garments ${stamp}`).filter({ visible: true }).first(),
     ).toBeVisible();
 
     // Category with a choice attribute: a bad key is shown on that attribute.
     await admin.getByRole('link', { name: 'Categories' }).click();
     await admin.getByRole('button', { name: 'Add category' }).click();
-    await admin.getByRole('textbox', { name: 'Name', exact: true }).fill(`Test kurtas ${n}`);
-    await admin.getByRole('combobox', { name: 'Default HSN code' }).selectOption(`62${n}`);
+    await admin.getByRole('textbox', { name: 'Name', exact: true }).fill(`Test kurtas ${stamp}`);
+    await admin.getByRole('combobox', { name: 'Default HSN code' }).selectOption(`62${stamp}`);
     await admin.getByRole('button', { name: 'Add attribute' }).click();
     const attribute = admin.getByRole('group', { name: 'Attribute 1' });
     await attribute.getByLabel('Key').fill('Fabric Type');
@@ -102,7 +102,7 @@ test.describe('catalogue lists', () => {
     await admin.getByRole('button', { name: 'Save' }).click();
     await expect(admin.getByRole('status').filter({ hasText: 'Saved' })).toBeVisible();
     await expect(
-      admin.getByText(`Test kurtas ${n}`, { exact: true }).filter({ visible: true }),
+      admin.getByText(`Test kurtas ${stamp}`, { exact: true }).filter({ visible: true }),
     ).toBeVisible();
     await noAxeViolations(admin);
 
@@ -114,38 +114,38 @@ test.describe('catalogue lists', () => {
     await expect(
       admin.getByRole('textbox', { name: 'Name', exact: true }),
     ).toHaveAccessibleDescription(/This name is already used/);
-    await admin.getByRole('textbox', { name: 'Name', exact: true }).fill(`Test Brand ${n}`);
+    await admin.getByRole('textbox', { name: 'Name', exact: true }).fill(`Test Brand ${stamp}`);
     await admin.getByRole('button', { name: 'Save' }).click();
     await expect(admin.getByRole('status').filter({ hasText: 'Saved' })).toBeVisible();
 
     // Switch it off and on again: nothing is deleted.
-    await admin.getByRole('searchbox', { name: 'Search' }).fill(`Test Brand ${n}`);
+    await admin.getByRole('searchbox', { name: 'Search' }).fill(`Test Brand ${stamp}`);
     await admin.getByRole('button', { name: 'Show results' }).click();
     await admin
-      .getByRole('button', { name: new RegExp(`^Switch off\\s*: Test Brand ${n}$`) })
+      .getByRole('button', { name: new RegExp(`^Switch off\\s*: Test Brand ${stamp}$`) })
       .click();
     await expect(
-      admin.getByRole('status').filter({ hasText: `Test Brand ${n} switched off` }),
+      admin.getByRole('status').filter({ hasText: `Test Brand ${stamp} switched off` }),
     ).toBeVisible();
     await admin
-      .getByRole('button', { name: new RegExp(`^Switch on\\s*: Test Brand ${n}$`) })
+      .getByRole('button', { name: new RegExp(`^Switch on\\s*: Test Brand ${stamp}$`) })
       .click();
     await expect(
-      admin.getByRole('status').filter({ hasText: `Test Brand ${n} switched on` }),
+      admin.getByRole('status').filter({ hasText: `Test Brand ${stamp} switched on` }),
     ).toBeVisible();
 
     // Size and colour
     await admin.getByRole('link', { name: 'Sizes' }).click();
     await admin.getByRole('button', { name: 'Add size' }).click();
-    await admin.getByRole('textbox', { name: 'Code', exact: true }).fill(`T${n.slice(-4)}`);
-    await admin.getByRole('textbox', { name: 'Label', exact: true }).fill(`Test size ${n}`);
+    await admin.getByRole('textbox', { name: 'Code', exact: true }).fill(`T${stamp.slice(-4)}`);
+    await admin.getByRole('textbox', { name: 'Label', exact: true }).fill(`Test size ${stamp}`);
     await admin.getByRole('button', { name: 'Save' }).click();
     await expect(admin.getByRole('status').filter({ hasText: 'Saved' })).toBeVisible();
 
     await admin.getByRole('link', { name: 'Colours' }).click();
     await admin.getByRole('button', { name: 'Add colour' }).click();
-    await admin.getByRole('textbox', { name: 'Code', exact: true }).fill(`C${n}`);
-    await admin.getByRole('textbox', { name: 'Label', exact: true }).fill(`Test colour ${n}`);
+    await admin.getByRole('textbox', { name: 'Code', exact: true }).fill(`C${stamp}`);
+    await admin.getByRole('textbox', { name: 'Label', exact: true }).fill(`Test colour ${stamp}`);
     await admin.getByRole('textbox', { name: /^Colour value/ }).fill('#zz0000');
     await admin.getByRole('button', { name: 'Save' }).click();
     await expect(admin.getByRole('textbox', { name: /^Colour value/ })).toHaveAttribute(
@@ -161,55 +161,62 @@ test.describe('catalogue lists', () => {
   test('an admin edits one field of each list, and only that field is sent', async ({
     browser,
   }) => {
-    const n = String(Date.now()).slice(-6);
+    const stamp = String(Date.now()).slice(-6);
     const admin = await pageAs(browser, ADMIN_PHONE, '/en/admin/catalogue');
     await addEntry(admin, 'hsn-codes', 'Add HSN code', [
-      ['HSN code', `63${n}`],
-      ['Description', `Edit garments ${n}`],
+      ['HSN code', `63${stamp}`],
+      ['Description', `Edit garments ${stamp}`],
     ]);
     await editOneField(
       admin,
       'hsn-codes',
-      `63${n}`,
+      `63${stamp}`,
       'Description',
-      `Edit garments ${n} changed`,
+      `Edit garments ${stamp} changed`,
       'description',
     );
-    await addEntry(admin, 'categories', 'Add category', [['Name', `Edit kurtas ${n}`]]);
+    await addEntry(admin, 'categories', 'Add category', [['Name', `Edit kurtas ${stamp}`]]);
     await editOneField(
       admin,
       'categories',
-      `Edit kurtas ${n}`,
+      `Edit kurtas ${stamp}`,
       'Name',
-      `Edit kurtas ${n} changed`,
+      `Edit kurtas ${stamp} changed`,
       'name',
     );
-    await addEntry(admin, 'brands', 'Add brand', [['Name', `Edit Brand ${n}`]]);
+    await addEntry(admin, 'brands', 'Add brand', [['Name', `Edit Brand ${stamp}`]]);
     await editOneField(
       admin,
       'brands',
-      `Edit Brand ${n}`,
+      `Edit Brand ${stamp}`,
       'Name',
-      `Edit Brand ${n} changed`,
+      `Edit Brand ${stamp} changed`,
       'name',
     );
     await addEntry(admin, 'sizes', 'Add size', [
-      ['Code', `E${n.slice(-4)}`],
-      ['Label', `Edit size ${n}`],
+      ['Code', `E${stamp.slice(-4)}`],
+      ['Label', `Edit size ${stamp}`],
     ]);
     await editOneField(
       admin,
       'sizes',
-      `E${n.slice(-4)}`,
+      `E${stamp.slice(-4)}`,
       'Label',
-      `Edit size ${n} changed`,
+      `Edit size ${stamp} changed`,
       'label',
     );
     await addEntry(admin, 'colours', 'Add colour', [
-      ['Code', `E${n}`],
-      ['Label', `Edit colour ${n}`],
+      ['Code', `E${stamp}`],
+      ['Label', `Edit colour ${stamp}`],
     ]);
-    await editOneField(admin, 'colours', `E${n}`, 'Label', `Edit colour ${n} changed`, 'label');
+    await editOneField(
+      admin,
+      'colours',
+      `E${stamp}`,
+      'Label',
+      `Edit colour ${stamp} changed`,
+      'label',
+    );
   });
 
   test('the Hindi page, and a customer gets a real 403', async ({ browser }) => {

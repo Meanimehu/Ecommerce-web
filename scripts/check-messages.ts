@@ -12,7 +12,9 @@ import { enumSource } from './gen-error-codes';
 
 const dir = fileURLToPath(new URL('../src/messages/', import.meta.url));
 const [en, hi] = await Promise.all(
-  ['en.json', 'hi.json'].map(async (f) => JSON.parse(await readFile(dir + f, 'utf8')) as unknown),
+  ['en.json', 'hi.json'].map(
+    async (file) => JSON.parse(await readFile(dir + file, 'utf8')) as unknown,
+  ),
 );
 const problems = compareCatalogues(['en.json', 'hi.json'], en, hi);
 
@@ -25,7 +27,7 @@ const backend = JSON.parse(
 ) as {
   codes: { code: string }[];
 };
-const known = new Set(backend.codes.map((c) => c.code));
+const known = new Set(backend.codes.map((entry) => entry.code));
 const codes = (en as { errors?: { codes?: Record<string, string> } }).errors?.codes ?? {};
 for (const code of BACKEND_CODES_IN_USE) {
   if (!known.has(code))
@@ -58,7 +60,7 @@ for (const appCode of Object.values(AppErrorCode)) {
 
 const covered = [...known].filter((code) => codes[code]).length;
 if (problems.length) {
-  for (const p of problems) console.error(`${p.key}: ${p.problem}`);
+  for (const problem of problems) console.error(`${problem.key}: ${problem.problem}`);
   process.exit(1);
 }
 console.log(

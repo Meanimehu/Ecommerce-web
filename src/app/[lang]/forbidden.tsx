@@ -14,13 +14,13 @@ import { useMessages } from '@/lib/messages-context';
 export default function Forbidden() {
   const params = useParams<{ lang: string }>();
   const lang = isLocale(params.lang) ? params.lang : 'en';
-  const t = useMessages();
+  const messages = useMessages();
   return (
     <main className="mx-auto grid w-full max-w-[640px] px-4 py-12">
-      <StateBlock icon={Lock} title={t.noAccess.title} text={t.noAccess.body}>
+      <StateBlock icon={Lock} title={messages.noAccess.title} text={messages.noAccess.body}>
         <Button asChild>
           <a href={`/${lang}`} className="no-underline">
-            {t.noAccess.home}
+            {messages.noAccess.home}
           </a>
         </Button>
       </StateBlock>

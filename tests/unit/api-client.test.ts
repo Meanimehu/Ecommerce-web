@@ -56,7 +56,7 @@ describe('the backend client (Document 3; D7-01, D7-10)', () => {
       schema: Schema,
       fetchImpl,
       sleep: noSleep,
-    }).catch((e: unknown) => e);
+    }).catch((failure: unknown) => failure);
     expect(fetchImpl).toHaveBeenCalledTimes(1);
     expect(error).toMatchObject({ status: 503, outcomeUnknown: true });
   });
@@ -70,11 +70,11 @@ describe('the backend client (Document 3; D7-01, D7-10)', () => {
       schema: Schema,
       fetchImpl: timeout,
       sleep: noSleep,
-    }).catch((e: unknown) => e)) as AppError;
+    }).catch((failure: unknown) => failure)) as AppError;
     expect(save).toMatchObject({ code: 'TIMEOUT', outcomeUnknown: true });
     expect(timeout).toHaveBeenCalledTimes(1);
-    const t = getMessages('en');
-    expect(messageFor(save, t)).toBe(
+    const messages = getMessages('en');
+    expect(messageFor(save, messages)).toBe(
       "We couldn't confirm your change. Please check before trying again.",
     );
     const view = (await callBackend({
@@ -84,8 +84,8 @@ describe('the backend client (Document 3; D7-01, D7-10)', () => {
       schema: Schema,
       fetchImpl: timeout,
       sleep: noSleep,
-    }).catch((e: unknown) => e)) as AppError;
-    expect(messageFor(view, t)).toBe('Something went wrong. Please try again.');
+    }).catch((failure: unknown) => failure)) as AppError;
+    expect(messageFor(view, messages)).toBe('Something went wrong. Please try again.');
   });
 
   it('waits the backend time on "too many requests" for a read', async () => {
@@ -118,25 +118,22 @@ describe('the backend client (Document 3; D7-01, D7-10)', () => {
       schema: Schema,
       fetchImpl,
       sleep: noSleep,
-    }).catch((e: unknown) => e)) as AppError;
+    }).catch((failure: unknown) => failure)) as AppError;
     expect(error.code).toBe('CODE_TAKEN');
     expect(error.requestId).toBe('req-1');
     expect(error.details).toEqual({ field: 'code' });
   });
 
   it('reads the field list of VALIDATION_FAILED (api-contract.md, section 3)', async () => {
-    const fetchImpl = vi
-      .fn()
-      .mockResolvedValue(
-        json(400, {
-          error: {
-            code: 'VALIDATION_FAILED',
-            message: 'Request validation failed',
-            details: [{ field: 'email', messages: ['email must be an email'] }],
-            requestId: 'r',
-          },
-        }),
-      );
+    const refusal = json(400, {
+      error: {
+        code: 'VALIDATION_FAILED',
+        message: 'Request validation failed',
+        details: [{ field: 'email', messages: ['email must be an email'] }],
+        requestId: 'r',
+      },
+    });
+    const fetchImpl = vi.fn().mockResolvedValue(refusal);
     const error = (await callBackend({
       method: 'POST',
       path: '/x',
@@ -144,7 +141,7 @@ describe('the backend client (Document 3; D7-01, D7-10)', () => {
       schema: Schema,
       fetchImpl,
       sleep: noSleep,
-    }).catch((e: unknown) => e)) as AppError;
+    }).catch((failure: unknown) => failure)) as AppError;
     expect(error.code).toBe('VALIDATION_FAILED');
     expect(error.fields).toEqual([{ field: 'email', messages: ['email must be an email'] }]);
     expect(error.details).toBeUndefined();
@@ -162,7 +159,7 @@ describe('the backend client (Document 3; D7-01, D7-10)', () => {
       schema: Schema,
       fetchImpl,
       sleep: noSleep,
-    }).catch((e: unknown) => e)) as AppError;
+    }).catch((failure: unknown) => failure)) as AppError;
     expect(error.code).toBe('RESPONSE_MISMATCH');
     // One plain line with the listed call name, never the real address or the data (Document 7, section 20.10).
     expect(spy).toHaveBeenCalledWith(
@@ -198,9 +195,13 @@ describe('the backend client (Document 3; D7-01, D7-10)', () => {
   });
 
   it('an unknown code falls back to the general message for its kind (D-09)', () => {
-    const t = getMessages('hi');
-    expect(messageFor({ code: 'SOMETHING_NEW', status: 429 }, t)).toBe(t.errors.kinds.rateLimit);
-    expect(messageFor({ code: 'OTP_INVALID', status: 400 }, t)).toBe(t.errors.codes.OTP_INVALID);
+    const messages = getMessages('hi');
+    expect(messageFor({ code: 'SOMETHING_NEW', status: 429 }, messages)).toBe(
+      messages.errors.kinds.rateLimit,
+    );
+    expect(messageFor({ code: 'OTP_INVALID', status: 400 }, messages)).toBe(
+      messages.errors.codes.OTP_INVALID,
+    );
   });
 });
 
@@ -221,7 +222,7 @@ describe('Document 3 alignment', () => {
       schema: Schema,
       fetchImpl,
       sleep: noSleep,
-    }).catch((e: unknown) => e)) as AppError;
+    }).catch((failure: unknown) => failure)) as AppError;
     expect(error.details?.retryAfterSeconds).toBe(42);
     expect(messageFor(error, getMessages('en'))).toBe(
       'Too many requests. Please wait a moment and try again. Please try again in 42 seconds.',
@@ -260,7 +261,7 @@ describe('Document 3 alignment', () => {
       schema: Schema,
       fetchImpl,
       sleep: noSleep,
-    }).catch((e: unknown) => e)) as AppError;
+    }).catch((failure: unknown) => failure)) as AppError;
     expect(messageFor(error, getMessages('en'))).toBe(
       'The answer of GET /me does not match its schema (fields: ok).',
     );

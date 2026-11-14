@@ -30,7 +30,7 @@ async function setStock(vendor: Page, productId: string, quantity: number) {
     await vendor.request.get(`/api/vendors/me/products/${productId}`)
   ).json()) as { variants: { id: string }[] };
   const token = (await vendor.context().cookies()).find(
-    (c) => c.name === '__Host-dhaaga_at',
+    (cookie) => cookie.name === '__Host-dhaaga_at',
   )?.value;
   const variant = product.variants[0]?.id ?? '';
   const answer = await fetch(`${BACKEND_URL}/api/v1/vendors/me/inventory/variants/${variant}`, {
@@ -49,9 +49,9 @@ test.describe('Slice 2: the first path, end to end', () => {
     browser,
   }) => {
     const vendorPhone = freshPhone();
-    const n = vendorPhone.slice(-5);
-    const shop = `Journey Weaves ${n}`;
-    const title = `Journey block print kurta ${n}`;
+    const stamp = vendorPhone.slice(-5);
+    const shop = `Journey Weaves ${stamp}`;
+    const title = `Journey block print kurta ${stamp}`;
 
     // Vendor applies; admin approves.
     const vendor = await pageAs(browser, vendorPhone, '/en/vendor/apply');
@@ -60,7 +60,7 @@ test.describe('Slice 2: the first path, end to end', () => {
     await approveVendor(admin, shop);
 
     // The vendor adds a product and submits it; the moderator approves it.
-    const address = await addAndSubmitProduct(vendor, title, `JRN${n}-M`);
+    const address = await addAndSubmitProduct(vendor, title, `JRN${stamp}-M`);
     const productId = address.split('/').pop() as string;
     const moderator = await pageAs(browser, MODERATOR_PHONE, '/en/admin/moderation');
     await approveProduct(moderator, productId);
@@ -91,7 +91,7 @@ test.describe('Slice 2: the first path, end to end', () => {
     // The product page: the address carries the readable name (D4-02).
     await card.click();
     await expect(page).toHaveURL(
-      new RegExp(`/en/product/${productId}/journey-block-print-kurta-${n}$`),
+      new RegExp(`/en/product/${productId}/journey-block-print-kurta-${stamp}$`),
     );
     await expect(page.getByRole('heading', { name: title, level: 1 })).toBeVisible();
     await expect(page.getByText('₹1,499.50')).toBeVisible();
@@ -104,7 +104,9 @@ test.describe('Slice 2: the first path, end to end', () => {
     await logIn(page, freshPhone());
     await expect(page).toHaveURL(new RegExp(`/en/product/${productId}/`));
     await expect(page.getByRole('status').filter({ hasText: 'Added to cart' })).toBeVisible();
-    expect((await customer.cookies()).map((c) => c.name)).not.toContain('__Host-dhaaga_pa');
+    expect((await customer.cookies()).map((cookie) => cookie.name)).not.toContain(
+      '__Host-dhaaga_pa',
+    );
     await expect(page.getByRole('link', { name: /^Cart\s*1\s*item$/ })).toBeVisible();
 
     // A reload does not add it again.

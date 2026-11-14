@@ -19,8 +19,10 @@ export function pickLocale(acceptLanguage: string | null | undefined): Locale {
     .split(',')
     .map((part, index) => {
       const [tag = '', ...params] = part.trim().split(';');
-      const q = params.map((p) => p.trim()).find((p) => p.startsWith('q='));
-      const quality = q === undefined ? 1 : Number(q.slice(2));
+      const qualityParam = params
+        .map((param) => param.trim())
+        .find((param) => param.startsWith('q='));
+      const quality = qualityParam === undefined ? 1 : Number(qualityParam.slice(2));
       return {
         language: tag.trim().toLowerCase().split('-')[0] ?? '',
         quality: Number.isFinite(quality) ? quality : 0,
@@ -28,7 +30,7 @@ export function pickLocale(acceptLanguage: string | null | undefined): Locale {
       };
     })
     .filter((entry) => entry.quality > 0)
-    .sort((a, b) => b.quality - a.quality || a.index - b.index);
+    .sort((first, second) => second.quality - first.quality || first.index - second.index);
   const found = ranked.find((entry) => isLocale(entry.language));
   return found && isLocale(found.language) ? found.language : DEFAULT_LOCALE;
 }

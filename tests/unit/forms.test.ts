@@ -4,7 +4,7 @@ import { AppError } from '@/lib/errors';
 import { getMessages } from '@/lib/messages';
 import { CodeFormSchema, PhoneFormSchema } from '@/features/auth/types';
 
-const t = getMessages('en');
+const messages = getMessages('en');
 
 describe('login checks: only cheap and certain ones (Document 5, section 10; D6-25)', () => {
   it('a missing phone, and a wrong shape, give catalogue keys', () => {
@@ -45,11 +45,11 @@ describe('login checks: only cheap and certain ones (Document 5, section 10; D6-
     expect(CodeFormSchema.parse({ code: '123 456' }).code).toBe('123456');
   });
   it('keys turn into text in each language; other text is shown as it is', () => {
-    expect(resolveMessage('validation.phoneRequired', t)).toBe('Enter your mobile number.');
+    expect(resolveMessage('validation.phoneRequired', messages)).toBe('Enter your mobile number.');
     expect(resolveMessage('validation.phoneRequired', getMessages('hi'))).toBe(
       'अपना मोबाइल नंबर लिखें।',
     );
-    expect(resolveMessage('Already text', t)).toBe('Already text');
+    expect(resolveMessage('Already text', messages)).toBe('Already text');
   });
 });
 
@@ -68,11 +68,11 @@ describe('backend errors land where Document 5, section 10 says', () => {
         status: 400,
         fields: [{ field: 'email', messages: ['x'] }],
       }),
-      t,
+      messages,
     );
     expect(setError).toHaveBeenCalledWith('email', {
       type: 'server',
-      message: t.errors.codes.VALIDATION_FAILED,
+      message: messages.errors.codes.VALIDATION_FAILED,
     });
   });
 
@@ -86,7 +86,7 @@ describe('backend errors land where Document 5, section 10 says', () => {
         status: 400,
         fields: [{ field: 'renamedField', messages: ['x'] }],
       }),
-      t,
+      messages,
     );
     expect(setError).toHaveBeenCalledWith('root.field_renamedField', {
       type: 'server',
@@ -98,21 +98,21 @@ describe('backend errors land where Document 5, section 10 says', () => {
 
   it('a code that belongs to a field goes under it, with our message', () => {
     const { form, setError } = fakeForm({ code: '' });
-    applyServerError(form, new AppError({ code: 'OTP_INVALID', status: 400 }), t, {
+    applyServerError(form, new AppError({ code: 'OTP_INVALID', status: 400 }), messages, {
       codes: { OTP_INVALID: 'code' },
     });
     expect(setError).toHaveBeenCalledWith('code', {
       type: 'server',
-      message: t.errors.codes.OTP_INVALID,
+      message: messages.errors.codes.OTP_INVALID,
     });
   });
 
   it('anything else goes to the summary only', () => {
     const { form, setError } = fakeForm({ code: '' });
-    applyServerError(form, new AppError({ code: 'SMS_UNAVAILABLE', status: 503 }), t);
+    applyServerError(form, new AppError({ code: 'SMS_UNAVAILABLE', status: 503 }), messages);
     expect(setError).toHaveBeenCalledWith('root.server', {
       type: 'server',
-      message: t.errors.codes.SMS_UNAVAILABLE,
+      message: messages.errors.codes.SMS_UNAVAILABLE,
     });
   });
 });

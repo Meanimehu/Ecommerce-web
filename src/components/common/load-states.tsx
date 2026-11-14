@@ -17,8 +17,8 @@ export function LoadingBlock({ messages, lines = 4 }: { messages: Messages; line
   return (
     <div role="status" className="grid gap-3">
       <span className="sr-only">{messages.states.loading}</span>
-      {Array.from({ length: lines }, (_, i) => (
-        <Skeleton key={i} className={i === 0 ? 'h-8 w-1/2' : 'h-12 w-full'} />
+      {[...Array(lines).keys()].map((line) => (
+        <Skeleton key={line} className={line === 0 ? 'h-8 w-1/2' : 'h-12 w-full'} />
       ))}
     </div>
   );

@@ -22,7 +22,7 @@ test.describe('vendor products and moderation', () => {
   test.setTimeout(150_000);
 
   test('a vendor adds a product step by step, and a moderator approves it', async ({ browser }) => {
-    const n = String(Date.now()).slice(-7);
+    const stamp = String(Date.now()).slice(-7);
     const vendor = await pageAs(browser, VENDOR_PHONE, '/en/vendor/products');
     await expect(vendor.getByRole('heading', { name: 'Products', level: 1 })).toBeVisible();
     await noAxeViolations(vendor);
@@ -36,7 +36,7 @@ test.describe('vendor products and moderation', () => {
     await noAxeViolations(vendor);
 
     // A price over the MRP is refused by the backend and shown under the price.
-    await vendor.getByRole('textbox', { name: 'Title' }).fill(`Test kurta ${n}`);
+    await vendor.getByRole('textbox', { name: 'Title' }).fill(`Test kurta ${stamp}`);
     await vendor
       .getByRole('combobox', { name: 'Category' })
       .selectOption({ label: 'Women › Kurtas' });
@@ -44,7 +44,7 @@ test.describe('vendor products and moderation', () => {
     await expect(vendor).toHaveURL(/step=attributes/);
     await expect(vendor.getByText('This category asks for no details.')).toBeVisible();
     await vendor.getByRole('link', { name: 'Continue' }).click();
-    await vendor.getByRole('textbox', { name: 'SKU' }).fill(`T${n}-X`);
+    await vendor.getByRole('textbox', { name: 'SKU' }).fill(`T${stamp}-X`);
     await vendor.getByRole('textbox', { name: 'MRP (₹)' }).fill('999');
     await vendor.getByRole('textbox', { name: 'Selling price (₹)' }).fill('1499');
     await vendor.getByRole('button', { name: 'Save variant' }).click();
@@ -64,24 +64,24 @@ test.describe('vendor products and moderation', () => {
     // (Document 7, 20.12).
     const draft = vendor.url().replace(/\?.*$/, '');
     await vendor.goto(`${draft}?step=basics`);
-    await vendor.getByRole('textbox', { name: 'Title' }).fill(`Test kurta ${n} edited`);
+    await vendor.getByRole('textbox', { name: 'Title' }).fill(`Test kurta ${stamp} edited`);
     const sentTitle = nextRequestBody(vendor, 'PATCH', /^\/api\/vendors\/me\/products\/[^/]+$/);
     await vendor.getByRole('button', { name: 'Save and continue' }).click();
-    expect(await sentTitle).toEqual({ title: `Test kurta ${n} edited` });
+    expect(await sentTitle).toEqual({ title: `Test kurta ${stamp} edited` });
     await expect(vendor).toHaveURL(/step=attributes/);
     await vendor.reload();
     await expect(
-      vendor.getByRole('heading', { name: `Test kurta ${n} edited`, level: 1 }),
+      vendor.getByRole('heading', { name: `Test kurta ${stamp} edited`, level: 1 }),
     ).toBeVisible();
     await vendor.goto(`${draft}?step=variants`);
-    await vendor.getByRole('textbox', { name: 'SKU' }).fill(`T${n}-E`);
+    await vendor.getByRole('textbox', { name: 'SKU' }).fill(`T${stamp}-E`);
     await vendor.getByRole('textbox', { name: 'MRP (₹)' }).fill('999');
     await vendor.getByRole('textbox', { name: 'Selling price (₹)' }).fill('899');
     await vendor.getByRole('button', { name: 'Save variant' }).click();
     await expect(
       vendor.getByText('₹899', { exact: true }).filter({ visible: true }).first(),
     ).toBeVisible();
-    await vendor.getByRole('button', { name: new RegExp(`^Edit\\s*: .*T${n}-E$`) }).click();
+    await vendor.getByRole('button', { name: new RegExp(`^Edit\\s*: .*T${stamp}-E$`) }).click();
     await vendor.getByRole('textbox', { name: 'Selling price (₹)' }).fill('799');
     const sentPrice = nextRequestBody(
       vendor,
@@ -96,8 +96,8 @@ test.describe('vendor products and moderation', () => {
     ).toBeVisible();
 
     // The full path, then the moderator.
-    const title = `Test kurta ${n} full`;
-    const address = await addAndSubmit(vendor, title, `T${n}-M`);
+    const title = `Test kurta ${stamp} full`;
+    const address = await addAndSubmit(vendor, title, `T${stamp}-M`);
     await noAxeViolations(vendor);
 
     const moderator = await pageAs(browser, MODERATOR_PHONE, '/en/admin/moderation');
@@ -126,9 +126,9 @@ test.describe('vendor products and moderation', () => {
   test('a moderator rejects a product with a reason, and the vendor reads it', async ({
     browser,
   }) => {
-    const n = String(Date.now()).slice(-7);
+    const stamp = String(Date.now()).slice(-7);
     const vendor = await pageAs(browser, VENDOR_PHONE, '/en/vendor/products');
-    const address = await addAndSubmit(vendor, `Reject kurta ${n}`, `R${n}-M`);
+    const address = await addAndSubmit(vendor, `Reject kurta ${stamp}`, `R${stamp}-M`);
     const moderator = await pageAs(
       browser,
       MODERATOR_PHONE,
@@ -151,9 +151,9 @@ test.describe('vendor products and moderation', () => {
   test('when the backend refuses a rejection, the reason dialog stays open with the error and the reason kept; trying again closes it', async ({
     browser,
   }) => {
-    const n = String(Date.now()).slice(-7);
+    const stamp = String(Date.now()).slice(-7);
     const vendor = await pageAs(browser, VENDOR_PHONE, '/en/vendor/products');
-    const address = await addAndSubmit(vendor, `Refused kurta ${n}`, `F${n}-M`);
+    const address = await addAndSubmit(vendor, `Refused kurta ${stamp}`, `F${stamp}-M`);
     const moderator = await pageAs(
       browser,
       MODERATOR_PHONE,

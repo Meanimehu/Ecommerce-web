@@ -53,10 +53,10 @@ export function ReasonDialog({
         setOpen(false);
       } catch (error) {
         applyServerError(form, toAppError(error), messages);
-        setFocus((n) => n + 1);
+        setFocus((signal) => signal + 1);
       }
     },
-    () => setFocus((n) => n + 1),
+    () => setFocus((signal) => signal + 1),
   );
   return (
     <AlertDialog

@@ -44,12 +44,12 @@ export function ErrorSummary<TValues extends FieldValues>({
     }));
   const rootEntries = Object.values(errors.root ?? {})
     .filter(
-      (e): e is { message: string } =>
-        typeof e === 'object' &&
-        e !== null &&
-        typeof (e as { message?: unknown }).message === 'string',
+      (entry): entry is { message: string } =>
+        typeof entry === 'object' &&
+        entry !== null &&
+        typeof (entry as { message?: unknown }).message === 'string',
     )
-    .map((e) => e.message);
+    .map((entry) => entry.message);
   const count = fieldEntries.length + rootEntries.length;
   const visible = count > 0 && (submitCount > 0 || rootEntries.length > 0);
 

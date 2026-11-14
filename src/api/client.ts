@@ -161,6 +161,9 @@ async function callOnce<S extends z.ZodType | null>(
   return { data: checked.data as never, status: response.status, requestId };
 }
 
+/** A JSON body, or none. */
+const jsonBody = (body: unknown) => (body === undefined ? undefined : JSON.stringify(body));
+
 async function send(
   options: CallOptions<z.ZodType | null>,
   changesData: boolean,
@@ -182,11 +185,7 @@ async function send(
     return await doFetch(url, {
       method: options.method,
       headers,
-      body: options.upload
-        ? options.upload.stream
-        : options.body === undefined
-          ? undefined
-          : JSON.stringify(options.body),
+      body: options.upload ? options.upload.stream : jsonBody(options.body),
       signal: AbortSignal.timeout(TIMEOUT_MS[options.kind]),
       cache: 'no-store',
       // A streamed request body (Node.js needs this to send a stream).
@@ -225,7 +224,7 @@ function errorFrom(response: Response, json: unknown, changesData: boolean): App
   // Backend gap B1: details may carry a database constraint name. It is never used or passed on.
   let cleanDetails =
     details && !Array.isArray(details)
-      ? Object.fromEntries(Object.entries(details).filter(([k]) => k !== 'constraint'))
+      ? Object.fromEntries(Object.entries(details).filter(([key]) => key !== 'constraint'))
       : undefined;
   if (
     response.status === 429 &&

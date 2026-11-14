@@ -118,8 +118,8 @@ export interface CatalogueProblem {
  */
 export function compareCatalogues(
   names: [string, string],
-  a: unknown,
-  b: unknown,
+  first: unknown,
+  second: unknown,
 ): CatalogueProblem[] {
   const problems: CatalogueProblem[] = [];
   const collect = (value: unknown, prefix: string, name: string): void => {
@@ -134,10 +134,10 @@ export function compareCatalogues(
     for (const [key, child] of Object.entries(value as Record<string, unknown>))
       collect(child, prefix ? `${prefix}.${key}` : key, name);
   };
-  collect(a, '', names[0]);
-  collect(b, '', names[1]);
-  const keysA = new Set(textKeys(a));
-  const keysB = new Set(textKeys(b));
+  collect(first, '', names[0]);
+  collect(second, '', names[1]);
+  const keysA = new Set(textKeys(first));
+  const keysB = new Set(textKeys(second));
   for (const key of keysA)
     if (!keysB.has(key)) problems.push({ key, problem: `missing in ${names[1]}` });
   for (const key of keysB)

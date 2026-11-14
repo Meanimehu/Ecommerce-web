@@ -37,9 +37,13 @@ export function fail(
   );
 }
 
+/** No answer from the backend: it timed out (504) or could not be reached (502). */
+const connectionProblemStatus = (error: AppError) =>
+  error.code === AppErrorCode.Timeout ? HttpStatus.GatewayTimeout : HttpStatus.BadGateway;
+
 export function fromAppError(error: unknown): NextResponse {
   if (error instanceof AppError) {
-    const status = error.status === 0 ? (error.code === 'TIMEOUT' ? 504 : 502) : error.status;
+    const status = error.status === 0 ? connectionProblemStatus(error) : error.status;
     return fail(
       error.code,
       status,

@@ -45,7 +45,9 @@ export function formatDate(iso: string, locale: Locale): string {
 
 export function formatTime(iso: string, locale: Locale): string {
   const text = timeFormats[locale].format(new Date(iso));
-  return locale === 'en' ? text.replace(/\s?(AM|PM)$/i, (m) => ` ${m.trim().toLowerCase()}`) : text;
+  return locale === 'en'
+    ? text.replace(/\s?(AM|PM)$/i, (marker) => ` ${marker.trim().toLowerCase()}`)
+    : text;
 }
 
 /**

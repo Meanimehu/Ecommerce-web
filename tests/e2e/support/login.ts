@@ -15,13 +15,13 @@ export function freshPhone(): string {
 
 export async function readCode(phone: string): Promise<string> {
   const last4 = phone.slice(-4);
-  for (let i = 0; i < 50; i++) {
+  for (let attempt = 0; attempt < 50; attempt++) {
     const lines = readFileSync(backendLog ?? '', 'utf8')
       .split('\n')
-      .filter((l) => l.includes('[MOCK SMS]') && l.includes(`******${last4}`));
+      .filter((line) => line.includes('[MOCK SMS]') && line.includes(`******${last4}`));
     const match = /code is (\d{6})/.exec(lines.at(-1) ?? '');
     if (match?.[1]) return match[1];
-    await new Promise((r) => setTimeout(r, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
   }
   throw new Error(`No login code for ${phone} in ${backendLog}`);
 }

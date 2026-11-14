@@ -21,17 +21,21 @@ export default function PageError({
 }) {
   const params = useParams<{ lang: string }>();
   const lang = isLocale(params.lang) ? params.lang : 'en';
-  const t = useMessages();
+  const messages = useMessages();
   useEffect(() => console.error(error), [error]);
   return (
     <main className="mx-auto grid w-full max-w-[640px] px-4 py-12">
-      <StateBlock icon={CircleAlert} title={t.errorPage.title} text={t.errorPage.body}>
+      <StateBlock
+        icon={CircleAlert}
+        title={messages.errorPage.title}
+        text={messages.errorPage.body}
+      >
         <Button type="button" onClick={reset}>
-          {t.errors.tryAgain}
+          {messages.errors.tryAgain}
         </Button>
         <Button asChild variant="secondary">
           <a href={`/${lang}`} className="no-underline">
-            {t.errorPage.home}
+            {messages.errorPage.home}
           </a>
         </Button>
       </StateBlock>

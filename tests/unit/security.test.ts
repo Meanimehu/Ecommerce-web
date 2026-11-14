@@ -10,8 +10,8 @@ import {
 import { defaultDestination } from '@/features/auth/server/session';
 
 describe('after-login path (Document 2, section 6: no open redirects)', () => {
-  it.each(['/en/account', '/hi/admin?x=1', '/en'])('accepts %s', (p) =>
-    expect(isSafeLocalPath(p)).toBe(true),
+  it.each(['/en/account', '/hi/admin?x=1', '/en'])('accepts %s', (path) =>
+    expect(isSafeLocalPath(path)).toBe(true),
   );
   it.each([
     '//evil.com',
@@ -21,7 +21,7 @@ describe('after-login path (Document 2, section 6: no open redirects)', () => {
     '',
     '/\nfoo',
     `/${'a'.repeat(600)}`,
-  ])('refuses %j', (p) => expect(isSafeLocalPath(p)).toBe(false));
+  ])('refuses %j', (path) => expect(isSafeLocalPath(path)).toBe(false));
   const remembered = (path: string) => {
     const response = NextResponse.json({});
     rememberPageAfterLogin(response, path);

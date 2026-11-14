@@ -27,8 +27,8 @@ export function DataTable<T>({
   rowKey: (row: T) => string;
   caption: string;
 }) {
-  const lead = columns.filter((c) => c.lead);
-  const rest = columns.filter((c) => !c.lead);
+  const lead = columns.filter((column) => column.lead);
+  const rest = columns.filter((column) => !column.lead);
   return (
     <>
       <div className="hidden overflow-x-auto rounded-1 border border-line bg-surface md:block">

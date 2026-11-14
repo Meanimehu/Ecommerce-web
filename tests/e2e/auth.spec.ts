@@ -47,18 +47,18 @@ test.describe('login and sessions', () => {
     // Cookies: __Host-, Secure, HttpOnly, SameSite=Lax, path / (D4-07).
     const cookies = await context.cookies();
     for (const name of ['__Host-dhaaga_at', '__Host-dhaaga_rt']) {
-      const cookie = cookies.find((c) => c.name === name);
+      const cookie = cookies.find((cookie) => cookie.name === name);
       expect(cookie, name).toBeTruthy();
       expect(cookie).toMatchObject({ secure: true, httpOnly: true, sameSite: 'Lax', path: '/' });
     }
-    expect(cookies.find((c) => c.name === '__Host-dhaaga_next')).toBeFalsy();
+    expect(cookies.find((cookie) => cookie.name === '__Host-dhaaga_next')).toBeFalsy();
 
     await page.reload();
     await expect(page.getByRole('heading', { name: 'Your account' })).toBeVisible();
 
     await page.getByRole('button', { name: 'Log out', exact: true }).click();
     await expect(page).toHaveURL(/\/en$/);
-    const after = (await context.cookies()).map((c) => c.name);
+    const after = (await context.cookies()).map((cookie) => cookie.name);
     expect(after).not.toContain('__Host-dhaaga_at');
     expect(after).not.toContain('__Host-dhaaga_rt');
     await page.goto('/en/account');
@@ -74,14 +74,14 @@ test.describe('login and sessions', () => {
     await expect(page).toHaveURL(/\/en$/);
 
     const before = await context.cookies();
-    const oldRefresh = before.find((c) => c.name === '__Host-dhaaga_rt');
+    const oldRefresh = before.find((cookie) => cookie.name === '__Host-dhaaga_rt');
     await context.clearCookies({ name: '__Host-dhaaga_at' });
 
     await page.goto('/en/account');
     await expect(page.getByRole('heading', { name: 'Your account' })).toBeVisible();
     const after = await context.cookies();
-    const newRefresh = after.find((c) => c.name === '__Host-dhaaga_rt');
-    expect(after.find((c) => c.name === '__Host-dhaaga_at')).toBeTruthy();
+    const newRefresh = after.find((cookie) => cookie.name === '__Host-dhaaga_rt');
+    expect(after.find((cookie) => cookie.name === '__Host-dhaaga_at')).toBeTruthy();
     expect(newRefresh?.value).not.toBe(oldRefresh?.value);
 
     // A request that still sends the old refresh cookie a moment later (another tab, a retry): the backend accepts it
@@ -145,7 +145,7 @@ test.describe('login and sessions', () => {
     await page.getByRole('button', { name: 'Send code' }).click();
     await readCode(phone);
     await page.getByLabel('One-time code', { exact: true }).fill('000000');
-    const answer = page.waitForResponse((r) => r.url().endsWith('/api/auth/verify'));
+    const answer = page.waitForResponse((response) => response.url().endsWith('/api/auth/verify'));
     await page.getByRole('button', { name: 'Verify and log in', exact: true }).click();
     // The backend's request id reaches the browser (T7-4), so it can be shown with "Copy" where a screen shows one (D5-14).
     expect((await (await answer).json()).error.requestId).toMatch(/^[0-9a-f-]{36}$/);
@@ -177,16 +177,18 @@ test.describe('session ends (Document 2, section 4)', () => {
     await page.goto('about:blank');
     // End the session at the backend without touching this browser's cookies (as a logout in another tab would).
     await backendLogout(
-      (await context.cookies()).find((c) => c.name === '__Host-dhaaga_at')!.value,
+      (await context.cookies()).find((cookie) => cookie.name === '__Host-dhaaga_at')!.value,
     );
-    expect((await context.cookies()).map((c) => c.name)).toContain('__Host-dhaaga_rt');
+    expect((await context.cookies()).map((cookie) => cookie.name)).toContain('__Host-dhaaga_rt');
 
     await page.goto('/en/account');
     await expect(page).toHaveURL(/\/en\/login$/);
     await expect(
       page.getByRole('status').filter({ hasText: 'Please log in again.' }),
     ).toBeVisible();
-    expect((await context.cookies()).map((c) => c.name)).not.toContain('__Host-dhaaga_rt');
+    expect((await context.cookies()).map((cookie) => cookie.name)).not.toContain(
+      '__Host-dhaaga_rt',
+    );
     // The backend sends a new code to the same number only after its 30-second wait (OTP_RESEND_WAIT).
     await page.waitForTimeout(31_000);
     await logIn(page, phone);

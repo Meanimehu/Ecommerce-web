@@ -45,25 +45,25 @@ export function Pagination({
               </a>
             </li>
           ) : null}
-          {numbers.map((n, i) =>
-            n === null ? (
-              <li key={`gap-${i}`} aria-hidden="true" className="px-1 text-muted-foreground">
+          {numbers.map((shownPage, index) =>
+            shownPage === null ? (
+              <li key={`gap-${index}`} aria-hidden="true" className="px-1 text-muted-foreground">
                 …
               </li>
             ) : (
-              <li key={n}>
+              <li key={shownPage}>
                 <a
-                  href={hrefFor(n)}
-                  aria-current={n === page ? 'page' : undefined}
+                  href={hrefFor(shownPage)}
+                  aria-current={shownPage === page ? 'page' : undefined}
                   className={cn(
                     item,
-                    n === page
+                    shownPage === page
                       ? 'border-ink bg-ink text-surface'
                       : 'border-control bg-surface text-ink hover:border-ink',
                   )}
                 >
                   <span className="sr-only">{messages.table.page} </span>
-                  {n}
+                  {shownPage}
                 </a>
               </li>
             ),
@@ -87,13 +87,17 @@ export function Pagination({
 
 /** Page numbers to show: the first, the last, and two either side of the current one, with gaps as null. */
 export function pageWindow(page: number, pages: number): (number | null)[] {
-  const wanted = new Set([1, pages, page - 1, page, page + 1].filter((n) => n >= 1 && n <= pages));
-  const sorted = [...wanted].sort((a, b) => a - b);
+  const wanted = new Set(
+    [1, pages, page - 1, page, page + 1].filter(
+      (candidate) => candidate >= 1 && candidate <= pages,
+    ),
+  );
+  const sorted = [...wanted].sort((left, right) => left - right);
   const out: (number | null)[] = [];
-  for (const n of sorted) {
+  for (const shownPage of sorted) {
     const last = out.at(-1);
-    if (typeof last === 'number' && n - last > 1) out.push(null);
-    out.push(n);
+    if (typeof last === 'number' && shownPage - last > 1) out.push(null);
+    out.push(shownPage);
   }
   return out;
 }
