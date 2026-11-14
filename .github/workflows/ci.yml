@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   checks:
-    name: Lint, types, messages, generated types, unit tests, build
+    name: Lint, format, types, messages, generated types, unit tests, build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,6 +20,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
+      - run: npm run format:check
       - run: npm run typecheck
       - run: npm run check:messages
       # Regenerates the request types from the stored OpenAPI description and fails on any difference (D7-02).
