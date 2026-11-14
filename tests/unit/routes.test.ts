@@ -6,19 +6,23 @@ import {
   adminHomePath,
   adminVendorPath,
   adminVendorsPath,
+  cartPath,
+  categoryPath,
   homePath,
   loginPath,
   moderationProductPath,
   moderationQueuePath,
   myProductPath,
   myProductsPath,
+  productPath,
+  productSlug,
   vendorApplyPath,
   vendorHomePath,
 } from '@/lib/routes';
 
 /**
  * Each helper gives exactly the address the screens wrote by hand before step 7 (Document 7,
- * 20.13), in both languages.
+ * 20.13), in both languages; the storefront's are the addresses of Document 4 (D4-02), from step 8.
  */
 const ID = '01a1d4d5-73fb-7299-bb02-81bb43c19bf6';
 
@@ -31,6 +35,20 @@ describe('page addresses (lib/routes.ts)', () => {
       '/hi/login?next=%2Fhi%2Fvendor%2Fapply%3Fstep%3Daddress',
     );
     expect(accountPath('en')).toBe('/en/account');
+  });
+
+  it('the storefront: the cart, a category, a product with its readable name (D4-02)', () => {
+    expect(cartPath('en')).toBe('/en/cart');
+    expect(categoryPath('hi', 'women-kurtas')).toBe('/hi/category/women-kurtas');
+    expect(productPath('hi', ID, 'Slim Fit Chinos')).toBe(`/hi/product/${ID}/slim-fit-chinos`);
+  });
+
+  it('makes the readable part of a product address from the title, never empty', () => {
+    expect(productSlug('Chanderi Cotton Anarkali Dress')).toBe('chanderi-cotton-anarkali-dress');
+    expect(productSlug('  Kurta — Indigo / 100% cotton!  ')).toBe('kurta-indigo-100-cotton');
+    expect(productSlug('Crème brûlée')).toBe('creme-brulee');
+    expect(productSlug('कुर्ता')).toBe('product');
+    expect(productSlug('a'.repeat(79) + ' b')).toBe('a'.repeat(79));
   });
 
   it('the vendor area: home, the application and its steps, products and their steps', () => {
