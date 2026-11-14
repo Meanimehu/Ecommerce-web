@@ -9,7 +9,7 @@ import { defineConfig, devices } from '@playwright/test';
  * E2E_INSTALLED_BROWSERS (optional) also runs the installed Google Chrome and Microsoft Edge (Document 7, section 11);
  * CI sets it, because its machines have both.
  * E2E_BACKEND_LOG (optional) is the local backend's log file; login tests read the mock SMS code from it and are
- * skipped without it.
+ * skipped without it. With a backend, run them with scripts/e2e-with-backend.sh, as CI does (Document 7, section 11).
  */
 const chromiumPath = process.env.PW_CHROMIUM_EXECUTABLE;
 const chromium = chromiumPath ? { launchOptions: { executablePath: chromiumPath } } : {};
