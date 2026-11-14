@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { AreaShell } from '@/features/layout/components/area-shell';
-import { vendorNav } from '@/features/layout/menus';
+import { StaffArea, vendorNav } from '@/features/layout/menus';
 import { getMessages } from '@/lib/messages';
 import { vendorApplyPath } from '@/lib/routes';
 import { requireUser, Unavailable } from '@/features/auth/components/require-user';
@@ -32,7 +32,7 @@ export async function VendorArea({
   if (needsVendor && !hasVendor) redirect(vendorApplyPath(lang));
 
   return (
-    <AreaShell lang={lang} area="vendor" nav={vendorNav(lang, getMessages(lang), hasVendor)}>
+    <AreaShell lang={lang} area={StaffArea.Vendor} nav={vendorNav(lang, getMessages(lang), hasVendor)}>
       {children}
     </AreaShell>
   );

@@ -1,4 +1,4 @@
-import type { Locale } from '@/lib/i18n';
+import { isLocale, type Locale } from '@/lib/i18n';
 
 /**
  * Every page address of our site, one helper per kind of page (Document 7, 20.2; Document 4,
@@ -17,6 +17,12 @@ const withStep = (path: string, step?: string) => (step ? `${path}?step=${step}`
 // ---- Everyone ----
 
 export const homePath = (lang: Locale) => `/${lang}`;
+
+/** The same page in another language (the language switch, Document 4, section 6). */
+export function samePageIn(pathname: string, lang: Locale): string {
+  const [, firstPart, ...rest] = pathname.split('/');
+  return isLocale(firstPart) ? ['', lang, ...rest].join('/') : pathname;
+}
 
 /** The login page; `nextPage` is where to return after login (Document 4, section 9). */
 export const loginPath = (lang: Locale, nextPage?: string) =>

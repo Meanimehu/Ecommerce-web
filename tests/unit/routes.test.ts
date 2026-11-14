@@ -16,6 +16,7 @@ import {
   myProductsPath,
   productPath,
   productSlug,
+  samePageIn,
   vendorApplyPath,
   vendorHomePath,
 } from '@/lib/routes';
@@ -69,5 +70,19 @@ describe('page addresses (lib/routes.ts)', () => {
     expect(adminCataloguePath('en', 'hsn-codes')).toBe('/en/admin/catalogue/hsn-codes');
     expect(moderationQueuePath('en')).toBe('/en/admin/moderation');
     expect(moderationProductPath('hi', ID)).toBe(`/hi/admin/moderation/${ID}`);
+  });
+});
+
+describe('the same page in another language (the language switch)', () => {
+  it('changes only the language part of the address', () => {
+    expect(samePageIn('/en/category/women', 'hi')).toBe('/hi/category/women');
+    expect(samePageIn('/hi/login', 'en')).toBe('/en/login');
+    expect(samePageIn('/en', 'hi')).toBe('/hi');
+    expect(samePageIn('/hi/vendor/products/abc', 'en')).toBe('/en/vendor/products/abc');
+  });
+
+  it('leaves an address with no language part as it is', () => {
+    expect(samePageIn('/', 'hi')).toBe('/');
+    expect(samePageIn('/english/page', 'hi')).toBe('/english/page');
   });
 });

@@ -4,9 +4,9 @@ import { LanguageSwitch } from './language-switch';
 import { Wordmark } from './wordmark';
 
 /**
- * The storefront header (Document 6, 7.3): surface bar with the wordmark, the language switch, "Log in" or the account,
- * and the cart with its count, with the stitch line under it. Search and the category row arrive in Slice 3. It is not
- * fixed, so it never covers content (D6-22).
+ * The storefront header (Document 6, 7.3): surface bar with the wordmark, the language switch,
+ * "Log in" or the account, and the cart with its count, with the stitch line under it. Search and
+ * the category row arrive in Slice 3. It is not fixed, so it never covers content (D6-22).
  */
 export function SiteHeader({ lang }: { lang: Locale }) {
   return (
