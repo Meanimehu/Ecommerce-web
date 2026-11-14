@@ -385,7 +385,7 @@ storefront's buy box uses its call hooks; the login endpoint asks it to run the 
 
 | Folder | What it holds |
 | --- | --- |
-| `scripts/` | `gen-types`, `gen-error-codes` (the code list and its enum), `check-messages` (also checks the enum) with `message-checks.ts`, what it checks, and copying files after a build |
+| `scripts/` | `gen-types`, `gen-error-codes` (the code list and its enum), `check-messages` (also checks the enum) with `message-checks.ts`, what it checks, `e2e-with-backend.sh` (the end-to-end specs against a local backend, one file at a time, as CI runs them), and copying files after a build |
 | `.prettierrc.json`, `eslint.config.mjs` | Formatting (100-character lines) and lint; the files already following Document 7, section 20 are listed in the lint settings |
 | `tests/unit/` | Fast tests of the helpers (Vitest) |
 | `tests/e2e/` | Browser tests against the real backend (Playwright), one spec per feature; `support/` holds the shared steps (`login.ts`, `flows.ts`, `products.ts`: approved products with stock for the storefront and cart specs), `requests.ts` (`nextRequestBody`: what a click really sent) and `page-size.ts` (the first-load budget, Document 6, section 14); `fixtures/` holds the garment illustrations used as test photos |
