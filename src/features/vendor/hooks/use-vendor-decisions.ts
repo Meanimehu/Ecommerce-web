@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useToast } from '@/components/common/toast';
 import { BackendErrorCode } from '@/lib/error-codes';
+import type { ReasonOutcome } from '@/hooks/use-reason-dialog';
 import type { AppError } from '@/lib/errors';
 import { useMessages } from '@/lib/messages-context';
 import { DocumentDecision, VendorDecision } from '@/features/vendor/types';
@@ -12,8 +13,8 @@ import { useDecideVendor, useReviewVendorDocument } from './use-vendor';
  * The admin's decisions on one vendor application (Document 5, section 8.3): approve, reject,
  * suspend and unsuspend the vendor, and approve or reject each document. The backend decides
  * whether a change is allowed; when approval is refused it lists what is lacking. A decision that
- * needs a reason is made in a reason dialog, which shows its own error, so it returns the call's
- * promise; the others show their error here. The screen, `vendor-review.tsx`, only draws.
+ * needs a reason is made in a reason dialog, which shows its own error: it hands this hook the
+ * reason with what to do on success and on error (20.9); the others show their error here. The screen, `vendor-review.tsx`, only draws.
  */
 export function useVendorDecisions(vendorId: string) {
   const messages = useMessages();
@@ -49,20 +50,41 @@ export function useVendorDecisions(vendorId: string) {
     );
   }
 
-  const rejectVendor = (reason: string) =>
-    decideVendor
-      .mutateAsync({ decision: VendorDecision.Reject, reason })
-      .then(() => showDecided(decisionMessages.rejected));
+  /** A decision made in the reason dialog: the toast, then the dialog closes. */
+  function showDecidedWithReason(successMessage: string, outcome: ReasonOutcome) {
+    showDecided(successMessage);
+    outcome.onSuccess();
+  }
 
-  const suspendVendor = (reason: string) =>
-    decideVendor
-      .mutateAsync({ decision: VendorDecision.Suspend, reason })
-      .then(() => showDecided(decisionMessages.suspended));
+  function rejectVendor(reason: string, outcome: ReasonOutcome) {
+    decideVendor.mutate(
+      { decision: VendorDecision.Reject, reason },
+      {
+        onSuccess: () => showDecidedWithReason(decisionMessages.rejected, outcome),
+        onError: outcome.onError,
+      },
+    );
+  }
 
-  const rejectDocument = (documentId: string) => (reason: string) =>
-    reviewVendorDocument
-      .mutateAsync({ documentId, decision: DocumentDecision.Reject, reason })
-      .then(() => showDecided(decisionMessages.docRejected));
+  function suspendVendor(reason: string, outcome: ReasonOutcome) {
+    decideVendor.mutate(
+      { decision: VendorDecision.Suspend, reason },
+      {
+        onSuccess: () => showDecidedWithReason(decisionMessages.suspended, outcome),
+        onError: outcome.onError,
+      },
+    );
+  }
+
+  const rejectDocument = (documentId: string) => (reason: string, outcome: ReasonOutcome) => {
+    reviewVendorDocument.mutate(
+      { documentId, decision: DocumentDecision.Reject, reason },
+      {
+        onSuccess: () => showDecidedWithReason(decisionMessages.docRejected, outcome),
+        onError: outcome.onError,
+      },
+    );
+  };
 
   // Approval refused because something is lacking: the backend lists what.
   const outstanding = decisionError?.details?.outstanding;

@@ -16,9 +16,14 @@ export function Breadcrumbs({ items, label }: { items: readonly Crumb[]; label: 
       <ol className="hidden flex-wrap items-center gap-1.5 sm:flex">
         {items.map((item, index) => (
           <li key={`${item.label}-${index}`} className="flex items-center gap-1.5">
-            {index > 0 ? <ChevronRight aria-hidden="true" className="size-4 text-muted-foreground" /> : null}
+            {index > 0 ? (
+              <ChevronRight aria-hidden="true" className="size-4 text-muted-foreground" />
+            ) : null}
             {item.href ? (
-              <a href={item.href} className="text-muted-foreground underline-offset-4 hover:text-ink hover:underline">
+              <a
+                href={item.href}
+                className="text-muted-foreground underline-offset-4 hover:text-ink hover:underline"
+              >
                 {item.label}
               </a>
             ) : (
@@ -30,7 +35,10 @@ export function Breadcrumbs({ items, label }: { items: readonly Crumb[]; label: 
         ))}
       </ol>
       {parent?.href ? (
-        <a href={parent.href} className="inline-flex min-h-11 items-center gap-1 text-muted-foreground no-underline hover:text-ink sm:hidden">
+        <a
+          href={parent.href}
+          className="inline-flex min-h-11 items-center gap-1 text-muted-foreground no-underline hover:text-ink sm:hidden"
+        >
           <ChevronLeft aria-hidden="true" className="size-4" />
           {parent.label}
         </a>

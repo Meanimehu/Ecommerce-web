@@ -4,8 +4,16 @@ import { TEST_PDF } from './files';
 
 /** Whole steps that several end-to-end tests go through, the way a person does them on the screens. */
 
-export const KURTA_PHOTO = { name: 'kurta.png', mimeType: 'image/png', buffer: readFileSync('tests/e2e/fixtures/garment-kurta.png') };
-export const SHIRT_PHOTO = { name: 'shirt.png', mimeType: 'image/png', buffer: readFileSync('tests/e2e/fixtures/garment-shirt.png') };
+export const KURTA_PHOTO = {
+  name: 'kurta.png',
+  mimeType: 'image/png',
+  buffer: readFileSync('tests/e2e/fixtures/garment-kurta.png'),
+};
+export const SHIRT_PHOTO = {
+  name: 'shirt.png',
+  mimeType: 'image/png',
+  buffer: readFileSync('tests/e2e/fixtures/garment-shirt.png'),
+};
 
 /** A person with no vendor fills in every step of the application and submits it (Document 5, section 7.1). */
 export async function applyAsVendor(page: Page, shop: string, phone: string) {
@@ -26,7 +34,9 @@ export async function applyAsVendor(page: Page, shop: string, phone: string) {
   await page.goto('/en/vendor/apply?step=documents');
   const chooser = page.waitForEvent('filechooser');
   await page.getByRole('button', { name: /^Add file\s*: PAN card$/ }).click();
-  await (await chooser).setFiles({ name: 'pan.pdf', mimeType: 'application/pdf', buffer: TEST_PDF });
+  await (
+    await chooser
+  ).setFiles({ name: 'pan.pdf', mimeType: 'application/pdf', buffer: TEST_PDF });
   await expect(page.getByText(/^pan\.pdf · /)).toBeVisible();
   await page.goto('/en/vendor/apply?step=review');
   await page.getByLabel('I have read and agree to the vendor terms').check();
@@ -45,10 +55,16 @@ export async function approveVendor(admin: Page, shop: string) {
 }
 
 /** An approved vendor adds a product through every step (size M, ₹1,999 MRP, ₹1,499.50) and submits it. Returns its address. */
-export async function addAndSubmitProduct(vendor: Page, title: string, sku: string): Promise<string> {
+export async function addAndSubmitProduct(
+  vendor: Page,
+  title: string,
+  sku: string,
+): Promise<string> {
   await vendor.goto('/en/vendor/products/add');
   await vendor.getByRole('textbox', { name: 'Title' }).fill(title);
-  await vendor.getByRole('combobox', { name: 'Category' }).selectOption({ label: 'Women › Kurtas' });
+  await vendor
+    .getByRole('combobox', { name: 'Category' })
+    .selectOption({ label: 'Women › Kurtas' });
   await expect(vendor.getByText(/The category's default: HSN \d+, GST \d+%/)).toBeVisible();
   await vendor.getByRole('button', { name: 'Save and continue' }).click();
   await expect(vendor).toHaveURL(/\/en\/vendor\/products\/[0-9a-f-]+\?step=attributes$/);
@@ -61,7 +77,9 @@ export async function addAndSubmitProduct(vendor: Page, title: string, sku: stri
   await vendor.getByRole('textbox', { name: 'MRP (₹)' }).fill('1999');
   await vendor.getByRole('textbox', { name: 'Selling price (₹)' }).fill('1499.50');
   await vendor.getByRole('button', { name: 'Save variant' }).click();
-  await expect(vendor.getByText('₹1,499.50', { exact: true }).filter({ visible: true })).toBeVisible();
+  await expect(
+    vendor.getByText('₹1,499.50', { exact: true }).filter({ visible: true }),
+  ).toBeVisible();
   await vendor.getByRole('link', { name: 'Continue' }).click();
 
   await expect(vendor).toHaveURL(/step=photos/);
@@ -75,7 +93,11 @@ export async function addAndSubmitProduct(vendor: Page, title: string, sku: stri
   await expect(vendor).toHaveURL(/step=review/);
   await expect(vendor.getByText('Everything needed is here.')).toBeVisible();
   await vendor.getByRole('button', { name: 'Submit for review' }).click();
-  await expect(vendor.getByText('This product is waiting for review and cannot be changed until a moderator decides.')).toBeVisible();
+  await expect(
+    vendor.getByText(
+      'This product is waiting for review and cannot be changed until a moderator decides.',
+    ),
+  ).toBeVisible();
   return address;
 }
 

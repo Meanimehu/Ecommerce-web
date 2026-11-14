@@ -29,7 +29,10 @@ async function fetchSpec(): Promise<string> {
   const base = process.env.BACKEND_URL ?? 'http://localhost:3000';
   const url = `${base.replace(/\/$/, '')}/api/docs-json`;
   const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
-  if (!response.ok) throw new Error(`${url} answered ${response.status}. Is the backend running with its API docs on?`);
+  if (!response.ok)
+    throw new Error(
+      `${url} answered ${response.status}. Is the backend running with its API docs on?`,
+    );
   return `${JSON.stringify(await response.json(), null, 2)}\n`;
 }
 
@@ -73,36 +76,52 @@ async function main(): Promise<void> {
     const spec = await readFile(SPEC, 'utf8');
     await writeFile(TYPES, await typesFrom(spec));
     await writeFile(CALLS, callsFrom(spec));
-    console.log(`Regenerated ${TYPES.slice(root.length)} and ${CALLS.slice(root.length)} from the stored description.`);
+    console.log(
+      `Regenerated ${TYPES.slice(root.length)} and ${CALLS.slice(root.length)} from the stored description.`,
+    );
     return;
   }
   if (check && live) {
     const [fresh, stored] = await Promise.all([fetchSpec(), readFile(SPEC, 'utf8')]);
     if (fresh !== stored) {
-      console.error('The backend OpenAPI description has changed since it was stored. Run npm run gen:types and review the difference.');
+      console.error(
+        'The backend OpenAPI description has changed since it was stored. Run npm run gen:types and review the difference.',
+      );
       process.exit(1);
     }
     console.log('The stored OpenAPI description matches the backend.');
     return;
   }
   if (check) {
-    const [spec, stored, storedCalls] = await Promise.all([readFile(SPEC, 'utf8'), readFile(TYPES, 'utf8'), readFile(CALLS, 'utf8').catch(() => '')]);
+    const [spec, stored, storedCalls] = await Promise.all([
+      readFile(SPEC, 'utf8'),
+      readFile(TYPES, 'utf8'),
+      readFile(CALLS, 'utf8').catch(() => ''),
+    ]);
     if ((await typesFrom(spec)) !== stored) {
-      console.error('src/types/generated/backend-api.d.ts does not match the stored description. Run npm run gen:types; never edit it by hand.');
+      console.error(
+        'src/types/generated/backend-api.d.ts does not match the stored description. Run npm run gen:types; never edit it by hand.',
+      );
       process.exit(1);
     }
     if (callsFrom(spec) !== storedCalls) {
-      console.error('src/types/generated/backend-calls.ts does not match the stored description. Run npm run gen:types; never edit it by hand.');
+      console.error(
+        'src/types/generated/backend-calls.ts does not match the stored description. Run npm run gen:types; never edit it by hand.',
+      );
       process.exit(1);
     }
-    console.log('Generated request types and backend-call names match the stored OpenAPI description.');
+    console.log(
+      'Generated request types and backend-call names match the stored OpenAPI description.',
+    );
     return;
   }
   const spec = await fetchSpec();
   await writeFile(SPEC, spec);
   await writeFile(TYPES, await typesFrom(spec));
   await writeFile(CALLS, callsFrom(spec));
-  console.log(`Stored the description and regenerated ${TYPES.slice(root.length)} and ${CALLS.slice(root.length)}. Review the difference before committing.`);
+  console.log(
+    `Stored the description and regenerated ${TYPES.slice(root.length)} and ${CALLS.slice(root.length)}. Review the difference before committing.`,
+  );
 }
 
 main().catch((error: unknown) => {

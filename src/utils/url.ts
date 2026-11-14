@@ -16,8 +16,10 @@ export function withQuery(path: string, query?: Query): string {
 /** A whole number from an address value such as ?page=2, or the fallback. */
 export function pageNumber(value: string | string[] | null | undefined, fallback = 1): number {
   const text = Array.isArray(value) ? value[0] : value;
-  const n = Number(text);
-  return Number.isInteger(n) && n >= 1 && n <= 100_000 ? n : fallback;
+  const pageValue = Number(text);
+  return Number.isInteger(pageValue) && pageValue >= 1 && pageValue <= 100_000
+    ? pageValue
+    : fallback;
 }
 
 /** Only the named values of an address's query, as the backend list takes them (unknown ones are refused there). */

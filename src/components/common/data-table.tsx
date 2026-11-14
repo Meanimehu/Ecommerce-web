@@ -16,9 +16,19 @@ export interface Column<T> {
   lead?: boolean;
 }
 
-export function DataTable<T>({ rows, columns, rowKey, caption }: { rows: readonly T[]; columns: readonly Column<T>[]; rowKey: (row: T) => string; caption: string }) {
-  const lead = columns.filter((c) => c.lead);
-  const rest = columns.filter((c) => !c.lead);
+export function DataTable<T>({
+  rows,
+  columns,
+  rowKey,
+  caption,
+}: {
+  rows: readonly T[];
+  columns: readonly Column<T>[];
+  rowKey: (row: T) => string;
+  caption: string;
+}) {
+  const lead = columns.filter((column) => column.lead);
+  const rest = columns.filter((column) => !column.lead);
   return (
     <>
       <div className="hidden overflow-x-auto rounded-1 border border-line bg-surface md:block">
@@ -27,7 +37,14 @@ export function DataTable<T>({ rows, columns, rowKey, caption }: { rows: readonl
           <thead className="bg-sunken">
             <tr>
               {columns.map((column) => (
-                <th key={column.key} scope="col" className={cn('h-11 px-4 type-small font-medium whitespace-nowrap text-ink-2', column.numeric ? 'text-end' : 'text-start')}>
+                <th
+                  key={column.key}
+                  scope="col"
+                  className={cn(
+                    'h-11 px-4 type-small font-medium whitespace-nowrap text-ink-2',
+                    column.numeric ? 'text-end' : 'text-start',
+                  )}
+                >
                   {column.header}
                 </th>
               ))}
@@ -35,9 +52,18 @@ export function DataTable<T>({ rows, columns, rowKey, caption }: { rows: readonl
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={rowKey(row)} className="border-t border-line transition-colors duration-100 hover:bg-page">
+              <tr
+                key={rowKey(row)}
+                className="border-t border-line transition-colors duration-100 hover:bg-page"
+              >
                 {columns.map((column) => (
-                  <td key={column.key} className={cn('h-14 px-4 py-2 align-middle', column.numeric && 'text-end tabular-nums')}>
+                  <td
+                    key={column.key}
+                    className={cn(
+                      'h-14 px-4 py-2 align-middle',
+                      column.numeric && 'text-end tabular-nums',
+                    )}
+                  >
                     {column.cell(row)}
                   </td>
                 ))}
@@ -58,7 +84,9 @@ export function DataTable<T>({ rows, columns, rowKey, caption }: { rows: readonl
               {rest.map((column) => (
                 <div key={column.key} className="flex flex-wrap justify-between gap-2">
                   <dt className="text-ink-2">{column.header}</dt>
-                  <dd className={cn('text-ink', column.numeric && 'tabular-nums')}>{column.cell(row)}</dd>
+                  <dd className={cn('text-ink', column.numeric && 'tabular-nums')}>
+                    {column.cell(row)}
+                  </dd>
                 </div>
               ))}
             </dl>

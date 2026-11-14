@@ -6,7 +6,9 @@ import { pageNumber, pick, withQuery } from '@/utils/url';
 
 describe('list addresses (Document 4, section 7; Document 5, section 3)', () => {
   it('leaves out empty values and keeps keys in one order, so equal requests look the same', () => {
-    expect(withQuery('/api/admin/vendors', { status: 'submitted', q: '', page: 2, limit: 20 })).toBe('/api/admin/vendors?limit=20&page=2&status=submitted');
+    expect(
+      withQuery('/api/admin/vendors', { status: 'submitted', q: '', page: 2, limit: 20 }),
+    ).toBe('/api/admin/vendors?limit=20&page=2&status=submitted');
     expect(withQuery('/x', { b: '1', a: '2' })).toBe(withQuery('/x', { a: '2', b: '1' }));
     expect(withQuery('/x', {})).toBe('/x');
   });
@@ -20,7 +22,9 @@ describe('list addresses (Document 4, section 7; Document 5, section 3)', () => 
   });
 
   it('passes on only the filters a list takes', () => {
-    expect(pick(new URLSearchParams('status=draft&evil=1&page=2&q='), ['status', 'page', 'q'])).toEqual({ status: 'draft', page: '2' });
+    expect(
+      pick(new URLSearchParams('status=draft&evil=1&page=2&q='), ['status', 'page', 'q']),
+    ).toEqual({ status: 'draft', page: '2' });
   });
 
   it('shows the first, the last and the pages around the current one', () => {
@@ -32,7 +36,9 @@ describe('list addresses (Document 4, section 7; Document 5, section 3)', () => 
 
 describe('uploads (Document 3, section 10)', () => {
   it('says at once when a document is too large or of a type the backend refuses', () => {
-    expect(checkFile({ size: 5 * 1024 * 1024 + 1, type: 'application/pdf' }, 'document')).toBe('FILE_TOO_LARGE');
+    expect(checkFile({ size: 5 * 1024 * 1024 + 1, type: 'application/pdf' }, 'document')).toBe(
+      'FILE_TOO_LARGE',
+    );
     expect(checkFile({ size: 1000, type: 'image/gif' }, 'document')).toBe('FILE_TYPE_NOT_ALLOWED');
     expect(checkFile({ size: 1000, type: 'application/pdf' }, 'document')).toBeNull();
     expect(checkFile({ size: 9 * 1024 * 1024, type: 'image/webp' }, 'photo')).toBeNull();
@@ -49,7 +55,8 @@ describe('uploads (Document 3, section 10)', () => {
 });
 
 describe('a streamed upload is sent once (Document 3, section 10)', () => {
-  const token = (exp: number) => `x.${Buffer.from(JSON.stringify({ exp })).toString('base64url')}.y`;
+  const token = (exp: number) =>
+    `x.${Buffer.from(JSON.stringify({ exp })).toString('base64url')}.y`;
   it('renews the login first when the access token is about to expire', () => {
     const now = Math.floor(Date.now() / 1000);
     expect(expiresWithin(token(now + 30), 60)).toBe(true);

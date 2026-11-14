@@ -7,7 +7,9 @@ const fresh = { accessToken: 'new-access', refreshToken: 'new-refresh', expiresI
 describe('refreshing a session (Document 4, section 9; D4-11)', () => {
   it('requests that arrive together share one refresh', async () => {
     let release: () => void = () => undefined;
-    const backend = vi.fn(() => new Promise<typeof fresh>((resolve) => (release = () => resolve(fresh))));
+    const backend = vi.fn(
+      () => new Promise<typeof fresh>((resolve) => (release = () => resolve(fresh))),
+    );
     const first = refreshSession('token-a', backend);
     const second = refreshSession('token-a', backend);
     release();
@@ -30,11 +32,16 @@ describe('refreshing a session (Document 4, section 9; D4-11)', () => {
     ['TIMEOUT', { ok: false, outcome: 'temporary' }],
     ['SERVER_ERROR', { ok: false, outcome: 'temporary' }],
   ])('backend answer %s', async (code, expected) => {
-    const backend = vi.fn().mockRejectedValue(new AppError({ code, status: code === 'TIMEOUT' ? 0 : 401 }));
+    const backend = vi
+      .fn()
+      .mockRejectedValue(new AppError({ code, status: code === 'TIMEOUT' ? 0 : 401 }));
     expect(await refreshSession(`token-${code}`, backend)).toEqual(expected);
   });
 
   it('anything unexpected logs nobody out', async () => {
-    expect(await refreshSession('token-c', vi.fn().mockRejectedValue(new Error('boom')))).toEqual({ ok: false, outcome: 'temporary' });
+    expect(await refreshSession('token-c', vi.fn().mockRejectedValue(new Error('boom')))).toEqual({
+      ok: false,
+      outcome: 'temporary',
+    });
   });
 });

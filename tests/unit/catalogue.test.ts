@@ -42,7 +42,7 @@ describe('catalogue lists (area-3a-catalogue.md)', () => {
       category('trousers', 'men', 'Trousers'),
       category('shirts', 'men', 'Shirts', -1),
     ];
-    expect(inTreeOrder(list).map((c) => c.id)).toEqual([
+    expect(inTreeOrder(list).map((node) => node.id)).toEqual([
       'men',
       'shirts',
       'trousers',
@@ -52,7 +52,7 @@ describe('catalogue lists (area-3a-catalogue.md)', () => {
   });
 
   it('keeps a category whose parent is missing, at the top level', () => {
-    expect(inTreeOrder([category('a', 'gone', 'A')]).map((c) => c.id)).toEqual(['a']);
+    expect(inTreeOrder([category('a', 'gone', 'A')]).map((node) => node.id)).toEqual(['a']);
   });
 
   it('sends options and filterable only for a choice attribute', () => {

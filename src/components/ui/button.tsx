@@ -25,8 +25,10 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary: 'bg-madder text-white hover:bg-madder-hover active:bg-madder-press',
-        secondary: 'border-control bg-surface text-ink hover:border-ink active:border-ink active:bg-sunken',
-        quiet: 'bg-transparent text-madder hover:text-madder-hover active:bg-sunken active:text-madder-press',
+        secondary:
+          'border-control bg-surface text-ink hover:border-ink active:border-ink active:bg-sunken',
+        quiet:
+          'bg-transparent text-madder hover:text-madder-hover active:bg-sunken active:text-madder-press',
         destructive: 'border-error bg-surface text-error hover:bg-error-fill active:bg-error-fill',
         destructiveConfirm: 'bg-error text-white hover:bg-error-hover active:bg-error-hover',
       },
@@ -49,7 +51,16 @@ type ButtonProps = React.ComponentProps<'button'> &
     loading?: boolean;
   };
 
-function Button({ className, variant, size, asChild = false, loading = false, disabled, children, ...props }: ButtonProps) {
+function Button({
+  className,
+  variant,
+  size,
+  asChild = false,
+  loading = false,
+  disabled,
+  children,
+  ...props
+}: ButtonProps) {
   const Comp = asChild ? Slot.Root : 'button';
   return (
     <Comp

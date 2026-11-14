@@ -35,13 +35,23 @@ export function ErrorSummary<TValues extends FieldValues>({
 
   const fieldEntries = Object.entries(fieldIds)
     .filter(([name]) => get(errors, name))
-    .map(([name, id]) => ({ id: id as string, text: resolveMessage((get(errors, name) as { message?: string } | undefined)?.message, messages) }));
+    .map(([name, id]) => ({
+      id: id as string,
+      text: resolveMessage(
+        (get(errors, name) as { message?: string } | undefined)?.message,
+        messages,
+      ),
+    }));
   const rootEntries = Object.values(errors.root ?? {})
-    .filter((e): e is { message: string } => typeof e === 'object' && e !== null && typeof (e as { message?: unknown }).message === 'string')
-    .map((e) => e.message);
+    .filter(
+      (entry): entry is { message: string } =>
+        typeof entry === 'object' &&
+        entry !== null &&
+        typeof (entry as { message?: unknown }).message === 'string',
+    )
+    .map((entry) => entry.message);
   const count = fieldEntries.length + rootEntries.length;
   const visible = count > 0 && (submitCount > 0 || rootEntries.length > 0);
-
 
   // React Hook Form marks the submit after the form's callbacks run, so the summary may appear one render after the
   // signal. Focus it once it is on screen, once per signal.
@@ -54,7 +64,8 @@ export function ErrorSummary<TValues extends FieldValues>({
   });
 
   if (!visible) return null;
-  const heading = count === 1 ? messages.form.summaryOne : fill(messages.form.summaryMany, { count });
+  const heading =
+    count === 1 ? messages.form.summaryOne : fill(messages.form.summaryMany, { count });
   return (
     <div
       ref={ref}
@@ -65,31 +76,36 @@ export function ErrorSummary<TValues extends FieldValues>({
     >
       <CircleAlert aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-error" />
       <div className="grid min-w-0 flex-1 gap-1">
-      <h2 id="error-summary-heading" className="font-medium text-error">
-        {heading}
-      </h2>
-      <ul className="list-disc space-y-1 ps-5 type-small text-ink">
-        {fieldEntries.map((entry) => (
-          <li key={entry.id}>
-            <a
-              href={`#${entry.id}`}
-              className="text-madder underline underline-offset-4 hover:text-madder-hover"
-              onClick={(event) => {
-                event.preventDefault();
-                document.getElementById(entry.id)?.focus();
-              }}
-            >
-              {entry.text}
-            </a>
-          </li>
-        ))}
-        {rootEntries.map((text) => (
-          <li key={text}>{text}</li>
-        ))}
-      </ul>
-      {requestId && rootEntries.length > 0 ? (
-        <Reference requestId={requestId} copied={copiedFor === requestId} onCopy={() => setCopiedFor(requestId)} messages={messages} />
-      ) : null}
+        <h2 id="error-summary-heading" className="font-medium text-error">
+          {heading}
+        </h2>
+        <ul className="list-disc space-y-1 ps-5 type-small text-ink">
+          {fieldEntries.map((entry) => (
+            <li key={entry.id}>
+              <a
+                href={`#${entry.id}`}
+                className="text-madder underline underline-offset-4 hover:text-madder-hover"
+                onClick={(event) => {
+                  event.preventDefault();
+                  document.getElementById(entry.id)?.focus();
+                }}
+              >
+                {entry.text}
+              </a>
+            </li>
+          ))}
+          {rootEntries.map((text) => (
+            <li key={text}>{text}</li>
+          ))}
+        </ul>
+        {requestId && rootEntries.length > 0 ? (
+          <Reference
+            requestId={requestId}
+            copied={copiedFor === requestId}
+            onCopy={() => setCopiedFor(requestId)}
+            messages={messages}
+          />
+        ) : null}
       </div>
     </div>
   );

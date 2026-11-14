@@ -21,7 +21,10 @@ function Select({ className, children, ...props }: React.ComponentProps<'select'
       >
         {children}
       </select>
-      <ChevronDown aria-hidden="true" className="pointer-events-none absolute end-3 top-1/2 size-5 -translate-y-1/2 text-ink-2" />
+      <ChevronDown
+        aria-hidden="true"
+        className="pointer-events-none absolute end-3 top-1/2 size-5 -translate-y-1/2 text-ink-2"
+      />
     </div>
   );
 }

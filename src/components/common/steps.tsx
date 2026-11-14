@@ -15,7 +15,17 @@ export interface Step {
   done: boolean;
 }
 
-export function Steps({ steps, current, label, doneLabel }: { steps: readonly Step[]; current: string; label: string; doneLabel: string }) {
+export function Steps({
+  steps,
+  current,
+  label,
+  doneLabel,
+}: {
+  steps: readonly Step[];
+  current: string;
+  label: string;
+  doneLabel: string;
+}) {
   return (
     <nav aria-label={label} className="overflow-x-auto">
       <ol className="flex min-w-max gap-1 border-b border-line">
@@ -28,14 +38,14 @@ export function Steps({ steps, current, label, doneLabel }: { steps: readonly St
                 aria-current={isCurrent ? 'step' : undefined}
                 className={cn(
                   'flex min-h-11 items-center gap-2 border-b-[3px] px-2.5 pb-1 type-small text-ink-2 no-underline transition-colors duration-100 hover:text-ink',
-                  isCurrent ? 'border-ink font-medium text-ink' : step.done ? 'border-success' : 'border-transparent',
+                  stepLineClass(isCurrent, step.done),
                 )}
               >
                 <span
                   aria-hidden="true"
                   className={cn(
                     'inline-flex size-6 items-center justify-center rounded-full text-xs font-medium',
-                    step.done ? 'bg-success text-white' : isCurrent ? 'bg-ink text-surface' : 'bg-sunken text-ink-2',
+                    stepMarkClass(isCurrent, step.done),
                   )}
                 >
                   {step.done ? <Check className="size-4" /> : index + 1}
@@ -56,4 +66,16 @@ export function Steps({ steps, current, label, doneLabel }: { steps: readonly St
       </ol>
     </nav>
   );
+}
+
+/** The line under a step: ink for the current one, green when done, none otherwise. */
+function stepLineClass(isCurrent: boolean, isDone: boolean): string {
+  if (isCurrent) return 'border-ink font-medium text-ink';
+  return isDone ? 'border-success' : 'border-transparent';
+}
+
+/** The round mark of a step: green when done (even the current one), ink when current, grey otherwise. */
+function stepMarkClass(isCurrent: boolean, isDone: boolean): string {
+  if (isDone) return 'bg-success text-white';
+  return isCurrent ? 'bg-ink text-surface' : 'bg-sunken text-ink-2';
 }

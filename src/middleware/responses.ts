@@ -25,17 +25,34 @@ export function ok(body: unknown, status = 200): NextResponse {
   return NextResponse.json(body, { status, headers: PRIVATE });
 }
 
-export function fail(code: string, status: number, extra: Record<string, unknown> = {}, requestId?: string): NextResponse {
-  return NextResponse.json({ error: { code, ...(requestId ? { requestId } : {}), ...extra } }, { status, headers: PRIVATE });
+export function fail(
+  code: string,
+  status: number,
+  extra: Record<string, unknown> = {},
+  requestId?: string,
+): NextResponse {
+  return NextResponse.json(
+    { error: { code, ...(requestId ? { requestId } : {}), ...extra } },
+    { status, headers: PRIVATE },
+  );
 }
+
+/** No answer from the backend: it timed out (504) or could not be reached (502). */
+const connectionProblemStatus = (error: AppError) =>
+  error.code === AppErrorCode.Timeout ? HttpStatus.GatewayTimeout : HttpStatus.BadGateway;
 
 export function fromAppError(error: unknown): NextResponse {
   if (error instanceof AppError) {
-    const status = error.status === 0 ? (error.code === 'TIMEOUT' ? 504 : 502) : error.status;
+    const status = error.status === 0 ? connectionProblemStatus(error) : error.status;
     return fail(
       error.code,
       status,
-      { details: error.details, fields: error.fields, backendMessage: error.backendMessage, outcomeUnknown: error.outcomeUnknown },
+      {
+        details: error.details,
+        fields: error.fields,
+        backendMessage: error.backendMessage,
+        outcomeUnknown: error.outcomeUnknown,
+      },
       error.requestId,
     );
   }

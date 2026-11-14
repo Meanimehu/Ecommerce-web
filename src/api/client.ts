@@ -18,7 +18,13 @@ import { BACKEND_CALLS, type BackendCall } from '@/types/generated/backend-calls
 export type CallKind = 'view' | 'save' | 'upload' | 'loginCode' | 'refresh';
 
 /** Document 7, section 12 (provisional starting figures). */
-export const TIMEOUT_MS: Record<CallKind, number> = { view: 8000, save: 10000, upload: 60000, loginCode: 10000, refresh: 8000 };
+export const TIMEOUT_MS: Record<CallKind, number> = {
+  view: 8000,
+  save: 10000,
+  upload: 60000,
+  loginCode: 10000,
+  refresh: 8000,
+};
 const RETRY_PAUSES_MS = [500, 1500];
 const MAX_RATE_LIMIT_WAIT_MS = 5000;
 
@@ -47,7 +53,11 @@ export interface CallOptions<S extends z.ZodType | null> {
  * its last entry, and only if it is a real IP address. What the browser itself sends earlier in the header is ignored.
  */
 export function pickClientAddress(headerValue: string | null | undefined): string | undefined {
-  const last = (headerValue ?? '').split(',').map((part) => part.trim()).filter(Boolean).at(-1);
+  const last = (headerValue ?? '')
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .at(-1);
   return last && isIP(last) ? last : undefined;
 }
 
@@ -75,23 +85,33 @@ export interface CallResult<T> {
   requestId?: string;
 }
 
-const defaultSleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+const defaultSleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 const jitter = (ms: number): number => Math.round(ms * (0.75 + Math.random() * 0.5));
 
 function retryWaitMs(error: AppError, attempt: number): number | null {
   if (attempt >= RETRY_PAUSES_MS.length) return null;
   if (error.status === 429) {
     const seconds = Number(error.details?.retryAfterSeconds);
-    const wait = Number.isFinite(seconds) && seconds > 0 ? seconds * 1000 : (RETRY_PAUSES_MS[attempt] ?? 0);
+    const wait =
+      Number.isFinite(seconds) && seconds > 0 ? seconds * 1000 : (RETRY_PAUSES_MS[attempt] ?? 0);
     return wait <= MAX_RATE_LIMIT_WAIT_MS ? wait : null;
   }
   // A response that does not match its schema is not a server failure: repeating the call would not change it.
   if (error.code === 'RESPONSE_MISMATCH') return null;
-  const retryable = error.code === 'NETWORK' || error.code === 'TIMEOUT' || error.status === 502 || error.status === 503 || error.status === 504 || error.status === 500;
+  const retryable =
+    error.code === 'NETWORK' ||
+    error.code === 'TIMEOUT' ||
+    error.status === 502 ||
+    error.status === 503 ||
+    error.status === 504 ||
+    error.status === 500;
   return retryable ? jitter(RETRY_PAUSES_MS[attempt] ?? 0) : null;
 }
 
-export async function callBackend<S extends z.ZodType | null>(options: CallOptions<S>): Promise<CallResult<S extends z.ZodType ? z.infer<S> : null>> {
+export async function callBackend<S extends z.ZodType | null>(
+  options: CallOptions<S>,
+): Promise<CallResult<S extends z.ZodType ? z.infer<S> : null>> {
   const sleep = options.sleep ?? defaultSleep;
   const safeRead = options.method === 'GET';
   for (let attempt = 0; ; attempt++) {
@@ -106,7 +126,9 @@ export async function callBackend<S extends z.ZodType | null>(options: CallOptio
   }
 }
 
-async function callOnce<S extends z.ZodType | null>(options: CallOptions<S>): Promise<CallResult<S extends z.ZodType ? z.infer<S> : null>> {
+async function callOnce<S extends z.ZodType | null>(
+  options: CallOptions<S>,
+): Promise<CallResult<S extends z.ZodType ? z.infer<S> : null>> {
   const changesData = options.method !== 'GET';
   const response = await send(options, changesData);
   const requestId = response.headers.get('x-request-id') ?? undefined;
@@ -131,13 +153,21 @@ async function callOnce<S extends z.ZodType | null>(options: CallOptions<S>): Pr
       code: 'RESPONSE_MISMATCH',
       status: 502,
       requestId,
-      backendMessage: serverConfig.isProduction ? undefined : `The answer of ${endpoint} does not match its schema (fields: ${fields.join(', ')}).`,
+      backendMessage: serverConfig.isProduction
+        ? undefined
+        : `The answer of ${endpoint} does not match its schema (fields: ${fields.join(', ')}).`,
     });
   }
   return { data: checked.data as never, status: response.status, requestId };
 }
 
-async function send(options: CallOptions<z.ZodType | null>, changesData: boolean): Promise<Response> {
+/** A JSON body, or none. */
+const jsonBody = (body: unknown) => (body === undefined ? undefined : JSON.stringify(body));
+
+async function send(
+  options: CallOptions<z.ZodType | null>,
+  changesData: boolean,
+): Promise<Response> {
   const doFetch = options.fetchImpl ?? fetch;
   const url = `${serverConfig.backendUrl}/api/v1${withQuery(options.path, options.query)}`;
   const headers: Record<string, string> = { accept: 'application/json' };
@@ -148,21 +178,28 @@ async function send(options: CallOptions<z.ZodType | null>, changesData: boolean
     if (options.upload.contentLength) headers['content-length'] = options.upload.contentLength;
   }
   // The customer's address, so the backend's per-address limits count each customer (Document 3, section 3).
-  const address = options.clientAddress === undefined ? await clientAddress() : options.clientAddress;
+  const address =
+    options.clientAddress === undefined ? await clientAddress() : options.clientAddress;
   if (address) headers['x-forwarded-for'] = address;
   try {
     return await doFetch(url, {
       method: options.method,
       headers,
-      body: options.upload ? options.upload.stream : options.body === undefined ? undefined : JSON.stringify(options.body),
+      body: options.upload ? options.upload.stream : jsonBody(options.body),
       signal: AbortSignal.timeout(TIMEOUT_MS[options.kind]),
       cache: 'no-store',
       // A streamed request body (Node.js needs this to send a stream).
       ...(options.upload ? { duplex: 'half' } : {}),
     } as RequestInit);
   } catch (error) {
-    const timedOut = error instanceof DOMException && (error.name === 'TimeoutError' || error.name === 'AbortError');
-    throw new AppError({ code: timedOut ? 'TIMEOUT' : 'NETWORK', status: 0, outcomeUnknown: changesData });
+    const timedOut =
+      error instanceof DOMException &&
+      (error.name === 'TimeoutError' || error.name === 'AbortError');
+    throw new AppError({
+      code: timedOut ? 'TIMEOUT' : 'NETWORK',
+      status: 0,
+      outcomeUnknown: changesData,
+    });
   }
 }
 
@@ -170,16 +207,31 @@ async function send(options: CallOptions<z.ZodType | null>, changesData: boolean
 function errorFrom(response: Response, json: unknown, changesData: boolean): AppError {
   const requestId = response.headers.get('x-request-id') ?? undefined;
   // "Too many requests": the wait the backend gives, from details or its headers (api-contract.md, sections 3 and 7).
-  const waitHeader = Number(response.headers.get('retry-after') ?? response.headers.get('x-ratelimit-reset'));
+  const waitHeader = Number(
+    response.headers.get('retry-after') ?? response.headers.get('x-ratelimit-reset'),
+  );
   const parsed = BackendErrorSchema.safeParse(json);
   if (!parsed.success) {
-    return new AppError({ code: response.status >= 500 ? 'SERVER_ERROR' : 'UNKNOWN_ERROR', status: response.status, requestId, outcomeUnknown: changesData && response.status >= 500 });
+    return new AppError({
+      code: response.status >= 500 ? 'SERVER_ERROR' : 'UNKNOWN_ERROR',
+      status: response.status,
+      requestId,
+      outcomeUnknown: changesData && response.status >= 500,
+    });
   }
   const { code, details, message } = parsed.data.error;
   const fields = Array.isArray(details) ? details : undefined;
   // Backend gap B1: details may carry a database constraint name. It is never used or passed on.
-  let cleanDetails = details && !Array.isArray(details) ? Object.fromEntries(Object.entries(details).filter(([k]) => k !== 'constraint')) : undefined;
-  if (response.status === 429 && cleanDetails?.retryAfterSeconds === undefined && Number.isFinite(waitHeader) && waitHeader > 0) {
+  let cleanDetails =
+    details && !Array.isArray(details)
+      ? Object.fromEntries(Object.entries(details).filter(([key]) => key !== 'constraint'))
+      : undefined;
+  if (
+    response.status === 429 &&
+    cleanDetails?.retryAfterSeconds === undefined &&
+    Number.isFinite(waitHeader) &&
+    waitHeader > 0
+  ) {
     cleanDetails = { ...cleanDetails, retryAfterSeconds: waitHeader };
   }
   return new AppError({
@@ -197,8 +249,22 @@ function errorFrom(response: Response, json: unknown, changesData: boolean): App
  * A private file from the backend (a vendor document, a photo not yet approved), passed on to the browser as it arrives
  * (Document 3, section 10). Returns the backend's answer when it is a file; an error answer becomes an AppError.
  */
-export async function openBackendFile(options: { path: string; token: string; fetchImpl?: typeof fetch }): Promise<Response> {
-  const response = await send({ method: 'GET', path: options.path, kind: 'upload', token: options.token, schema: null, fetchImpl: options.fetchImpl }, false);
+export async function openBackendFile(options: {
+  path: string;
+  token: string;
+  fetchImpl?: typeof fetch;
+}): Promise<Response> {
+  const response = await send(
+    {
+      method: 'GET',
+      path: options.path,
+      kind: 'upload',
+      token: options.token,
+      schema: null,
+      fetchImpl: options.fetchImpl,
+    },
+    false,
+  );
   if (response.ok) return response;
   const text = await response.text().catch(() => '');
   throw errorFrom(response, text ? safeJson(text) : undefined, false);
@@ -209,8 +275,12 @@ export async function openBackendFile(options: { path: string; token: string; fe
  * listed paths fit, the one with more fixed parts wins (`/vendors/me/imports/template` over `/vendors/me/imports/{id}`).
  * Undefined when none fits.
  */
-export function backendCallName(method: CallOptions<null>['method'], path: string): BackendCall | undefined {
-  return CALL_PATTERNS.find((pattern) => pattern.method === method && pattern.matches.test(path))?.call;
+export function backendCallName(
+  method: CallOptions<null>['method'],
+  path: string,
+): BackendCall | undefined {
+  return CALL_PATTERNS.find((pattern) => pattern.method === method && pattern.matches.test(path))
+    ?.call;
 }
 
 const CALL_PATTERNS = BACKEND_CALLS.map((call) => {

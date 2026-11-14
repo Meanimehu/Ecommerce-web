@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useToast } from '@/components/common/toast';
+import type { ReasonOutcome } from '@/hooks/use-reason-dialog';
 import type { AppError } from '@/lib/errors';
 import { useMessages } from '@/lib/messages-context';
 import { ProductDecision, type ModerationView } from '@/features/product/types';
@@ -11,8 +12,8 @@ import { useDecideProduct } from './use-product';
  * A moderator's decision on one product (Document 5, section 8.3). Both send the time the screen
  * was loaded (seenUpdatedAt): if the vendor changed the product meanwhile, the backend refuses
  * with REVIEW_STALE. Approving a vendor-declared tax needs the moderator to confirm it. Rejecting
- * needs a reason and is made in a reason dialog, which shows its own error, so it returns the
- * call's promise; approving shows its error here. The screen, `moderation-review.tsx`, only draws.
+ * needs a reason and is made in a reason dialog, which shows its own error: it hands this hook the
+ * reason with what to do on success and on error (20.9); approving shows its error here. The screen, `moderation-review.tsx`, only draws.
  */
 export function useProductDecision(view: ModerationView) {
   const messages = useMessages();
@@ -33,21 +34,21 @@ export function useProductDecision(view: ModerationView) {
     );
   }
 
-  const rejectProduct = (reason: string) =>
-    decideProduct
-      .mutateAsync({
-        decision: ProductDecision.Reject,
-        body: { seenUpdatedAt: view.seenUpdatedAt, reason },
-      })
-      .then(showRejected);
+  function rejectProduct(reason: string, outcome: ReasonOutcome) {
+    decideProduct.mutate(
+      { decision: ProductDecision.Reject, body: { seenUpdatedAt: view.seenUpdatedAt, reason } },
+      { onSuccess: () => showRejected(outcome), onError: outcome.onError },
+    );
+  }
 
   function showApproved() {
     toast(messages.moderation.approved);
   }
 
-  function showRejected() {
+  function showRejected(outcome: ReasonOutcome) {
     setDecisionError(null);
     toast(messages.moderation.rejected);
+    outcome.onSuccess();
   }
 
   const isApproving =

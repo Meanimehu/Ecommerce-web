@@ -1,7 +1,15 @@
 'use client';
 
 import { CircleCheck, X } from 'lucide-react';
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 
 /**
  * The success toast (Document 6, 8.10, D6-23): bottom on compact, bottom-left on expanded, visible for 6 seconds and
@@ -17,7 +25,13 @@ const ToastContext = createContext<(text: string) => void>(() => undefined);
 
 export const useToast = () => useContext(ToastContext);
 
-export function ToastProvider({ children, dismissLabel }: { children: ReactNode; dismissLabel: string }) {
+export function ToastProvider({
+  children,
+  dismissLabel,
+}: {
+  children: ReactNode;
+  dismissLabel: string;
+}) {
   const [toast, setToast] = useState<Toast | null>(null);
   const [held, setHeld] = useState(false);
   const counter = useRef(0);
@@ -37,7 +51,10 @@ export function ToastProvider({ children, dismissLabel }: { children: ReactNode;
     <ToastContext.Provider value={show}>
       {children}
       {/* Always present, so a new message is announced (Document 6, section 11). */}
-      <div role="status" className="pointer-events-none fixed inset-x-4 bottom-[max(16px,env(safe-area-inset-bottom))] z-50 flex justify-center lg:inset-x-auto lg:start-6 lg:justify-start">
+      <div
+        role="status"
+        className="pointer-events-none fixed inset-x-4 bottom-[max(16px,env(safe-area-inset-bottom))] z-50 flex justify-center lg:inset-x-auto lg:start-6 lg:justify-start"
+      >
         {toast ? (
           <div
             key={toast.id}

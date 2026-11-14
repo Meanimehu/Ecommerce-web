@@ -32,7 +32,11 @@ export async function VendorArea({
   if (needsVendor && !hasVendor) redirect(vendorApplyPath(lang));
 
   return (
-    <AreaShell lang={lang} area={StaffArea.Vendor} nav={vendorNav(lang, getMessages(lang), hasVendor)}>
+    <AreaShell
+      lang={lang}
+      area={StaffArea.Vendor}
+      nav={vendorNav(lang, getMessages(lang), hasVendor)}
+    >
       {children}
     </AreaShell>
   );
