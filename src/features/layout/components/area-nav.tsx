@@ -5,7 +5,7 @@ import { Menu, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useState, type ReactNode } from 'react';
 import { cn } from '@/utils/cn';
-import { NAV_ICONS, type NavIcon } from './nav-icons';
+import { NAV_ICONS, type NavIcon } from '@/features/layout/nav-icons';
 
 /**
  * The side menu of the Vendor and Admin areas (Document 5, section 5; Document 6, 7.3): 232 px on surface with a

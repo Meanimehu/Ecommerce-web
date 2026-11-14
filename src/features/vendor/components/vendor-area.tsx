@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
-import { AreaShell } from '@/components/auth/area-shell';
-import { vendorNav } from '@/components/auth/area-menus';
+import { AreaShell } from '@/features/layout/components/area-shell';
+import { vendorNav } from '@/features/layout/menus';
 import { getMessages } from '@/lib/messages';
 import { vendorApplyPath } from '@/lib/routes';
 import { requireUser, Unavailable } from '@/features/auth/components/require-user';

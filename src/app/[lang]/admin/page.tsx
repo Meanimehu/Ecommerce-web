@@ -1,6 +1,6 @@
 import { Shield } from 'lucide-react';
-import { adminScreens } from '@/components/auth/area-menus';
-import { NAV_ICONS } from '@/components/auth/nav-icons';
+import { adminScreens } from '@/features/layout/menus';
+import { NAV_ICONS } from '@/features/layout/nav-icons';
 import { requireUser } from '@/features/auth/components/require-user';
 import { StateBlock } from '@/components/common/state-block';
 import { Button } from '@/components/ui/button';

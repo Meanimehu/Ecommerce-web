@@ -1,8 +1,8 @@
 import { Shield, Store, UserRound } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { LanguageSwitch } from '@/components/common/language-switch';
+import { LanguageSwitch } from '@/features/layout/components/language-switch';
 import { NeedsScript } from '@/components/common/needs-script';
-import { Wordmark } from '@/components/common/wordmark';
+import { Wordmark } from '@/features/layout/components/wordmark';
 import { type Locale } from '@/lib/i18n';
 import { areaMessages, getMessages } from '@/lib/messages';
 import { MessagesProvider } from '@/lib/messages-context';

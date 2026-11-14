@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { NeedsScript } from '@/components/common/needs-script';
-import { SiteHeader } from '@/components/common/site-header';
+import { SiteHeader } from '@/features/layout/components/site-header';
 import { isLocale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
 import { LoginForm } from '@/features/auth/components/login-form';

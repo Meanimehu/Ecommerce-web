@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { adminNav } from '@/components/auth/area-menus';
-import { AreaShell } from '@/components/auth/area-shell';
+import { adminNav } from '@/features/layout/menus';
+import { AreaShell } from '@/features/layout/components/area-shell';
 import { requireUser } from '@/features/auth/components/require-user';
 import { getMessages } from '@/lib/messages';
 import { isStaff } from '@/features/auth/types';

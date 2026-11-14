@@ -1,5 +1,5 @@
 import type { Locale, Messages } from '@/lib/i18n';
-import type { NavItem } from './area-nav';
+import type { NavItem } from '@/features/layout/components/area-nav';
 
 /**
  * What the side menus list: only the screens this person can use (Document 5, sections 5 and 8). Slice 2 adds the
