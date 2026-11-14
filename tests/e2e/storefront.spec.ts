@@ -1,8 +1,8 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Browser, type Page } from '@playwright/test';
-import { KURTA_PHOTO } from './support/flows';
+import { expect, test, type Page } from '@playwright/test';
 import { backendLog, freshPhone, pageAs } from './support/login';
 import { countFirstLoad, expectWithinBudget } from './support/page-size';
+import { approvedProduct, staff, twoSizesAndColours } from './support/products';
 
 /**
  * The storefront (Document 5, sections 6.1 and 6.2; Document 4, D4-02): category pages with "Load more", product pages
@@ -11,8 +11,6 @@ import { countFirstLoad, expectWithinBudget } from './support/page-size';
  * calling the backend directly, as in slice-2-journey.spec.ts. Against the real local backend; skipped where it is not
  * running.
  */
-const VENDOR_PHONE = process.env.E2E_VENDOR_PHONE ?? '9000000011';
-const MODERATOR_PHONE = process.env.E2E_MODERATOR_PHONE ?? '9000000002';
 const BACKEND = `${process.env.E2E_BACKEND_URL ?? 'http://localhost:3000'}/api/v1`;
 const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 /** The category page shows 24 products, then "Load more". */
@@ -20,71 +18,6 @@ const FIRST_BATCH = 24;
 
 async function noAxeViolations(page: Page) {
   expect((await new AxeBuilder({ page }).withTags(WCAG).analyze()).violations).toEqual([]);
-}
-
-const tokenOf = async (page: Page) =>
-  (await page.context().cookies()).find((cookie) => cookie.name === '__Host-dhaaga_at')?.value ?? '';
-
-/** Test set-up only: one call to the backend as the logged-in person on `page`. */
-async function backend(page: Page, method: string, path: string, body?: unknown): Promise<unknown> {
-  const answer = await fetch(`${BACKEND}${path}`, {
-    method,
-    headers: { authorization: `Bearer ${await tokenOf(page)}`, ...(body ? { 'content-type': 'application/json' } : {}) },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  expect(answer.ok, `${method} ${path}: ${answer.status} ${await answer.clone().text()}`).toBe(true);
-  return answer.status === 204 ? null : answer.json();
-}
-
-type Variant = { sizeCode: string; colourCode: string; pricePaise: number; stock: number };
-
-/**
- * Test set-up only: an approved product in Kurtas with these variants and stock, made by the vendor and approved by a
- * moderator through the backend. Returns its id.
- */
-async function approvedProduct(vendor: Page, moderator: Page, title: string, variants: Variant[]): Promise<string> {
-  const tree = (await (await fetch(`${BACKEND}/catalogue/categories`)).json()) as { items: { slug: string; id: string; children: { slug: string; id: string }[] }[] };
-  const kurtas = tree.items.flatMap((node) => [node, ...node.children]).find((node) => node.slug === 'kurtas');
-  const product = (await backend(vendor, 'POST', '/vendors/me/products', { title, categoryId: kurtas?.id })) as { id: string };
-  const stamp = String(Date.now()).slice(-7);
-  for (const [index, variant] of variants.entries()) {
-    const added = (await backend(vendor, 'POST', `/vendors/me/products/${product.id}/variants`, {
-      sizeCode: variant.sizeCode,
-      colourCode: variant.colourCode,
-      sku: `SF${stamp}-${index}`,
-      mrpPaise: variant.pricePaise + 50000,
-      pricePaise: variant.pricePaise,
-    })) as { id: string };
-    await backend(vendor, 'PUT', `/vendors/me/inventory/variants/${added.id}`, { quantity: variant.stock });
-  }
-  const photo = new FormData();
-  photo.append('file', new Blob([KURTA_PHOTO.buffer], { type: 'image/png' }), 'kurta.png');
-  const upload = await fetch(`${BACKEND}/vendors/me/products/${product.id}/images`, {
-    method: 'POST',
-    headers: { authorization: `Bearer ${await tokenOf(vendor)}` },
-    body: photo,
-  });
-  expect(upload.status).toBe(201);
-  await backend(vendor, 'POST', `/vendors/me/products/${product.id}/submit`);
-  const review = (await backend(moderator, 'GET', `/moderation/products/${product.id}`)) as { seenUpdatedAt: string };
-  await backend(moderator, 'POST', `/moderation/products/${product.id}/approve`, { seenUpdatedAt: review.seenUpdatedAt });
-  return product.id;
-}
-
-/** Two sizes and two colours the product form offers. */
-async function twoSizesAndColours(vendor: Page) {
-  const dictionaries = (await backend(vendor, 'GET', '/catalogue/dictionaries')) as {
-    sizes: { code: string; label: string }[];
-    colours: { code: string; label: string }[];
-  };
-  const sizes = ['S', 'M'].map((code) => dictionaries.sizes.find((size) => size.code === code));
-  const colours = dictionaries.colours.slice(0, 2);
-  expect(sizes.every(Boolean) && colours.length === 2).toBe(true);
-  return { sizes: sizes as { code: string; label: string }[], colours };
-}
-
-async function staff(browser: Browser) {
-  return { vendor: await pageAs(browser, VENDOR_PHONE, '/en/vendor'), moderator: await pageAs(browser, MODERATOR_PHONE, '/en/admin') };
 }
 
 test.describe('the storefront', () => {

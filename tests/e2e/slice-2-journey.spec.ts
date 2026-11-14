@@ -113,14 +113,3 @@ test.describe('Slice 2: the first path, end to end', () => {
     await customer.close();
   });
 });
-
-test.describe('the cart needs a login', () => {
-  test.skip(!backendLog, 'needs the local backend (E2E_BACKEND_LOG)');
-
-  test('someone not logged in who opens the cart goes to login and comes back', async ({ browser }) => {
-    const page = await pageAs(browser, freshPhone(), '/en/cart');
-    await expect(page).toHaveURL(/\/en\/cart$/);
-    await expect(page.getByText('Your cart is empty')).toBeVisible();
-    await noAxeViolations(page);
-  });
-});

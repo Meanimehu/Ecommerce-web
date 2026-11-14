@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { addAfterLogin, takeAddNotice, useAddToCart } from '@/hooks/use-cart';
+import { useAddAfterLogin, useAddToCart } from '@/features/cart/hooks/use-cart';
 import { AppErrorCode, BackendErrorCode } from '@/lib/error-codes';
 import { AppError } from '@/lib/errors';
 import { HttpStatus } from '@/lib/http-status';
 import type { Locale, Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import { AddOutcome, type AddNotice } from '@/types/add-notice';
+import { AddOutcome, takeAddNotice, type AddNotice } from '@/lib/add-notice';
 import { useSession } from '@/features/auth/hooks/use-auth';
 import { AddMessageTone, type AddMessage } from '@/features/storefront/rules';
 import type { PublicVariant } from '@/features/storefront/types';
@@ -20,14 +20,12 @@ const QUANTITY_ADDED = 1;
  * added here and a message says so. Not logged in, or when the session has ended, the person goes
  * to log in and the add runs once on the way back; the login answer's word on it is shown when the
  * person returns. The screen, `product-buy.tsx`, only draws.
- *
- * Going to log in uses the cart's `addAfterLogin`, a plain function until the cart is cleaned up in
- * step 9 (Document 7, 20.13), with a named function for its failure.
  */
 export function useProductAdd({ lang, chosen }: { lang: Locale; chosen: PublicVariant | null }) {
   const messages = useMessages();
   const session = useSession();
   const addToCart = useAddToCart();
+  const addAfterLogin = useAddAfterLogin();
   const [message, setMessage] = useState<AddMessage | null>(null);
   const [addError, setAddError] = useState<AppError | null>(null);
   const [isLeaving, setIsLeaving] = useState(false);
@@ -54,10 +52,15 @@ export function useProductAdd({ lang, chosen }: { lang: Locale; chosen: PublicVa
 
   function logInAndAdd(variant: PublicVariant) {
     setIsLeaving(true);
-    addAfterLogin({ variantId: variant.id, quantity: QUANTITY_ADDED, lang }).then(
-      undefined,
-      showLeaveFailed,
+    addAfterLogin.mutate(
+      { variantId: variant.id, quantity: QUANTITY_ADDED, lang },
+      { onSuccess: goToLogin, onError: showLeaveFailed },
     );
+  }
+
+  // A full page load on purpose: the login page is drawn on the server.
+  function goToLogin(answer: { login: string }) {
+    window.location.assign(answer.login);
   }
 
   function showAdded() {
@@ -68,7 +71,10 @@ export function useProductAdd({ lang, chosen }: { lang: Locale; chosen: PublicVa
     // The session ended meanwhile: log in, then the add runs on the way back.
     if (error.code === BackendErrorCode.Unauthorized) {
       setIsLeaving(true);
-      void addAfterLogin({ variantId: variant.id, quantity: QUANTITY_ADDED, lang });
+      addAfterLogin.mutate(
+        { variantId: variant.id, quantity: QUANTITY_ADDED, lang },
+        { onSuccess: goToLogin },
+      );
     } else if (error.outcomeUnknown) {
       setMessage({ tone: AddMessageTone.Warning, text: messages.store.addUnknown });
     } else {

@@ -9,10 +9,10 @@ moved or removed.
 | Folder | What goes in it | Runs in |
 | --- | --- | --- |
 | `app/` | Routing and layouts: pages in `[lang]/`, our own endpoints in `api/` | Both |
-| `features/<feature>/` | One folder per feature, once it has moved (Document 7, D7-17): `components/`, `hooks/`, `server/` (server only) and `types.ts`. **`auth`, `vendor`, `catalogue` (the admin lists), `product` and `storefront` have moved;** the others follow one at a time | Both; `server/` server only |
-| `components/` | Reusable UI: `ui/` (shadcn), `form/`, `common/`, and one folder per area that has not moved yet (`cart/`, …). `auth/` still holds the Vendor and Admin area frame, which moves with `layout` | Browser and server pages |
-| `hooks/` | Reusable logic: TanStack Query hooks (our "slices") of areas that have not moved, and the form hook | Browser |
-| `api/` | Backend handlers: the calls from our server to the backend | **Server only** |
+| `features/<feature>/` | One folder per feature, once it has moved (Document 7, D7-17): `components/`, `hooks/`, `server/` (server only) and `types.ts`. **`auth`, `vendor`, `catalogue` (the admin lists), `product`, `storefront` and `cart` have moved;** `layout` follows | Both; `server/` server only |
+| `components/` | Reusable UI: `ui/` (shadcn), `form/`, `common/`, and `auth/`, which still holds the Vendor and Admin area frame until it moves with `layout` | Browser and server pages |
+| `hooks/` | Reusable logic: the form hook; each feature's hooks are in its `hooks/` | Browser |
+| `api/` | `client.ts`: the one way our server calls the backend; each feature's calls are in its `server/` | **Server only** |
 | `middleware/` | Shared technical helpers for our endpoints, knowing nothing about the session: answers, the forgery check, public reads, uploads, the cookie list and tools | **Server only** (except `cookies.ts`) |
 | `lib/` | Configs and integrations: settings, the browser's call helper, languages and text, page addresses, errors, the server log | Both |
 | `utils/` | Helper functions: money, dates, phone numbers | Both |
@@ -21,9 +21,8 @@ moved or removed.
 | `fonts/` | The Devanagari font files trimmed to the characters Hindi uses, how they were made (`README.md`) and their licence | Both |
 | `proxy.ts` | The page middleware: language redirect, keeping the after-login page, the page's own address for layout guards, images only from our site and the photo host | Server |
 
-A feature that has moved keeps everything in its folder: everything about login and the session is in
-`features/auth/`. A feature that has not moved yet uses the same name in each old folder: the cart is
-`components/cart/`, `hooks/use-cart.ts`, `api/cart.ts`, `types/cart.ts`.
+A feature keeps everything in its folder: everything about login and the session is in
+`features/auth/`, everything about the cart in `features/cart/`.
 
 ## How a request travels
 
@@ -77,8 +76,9 @@ All the files named here without a folder are in `features/auth/`.
    or in the summary, then focus on the summary). A code sent a moment ago (`OTP_RESEND_WAIT`) still goes to the code
    step and shows the wait.
 6. The code: `verifyCode` calls `useVerifyLoginCode`, which posts to `/api/auth/verify`. That endpoint gets the tokens
-   from the backend, puts them in cookies (`setSessionCookies`, `server/session.ts`), runs a pending "Add to cart" once,
-   and says which page comes next: the page remembered by `after-login-page.ts`, else `defaultDestination`.
+   from the backend, puts them in cookies (`setSessionCookies`, `server/session.ts`), asks `cart` to run a pending "Add to cart" once
+   (`runPendingAdd`, `features/cart/server/pending-add.ts`), and says which page comes next: the page remembered by `after-login-page.ts`, else `defaultDestination`.
+   The login form keeps what happened to that add for the next page (`keepAddNotice`, `lib/add-notice.ts`).
    "Send code again" (`resendCode`) uses the same call as step 3.
 7. Every page that needs login calls `requireUser` (`components/require-user.tsx`), which asks `getViewer` in
    `server/session.ts` who the person is.
@@ -117,7 +117,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `[lang]/page.tsx` | Home (a placeholder until Slice 3) |
 | `[lang]/category/[slug]` | A category page: its products, newest first, with "Load more" (kept for 60 seconds); the screen is in `features/storefront/` |
 | `[lang]/product/[id]/[[...name]]` | A product page; a missing or wrong name part redirects to the full address (kept for 60 seconds); the screen is in `features/storefront/`. The old `/c/` and `/p/` addresses are a real 404 |
-| `[lang]/cart` | The cart (needs login) |
+| `[lang]/cart` | The cart (needs login): `CartScreen` from `cart` |
 | `[lang]/login/page.tsx` | The login page |
 | `[lang]/account/page.tsx` | Account: log out, log out everywhere, the areas this person may open |
 | `[lang]/admin/layout.tsx`, `page.tsx` | Admin area frame (any staff role) and its home with the screens this person's roles can use |
@@ -155,8 +155,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `auth/area-shell.tsx` | (Moves with `layout`.) The frame of the Admin and Vendor areas: top bar (wordmark, area label, language, account) and the side menu |
 | `auth/area-nav.tsx` | The side menu, and the menu button with its drawer below 1024 px |
 | `auth/area-menus.ts` | What each side menu lists, by role (Admin) or by having a vendor (Vendor) |
-| `cart/cart-screen.tsx` | The cart: lines by seller, quantity, remove, line problems, coupon, totals |
-| `common/header-actions.tsx` | "Log in" or the account, and the cart with its count, in the storefront header |
+| `common/header-actions.tsx` | "Log in" or the account, and the cart with its count, in the storefront header (takes the count from `cart` until it moves to `layout`, step 10) |
 | `form/field-frame.tsx` | What every field shares: label, "(optional)", the error under it, help text |
 | `form/text-field.tsx`, `select-field.tsx`, `textarea-field.tsx` | A labelled input, select and text area with their errors |
 | `form/form.tsx` | `Form`: the `<form>` tag every form uses, always a post, our checks instead of the browser's |
@@ -185,14 +184,12 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | File | What it does |
 | --- | --- |
 | `use-app-form.ts` | `useAppForm` (React Hook Form with Zod; it keeps the changed fields up to date, so an edit sends only what changed), `applyServerError` (backend errors under the right field), `useErrorSummaryFocus` (focus after a failed submit), message keys |
-| `use-cart.ts` | The cart and its count, add, change, remove, add after login and its notice |
 
 ### `api/` — calls to the backend (server only)
 
 | File | What it does |
 | --- | --- |
 | `client.ts` | `callBackend`: time limits, retries for reads only, every answer checked against its shape, the customer's address passed on; streamed uploads; `openBackendFile` for private files |
-| `cart.ts` | Backend Area 5: the cart |
 
 ### `middleware/` — shared helpers for our endpoints (server only, except `cookies.ts`)
 
@@ -202,7 +199,7 @@ Nothing here knows about the session or any feature, and nothing here imports a 
 | --- | --- |
 | `responses.ts` | `ok`, `fail`, `fromAppError` (non-session failures; an unexpected one is logged with its request id), the forgery check (`guardChange`), reading a JSON body |
 | `endpoint.ts` | `answerPublic` (a public read), `jsonObject` (a JSON object body), `uploadFrom` (a streamed upload) |
-| `cookies.ts` | Cookie names, lifetimes and settings, `deleteCookie`, signing, the safe-local-path check, the page-address header, and (until the `cart` step) reading the pending add. Also used by `proxy.ts` |
+| `cookies.ts` | Cookie names, lifetimes and settings, `deleteCookie`, signing, the safe-local-path check, and the page-address header. Also used by `proxy.ts` |
 
 ### `features/auth/` — login, logout, the session and page access
 
@@ -303,7 +300,7 @@ Backend Area 3b: products, variants, photos, the form guide (`/catalogue/diction
 ### `features/storefront/` — what a shopper browses
 
 Backend Area 3a, the storefront part: the public category tree, product cards and one product. It uses the cart's
-hooks for "Add to cart" (they move with `cart`, step 9) and `auth`'s session; `product`'s moderation screens use its
+call hooks for "Add to cart" (`useAddToCart`, `useAddAfterLogin`) and `auth`'s session; `product`'s moderation screens use its
 category tree.
 
 | File | What it does |
@@ -320,6 +317,28 @@ category tree.
 | `hooks/use-product-grid.ts` | The cards shown, "Showing 8 of 128", what to announce after each batch |
 | `server/storefront-api.ts` | Backend Area 3a, the storefront part: the tree, the cards, one product; `findVisibleProduct` (null for a real 404) |
 
+### `features/cart/` — the cart
+
+Backend Area 5, the cart: the cart page and the add that waits for login (D2-02). It uses `auth`'s session; the
+storefront's buy box uses its call hooks; the login endpoint asks it to run the pending add.
+
+| File | What it does |
+| --- | --- |
+| `types.ts` | The cart view schema and the add's schemas, with their types. Brings Zod: browser code takes only its types |
+| `rules.ts` | No Zod: `LineStatus`, `MAX_QUANTITY_PER_LINE`, `isUnbuyable`, `hasProblem`, so the cart page does not load Zod (Document 7, section 16) |
+| `components/cart-screen.tsx` | The cart page: loading, error, empty, or the lines by seller with the summary and the coupon |
+| `components/cart-line.tsx` | One line: photo, size and colour, price, its status in words, quantity, Remove |
+| `components/cart-totals.tsx` | The summary, only the backend's totals |
+| `components/coupon-form.tsx` | The coupon field and what the backend says about the code |
+| `components/unavailable-banner.tsx` | The warning with "Remove unavailable items", which asks first |
+| `hooks/use-cart.ts` | The call hooks: `useCart`, `useCartCount` (the header), `useAddToCart`, `useChangeQuantity`, `useRemoveLine`, `useRemoveUnavailable`, `useAddAfterLogin`; `cartKeys` |
+| `hooks/use-cart-line.ts` | One line: change the quantity, remove it, its status and explanation, the error text |
+| `hooks/use-coupon.ts` | The typed and the applied code, kept only in the page's memory; `couponNoteOf` |
+| `hooks/use-unavailable-lines.ts` | Remove every line that can no longer be bought, and its error text |
+| `server/cart-api.ts` | Backend Area 5, the cart: view, add, change, remove, remove unavailable |
+| `server/cart-request.ts` | `couponCodeOf`: the coupon code an endpoint was asked to preview |
+| `server/pending-add.ts` | The add that waits for login: `keepPendingAdd`, `decodePendingAdd`, `runPendingAdd`, `forgetPendingAdd` |
+
 ### `lib/`, `utils/`, `types/`
 
 | File | What it does |
@@ -334,6 +353,7 @@ category tree.
 | `lib/routes.ts` | Every page address, one helper per kind of page (`homePath`, `loginPath`, `categoryPath`, `productPath` with `productSlug`, `cartPath`, `myProductPath`, `adminVendorPath`, …); no feature, server-only or Zod import, so `proxy.ts` can use it (Document 7, 20.2) |
 | `lib/messages.ts` | `getMessages` for server pages; the shared text, the Vendor and Admin areas' own text, and the text only some pages carry (`store` on the category and product pages, `cart` on the cart page) |
 | `lib/messages-context.tsx` | `useMessages`: the page's text in the browser, only its language (area text only inside those areas, page-only text only on those pages) |
+| `lib/add-notice.ts` | What happened to an "Add to cart" made before login: `AddOutcome`, `AddNotice`, `keepAddNotice` (login) and `takeAddNotice` (the page returned to). Shared so `auth` and `cart` never import each other; no Zod |
 | `lib/errors.ts` | `AppError`, `toAppError`, and `messageFor`: our own message for any error |
 | `lib/error-codes.ts` | `AppErrorCode` (codes not in the backend catalogue) and `ErrorCode`; re-exports `BackendErrorCode` (Document 7, 20.7) |
 | `utils/format.ts` | Dates and times in IST, rupees, phone numbers, GST rates; `isSingular` for one-or-many messages |
@@ -342,8 +362,6 @@ category tree.
 | `utils/message-checks.ts` | What `npm run check:messages` checks (not used by the site) |
 | `types/error.ts` | The backend's error answer |
 | `types/common.ts` | Shapes every area shares: a page of a list, a reason |
-| `types/cart.ts` | Backend Area 5 cart view, the pending add |
-| `types/add-notice.ts` | `AddOutcome` and `AddNotice`: what happened to a pending add at login. Kept free of Zod because every page's header reads it |
 | `types/react-query.d.ts` | Tells TanStack Query that every error is an `AppError` |
 | `types/generated/` | Request types, the OpenAPI description, the list of backend calls by their listed names (`backend-calls.ts`, used for log lines), the error-code list and the `BackendErrorCode` enum, made by `npm run gen:types` and `gen:error-codes`; never edited |
 
@@ -354,7 +372,7 @@ category tree.
 | `scripts/` | `gen-types`, `gen-error-codes` (the code list and its enum), `check-messages` (also checks the enum), and copying files after a build |
 | `.prettierrc.json`, `eslint.config.mjs` | Formatting (100-character lines) and lint; the files already following Document 7, section 20 are listed in the lint settings |
 | `tests/unit/` | Fast tests of the helpers (Vitest) |
-| `tests/e2e/` | Browser tests against the real backend (Playwright), one spec per feature; `support/` holds the shared steps (`login.ts`, `flows.ts`) `requests.ts` (`nextRequestBody`: what a click really sent) and `page-size.ts` (the first-load budget, Document 6, section 14); `fixtures/` holds the garment illustrations used as test photos |
+| `tests/e2e/` | Browser tests against the real backend (Playwright), one spec per feature; `support/` holds the shared steps (`login.ts`, `flows.ts`, `products.ts`: approved products with stock for the storefront and cart specs), `requests.ts` (`nextRequestBody`: what a click really sent) and `page-size.ts` (the first-load budget, Document 6, section 14); `fixtures/` holds the garment illustrations used as test photos |
 
 ## To change something, look here
 
@@ -363,8 +381,8 @@ category tree.
 | Change a text on screen | `messages/en.json` and `hi.json` (both). Text only the Vendor or Admin area uses goes in a section listed in `AREA_SECTIONS` (`lib/messages.ts`) |
 | Change a colour, size or type style | `app/globals.css` (tokens) or the component in `components/ui/` |
 | Change what a backend error says | `errors.codes` in the same two files |
-| Change a form's checks | Its schema in `features/<feature>/types.ts`, or `types/<area>.ts` for a feature that has not moved |
-| Add a backend call | `features/<feature>/server/<feature>-api.ts` (or `api/<area>.ts` before the feature moves), with its answer shape in its types |
+| Change a form's checks | Its schema in `features/<feature>/types.ts` |
+| Add a backend call | `features/<feature>/server/<feature>-api.ts`, with its answer shape in its types |
 | Add an endpoint for the browser | `app/api/<area>/…/route.ts`, using `answerAsUser` or `fileAsUser` from `features/auth/server/answer-as-user.ts` when it acts as the person, and `middleware/` for the rest |
 | Use it on a screen | A call hook in the feature's `hooks/use-<feature>.ts`, then the component in its `components/` |
 | Change how backend calls behave (timeouts, retries) | `api/client.ts` |

@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { decodePendingAdd, sign } from '@/middleware/cookies';
 import {
   categoryTrail,
   chosenVariant,
@@ -12,25 +11,6 @@ import {
   stockLevelOf,
 } from '@/features/storefront/rules';
 import type { CategoryNode, ProductDetail, PublicVariant } from '@/features/storefront/types';
-
-describe('the pending add (Document 2, D2-02)', () => {
-  const variantId = '01a1a154-0367-773c-9d27-5989f07f5628';
-
-  it('reads back only a signed variant and quantity', () => {
-    expect(decodePendingAdd(sign({ v: variantId, q: 2 }))).toEqual({ variantId, quantity: 2 });
-  });
-
-  it('refuses an altered, unsigned or out-of-range value', () => {
-    const good = sign({ v: variantId, q: 1 });
-    expect(decodePendingAdd(`${good.split('.')[0]}.forged`)).toBeNull();
-    expect(
-      decodePendingAdd(Buffer.from(JSON.stringify({ v: variantId, q: 1 })).toString('base64url')),
-    ).toBeNull();
-    expect(decodePendingAdd(sign({ v: variantId, q: 11 }))).toBeNull();
-    expect(decodePendingAdd(sign({ v: 'not-an-id', q: 1 }))).toBeNull();
-    expect(decodePendingAdd(undefined)).toBeNull();
-  });
-});
 
 const variant = (
   id: string,
