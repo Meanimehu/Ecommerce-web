@@ -10,7 +10,8 @@ import type { Locale, Messages } from '@/lib/i18n';
 import { productPath } from '@/lib/routes';
 import { formatRupees } from '@/utils/format';
 import { useCartLine } from '@/features/cart/hooks/use-cart-line';
-import { LineStatus, type CartLine } from '@/features/cart/types';
+import { LineStatus } from '@/features/cart/rules';
+import type { CartLine } from '@/features/cart/types';
 
 /**
  * One cart line: photo, title, size and colour, price, what the backend says about it, the quantity

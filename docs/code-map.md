@@ -324,7 +324,8 @@ storefront's buy box uses its call hooks; the login endpoint asks it to run the 
 
 | File | What it does |
 | --- | --- |
-| `types.ts` | The cart view schema, `LineStatus`, `MAX_QUANTITY_PER_LINE`, `isUnbuyable`, `hasProblem`, the add's schemas. Brings Zod: the hooks every page uses take only its types |
+| `types.ts` | The cart view schema and the add's schemas, with their types. Brings Zod: browser code takes only its types |
+| `rules.ts` | No Zod: `LineStatus`, `MAX_QUANTITY_PER_LINE`, `isUnbuyable`, `hasProblem`, so the cart page does not load Zod (Document 7, section 16) |
 | `components/cart-screen.tsx` | The cart page: loading, error, empty, or the lines by seller with the summary and the coupon |
 | `components/cart-line.tsx` | One line: photo, size and colour, price, its status in words, quantity, Remove |
 | `components/cart-totals.tsx` | The summary, only the backend's totals |

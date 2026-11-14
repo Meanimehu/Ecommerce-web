@@ -10,7 +10,8 @@ import {
   sign,
   unsign,
 } from '@/middleware/cookies';
-import { MAX_QUANTITY_PER_LINE, type CartAdd } from '@/features/cart/types';
+import { MAX_QUANTITY_PER_LINE } from '@/features/cart/rules';
+import type { CartAdd } from '@/features/cart/types';
 import * as cartApi from './cart-api';
 
 /**

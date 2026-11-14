@@ -1,25 +1,14 @@
 import { z } from 'zod';
+import { LineStatus, MAX_QUANTITY_PER_LINE } from '@/features/cart/rules';
 
 /**
  * Backend Area 5, the cart: the cart view every cart call answers, written by hand from the API
  * reference (D3-01). Source: Meanimehu/Ecommerce docs/api/reference/area-5-sales-cart-coupons.md,
  * part 2. Stock numbers are never sent.
  *
- * This file brings Zod. The hooks every page uses (`hooks/use-cart.ts`: the header's count, the
- * product page's Add to cart) take only types from here, never values (Document 7, 20.4).
+ * This file brings Zod. Browser code takes only types from here, never values: the enums and small
+ * rules it needs are in `rules.ts` (Document 7, section 16).
  */
-
-/** The most of one item a cart line may hold (the backend's CART_MAX_QUANTITY_PER_LINE). */
-export const MAX_QUANTITY_PER_LINE = 10;
-
-/** What the backend says about one line, now. */
-export enum LineStatus {
-  Ok = 'ok',
-  LowStock = 'low_stock',
-  InsufficientStock = 'insufficient_stock',
-  OutOfStock = 'out_of_stock',
-  Unavailable = 'unavailable',
-}
 
 export const CartLineSchema = z.object({
   variantId: z.string(),
@@ -72,14 +61,6 @@ export const CartSchema = z.object({
 });
 export type Cart = z.infer<typeof CartSchema>;
 export type CartCoupon = NonNullable<Cart['coupon']>;
-
-/** Lines that can no longer be bought; the backend clears them in one call (DELETE /cart/unavailable). */
-export const isUnbuyable = (line: CartLine) =>
-  line.status === LineStatus.Unavailable || line.status === LineStatus.OutOfStock;
-
-/** Lines that need the person's attention: they cannot be bought as they are. */
-export const hasProblem = (line: CartLine) =>
-  isUnbuyable(line) || line.status === LineStatus.InsufficientStock;
 
 /** One "Add to cart": the variant and how many, never a price (D2-02). */
 export const CartAddSchema = z.object({

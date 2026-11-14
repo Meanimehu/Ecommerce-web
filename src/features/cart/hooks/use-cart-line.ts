@@ -4,13 +4,8 @@ import { messageFor, type AppError } from '@/lib/errors';
 import type { Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { useChangeQuantity, useRemoveLine } from './use-cart';
-import {
-  hasProblem,
-  isUnbuyable,
-  LineStatus,
-  MAX_QUANTITY_PER_LINE,
-  type CartLine,
-} from '@/features/cart/types';
+import { hasProblem, isUnbuyable, LineStatus, MAX_QUANTITY_PER_LINE } from '@/features/cart/rules';
+import type { CartLine } from '@/features/cart/types';
 
 /** The quantities a line can be set to. */
 const QUANTITY_CHOICES = [...Array(MAX_QUANTITY_PER_LINE).keys()].map((index) => index + 1);
