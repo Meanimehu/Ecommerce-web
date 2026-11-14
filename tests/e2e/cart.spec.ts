@@ -99,6 +99,31 @@ test.describe('the cart', () => {
     await context.close();
   });
 
+  test('when the session has ended and keeping the add for after login fails, the person sees why and can try again', async ({
+    browser,
+  }) => {
+    const customer = await newCustomer(browser);
+    await customer.goto(`/en/product/${product.id}`);
+    // The session ends meanwhile: the add is refused as not logged in, and keeping it then fails.
+    await customer.route('**/api/cart/items', (route) =>
+      route.fulfill({ status: 401, json: { error: { code: 'UNAUTHORIZED' } } }),
+    );
+    await customer.route('**/api/cart/pending', (route) =>
+      route.fulfill({
+        status: 503,
+        json: { error: { code: 'SERVICE_UNAVAILABLE', requestId: 'req-e2e' } },
+      }),
+    );
+    await customer.getByRole('button', { name: product.smallLabel, exact: true }).click();
+    const addButton = customer.getByRole('button', { name: 'Add to cart' });
+    await addButton.click();
+    // The error box, with the request ID our answer sent.
+    await expect(customer.getByRole('alert').filter({ hasText: 'req-e2e' })).toBeVisible();
+    await expect(addButton).toBeEnabled();
+    await expect(addButton).not.toHaveAttribute('aria-busy', 'true');
+    await expect(customer).toHaveURL(new RegExp(`/en/product/${product.id}/`));
+  });
+
   test('changing a quantity sends only the new quantity, and the cart shows the backend totals, also after a reload', async ({
     browser,
   }) => {
