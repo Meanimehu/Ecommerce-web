@@ -3,7 +3,8 @@ import { requireUser } from '@/features/auth/components/require-user';
 import { CartScreen } from '@/components/cart/cart-screen';
 import { NeedsScript } from '@/components/common/needs-script';
 import { SiteHeader } from '@/components/common/site-header';
-import { getMessages } from '@/lib/messages';
+import { getMessages, sectionMessages } from '@/lib/messages';
+import { MessagesProvider } from '@/lib/messages-context';
 
 /** The cart (Document 5, section 6.3): it belongs to a logged-in person, so someone not logged in goes to login and comes back. */
 export const dynamic = 'force-dynamic';
@@ -19,7 +20,10 @@ export default async function CartPage({ params }: { params: Promise<{ lang: str
       <SiteHeader lang={lang} />
       <main className="mx-auto grid w-full max-w-[1200px] gap-6 px-4 py-8 sm:px-6 lg:px-8">
         <NeedsScript messages={getMessages(lang)} />
-        <CartScreen lang={lang} />
+        {/* The cart's text is carried only by this page (lib/messages.ts). */}
+        <MessagesProvider messages={sectionMessages(lang, ['cart'])}>
+          <CartScreen lang={lang} />
+        </MessagesProvider>
       </main>
     </>
   );

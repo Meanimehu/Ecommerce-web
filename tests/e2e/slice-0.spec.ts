@@ -1,7 +1,8 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+import { countFirstLoad, expectWithinBudget } from './support/page-size';
 
-/** Slice 0: the blank pages, the language redirect, the health check, accessibility and the first-load size budget. */
+/** Slice 0: the blank pages, the language redirect, the health check, accessibility and the first-load page-size budget. */
 
 test('a visit with no prefix goes to the browser language, and the redirect is never shared-cached', async ({ request }) => {
   const hindi = await request.get('/', { maxRedirects: 0, headers: { 'accept-language': 'hi-IN,hi;q=0.9,en;q=0.8' } });
@@ -52,30 +53,9 @@ for (const lang of ['en', 'hi'] as const) {
     expect(results.violations).toEqual([]);
   });
 
-  for (const path of [`/${lang}`, `/${lang}/login`]) test(`${path} stays inside the 300 KB first-load budget (provisional, Document 6 section 14)`, async ({ page }) => {
-    // Transferred bytes after compression, empty cache; photos and API data are not counted. Fonts for the page language
-    // are inside the total; a second-script font loaded on demand is not counted in it and is reported on its own
-    // (Document 6, section 14, and 5.4). On English pages that is Noto Sans Devanagari, for the "हिन्दी" switch.
-    const counted = new Set(['document', 'stylesheet', 'script', 'font']);
-    const sizes: Promise<{ bytes: number; secondScript: boolean }>[] = [];
-    page.on('requestfinished', (request) => {
-      if (!counted.has(request.resourceType())) return;
-      const secondScript = lang === 'en' && request.resourceType() === 'font' && request.url().includes('devanagari');
-      sizes.push(request.sizes().then((s) => ({ bytes: s.responseBodySize + s.responseHeadersSize, secondScript })));
-    });
+  for (const path of [`/${lang}`, `/${lang}/login`]) test(`${path} stays inside the first-load budget (Document 6, section 14)`, async ({ page }) => {
+    const firstLoad = countFirstLoad(page, lang);
     await page.goto(path, { waitUntil: 'networkidle' });
-    const all = await Promise.all(sizes);
-    const total = all.filter((s) => !s.secondScript).reduce((a, s) => a + s.bytes, 0);
-    const onDemand = all.filter((s) => s.secondScript).reduce((a, s) => a + s.bytes, 0);
-    const fonts = await page.evaluate(() => performance.getEntriesByType('resource').filter((e) => /\.woff2/.test(e.name)).map((e) => e.name.split('/').pop()));
-    console.log(`${path} first load: ${(total / 1024).toFixed(1)} KB; second-script font on demand: ${(onDemand / 1024).toFixed(1)} KB; fonts: ${fonts.join(', ')}`);
-    // Known and reported, not hidden: Hindi pages carry about 146 KB of fonts, so the Hindi login page is over the
-    // provisional 300 KB. Document 6, section 14, validation item 3 leaves this to the owner and the figure is not
-    // changed here; until then this one page is measured and reported, not judged.
-    if (path === '/hi/login') {
-      test.info().annotations.push({ type: 'over budget, owner decision', description: `${(total / 1024).toFixed(1)} KB (Document 6, section 14, item 3)` });
-      return;
-    }
-    expect(total).toBeLessThanOrEqual(300 * 1024);
+    expectWithinBudget(path, lang, await firstLoad());
   });
 }
