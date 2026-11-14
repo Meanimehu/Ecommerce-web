@@ -27,7 +27,10 @@ export default async function LanguageLayout({ children, params }: Props) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   return (
-    <html lang={lang} className={`${outfit.variable} ${outfitExtended.variable} ${notoDevanagari.variable}`}>
+    <html
+      lang={lang}
+      className={`${outfit.variable} ${outfitExtended.variable} ${notoDevanagari.variable}`}
+    >
       <body>
         <Providers messages={sharedMessages(lang)} dismissLabel={getMessages(lang).toast.dismiss}>
           {children}

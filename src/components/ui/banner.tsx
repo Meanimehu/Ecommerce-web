@@ -11,7 +11,11 @@ export type BannerTone = 'info' | 'success' | 'warning' | 'error';
 const TONES: Record<BannerTone, { box: string; title: string; icon: LucideIcon }> = {
   info: { box: 'border-info-edge bg-info-fill', title: 'text-info', icon: Info },
   success: { box: 'border-success-edge bg-success-fill', title: 'text-success', icon: CircleCheck },
-  warning: { box: 'border-warning-edge bg-warning-fill', title: 'text-warning', icon: TriangleAlert },
+  warning: {
+    box: 'border-warning-edge bg-warning-fill',
+    title: 'text-warning',
+    icon: TriangleAlert,
+  },
   error: { box: 'border-error-edge bg-error-fill', title: 'text-error', icon: CircleAlert },
 };
 
@@ -32,7 +36,14 @@ export function Banner({
   const toneStyle = TONES[tone];
   const Icon = toneStyle.icon;
   return (
-    <div className={cn('flex items-start gap-3 rounded-1 border px-4 py-3.5', toneStyle.box, className)} {...props}>
+    <div
+      className={cn(
+        'flex items-start gap-3 rounded-1 border px-4 py-3.5',
+        toneStyle.box,
+        className,
+      )}
+      {...props}
+    >
       <Icon aria-hidden="true" className={cn('mt-0.5 size-5 shrink-0', toneStyle.title)} />
       <div className="grid min-w-0 flex-1 gap-1">
         {title ? <div className={cn('font-medium', toneStyle.title)}>{title}</div> : null}

@@ -73,11 +73,29 @@ export function ReasonDialog({
             <AlertDialogTitle>{title}</AlertDialogTitle>
             <AlertDialogDescription>{body}</AlertDialogDescription>
           </AlertDialogHeader>
-          <ErrorSummary form={form} fieldIds={{ reason: 'reason-dialog-reason' }} messages={messages} focusSignal={focus} />
-          <TextareaField form={form} name="reason" id="reason-dialog-reason" label={label} maxLength={maxLength} messages={messages} />
+          <ErrorSummary
+            form={form}
+            fieldIds={{ reason: 'reason-dialog-reason' }}
+            messages={messages}
+            focusSignal={focus}
+          />
+          <TextareaField
+            form={form}
+            name="reason"
+            id="reason-dialog-reason"
+            label={label}
+            maxLength={maxLength}
+            messages={messages}
+          />
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={form.formState.isSubmitting}>{messages.common.cancel}</AlertDialogCancel>
-            <Button type="submit" variant="destructiveConfirm" loading={form.formState.isSubmitting}>
+            <AlertDialogCancel disabled={form.formState.isSubmitting}>
+              {messages.common.cancel}
+            </AlertDialogCancel>
+            <Button
+              type="submit"
+              variant="destructiveConfirm"
+              loading={form.formState.isSubmitting}
+            >
               {confirmLabel}
             </Button>
           </AlertDialogFooter>

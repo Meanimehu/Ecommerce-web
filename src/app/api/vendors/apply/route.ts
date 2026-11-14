@@ -12,9 +12,7 @@ export async function POST(request: NextRequest) {
   const body = await jsonObject(request);
   if (!body) return fail(BackendErrorCode.ValidationFailed, HttpStatus.BadRequest);
   // Passed on as the browser sent it; the backend checks every field and refuses unknown ones.
-  return answerAsUser(
-    request,
-    (token) => vendorApi.applyAsVendor(token, body as ApplyVendorBody),
-    { change: true },
-  );
+  return answerAsUser(request, (token) => vendorApi.applyAsVendor(token, body as ApplyVendorBody), {
+    change: true,
+  });
 }

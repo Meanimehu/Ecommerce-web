@@ -10,7 +10,11 @@ const nextConfig: NextConfig = {
   // turbopackChunking.minChunkSize: with the default (50,000) the production build merged the shared button and
   // class-name code into three chunks on the login page, sending it three times (+40 KB). 10,000 keeps it in one
   // chunk; measured with the size check in tests/e2e/slice-0.spec.ts (Document 7, T7-2).
-  experimental: { authInterrupts: true, globalNotFound: true, turbopackChunking: { minChunkSize: 10_000 } },
+  experimental: {
+    authInterrupts: true,
+    globalNotFound: true,
+    turbopackChunking: { minChunkSize: 10_000 },
+  },
 };
 
 export default nextConfig;

@@ -25,7 +25,8 @@ export const LIFETIME_SECONDS = {
   language: 365 * 24 * 3600,
 } as const;
 
-export const cookieOptions = (maxAge: number) => ({ httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge }) as const;
+export const cookieOptions = (maxAge: number) =>
+  ({ httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge }) as const;
 
 /**
  * Deletes one of our cookies in this answer. Which cookies go, and when, is the rule of the feature that owns them
@@ -54,11 +55,13 @@ export function isSafeLocalPath(path: string): boolean {
 
 function signingKey(): Buffer {
   const secret = process.env.COOKIE_SECRET;
-  if (!secret || secret.length < 32) throw new Error('COOKIE_SECRET must be set (at least 32 characters).');
+  if (!secret || secret.length < 32)
+    throw new Error('COOKIE_SECRET must be set (at least 32 characters).');
   return Buffer.from(hkdfSync('sha256', secret, 'dhaaga-web', 'signed-cookies', 32));
 }
 
-const signature = (body: string): string => createHmac('sha256', signingKey()).update(body).digest('base64url');
+const signature = (body: string): string =>
+  createHmac('sha256', signingKey()).update(body).digest('base64url');
 
 /** "payload.signature", both base64url. */
 export function sign(payload: unknown): string {

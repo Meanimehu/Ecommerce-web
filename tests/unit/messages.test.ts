@@ -9,7 +9,9 @@ describe('message catalogues (Document 4, section 6)', () => {
   });
   it('carries the two failure messages of D7-10 word for word', () => {
     expect(en.errors.viewTimeout).toBe('Something went wrong. Please try again.');
-    expect(en.errors.saveTimeout).toBe("We couldn't confirm your change. Please check before trying again.");
+    expect(en.errors.saveTimeout).toBe(
+      "We couldn't confirm your change. Please check before trying again.",
+    );
   });
   it('reports a missing key, an empty text and a non-text value', () => {
     const problems = compareCatalogues(['a', 'b'], { x: 'X', y: '', n: 1 }, { x: 'X' });

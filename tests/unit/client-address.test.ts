@@ -21,13 +21,30 @@ describe('every backend call carries it', () => {
 
   it('adds X-Forwarded-For when there is an address', async () => {
     const fetchImpl = vi.fn().mockResolvedValue(ok());
-    await callBackend({ method: 'GET', path: '/x', kind: 'view', schema: z.object({ ok: z.boolean() }), fetchImpl, clientAddress: '203.0.113.7' });
-    expect((fetchImpl.mock.calls[0]?.[1] as RequestInit).headers).toMatchObject({ 'x-forwarded-for': '203.0.113.7' });
+    await callBackend({
+      method: 'GET',
+      path: '/x',
+      kind: 'view',
+      schema: z.object({ ok: z.boolean() }),
+      fetchImpl,
+      clientAddress: '203.0.113.7',
+    });
+    expect((fetchImpl.mock.calls[0]?.[1] as RequestInit).headers).toMatchObject({
+      'x-forwarded-for': '203.0.113.7',
+    });
   });
 
   it('sends none when there is no address (locally)', async () => {
     const fetchImpl = vi.fn().mockResolvedValue(ok());
-    await callBackend({ method: 'GET', path: '/x', kind: 'view', schema: z.object({ ok: z.boolean() }), fetchImpl });
-    expect((fetchImpl.mock.calls[0]?.[1] as RequestInit).headers).not.toHaveProperty('x-forwarded-for');
+    await callBackend({
+      method: 'GET',
+      path: '/x',
+      kind: 'view',
+      schema: z.object({ ok: z.boolean() }),
+      fetchImpl,
+    });
+    expect((fetchImpl.mock.calls[0]?.[1] as RequestInit).headers).not.toHaveProperty(
+      'x-forwarded-for',
+    );
   });
 });

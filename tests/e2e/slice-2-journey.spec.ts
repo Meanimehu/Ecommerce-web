@@ -1,6 +1,12 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { addAndSubmitProduct, applyAsVendor, approveProduct, approveVendor, KURTA_PHOTO } from './support/flows';
+import {
+  addAndSubmitProduct,
+  applyAsVendor,
+  approveProduct,
+  approveVendor,
+  KURTA_PHOTO,
+} from './support/flows';
 import { backendLog, freshPhone, logIn, pageAs } from './support/login';
 
 /**
@@ -20,8 +26,12 @@ async function noAxeViolations(page: Page) {
 
 /** Test set-up only: the vendor's quantity for a variant, set at the backend (no screen does this before Slice 4). */
 async function setStock(vendor: Page, productId: string, quantity: number) {
-  const product = (await (await vendor.request.get(`/api/vendors/me/products/${productId}`)).json()) as { variants: { id: string }[] };
-  const token = (await vendor.context().cookies()).find((c) => c.name === '__Host-dhaaga_at')?.value;
+  const product = (await (
+    await vendor.request.get(`/api/vendors/me/products/${productId}`)
+  ).json()) as { variants: { id: string }[] };
+  const token = (await vendor.context().cookies()).find(
+    (c) => c.name === '__Host-dhaaga_at',
+  )?.value;
   const variant = product.variants[0]?.id ?? '';
   const answer = await fetch(`${BACKEND_URL}/api/v1/vendors/me/inventory/variants/${variant}`, {
     method: 'PUT',
@@ -35,7 +45,9 @@ test.describe('Slice 2: the first path, end to end', () => {
   test.skip(!backendLog, 'needs the local backend (E2E_BACKEND_LOG)');
   test.setTimeout(240_000);
 
-  test('a vendor applies and is approved, adds a product that is approved, and a customer finds it, logs in, adds it and sees it in the cart', async ({ browser }) => {
+  test('a vendor applies and is approved, adds a product that is approved, and a customer finds it, logs in, adds it and sees it in the cart', async ({
+    browser,
+  }) => {
     const vendorPhone = freshPhone();
     const n = vendorPhone.slice(-5);
     const shop = `Journey Weaves ${n}`;
@@ -55,7 +67,11 @@ test.describe('Slice 2: the first path, end to end', () => {
     await setStock(vendor, productId, 5);
 
     // A customer, not logged in, finds it in its category.
-    const customer = await browser.newContext({ ignoreHTTPSErrors: true, baseURL: test.info().project.use.baseURL, viewport: test.info().project.use.viewport });
+    const customer = await browser.newContext({
+      ignoreHTTPSErrors: true,
+      baseURL: test.info().project.use.baseURL,
+      viewport: test.info().project.use.viewport,
+    });
     const page = await customer.newPage();
     // Photos load straight from the public photo host (D3-04). Locally that host is not running (Document 8, Slice 2
     // notes), so the test answers for it with a fixture: the addresses are real, only the bytes are stood in.
@@ -74,7 +90,9 @@ test.describe('Slice 2: the first path, end to end', () => {
 
     // The product page: the address carries the readable name (D4-02).
     await card.click();
-    await expect(page).toHaveURL(new RegExp(`/en/product/${productId}/journey-block-print-kurta-${n}$`));
+    await expect(page).toHaveURL(
+      new RegExp(`/en/product/${productId}/journey-block-print-kurta-${n}$`),
+    );
     await expect(page.getByRole('heading', { name: title, level: 1 })).toBeVisible();
     await expect(page.getByText('₹1,499.50')).toBeVisible();
     await noAxeViolations(page);
@@ -98,7 +116,11 @@ test.describe('Slice 2: the first path, end to end', () => {
     await expect(page.getByRole('heading', { name: 'Your cart', level: 1 })).toBeVisible();
     await expect(page.getByRole('link', { name: title })).toBeVisible();
     await expect(page.getByText(`Sold by ${shop}`)).toBeVisible();
-    await expect(page.getByText('Shipping charges are not calculated yet. Checkout is coming soon. Your cart is saved.')).toBeVisible();
+    await expect(
+      page.getByText(
+        'Shipping charges are not calculated yet. Checkout is coming soon. Your cart is saved.',
+      ),
+    ).toBeVisible();
     await expect(page.getByRole('button', { name: /checkout/i })).toHaveCount(0);
     await noAxeViolations(page);
 

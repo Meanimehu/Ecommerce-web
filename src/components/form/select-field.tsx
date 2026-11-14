@@ -29,9 +29,22 @@ export function SelectField<TValues extends FieldValues>({
   messages: Messages;
 }) {
   return (
-    <FieldFrame form={form} name={name} id={id} label={label} description={description} optional={optional} messages={messages}>
+    <FieldFrame
+      form={form}
+      name={name}
+      id={id}
+      label={label}
+      description={description}
+      optional={optional}
+      messages={messages}
+    >
       {({ invalid, describedBy }) => (
-        <Select id={id} aria-invalid={invalid || undefined} aria-describedby={describedBy} {...form.register(name)}>
+        <Select
+          id={id}
+          aria-invalid={invalid || undefined}
+          aria-describedby={describedBy}
+          {...form.register(name)}
+        >
           {placeholder !== undefined ? <option value="">{placeholder}</option> : null}
           {options.map((option) => (
             <option key={option.value} value={option.value}>

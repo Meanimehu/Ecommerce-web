@@ -9,13 +9,34 @@ import type { Locale } from '@/lib/i18n';
 const IST = 'Asia/Kolkata';
 
 const dateFormats: Record<Locale, Intl.DateTimeFormat> = {
-  en: new Intl.DateTimeFormat('en-GB', { timeZone: IST, day: 'numeric', month: 'short', year: 'numeric' }),
-  hi: new Intl.DateTimeFormat('hi-IN-u-nu-latn', { timeZone: IST, day: 'numeric', month: 'long', year: 'numeric' }),
+  en: new Intl.DateTimeFormat('en-GB', {
+    timeZone: IST,
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }),
+  hi: new Intl.DateTimeFormat('hi-IN-u-nu-latn', {
+    timeZone: IST,
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }),
 };
 
 const timeFormats: Record<Locale, Intl.DateTimeFormat> = {
-  en: new Intl.DateTimeFormat('en-IN-u-nu-latn', { timeZone: IST, hour: 'numeric', minute: '2-digit', hour12: true }),
-  hi: new Intl.DateTimeFormat('hi-IN-u-nu-latn', { timeZone: IST, hour: 'numeric', minute: '2-digit', hour12: true, dayPeriod: 'short' }),
+  en: new Intl.DateTimeFormat('en-IN-u-nu-latn', {
+    timeZone: IST,
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }),
+  hi: new Intl.DateTimeFormat('hi-IN-u-nu-latn', {
+    timeZone: IST,
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    dayPeriod: 'short',
+  }),
 };
 
 export function formatDate(iso: string, locale: Locale): string {

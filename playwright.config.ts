@@ -26,7 +26,10 @@ export default defineConfig({
   projects: [
     { name: 'chromium-phone', use: { ...devices['Pixel 7'], ...chromium } },
     { name: 'chromium-desktop', use: { ...devices['Desktop Chrome'], ...chromium } },
-    { name: 'firefox-phone', use: { browserName: 'firefox', viewport: { width: 412, height: 915 }, hasTouch: true } },
+    {
+      name: 'firefox-phone',
+      use: { browserName: 'firefox', viewport: { width: 412, height: 915 }, hasTouch: true },
+    },
     { name: 'firefox-desktop', use: { ...devices['Desktop Firefox'] } },
     { name: 'webkit-phone', use: { ...devices['iPhone 15'] } },
     { name: 'webkit-desktop', use: { ...devices['Desktop Safari'] } },
@@ -40,7 +43,18 @@ export default defineConfig({
   webServer: process.env.E2E_BASE_URL
     ? undefined
     : [
-        { command: 'PORT=3002 npm start', url: 'http://127.0.0.1:3002/api/health', reuseExistingServer: !process.env.CI, timeout: 60000 },
-        { command: 'node tests/e2e/support/https-front.mjs', url: `${baseURL}/api/health`, reuseExistingServer: !process.env.CI, timeout: 30000, ignoreHTTPSErrors: true },
+        {
+          command: 'PORT=3002 npm start',
+          url: 'http://127.0.0.1:3002/api/health',
+          reuseExistingServer: !process.env.CI,
+          timeout: 60000,
+        },
+        {
+          command: 'node tests/e2e/support/https-front.mjs',
+          url: `${baseURL}/api/health`,
+          reuseExistingServer: !process.env.CI,
+          timeout: 30000,
+          ignoreHTTPSErrors: true,
+        },
       ],
 });

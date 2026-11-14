@@ -12,7 +12,13 @@ import { useMessages } from '@/lib/messages-context';
  * When a page fails: what failed, "Try again", and a way on, never a blank page (D-12; Document 6, section 10).
  * The error itself goes to the console only; no details are shown to the person.
  */
-export default function PageError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function PageError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
   const params = useParams<{ lang: string }>();
   const lang = isLocale(params.lang) ? params.lang : 'en';
   const t = useMessages();

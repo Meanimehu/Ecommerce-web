@@ -200,20 +200,57 @@
     font-weight: 500;
     letter-spacing: -0.01em;
   }
-  .type-display { font-size: 36px; line-height: 42px; }
-  .type-h1 { font-size: 30px; line-height: 38px; }
-  .type-h2 { font-size: 24px; line-height: 32px; }
-  .type-h3 { font-size: 20px; line-height: 28px; }
-  .type-h4 { font-size: 18px; line-height: 26px; }
-  @media (min-width: 768px) {
-    .type-display { font-size: 56px; line-height: 60px; }
-    .type-h1 { font-size: 44px; line-height: 52px; }
-    .type-h2 { font-size: 30px; line-height: 38px; }
-    .type-h3 { font-size: 22px; line-height: 30px; }
+  .type-display {
+    font-size: 36px;
+    line-height: 42px;
   }
-  .type-small { font-size: 14px; line-height: 20px; }
-  .type-caption { font-size: 12px; line-height: 16px; }
-  .type-label { font-size: 14px; line-height: 20px; font-weight: 500; }
+  .type-h1 {
+    font-size: 30px;
+    line-height: 38px;
+  }
+  .type-h2 {
+    font-size: 24px;
+    line-height: 32px;
+  }
+  .type-h3 {
+    font-size: 20px;
+    line-height: 28px;
+  }
+  .type-h4 {
+    font-size: 18px;
+    line-height: 26px;
+  }
+  @media (min-width: 768px) {
+    .type-display {
+      font-size: 56px;
+      line-height: 60px;
+    }
+    .type-h1 {
+      font-size: 44px;
+      line-height: 52px;
+    }
+    .type-h2 {
+      font-size: 30px;
+      line-height: 38px;
+    }
+    .type-h3 {
+      font-size: 22px;
+      line-height: 30px;
+    }
+  }
+  .type-small {
+    font-size: 14px;
+    line-height: 20px;
+  }
+  .type-caption {
+    font-size: 12px;
+    line-height: 16px;
+  }
+  .type-label {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+  }
 
   :lang(hi) .type-display,
   :lang(hi) .type-h1,
@@ -222,19 +259,45 @@
   :lang(hi) .type-h4 {
     letter-spacing: 0;
   }
-  :lang(hi) .type-display { font-size: 30.6px; line-height: 42px; }
-  :lang(hi) .type-h1 { font-size: 25.5px; line-height: 36px; }
-  :lang(hi) .type-h2 { font-size: 21.6px; line-height: 30px; }
-  :lang(hi) .type-h3 { line-height: 28px; }
-  :lang(hi) .type-h4 { line-height: 26px; }
+  :lang(hi) .type-display {
+    font-size: 30.6px;
+    line-height: 42px;
+  }
+  :lang(hi) .type-h1 {
+    font-size: 25.5px;
+    line-height: 36px;
+  }
+  :lang(hi) .type-h2 {
+    font-size: 21.6px;
+    line-height: 30px;
+  }
+  :lang(hi) .type-h3 {
+    line-height: 28px;
+  }
+  :lang(hi) .type-h4 {
+    line-height: 26px;
+  }
   @media (min-width: 768px) {
-    :lang(hi) .type-display { font-size: 47.6px; line-height: 66px; }
-    :lang(hi) .type-h1 { font-size: 37.4px; line-height: 52px; }
-    :lang(hi) .type-h2 { font-size: 27px; line-height: 38px; }
-    :lang(hi) .type-h3 { line-height: 30px; }
+    :lang(hi) .type-display {
+      font-size: 47.6px;
+      line-height: 66px;
+    }
+    :lang(hi) .type-h1 {
+      font-size: 37.4px;
+      line-height: 52px;
+    }
+    :lang(hi) .type-h2 {
+      font-size: 27px;
+      line-height: 38px;
+    }
+    :lang(hi) .type-h3 {
+      line-height: 30px;
+    }
   }
   :lang(hi) .type-small,
-  :lang(hi) .type-label { line-height: 22px; }
+  :lang(hi) .type-label {
+    line-height: 22px;
+  }
 
   /* 6.3 Stitch line: decoration only, never over a photo; vendor and admin only under the page title and on empty boxes */
   .stitch-bottom {

@@ -31,10 +31,21 @@ export function TextField<TValues extends FieldValues>({
   optional?: boolean;
   prefix?: string;
   messages: Messages;
-  inputProps?: Omit<ComponentProps<typeof Input>, 'id' | 'name' | 'aria-invalid' | 'aria-describedby'>;
+  inputProps?: Omit<
+    ComponentProps<typeof Input>,
+    'id' | 'name' | 'aria-invalid' | 'aria-describedby'
+  >;
 }) {
   return (
-    <FieldFrame form={form} name={name} id={id} label={label} description={description} optional={optional} messages={messages}>
+    <FieldFrame
+      form={form}
+      name={name}
+      id={id}
+      label={label}
+      description={description}
+      optional={optional}
+      messages={messages}
+    >
       {({ invalid, describedBy }) => {
         const input = (
           <Input
@@ -43,7 +54,11 @@ export function TextField<TValues extends FieldValues>({
             aria-describedby={describedBy}
             {...inputProps}
             {...form.register(name)}
-            className={cn(inputProps?.className, prefix && 'h-full rounded-s-none border-0 hover:border-0 aria-invalid:border-0 aria-invalid:px-3.5 focus-visible:shadow-none')}
+            className={cn(
+              inputProps?.className,
+              prefix &&
+                'h-full rounded-s-none border-0 hover:border-0 aria-invalid:border-0 aria-invalid:px-3.5 focus-visible:shadow-none',
+            )}
           />
         );
         return prefix ? (

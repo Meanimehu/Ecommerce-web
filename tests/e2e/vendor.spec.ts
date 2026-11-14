@@ -19,7 +19,9 @@ test.describe('become a vendor, and admin review', () => {
   test.skip(!backendLog, 'needs the local backend (E2E_BACKEND_LOG)');
   test.setTimeout(120_000);
 
-  test('a person with no vendor is sent to the application, applies, and an admin approves', async ({ browser }) => {
+  test('a person with no vendor is sent to the application, applies, and an admin approves', async ({
+    browser,
+  }) => {
     const phone = freshPhone();
     const shop = `Test Weaves ${phone.slice(-4)}`;
 
@@ -33,7 +35,9 @@ test.describe('become a vendor, and admin review', () => {
     // Step 1: a missing value shows under its field and in the summary.
     await page.getByRole('link', { name: 'Start your application' }).click();
     await page.getByRole('button', { name: 'Save and continue' }).click();
-    await expect(page.getByRole('alert').filter({ hasText: /Fix \d things to continue/ })).toBeFocused();
+    await expect(
+      page.getByRole('alert').filter({ hasText: /Fix \d things to continue/ }),
+    ).toBeFocused();
     await expect(page.getByLabel('Legal name')).toHaveAttribute('aria-invalid', 'true');
     await page.getByLabel('Seller type').selectOption('proprietorship');
     await page.getByLabel('Legal name').fill(`${shop} Proprietorship`);
@@ -59,11 +63,15 @@ test.describe('become a vendor, and admin review', () => {
     await expect(page).toHaveURL(/step=documents/);
     const chooser = page.waitForEvent('filechooser');
     await page.getByRole('button', { name: /^Add file\s*: PAN card$/ }).click();
-    await (await chooser).setFiles({ name: 'pan.pdf', mimeType: 'application/pdf', buffer: TEST_PDF });
+    await (
+      await chooser
+    ).setFiles({ name: 'pan.pdf', mimeType: 'application/pdf', buffer: TEST_PDF });
     await expect(page.getByText(/^pan\.pdf · /)).toBeVisible();
     await expect(page.getByText('Pending review')).toBeVisible();
     // The person's own file opens through our server, never from storage directly (D3-04).
-    const file = await page.request.get(await page.getByRole('link', { name: /^View\s*: pan\.pdf$/ }).getAttribute('href') ?? '');
+    const file = await page.request.get(
+      (await page.getByRole('link', { name: /^View\s*: pan\.pdf$/ }).getAttribute('href')) ?? '',
+    );
     expect(file.status()).toBe(200);
     expect(file.headers()['content-type']).toBe('application/pdf');
     await noAxeViolations(page);
@@ -78,7 +86,9 @@ test.describe('become a vendor, and admin review', () => {
     await noAxeViolations(page);
     await submit.click();
     await expect(page).toHaveURL(/\/en\/vendor\/apply$/);
-    await expect(page.getByText('We have your application. It is read-only while it is reviewed.')).toBeVisible();
+    await expect(
+      page.getByText('We have your application. It is read-only while it is reviewed.'),
+    ).toBeVisible();
     await expect(page.getByText('Waiting for review')).toBeVisible();
 
     // The admin opens it from the list, approves the document, then the vendor.
@@ -91,22 +101,30 @@ test.describe('become a vendor, and admin review', () => {
 
     // Approving the vendor before the document: the backend lists what is lacking, and the screen shows it.
     await admin.getByRole('button', { name: 'Approve vendor' }).click();
-    await expect(admin.getByRole('alert').filter({ hasText: 'This vendor cannot be approved yet' })).toContainText('PAN card');
+    await expect(
+      admin.getByRole('alert').filter({ hasText: 'This vendor cannot be approved yet' }),
+    ).toContainText('PAN card');
 
     await admin.getByRole('button', { name: /^Approve\s*: PAN card$/ }).click();
     await expect(admin.getByRole('status').filter({ hasText: 'Document approved' })).toBeVisible();
     await admin.getByRole('button', { name: 'Approve vendor' }).click();
     await expect(admin.getByRole('status').filter({ hasText: 'Vendor approved' })).toBeVisible();
-    await expect(admin.getByText('Approved', { exact: true }).filter({ visible: true }).first()).toBeVisible();
+    await expect(
+      admin.getByText('Approved', { exact: true }).filter({ visible: true }).first(),
+    ).toBeVisible();
 
     // The new vendor now reaches the Vendor area, and the application shows Approved.
     await page.goto('/en/vendor/apply');
-    await expect(page.getByText('Your application is approved. You can start adding products.')).toBeVisible();
+    await expect(
+      page.getByText('Your application is approved. You can start adding products.'),
+    ).toBeVisible();
     await page.getByRole('link', { name: 'Go to vendor home' }).click();
     await expect(page).toHaveURL(/\/en\/vendor$/);
   });
 
-  test('a rejected application shows the reason and can be edited and sent again', async ({ browser }) => {
+  test('a rejected application shows the reason and can be edited and sent again', async ({
+    browser,
+  }) => {
     const phone = freshPhone();
     const shop = `Reject Test ${phone.slice(-4)}`;
     const page = await pageAs(browser, phone, '/hi/vendor/apply');
@@ -129,7 +147,9 @@ test.describe('become a vendor, and admin review', () => {
     await page.goto('/hi/vendor/apply?step=documents');
     const chooser = page.waitForEvent('filechooser');
     await page.getByRole('button', { name: /^फ़ाइल जोड़ें\s*: PAN कार्ड$/ }).click();
-    await (await chooser).setFiles({ name: 'pan.pdf', mimeType: 'application/pdf', buffer: TEST_PDF });
+    await (
+      await chooser
+    ).setFiles({ name: 'pan.pdf', mimeType: 'application/pdf', buffer: TEST_PDF });
     await expect(page.getByText(/^pan\.pdf · /)).toBeVisible();
     await page.goto('/hi/vendor/apply?step=review');
     await page.getByLabel('मैंने विक्रेता की शर्तें पढ़ ली हैं और मैं उनसे सहमत हूँ').check();
@@ -142,10 +162,17 @@ test.describe('become a vendor, and admin review', () => {
     const dialog = admin.getByRole('alertdialog');
     await dialog.getByRole('button', { name: 'Reject application' }).click();
     // A missing reason is caught before sending, under the field.
-    await expect(dialog.getByLabel('Reason (the vendor can read it)')).toHaveAttribute('aria-invalid', 'true');
-    await dialog.getByLabel('Reason (the vendor can read it)').fill('The PAN card is not readable.');
+    await expect(dialog.getByLabel('Reason (the vendor can read it)')).toHaveAttribute(
+      'aria-invalid',
+      'true',
+    );
+    await dialog
+      .getByLabel('Reason (the vendor can read it)')
+      .fill('The PAN card is not readable.');
     await dialog.getByRole('button', { name: 'Reject application' }).click();
-    await expect(admin.getByRole('status').filter({ hasText: 'Application rejected' })).toBeVisible();
+    await expect(
+      admin.getByRole('status').filter({ hasText: 'Application rejected' }),
+    ).toBeVisible();
 
     await page.goto('/hi/vendor/apply');
     await expect(page.getByText('The PAN card is not readable.')).toBeVisible();
@@ -163,7 +190,9 @@ test.describe('become a vendor, and admin review', () => {
     await expect(page.getByLabel('दुकान का नाम')).toHaveValue(`${shop} new`);
   });
 
-  test('a customer gets a real 403 on the admin vendor screens, and a file over the limit is refused before it is sent', async ({ browser }) => {
+  test('a customer gets a real 403 on the admin vendor screens, and a file over the limit is refused before it is sent', async ({
+    browser,
+  }) => {
     const phone = freshPhone();
     const page = await pageAs(browser, phone, '/en/account');
     await expect(page.getByRole('link', { name: 'Become a vendor' })).toBeVisible();
@@ -180,16 +209,31 @@ test.describe('become a vendor, and admin review', () => {
     await page.goto('/en/vendor/apply?step=documents');
     let uploads = 0;
     page.on('request', (request) => {
-      if (request.url().endsWith('/api/vendors/me/documents') && request.method() === 'POST') uploads += 1;
+      if (request.url().endsWith('/api/vendors/me/documents') && request.method() === 'POST')
+        uploads += 1;
     });
     const chooser = page.waitForEvent('filechooser');
     await page.getByRole('button', { name: /^Add file\s*: PAN card$/ }).click();
-    await (await chooser).setFiles({ name: 'big.pdf', mimeType: 'application/pdf', buffer: Buffer.alloc(5 * 1024 * 1024 + 1, 32) });
-    await expect(page.getByRole('alert').filter({ hasText: 'This file is too large. Choose a smaller file.' })).toBeVisible();
+    await (
+      await chooser
+    ).setFiles({
+      name: 'big.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.alloc(5 * 1024 * 1024 + 1, 32),
+    });
+    await expect(
+      page.getByRole('alert').filter({ hasText: 'This file is too large. Choose a smaller file.' }),
+    ).toBeVisible();
     expect(uploads).toBe(0);
 
     // Our upload endpoint refuses a request from another site before reading it (Document 7, section 17.3).
-    const foreign = await page.request.post('/api/vendors/me/documents', { headers: { origin: 'https://evil.example', 'x-dhaaga-csrf': '1' }, multipart: { type: 'pan', file: { name: 'pan.pdf', mimeType: 'application/pdf', buffer: TEST_PDF } } });
+    const foreign = await page.request.post('/api/vendors/me/documents', {
+      headers: { origin: 'https://evil.example', 'x-dhaaga-csrf': '1' },
+      multipart: {
+        type: 'pan',
+        file: { name: 'pan.pdf', mimeType: 'application/pdf', buffer: TEST_PDF },
+      },
+    });
     expect(foreign.status()).toBe(403);
   });
 });

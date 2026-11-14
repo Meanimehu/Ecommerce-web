@@ -25,8 +25,16 @@ export function ok(body: unknown, status = 200): NextResponse {
   return NextResponse.json(body, { status, headers: PRIVATE });
 }
 
-export function fail(code: string, status: number, extra: Record<string, unknown> = {}, requestId?: string): NextResponse {
-  return NextResponse.json({ error: { code, ...(requestId ? { requestId } : {}), ...extra } }, { status, headers: PRIVATE });
+export function fail(
+  code: string,
+  status: number,
+  extra: Record<string, unknown> = {},
+  requestId?: string,
+): NextResponse {
+  return NextResponse.json(
+    { error: { code, ...(requestId ? { requestId } : {}), ...extra } },
+    { status, headers: PRIVATE },
+  );
 }
 
 export function fromAppError(error: unknown): NextResponse {
@@ -35,7 +43,12 @@ export function fromAppError(error: unknown): NextResponse {
     return fail(
       error.code,
       status,
-      { details: error.details, fields: error.fields, backendMessage: error.backendMessage, outcomeUnknown: error.outcomeUnknown },
+      {
+        details: error.details,
+        fields: error.fields,
+        backendMessage: error.backendMessage,
+        outcomeUnknown: error.outcomeUnknown,
+      },
       error.requestId,
     );
   }

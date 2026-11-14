@@ -9,9 +9,19 @@ import type { Messages } from './i18n';
  */
 const MessagesContext = createContext<Partial<Messages>>({});
 
-export function MessagesProvider({ messages, children }: { messages: Partial<Messages>; children: ReactNode }) {
+export function MessagesProvider({
+  messages,
+  children,
+}: {
+  messages: Partial<Messages>;
+  children: ReactNode;
+}) {
   const parent = useContext(MessagesContext);
-  return <MessagesContext.Provider value={{ ...parent, ...messages }}>{children}</MessagesContext.Provider>;
+  return (
+    <MessagesContext.Provider value={{ ...parent, ...messages }}>
+      {children}
+    </MessagesContext.Provider>
+  );
 }
 
 /** The text for this page's language. Area-only sections exist only inside the Vendor and Admin areas. */

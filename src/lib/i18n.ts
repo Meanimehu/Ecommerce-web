@@ -21,7 +21,11 @@ export function pickLocale(acceptLanguage: string | null | undefined): Locale {
       const [tag = '', ...params] = part.trim().split(';');
       const q = params.map((p) => p.trim()).find((p) => p.startsWith('q='));
       const quality = q === undefined ? 1 : Number(q.slice(2));
-      return { language: tag.trim().toLowerCase().split('-')[0] ?? '', quality: Number.isFinite(quality) ? quality : 0, index };
+      return {
+        language: tag.trim().toLowerCase().split('-')[0] ?? '',
+        quality: Number.isFinite(quality) ? quality : 0,
+        index,
+      };
     })
     .filter((entry) => entry.quality > 0)
     .sort((a, b) => b.quality - a.quality || a.index - b.index);

@@ -4,13 +4,21 @@ import { countFirstLoad, expectWithinBudget } from './support/page-size';
 
 /** Slice 0: the blank pages, the language redirect, the health check, accessibility and the first-load page-size budget. */
 
-test('a visit with no prefix goes to the browser language, and the redirect is never shared-cached', async ({ request }) => {
-  const hindi = await request.get('/', { maxRedirects: 0, headers: { 'accept-language': 'hi-IN,hi;q=0.9,en;q=0.8' } });
+test('a visit with no prefix goes to the browser language, and the redirect is never shared-cached', async ({
+  request,
+}) => {
+  const hindi = await request.get('/', {
+    maxRedirects: 0,
+    headers: { 'accept-language': 'hi-IN,hi;q=0.9,en;q=0.8' },
+  });
   expect(hindi.status()).toBe(307);
   expect(hindi.headers().location).toBe('/hi');
   expect(hindi.headers()['cache-control']).toContain('no-store');
 
-  const other = await request.get('/', { maxRedirects: 0, headers: { 'accept-language': 'fr-FR,fr;q=0.9' } });
+  const other = await request.get('/', {
+    maxRedirects: 0,
+    headers: { 'accept-language': 'fr-FR,fr;q=0.9' },
+  });
   expect(other.headers().location).toBe('/en');
 });
 
@@ -19,18 +27,32 @@ test('only /en and /hi exist; anything else is a real 404', async ({ request }) 
   expect((await request.get('/fr')).status()).toBe(404);
 });
 
-test('a missing page says so in English and Hindi, with a way to each home page (Document 4, section 10)', async ({ page }) => {
+test('a missing page says so in English and Hindi, with a way to each home page (Document 4, section 10)', async ({
+  page,
+}) => {
   const response = await page.goto('/hi/does-not-exist');
   expect(response?.status()).toBe(404);
   await expect(page.getByRole('heading', { name: 'This page was not found' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'यह पेज नहीं मिला' })).toBeVisible();
-  expect((await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()).violations).toEqual([]);
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
 });
 
-test('standalone controls have at least a 44 by 44 px hit area on a phone (Document 6, D6-11)', async ({ page }) => {
+test('standalone controls have at least a 44 by 44 px hit area on a phone (Document 6, D6-11)', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 360, height: 780 });
   await page.goto('/en/login');
-  for (const control of [page.getByRole('button', { name: 'Send code' }), page.getByRole('link', { name: 'हिन्दी' }), page.getByRole('link', { name: 'Dhaaga' })]) {
+  for (const control of [
+    page.getByRole('button', { name: 'Send code' }),
+    page.getByRole('link', { name: 'हिन्दी' }),
+    page.getByRole('link', { name: 'Dhaaga' }),
+  ]) {
     const box = await control.boundingBox();
     expect(box?.height, await control.innerText()).toBeGreaterThanOrEqual(44);
     expect(box?.width, await control.innerText()).toBeGreaterThanOrEqual(44);
@@ -49,13 +71,18 @@ for (const lang of ['en', 'hi'] as const) {
     await page.goto(`/${lang}`);
     await expect(page.locator('html')).toHaveAttribute('lang', lang);
     await expect(page.getByText('Dhaaga', { exact: true })).toBeVisible();
-    const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      .analyze();
     expect(results.violations).toEqual([]);
   });
 
-  for (const path of [`/${lang}`, `/${lang}/login`]) test(`${path} stays inside the first-load budget (Document 6, section 14)`, async ({ page }) => {
-    const firstLoad = countFirstLoad(page, lang);
-    await page.goto(path, { waitUntil: 'networkidle' });
-    expectWithinBudget(path, lang, await firstLoad());
-  });
+  for (const path of [`/${lang}`, `/${lang}/login`])
+    test(`${path} stays inside the first-load budget (Document 6, section 14)`, async ({
+      page,
+    }) => {
+      const firstLoad = countFirstLoad(page, lang);
+      await page.goto(path, { waitUntil: 'networkidle' });
+      expectWithinBudget(path, lang, await firstLoad());
+    });
 }

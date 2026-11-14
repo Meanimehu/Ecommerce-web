@@ -34,13 +34,11 @@ export function countFirstLoad(page: Page, lang: 'en' | 'hi'): () => Promise<Fir
     const isFont = type === 'font';
     const isOnDemand = lang === 'en' && isFont && request.url().includes('devanagari');
     parts.push(
-      request
-        .sizes()
-        .then((sizes) => ({
-          bytes: sizes.responseBodySize + sizes.responseHeadersSize,
-          isFont,
-          isOnDemand,
-        })),
+      request.sizes().then((sizes) => ({
+        bytes: sizes.responseBodySize + sizes.responseHeadersSize,
+        isFont,
+        isOnDemand,
+      })),
     );
   });
   return async () => {

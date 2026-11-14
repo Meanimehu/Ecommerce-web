@@ -5,7 +5,19 @@ import type { ReactNode } from 'react';
  * A whole-screen state (Document 6, section 10; approved Stage 5): error, no access, not found. A box with a 32 px line
  * icon, a title that says what happened, one sentence, and one way on.
  */
-export function StateBlock({ icon: Icon, title, text, children, titleAs = 'h1' }: { icon: LucideIcon; title: string; text: string; children?: ReactNode; titleAs?: 'h1' | 'h2' | 'h3' }) {
+export function StateBlock({
+  icon: Icon,
+  title,
+  text,
+  children,
+  titleAs = 'h1',
+}: {
+  icon: LucideIcon;
+  title: string;
+  text: string;
+  children?: ReactNode;
+  titleAs?: 'h1' | 'h2' | 'h3';
+}) {
   const Title = titleAs;
   return (
     <div className="grid justify-items-center gap-3 rounded-1 border border-dashed border-control bg-surface px-6 py-10 text-center">

@@ -15,12 +15,34 @@ const TONES: Record<ChipTone, string> = {
   error: 'bg-error-fill text-error',
 };
 
-const ICONS: Record<ChipTone, LucideIcon> = { neutral: List, info: Clock, success: Check, warning: TriangleAlert, error: X };
+const ICONS: Record<ChipTone, LucideIcon> = {
+  neutral: List,
+  info: Clock,
+  success: Check,
+  warning: TriangleAlert,
+  error: X,
+};
 
-export function StatusChip({ tone, label, icon, className }: { tone: ChipTone; label: string; icon?: LucideIcon; className?: string }) {
+export function StatusChip({
+  tone,
+  label,
+  icon,
+  className,
+}: {
+  tone: ChipTone;
+  label: string;
+  icon?: LucideIcon;
+  className?: string;
+}) {
   const Icon = icon ?? ICONS[tone];
   return (
-    <span className={cn('inline-flex h-7 shrink-0 items-center gap-1.5 rounded-2 px-2 type-small font-medium whitespace-nowrap', TONES[tone], className)}>
+    <span
+      className={cn(
+        'inline-flex h-7 shrink-0 items-center gap-1.5 rounded-2 px-2 type-small font-medium whitespace-nowrap',
+        TONES[tone],
+        className,
+      )}
+    >
       <Icon aria-hidden="true" className="size-4" />
       {label}
     </span>

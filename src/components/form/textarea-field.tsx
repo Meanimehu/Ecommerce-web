@@ -30,11 +30,29 @@ export function TextareaField<TValues extends FieldValues>({
   const value = form.watch(name);
   const count = typeof value === 'string' ? value.length : 0;
   return (
-    <FieldFrame form={form} name={name} id={id} label={label} description={description} optional={optional} messages={messages}>
+    <FieldFrame
+      form={form}
+      name={name}
+      id={id}
+      label={label}
+      description={description}
+      optional={optional}
+      messages={messages}
+    >
       {({ invalid, describedBy }) => (
         <div className="grid gap-1">
-          <Textarea id={id} aria-invalid={invalid || undefined} aria-describedby={describedBy} maxLength={maxLength} {...form.register(name)} />
-          {maxLength ? <p className="justify-self-end type-caption text-muted-foreground tabular-nums">{fill(messages.form.characters, { count, max: maxLength })}</p> : null}
+          <Textarea
+            id={id}
+            aria-invalid={invalid || undefined}
+            aria-describedby={describedBy}
+            maxLength={maxLength}
+            {...form.register(name)}
+          />
+          {maxLength ? (
+            <p className="justify-self-end type-caption text-muted-foreground tabular-nums">
+              {fill(messages.form.characters, { count, max: maxLength })}
+            </p>
+          ) : null}
         </div>
       )}
     </FieldFrame>

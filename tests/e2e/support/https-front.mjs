@@ -11,7 +11,27 @@ const key = `${dir}/localhost-key.pem`;
 const cert = `${dir}/localhost.pem`;
 if (!existsSync(key) || !existsSync(cert)) {
   mkdirSync(dir, { recursive: true });
-  execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-days', '30', '-subj', '/CN=localhost', '-addext', 'subjectAltName=DNS:localhost', '-keyout', key, '-out', cert], { stdio: 'ignore' });
+  execFileSync(
+    'openssl',
+    [
+      'req',
+      '-x509',
+      '-newkey',
+      'rsa:2048',
+      '-nodes',
+      '-days',
+      '30',
+      '-subj',
+      '/CN=localhost',
+      '-addext',
+      'subjectAltName=DNS:localhost',
+      '-keyout',
+      key,
+      '-out',
+      cert,
+    ],
+    { stdio: 'ignore' },
+  );
 }
 
 const port = Number(process.env.FRONT_PORT ?? 3001);
@@ -20,7 +40,17 @@ const target = Number(process.env.TARGET_PORT ?? 3002);
 https
   .createServer({ key: readFileSync(key), cert: readFileSync(cert) }, (req, res) => {
     const upstream = http.request(
-      { host: '127.0.0.1', port: target, method: req.method, path: req.url, headers: { ...req.headers, 'x-forwarded-proto': 'https', 'x-forwarded-host': req.headers.host } },
+      {
+        host: '127.0.0.1',
+        port: target,
+        method: req.method,
+        path: req.url,
+        headers: {
+          ...req.headers,
+          'x-forwarded-proto': 'https',
+          'x-forwarded-host': req.headers.host,
+        },
+      },
       (answer) => {
         res.writeHead(answer.statusCode ?? 502, answer.headers);
         answer.pipe(res);

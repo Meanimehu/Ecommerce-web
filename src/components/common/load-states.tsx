@@ -24,7 +24,17 @@ export function LoadingBlock({ messages, lines = 4 }: { messages: Messages; line
   );
 }
 
-export function PartError({ error, onRetry, messages, title }: { error: unknown; onRetry: () => void; messages: Messages; title?: string }) {
+export function PartError({
+  error,
+  onRetry,
+  messages,
+  title,
+}: {
+  error: unknown;
+  onRetry: () => void;
+  messages: Messages;
+  title?: string;
+}) {
   const [copied, setCopied] = useState(false);
   const appError = toAppError(error);
   return (
@@ -39,7 +49,14 @@ export function PartError({ error, onRetry, messages, title }: { error: unknown;
       }
     >
       <p>{messageFor(appError, messages)}</p>
-      {appError.requestId ? <Reference requestId={appError.requestId} copied={copied} onCopy={() => setCopied(true)} messages={messages} /> : null}
+      {appError.requestId ? (
+        <Reference
+          requestId={appError.requestId}
+          copied={copied}
+          onCopy={() => setCopied(true)}
+          messages={messages}
+        />
+      ) : null}
     </Banner>
   );
 }
