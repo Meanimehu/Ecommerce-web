@@ -526,7 +526,7 @@ Status names are shown with the frontend's own English and Hindi words (D-08, D-
 - **Filter panel (expanded):** 264 px, solid hairlines between groups, each group 16 px type for its title; checkboxes with counts when the backend sends them. A "Clear all" quiet button at the top when any filter is on.
 - **Filter sheet (compact and medium):** opens from a "Filters" button showing the number of active filters; a full-height bottom sheet with a "Show 128 results" button at the foot of the sheet itself (part of the sheet, not a bar on the page).
 - **Active filters** are also shown as removable chips above the grid (selected chips use `ink` fill).
-- **Load more** (D5-03): a Secondary large button, with the text "Showing 8 of 128" and a thin progress line (`line` track, `ink` fill) above it. After loading, focus stays where it was and the added count is announced (Document 5, section 6.1).
+- **Load more** (D5-03): a Secondary large button, with the text "Showing 8 of 128" and a thin progress line (`line` track, `ink` fill) above it. After loading, focus stays where it was and the added count is announced (Document 5, section 6.1). When the last batch has loaded and the button is gone, focus moves to the first card added, so a keyboard or screen-reader user goes on from the new products instead of starting again at the top of the page (owner, 14 Nov 2026).
 
 ### 8.9 Tables (vendor and admin)
 
@@ -994,3 +994,4 @@ Approved decisions in Documents 1 to 5 are not changed by this document. It appl
 | 26 | Stage 5 Vendor area approved (9 Nov 2026). Admin area screens built and presented for review. Still unchecked: contrast of used combinations, keyboard and screen reader behaviour, real vendor photos, Hindi wording review | Owner review pending | Open |
 | 27 | Stage 5 Admin area approved (9 Nov 2026); all three areas approved. Still open, not claimed: contrast of the combinations used on the screens, keyboard and screen reader behaviour (Document 7, section 10), testing with real vendor photos in the 4:5 frames, Hindi wording review, hero choice storage (Document 7, T7-8) | Owner-approved screens; checks open | Open |
 | 28 | Stand-in images decided (D6-62): generated garment illustrations used for design; real-photo testing deferred to when real photos exist (T7-7) | Owner-approved | Done; real-photo test open |
+| 29 | 8.8: when the last "Load more" batch has loaded and the button is gone, focus moves to the first card added (Document 7, pull request #48) | Owner-approved (14 Nov 2026) | Done |

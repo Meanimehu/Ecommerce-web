@@ -182,7 +182,7 @@ test.describe('the storefront', () => {
     await expect(customer.getByRole('link', { name: /^Cart\s*1\s*item$/ })).toBeVisible();
   });
 
-  test('a category with more than one batch: "Load more" adds the next cards and says how many are shown', async ({ browser, page }) => {
+  test('a category with more than one batch: "Load more" adds the next cards, says how many are shown, and keeps the keyboard focus', async ({ browser, page }) => {
     const firstPage = (await (await fetch(`${BACKEND}/catalogue/products?categorySlug=kurtas&limit=1`)).json()) as { total: number };
     if (firstPage.total <= FIRST_BATCH) {
       // Test set-up only: enough approved products for a second batch.
@@ -199,14 +199,25 @@ test.describe('the storefront', () => {
     await expect(cards).toHaveCount(FIRST_BATCH);
     const total = Number((await page.getByText(/^Showing 24 of \d+$/).textContent())?.match(/of (\d+)/)?.[1]);
     expect(total).toBeGreaterThan(FIRST_BATCH);
-    await page.getByRole('button', { name: 'Load more' }).click();
-    const shown = Math.min(total, 2 * FIRST_BATCH);
-    await expect(cards).toHaveCount(shown);
-    await expect(page.getByRole('status').filter({ hasText: `${shown - FIRST_BATCH} more products shown` })).toBeAttached();
-    if (shown < total) {
-      await expect(page.getByText(`Showing ${shown} of ${total}`)).toBeVisible();
-    } else {
-      await expect(page.getByRole('button', { name: 'Load more' })).toHaveCount(0);
+    // Pressed with the keyboard, batch by batch, until every product is shown (Document 6, 8.8).
+    const loadMore = page.getByRole('button', { name: 'Load more' });
+    let shown = FIRST_BATCH;
+    while (shown < total) {
+      const shownBefore = shown;
+      shown = Math.min(total, shown + FIRST_BATCH);
+      await loadMore.focus();
+      await page.keyboard.press('Enter');
+      await expect(cards).toHaveCount(shown);
+      await expect(page.getByRole('status').filter({ hasText: `${shown - shownBefore} more products shown` })).toBeAttached();
+      if (shown < total) {
+        await expect(page.getByText(`Showing ${shown} of ${total}`)).toBeVisible();
+        // More remain: focus stays on the button, so the next press loads more.
+        await expect(loadMore).toBeFocused();
+      } else {
+        await expect(loadMore).toHaveCount(0);
+        // The last batch: the button is gone, and focus is on the first card added.
+        await expect(cards.nth(shownBefore)).toBeFocused();
+      }
     }
     await noAxeViolations(page);
   });
