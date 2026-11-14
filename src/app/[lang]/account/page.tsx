@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { NeedsScript } from '@/components/common/needs-script';
-import { SiteHeader } from '@/components/common/site-header';
+import { SiteHeader } from '@/features/layout/components/site-header';
 import { getMessages } from '@/lib/messages';
 import { adminHomePath, vendorApplyPath, vendorHomePath } from '@/lib/routes';
 import { formatPhone } from '@/utils/format';

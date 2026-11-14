@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { localeOfPath, pickLocale } from '@/lib/i18n';
+import { localeOfPath, otherLocale, pickLocale } from '@/lib/i18n';
 
 describe('pickLocale (Document 4, section 6)', () => {
   it('uses English when the browser says nothing', () => {
@@ -29,5 +29,12 @@ describe('localeOfPath', () => {
   it('returns null without a prefix', () => {
     expect(localeOfPath('/')).toBeNull();
     expect(localeOfPath('/english')).toBeNull();
+  });
+});
+
+describe('otherLocale', () => {
+  it('is the language the switch offers', () => {
+    expect(otherLocale('en')).toBe('hi');
+    expect(otherLocale('hi')).toBe('en');
   });
 });

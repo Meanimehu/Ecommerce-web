@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { SiteHeader } from '@/components/common/site-header';
+import { SiteHeader } from '@/features/layout/components/site-header';
 import { isLocale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
 

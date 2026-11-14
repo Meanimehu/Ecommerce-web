@@ -29,6 +29,11 @@ export function pickLocale(acceptLanguage: string | null | undefined): Locale {
   return found && isLocale(found.language) ? found.language : DEFAULT_LOCALE;
 }
 
+/** The language the switch offers: the one that is not `lang`. */
+export function otherLocale(lang: Locale): Locale {
+  return LOCALES.find((locale) => locale !== lang) ?? DEFAULT_LOCALE;
+}
+
 /** The first path segment when it is a language prefix, otherwise null. */
 export function localeOfPath(pathname: string): Locale | null {
   const first = pathname.split('/')[1];

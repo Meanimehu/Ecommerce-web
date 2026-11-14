@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { cache } from 'react';
-import { SiteHeader } from '@/components/common/site-header';
+import { SiteHeader } from '@/features/layout/components/site-header';
 import { isLocale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
 import { productPath, productSlug } from '@/lib/routes';

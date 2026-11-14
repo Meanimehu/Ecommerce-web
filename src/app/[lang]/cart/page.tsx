@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { requireUser } from '@/features/auth/components/require-user';
 import { CartScreen } from '@/features/cart/components/cart-screen';
 import { NeedsScript } from '@/components/common/needs-script';
-import { SiteHeader } from '@/components/common/site-header';
+import { SiteHeader } from '@/features/layout/components/site-header';
 import { getMessages, sectionMessages } from '@/lib/messages';
 import { MessagesProvider } from '@/lib/messages-context';
 
