@@ -13,7 +13,7 @@ import {
 } from '@/features/cart/types';
 
 /** The quantities a line can be set to. */
-const QUANTITY_CHOICES = Array.from({ length: MAX_QUANTITY_PER_LINE }, (_, index) => index + 1);
+const QUANTITY_CHOICES = [...Array(MAX_QUANTITY_PER_LINE).keys()].map((index) => index + 1);
 
 /**
  * One cart line (Document 5, section 6.3): changing its quantity, removing it, and what the
