@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Browser, type Page } from '@playwright/test';
 import { KURTA_PHOTO } from './support/flows';
 import { backendLog, freshPhone, pageAs } from './support/login';
+import { countFirstLoad, expectWithinBudget } from './support/page-size';
 
 /**
  * The storefront (Document 5, sections 6.1 and 6.2; Document 4, D4-02): category pages with "Load more", product pages
@@ -116,27 +117,21 @@ test.describe('the storefront', () => {
     }
   });
 
-  test('category and product pages stay inside the 300 KB first-load budget, and photos may load only from the photo host', async ({ browser }) => {
-    // The first load of one page: document, styles, scripts and Latin fonts (Document 7, section 12).
-    async function firstLoad(address: string) {
+  test('category and product pages, in English and Hindi, stay inside the first-load budget, and photos may load only from the photo host', async ({ browser }) => {
+    // One page's first load, on an empty cache (Document 6, section 14).
+    async function firstLoad(address: string, lang: 'en' | 'hi') {
       const page = await browser.newPage({ baseURL: test.info().project.use.baseURL, ignoreHTTPSErrors: true });
-      const sizes: Promise<number>[] = [];
-      page.on('requestfinished', (request) => {
-        if (!['document', 'stylesheet', 'script', 'font'].includes(request.resourceType())) return;
-        if (request.resourceType() === 'font' && request.url().includes('devanagari')) return;
-        sizes.push(request.sizes().then((s) => s.responseBodySize + s.responseHeadersSize));
-      });
+      const counted = countFirstLoad(page, lang);
       const answer = await page.goto(address, { waitUntil: 'networkidle' });
-      const total = (await Promise.all(sizes)).reduce((a, b) => a + b, 0);
-      console.log(`${address} first load: ${(total / 1024).toFixed(1)} KB`);
-      return { page, answer, total };
+      expectWithinBudget(address, lang, await counted());
+      return { page, answer };
     }
-    const category = await firstLoad('/en/category/women');
+    const category = await firstLoad('/en/category/women', 'en');
     expect(category.answer?.headers()['content-security-policy']).toMatch(/^img-src 'self' data: blob:/);
-    expect(category.total).toBeLessThanOrEqual(300 * 1024);
     const productAddress = (await category.page.locator('main a[href*="/product/"]').first().getAttribute('href')) ?? '';
-    const product = await firstLoad(productAddress);
-    expect(product.total).toBeLessThanOrEqual(300 * 1024);
+    await firstLoad(productAddress, 'en');
+    await firstLoad('/hi/category/women', 'hi');
+    await firstLoad(productAddress.replace(/^\/en\//, '/hi/'), 'hi');
   });
 
   test('choosing a size and a colour: what is not in stock is crossed out, the button waits for a choice, and the price follows it; a logged-in customer adds it', async ({ browser }) => {

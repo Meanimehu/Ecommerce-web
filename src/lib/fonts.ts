@@ -49,11 +49,13 @@ export const outfitExtended = localFont({
  * Noto Sans Devanagari for Hindi text (D6-06). Its character range is Devanagari only and it is not preloaded, so a
  * browser downloads it only when Hindi text is on the page: on every Hindi page, and on an English page only when it
  * shows Hindi text such as a vendor's title (D6-21).
+ * The files are trimmed to the characters normal Hindi text uses, about 20 KB less for the two (src/fonts/README.md,
+ * Document 6, section 14); the character range below is the same list.
  */
 export const notoDevanagari = localFont({
   src: [
-    { path: '../../node_modules/@fontsource/noto-sans-devanagari/files/noto-sans-devanagari-devanagari-400-normal.woff2', weight: '400', style: 'normal' },
-    { path: '../../node_modules/@fontsource/noto-sans-devanagari/files/noto-sans-devanagari-devanagari-500-normal.woff2', weight: '500', style: 'normal' },
+    { path: '../fonts/noto-sans-devanagari-hindi-400.woff2', weight: '400', style: 'normal' },
+    { path: '../fonts/noto-sans-devanagari-hindi-500.woff2', weight: '500', style: 'normal' },
   ],
   variable: '--font-devanagari',
   display: 'swap',
@@ -61,6 +63,6 @@ export const notoDevanagari = localFont({
   adjustFontFallback: false,
   declarations: [
     { prop: 'font-family', value: 'notoDevanagari' },
-    { prop: 'unicode-range', value: 'U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20F0,U+25CC,U+A830-A839,U+A8E0-A8FF,U+11B00-11B09' },
+    { prop: 'unicode-range', value: 'U+0900-097F,U+200C-200D,U+20A8,U+25CC,U+A830-A839' },
   ],
 });

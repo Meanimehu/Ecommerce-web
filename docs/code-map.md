@@ -18,6 +18,7 @@ moved or removed.
 | `utils/` | Helper functions: money, dates, phone numbers | Both |
 | `types/` | Types and the Zod shapes they come from; `generated/` for tool-made files | Both |
 | `messages/` | `en.json` and `hi.json`: every text on screen | Both |
+| `fonts/` | The Devanagari font files trimmed to the characters Hindi uses, how they were made (`README.md`) and their licence | Both |
 | `proxy.ts` | The page middleware: language redirect, keeping the after-login page, the page's own address for layout guards, images only from our site and the photo host | Server |
 
 A feature that has moved keeps everything in its folder: everything about login and the session is in
@@ -324,15 +325,15 @@ category tree.
 | File | What it does |
 | --- | --- |
 | `lib/config.ts` | Settings read from the environment (`.env.local`), server only |
-| `lib/fonts.ts` | Outfit and Noto Sans Devanagari, from our own site, each loaded only for the characters it covers |
+| `lib/fonts.ts` | Outfit and Noto Sans Devanagari (the trimmed files in `src/fonts/`), from our own site, each loaded only for the characters it covers |
 | `lib/http.ts` | Browser calls to our endpoints: `get`, `send`, `patch`, `put`, `remove` and `upload` (with progress and Cancel), with the time limit and the forgery label; every failure is an `AppError` |
 | `lib/http-status.ts` | `HttpStatus` and the range checks (`isSuccess`, `isClientError`, `isServerError`) |
 | `lib/server-log.ts` | `logServerEvent`: the only way our server writes a log, one plain-text line per event (Document 7, 20.10); `errorTypeOf` for an unexpected error's kind. Server only |
 | `lib/uploads.ts` | Upload limits copied from the backend, for a quick check before sending |
 | `lib/i18n.ts` | The two languages and choosing one |
 | `lib/routes.ts` | Every page address, one helper per kind of page (`homePath`, `loginPath`, `categoryPath`, `productPath` with `productSlug`, `cartPath`, `myProductPath`, `adminVendorPath`, …); no feature, server-only or Zod import, so `proxy.ts` can use it (Document 7, 20.2) |
-| `lib/messages.ts` | `getMessages` for server pages; the shared text and the Vendor and Admin areas' own text |
-| `lib/messages-context.tsx` | `useMessages`: the page's text in the browser, only its language (and area text only inside those areas) |
+| `lib/messages.ts` | `getMessages` for server pages; the shared text, the Vendor and Admin areas' own text, and the text only some pages carry (`store` on the category and product pages, `cart` on the cart page) |
+| `lib/messages-context.tsx` | `useMessages`: the page's text in the browser, only its language (area text only inside those areas, page-only text only on those pages) |
 | `lib/errors.ts` | `AppError`, `toAppError`, and `messageFor`: our own message for any error |
 | `lib/error-codes.ts` | `AppErrorCode` (codes not in the backend catalogue) and `ErrorCode`; re-exports `BackendErrorCode` (Document 7, 20.7) |
 | `utils/format.ts` | Dates and times in IST, rupees, phone numbers, GST rates; `isSingular` for one-or-many messages |
@@ -353,7 +354,7 @@ category tree.
 | `scripts/` | `gen-types`, `gen-error-codes` (the code list and its enum), `check-messages` (also checks the enum), and copying files after a build |
 | `.prettierrc.json`, `eslint.config.mjs` | Formatting (100-character lines) and lint; the files already following Document 7, section 20 are listed in the lint settings |
 | `tests/unit/` | Fast tests of the helpers (Vitest) |
-| `tests/e2e/` | Browser tests against the real backend (Playwright), one spec per feature; `support/` holds the shared steps (`login.ts`, `flows.ts`) and `requests.ts` (`nextRequestBody`: what a click really sent); `fixtures/` holds the garment illustrations used as test photos |
+| `tests/e2e/` | Browser tests against the real backend (Playwright), one spec per feature; `support/` holds the shared steps (`login.ts`, `flows.ts`) `requests.ts` (`nextRequestBody`: what a click really sent) and `page-size.ts` (the first-load budget, Document 6, section 14); `fixtures/` holds the garment illustrations used as test photos |
 
 ## To change something, look here
 

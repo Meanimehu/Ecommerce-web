@@ -1,7 +1,8 @@
 import { Breadcrumbs } from '@/components/common/breadcrumbs';
 import { fill } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
-import { getMessages } from '@/lib/messages';
+import { getMessages, sectionMessages } from '@/lib/messages';
+import { MessagesProvider } from '@/lib/messages-context';
 import { categoryPath, homePath } from '@/lib/routes';
 import type { Page } from '@/types/common';
 import type { Query } from '@/utils/url';
@@ -10,7 +11,8 @@ import { ProductGrid } from './product-grid';
 
 /**
  * A category page's content (Document 5, section 6.1): where it sits, its name and how many
- * products it has, its sub-categories, and its products with "Load more". Drawn on the server.
+ * products it has, its sub-categories, and its products with "Load more". Drawn on the server. It
+ * gives the browser the shop's text (`store`), which only the shop's pages carry (lib/messages.ts).
  */
 export function CategoryScreen({
   lang,
@@ -62,7 +64,9 @@ export function CategoryScreen({
         </nav>
       ) : null}
       {firstBatch.items.length ? (
-        <ProductGrid lang={lang} firstBatch={firstBatch} query={query} />
+        <MessagesProvider messages={sectionMessages(lang, ['store'])}>
+          <ProductGrid lang={lang} firstBatch={firstBatch} query={query} />
+        </MessagesProvider>
       ) : (
         <p className="rounded-1 border border-dashed border-control bg-surface px-6 py-10 text-center text-ink-2">
           {storeMessages.noProducts}
