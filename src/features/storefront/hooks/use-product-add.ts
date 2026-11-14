@@ -70,11 +70,7 @@ export function useProductAdd({ lang, chosen }: { lang: Locale; chosen: PublicVa
   function showAddFailed(variant: PublicVariant, error: AppError) {
     // The session ended meanwhile: log in, then the add runs on the way back.
     if (error.code === BackendErrorCode.Unauthorized) {
-      setIsLeaving(true);
-      addAfterLogin.mutate(
-        { variantId: variant.id, quantity: QUANTITY_ADDED, lang },
-        { onSuccess: goToLogin },
-      );
+      logInAndAdd(variant);
     } else if (error.outcomeUnknown) {
       setMessage({ tone: AddMessageTone.Warning, text: messages.store.addUnknown });
     } else {
