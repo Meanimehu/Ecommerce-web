@@ -24,6 +24,38 @@ export const loginPath = (lang: Locale, nextPage?: string) =>
 
 export const accountPath = (lang: Locale) => `/${lang}/account`;
 
+export const cartPath = (lang: Locale) => `/${lang}/cart`;
+
+// ---- Storefront (Document 4, D4-02) ----
+
+/** A category page, by the backend's category slug. */
+export const categoryPath = (lang: Locale, slug: string) => `/${lang}/category/${slug}`;
+
+/** The readable part of a product address is at most this long. */
+const PRODUCT_SLUG_MAX_LENGTH = 80;
+/** The readable part for a title with no Latin letters or digits (for example one fully in Hindi). */
+const PRODUCT_SLUG_FALLBACK = 'product';
+
+/**
+ * The readable part of a product address: from the title, lower-case Latin letters and digits
+ * joined by hyphens. It is only for people and search engines; the id is what is looked up.
+ */
+export function productSlug(title: string): string {
+  const slug = title
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, PRODUCT_SLUG_MAX_LENGTH)
+    .replace(/-+$/g, '');
+  return slug || PRODUCT_SLUG_FALLBACK;
+}
+
+/** A product page: the full id, then the readable name. */
+export const productPath = (lang: Locale, id: string, title: string) =>
+  `/${lang}/product/${id}/${productSlug(title)}`;
+
 // ---- Vendor area ----
 
 export const vendorHomePath = (lang: Locale) => `/${lang}/vendor`;

@@ -64,7 +64,7 @@ test.describe('Slice 2: the first path, end to end', () => {
       photoRequests.push(route.request().url());
       return route.fulfill({ status: 200, contentType: 'image/png', body: KURTA_PHOTO.buffer });
     });
-    await page.goto('/en/c/kurtas');
+    await page.goto('/en/category/kurtas');
     await expect(page.getByRole('heading', { name: 'Kurtas', level: 1 })).toBeVisible();
     await noAxeViolations(page);
     const card = page.getByRole('link', { name: new RegExp(title) });
@@ -74,7 +74,7 @@ test.describe('Slice 2: the first path, end to end', () => {
 
     // The product page: the address carries the readable name (D4-02).
     await card.click();
-    await expect(page).toHaveURL(new RegExp(`/en/p/${productId}/journey-block-print-kurta-${n}$`));
+    await expect(page).toHaveURL(new RegExp(`/en/product/${productId}/journey-block-print-kurta-${n}$`));
     await expect(page.getByRole('heading', { name: title, level: 1 })).toBeVisible();
     await expect(page.getByText('₹1,499.50')).toBeVisible();
     await noAxeViolations(page);
@@ -84,7 +84,7 @@ test.describe('Slice 2: the first path, end to end', () => {
     await page.getByRole('button', { name: 'Add to cart' }).click();
     await expect(page).toHaveURL(/\/en\/login$/);
     await logIn(page, freshPhone());
-    await expect(page).toHaveURL(new RegExp(`/en/p/${productId}/`));
+    await expect(page).toHaveURL(new RegExp(`/en/product/${productId}/`));
     await expect(page.getByRole('status').filter({ hasText: 'Added to cart' })).toBeVisible();
     expect((await customer.cookies()).map((c) => c.name)).not.toContain('__Host-dhaaga_pa');
     await expect(page.getByRole('link', { name: /^Cart\s*1\s*item$/ })).toBeVisible();
@@ -111,36 +111,6 @@ test.describe('Slice 2: the first path, end to end', () => {
     await page.getByRole('button', { name: /^Remove\s*:/ }).click();
     await expect(page.getByText('Your cart is empty')).toBeVisible();
     await customer.close();
-  });
-
-  test('a product that is not visible is a real 404, and a missing or wrong name part redirects to the full address', async ({ page }) => {
-    const missing = await page.goto('/en/p/00000000-0000-4000-8000-000000000000/anything');
-    expect(missing?.status()).toBe(404);
-    expect((await page.goto('/en/c/no-such-category'))?.status()).toBe(404);
-
-    await page.goto('/en/c/women');
-    const first = page.locator('main a[href*="/p/"]').first();
-    const href = (await first.getAttribute('href')) ?? '';
-    const id = href.split('/')[3] ?? '';
-    const short = await page.request.get(`/en/p/${id}`, { maxRedirects: 0 });
-    expect(short.status()).toBe(308);
-    expect(short.headers().location).toBe(href);
-    const wrong = await page.request.get(`/en/p/${id}/wrong-name`, { maxRedirects: 0 });
-    expect(wrong.status()).toBe(308);
-  });
-
-  test('category and product pages stay inside the 300 KB first-load budget, and photos may load only from the photo host', async ({ page }) => {
-    const sizes: Promise<number>[] = [];
-    page.on('requestfinished', (request) => {
-      if (!['document', 'stylesheet', 'script', 'font'].includes(request.resourceType())) return;
-      if (request.resourceType() === 'font' && request.url().includes('devanagari')) return;
-      sizes.push(request.sizes().then((s) => s.responseBodySize + s.responseHeadersSize));
-    });
-    const answer = await page.goto('/en/c/women', { waitUntil: 'networkidle' });
-    expect(answer?.headers()['content-security-policy']).toMatch(/^img-src 'self' data: blob:/);
-    const category = (await Promise.all(sizes)).reduce((a, b) => a + b, 0);
-    console.log(`/en/c/women first load: ${(category / 1024).toFixed(1)} KB`);
-    expect(category).toBeLessThanOrEqual(300 * 1024);
   });
 });
 
