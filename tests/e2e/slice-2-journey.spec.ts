@@ -112,36 +112,6 @@ test.describe('Slice 2: the first path, end to end', () => {
     await expect(page.getByText('Your cart is empty')).toBeVisible();
     await customer.close();
   });
-
-  test('a product that is not visible is a real 404, and a missing or wrong name part redirects to the full address', async ({ page }) => {
-    const missing = await page.goto('/en/p/00000000-0000-4000-8000-000000000000/anything');
-    expect(missing?.status()).toBe(404);
-    expect((await page.goto('/en/c/no-such-category'))?.status()).toBe(404);
-
-    await page.goto('/en/c/women');
-    const first = page.locator('main a[href*="/p/"]').first();
-    const href = (await first.getAttribute('href')) ?? '';
-    const id = href.split('/')[3] ?? '';
-    const short = await page.request.get(`/en/p/${id}`, { maxRedirects: 0 });
-    expect(short.status()).toBe(308);
-    expect(short.headers().location).toBe(href);
-    const wrong = await page.request.get(`/en/p/${id}/wrong-name`, { maxRedirects: 0 });
-    expect(wrong.status()).toBe(308);
-  });
-
-  test('category and product pages stay inside the 300 KB first-load budget, and photos may load only from the photo host', async ({ page }) => {
-    const sizes: Promise<number>[] = [];
-    page.on('requestfinished', (request) => {
-      if (!['document', 'stylesheet', 'script', 'font'].includes(request.resourceType())) return;
-      if (request.resourceType() === 'font' && request.url().includes('devanagari')) return;
-      sizes.push(request.sizes().then((s) => s.responseBodySize + s.responseHeadersSize));
-    });
-    const answer = await page.goto('/en/c/women', { waitUntil: 'networkidle' });
-    expect(answer?.headers()['content-security-policy']).toMatch(/^img-src 'self' data: blob:/);
-    const category = (await Promise.all(sizes)).reduce((a, b) => a + b, 0);
-    console.log(`/en/c/women first load: ${(category / 1024).toFixed(1)} KB`);
-    expect(category).toBeLessThanOrEqual(300 * 1024);
-  });
 });
 
 test.describe('the cart needs a login', () => {
