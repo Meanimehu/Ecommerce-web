@@ -9,8 +9,8 @@ moved or removed.
 | Folder | What goes in it | Runs in |
 | --- | --- | --- |
 | `app/` | Routing and layouts: pages in `[lang]/`, our own endpoints in `api/` | Both |
-| `features/<feature>/` | One folder per feature, once it has moved (Document 7, D7-17): `components/`, `hooks/`, `server/` (server only) and `types.ts`. **`auth`, `vendor`, `catalogue` (the admin lists), `product`, `storefront` and `cart` have moved;** `layout` follows | Both; `server/` server only |
-| `components/` | Reusable UI: `ui/` (shadcn), `form/`, `common/`, and `auth/`, which still holds the Vendor and Admin area frame until it moves with `layout` | Browser and server pages |
+| `features/<feature>/` | One folder per feature, once it has moved (Document 7, D7-17): `components/`, `hooks/`, `server/` (server only) and `types.ts`. **`auth`, `vendor`, `catalogue` (the admin lists), `product`, `storefront`, `cart` and `layout` have moved | Both; `server/` server only |
+| `components/` | Reusable UI any feature may use: `ui/` (shadcn), `form/`, `common/`. It imports no feature | Browser and server pages |
 | `hooks/` | Reusable logic: the form hook; each feature's hooks are in its `hooks/` | Browser |
 | `api/` | `client.ts`: the one way our server calls the backend; each feature's calls are in its `server/` | **Server only** |
 | `middleware/` | Shared technical helpers for our endpoints, knowing nothing about the session: answers, the forgery check, public reads, uploads, the cookie list and tools | **Server only** (except `cookies.ts`) |
@@ -120,7 +120,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `[lang]/cart` | The cart (needs login): `CartScreen` from `cart` |
 | `[lang]/login/page.tsx` | The login page |
 | `[lang]/account/page.tsx` | Account: log out, log out everywhere, the areas this person may open |
-| `[lang]/admin/layout.tsx`, `page.tsx` | Admin area frame (any staff role) and its home with the screens this person's roles can use |
+| `[lang]/admin/layout.tsx`, `page.tsx` | Admin area (any staff role): `AreaShell` and `AdminHome` from `layout` |
 | `[lang]/admin/vendors/…` | Vendor review: the list, and one application (admin only); the screens are in `features/vendor/` |
 | `[lang]/admin/catalogue/[list]` | Catalogue lists: categories, HSN codes, brands, sizes, colours (admin only); the screens are in `features/catalogue/` |
 | `[lang]/admin/moderation/…` | Product moderation: the queue and one product (moderator, admin); the screens are in `features/product/` |
@@ -144,7 +144,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `api/auth/verify` | Also runs a pending add, once |
 | `api/vendors/me/products/…` | The vendor's products: details, variants, photos (upload, order, description, private view), submit |
 | `api/moderation/products/…` | Moderation: queue, one product, its photos, approve or reject |
-| `api/language` | Remembers the language choice |
+| `api/language` | Remembers the language choice (the switch in `layout`) |
 | `api/health` | Health check for the hosting |
 | `globals.css` | The Document 6 design tokens: colours, type scale (with the Hindi rules), radius, focus ring, reduced motion, hover only where a device can hover |
 
@@ -152,16 +152,10 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 
 | File | What it does |
 | --- | --- |
-| `auth/area-shell.tsx` | (Moves with `layout`.) The frame of the Admin and Vendor areas: top bar (wordmark, area label, language, account) and the side menu |
-| `auth/area-nav.tsx` | The side menu, and the menu button with its drawer below 1024 px |
-| `auth/area-menus.ts` | What each side menu lists, by role (Admin) or by having a vendor (Vendor) |
-| `common/header-actions.tsx` | "Log in" or the account, and the cart with its count, in the storefront header (takes the count from `cart` until it moves to `layout`, step 10) |
 | `form/field-frame.tsx` | What every field shares: label, "(optional)", the error under it, help text |
 | `form/text-field.tsx`, `select-field.tsx`, `textarea-field.tsx` | A labelled input, select and text area with their errors |
 | `form/form.tsx` | `Form`: the `<form>` tag every form uses, always a post, our checks instead of the browser's |
 | `form/error-summary.tsx` | The summary at the top of a form that takes focus |
-| `common/site-header.tsx`, `wordmark.tsx` | The storefront header (wordmark and language switch for now) and the Dhaaga wordmark |
-| `common/language-switch.tsx` | The other language's name with a globe icon |
 | `common/error-message.tsx` | An error banner with its reference number and Copy, when a real one exists |
 | `common/state-block.tsx` | Whole-screen states: error, no access, not found |
 | `common/needs-script.tsx` | The "needs JavaScript" notice |
@@ -211,6 +205,7 @@ Other features use only its public helpers (Document 7, section 20.4): `useSessi
 | --- | --- |
 | `types.ts` | `User`, `isStaff`, `VENDOR_OWNER_ROLE`, `ADMIN_ROLE`, the backend answer schemas, the session answer, the phone and code forms |
 | `after-login-page.ts` | The page to return to after login: `rememberPageAfterLogin`, `readPageAfterLogin`, `forgetPageAfterLogin` (a signed cookie). No server-only import, so `proxy.ts` can use it |
+| `staff-screens.ts` | Which admin screens each staff role may use: `AdminScreen`, `adminScreensFor` (a page-access rule; `layout` shows it) |
 | `components/login-form.tsx` | The login screen: the phone and code steps, drawing only (logic in `hooks/use-login-form.ts`) |
 | `components/require-user.tsx` | `requireUser`, the guard for pages that need login or a role; `Unavailable` ("try again shortly", with a link back to the same page); `currentPath`, the page's own address, used only inside |
 | `components/session-check.tsx` | Shown while the browser renews an expired login |
@@ -317,6 +312,27 @@ category tree.
 | `hooks/use-product-grid.ts` | The cards shown, "Showing 8 of 128", what to announce after each batch |
 | `server/storefront-api.ts` | Backend Area 3a, the storefront part: the tree, the cards, one product; `findVisibleProduct` (null for a real 404) |
 
+### `features/layout/` — the page frames
+
+The storefront header and the Vendor and Admin frame with their menus (Document 5, section 5; Document 6, 7.3). It shows
+`auth`'s session and `cart`'s count through their public hooks and decides nothing: who may use which admin screen is
+`auth`'s rule (`features/auth/staff-screens.ts`).
+
+| File | What it does |
+| --- | --- |
+| `components/site-header.tsx` | The storefront header: wordmark, language switch, "Log in" or the account, the cart |
+| `components/header-actions.tsx` | "Log in" or the account, and the cart with its count |
+| `components/language-switch.tsx` | The other language's name with a globe icon; only draws |
+| `components/wordmark.tsx` | The Dhaaga wordmark, a link to the home page |
+| `components/area-shell.tsx` | The Vendor and Admin frame: top bar (wordmark, area label, language, account), side menu, the areas' text |
+| `components/area-nav.tsx` | The side menu, and the menu button with its drawer below 1024 px |
+| `components/admin-home.tsx` | Admin home: links to the screens this person's roles can use |
+| `hooks/use-layout.ts` | The call hook: `useRememberLanguage` |
+| `hooks/use-language-switch.ts` | The switch: the other language, the same page in it, remember then go |
+| `menus.ts` | `StaffArea`, and what each menu lists: `vendorNav`, `adminNav`, `adminScreenLinks` (server; reads `auth`'s rule) |
+| `nav-items.ts` | `NavItem`, the icons by name and `isCurrentItem`; no Zod, for the browser menu |
+| `header-link.ts` | The look of a header link, shared by the storefront header and the staff frame |
+
 ### `features/cart/` — the cart
 
 Backend Area 5, the cart: the cart page and the add that waits for login (D2-02). It uses `auth`'s session; the
@@ -349,8 +365,8 @@ storefront's buy box uses its call hooks; the login endpoint asks it to run the 
 | `lib/http-status.ts` | `HttpStatus` and the range checks (`isSuccess`, `isClientError`, `isServerError`) |
 | `lib/server-log.ts` | `logServerEvent`: the only way our server writes a log, one plain-text line per event (Document 7, 20.10); `errorTypeOf` for an unexpected error's kind. Server only |
 | `lib/uploads.ts` | Upload limits copied from the backend, for a quick check before sending |
-| `lib/i18n.ts` | The two languages and choosing one |
-| `lib/routes.ts` | Every page address, one helper per kind of page (`homePath`, `loginPath`, `categoryPath`, `productPath` with `productSlug`, `cartPath`, `myProductPath`, `adminVendorPath`, …); no feature, server-only or Zod import, so `proxy.ts` can use it (Document 7, 20.2) |
+| `lib/i18n.ts` | The two languages, choosing one, and `otherLocale` (the language the switch offers) |
+| `lib/routes.ts` | Every page address, one helper per kind of page (`homePath`, `loginPath`, `categoryPath`, `productPath` with `productSlug`, `cartPath`, `myProductPath`, `adminVendorPath`, `samePageIn` for the language switch, …); no feature, server-only or Zod import, so `proxy.ts` can use it (Document 7, 20.2) |
 | `lib/messages.ts` | `getMessages` for server pages; the shared text, the Vendor and Admin areas' own text, and the text only some pages carry (`store` on the category and product pages, `cart` on the cart page) |
 | `lib/messages-context.tsx` | `useMessages`: the page's text in the browser, only its language (area text only inside those areas, page-only text only on those pages) |
 | `lib/add-notice.ts` | What happened to an "Add to cart" made before login: `AddOutcome`, `AddNotice`, `keepAddNotice` (login) and `takeAddNotice` (the page returned to). Shared so `auth` and `cart` never import each other; no Zod |
