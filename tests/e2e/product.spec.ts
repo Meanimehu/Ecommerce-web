@@ -30,12 +30,16 @@ test.describe('vendor products and moderation', () => {
     // Step 1 checks before sending; the tax comes from the category unless both parts are chosen.
     await vendor.getByRole('link', { name: 'Add product' }).click();
     await vendor.getByRole('button', { name: 'Save and continue' }).click();
-    await expect(vendor.getByRole('alert').filter({ hasText: /Fix \d things to continue/ })).toBeFocused();
+    await expect(
+      vendor.getByRole('alert').filter({ hasText: /Fix \d things to continue/ }),
+    ).toBeFocused();
     await noAxeViolations(vendor);
 
     // A price over the MRP is refused by the backend and shown under the price.
     await vendor.getByRole('textbox', { name: 'Title' }).fill(`Test kurta ${n}`);
-    await vendor.getByRole('combobox', { name: 'Category' }).selectOption({ label: 'Women › Kurtas' });
+    await vendor
+      .getByRole('combobox', { name: 'Category' })
+      .selectOption({ label: 'Women › Kurtas' });
     await vendor.getByRole('button', { name: 'Save and continue' }).click();
     await expect(vendor).toHaveURL(/step=attributes/);
     await expect(vendor.getByText('This category asks for no details.')).toBeVisible();
@@ -44,9 +48,15 @@ test.describe('vendor products and moderation', () => {
     await vendor.getByRole('textbox', { name: 'MRP (₹)' }).fill('999');
     await vendor.getByRole('textbox', { name: 'Selling price (₹)' }).fill('1499');
     await vendor.getByRole('button', { name: 'Save variant' }).click();
-    await expect(vendor.getByRole('textbox', { name: 'Selling price (₹)' })).toHaveAttribute('aria-invalid', 'true');
+    await expect(vendor.getByRole('textbox', { name: 'Selling price (₹)' })).toHaveAttribute(
+      'aria-invalid',
+      'true',
+    );
     await noAxeViolations(vendor);
-    await vendor.getByRole('link', { name: /Review/ }).first().click();
+    await vendor
+      .getByRole('link', { name: /Review/ })
+      .first()
+      .click();
     await expect(vendor.getByText('At least one variant that is on: missing')).toBeVisible();
     await noAxeViolations(vendor);
 
@@ -60,20 +70,30 @@ test.describe('vendor products and moderation', () => {
     expect(await sentTitle).toEqual({ title: `Test kurta ${n} edited` });
     await expect(vendor).toHaveURL(/step=attributes/);
     await vendor.reload();
-    await expect(vendor.getByRole('heading', { name: `Test kurta ${n} edited`, level: 1 })).toBeVisible();
+    await expect(
+      vendor.getByRole('heading', { name: `Test kurta ${n} edited`, level: 1 }),
+    ).toBeVisible();
     await vendor.goto(`${draft}?step=variants`);
     await vendor.getByRole('textbox', { name: 'SKU' }).fill(`T${n}-E`);
     await vendor.getByRole('textbox', { name: 'MRP (₹)' }).fill('999');
     await vendor.getByRole('textbox', { name: 'Selling price (₹)' }).fill('899');
     await vendor.getByRole('button', { name: 'Save variant' }).click();
-    await expect(vendor.getByText('₹899', { exact: true }).filter({ visible: true }).first()).toBeVisible();
+    await expect(
+      vendor.getByText('₹899', { exact: true }).filter({ visible: true }).first(),
+    ).toBeVisible();
     await vendor.getByRole('button', { name: new RegExp(`^Edit\\s*: .*T${n}-E$`) }).click();
     await vendor.getByRole('textbox', { name: 'Selling price (₹)' }).fill('799');
-    const sentPrice = nextRequestBody(vendor, 'PATCH', /^\/api\/vendors\/me\/products\/[^/]+\/variants\/[^/]+$/);
+    const sentPrice = nextRequestBody(
+      vendor,
+      'PATCH',
+      /^\/api\/vendors\/me\/products\/[^/]+\/variants\/[^/]+$/,
+    );
     await vendor.getByRole('button', { name: 'Save variant' }).click();
     expect(await sentPrice).toEqual({ pricePaise: 79900 });
     await vendor.reload();
-    await expect(vendor.getByText('₹799', { exact: true }).filter({ visible: true }).first()).toBeVisible();
+    await expect(
+      vendor.getByText('₹799', { exact: true }).filter({ visible: true }).first(),
+    ).toBeVisible();
 
     // The full path, then the moderator.
     const title = `Test kurta ${n} full`;
@@ -81,32 +101,46 @@ test.describe('vendor products and moderation', () => {
     await noAxeViolations(vendor);
 
     const moderator = await pageAs(browser, MODERATOR_PHONE, '/en/admin/moderation');
-    await expect(moderator.getByRole('heading', { name: 'Product moderation', level: 1 })).toBeVisible();
+    await expect(
+      moderator.getByRole('heading', { name: 'Product moderation', level: 1 }),
+    ).toBeVisible();
     await noAxeViolations(moderator);
     await moderator.goto(`/en/admin/moderation/${address.split('/').pop()}`);
     await expect(moderator.getByRole('heading', { name: title, level: 1 })).toBeVisible();
     // Photos under review come through our server (D3-04).
     const photo = moderator.locator('img').first();
     await expect(photo).toHaveAttribute('src', /^\/api\/moderation\/products\//);
-    await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+    await expect
+      .poll(() => photo.evaluate((img: HTMLImageElement) => img.naturalWidth))
+      .toBeGreaterThan(0);
     await noAxeViolations(moderator);
     await moderator.getByRole('button', { name: 'Approve product' }).click();
-    await expect(moderator.getByRole('status').filter({ hasText: 'Product approved' })).toBeVisible();
+    await expect(
+      moderator.getByRole('status').filter({ hasText: 'Product approved' }),
+    ).toBeVisible();
 
     await vendor.goto(address);
     await expect(vendor.getByText('Approved', { exact: true })).toBeVisible();
   });
 
-  test('a moderator rejects a product with a reason, and the vendor reads it', async ({ browser }) => {
+  test('a moderator rejects a product with a reason, and the vendor reads it', async ({
+    browser,
+  }) => {
     const n = String(Date.now()).slice(-7);
     const vendor = await pageAs(browser, VENDOR_PHONE, '/en/vendor/products');
     const address = await addAndSubmit(vendor, `Reject kurta ${n}`, `R${n}-M`);
-    const moderator = await pageAs(browser, MODERATOR_PHONE, `/en/admin/moderation/${address.split('/').pop()}`);
+    const moderator = await pageAs(
+      browser,
+      MODERATOR_PHONE,
+      `/en/admin/moderation/${address.split('/').pop()}`,
+    );
     await moderator.getByRole('button', { name: 'Reject', exact: true }).click();
     const dialog = moderator.getByRole('alertdialog');
     await dialog.getByLabel('Reason (the vendor can read it)').fill('The main photo is blurry.');
     await dialog.getByRole('button', { name: 'Reject product' }).click();
-    await expect(moderator.getByRole('status').filter({ hasText: 'Product rejected' })).toBeVisible();
+    await expect(
+      moderator.getByRole('status').filter({ hasText: 'Product rejected' }),
+    ).toBeVisible();
 
     await vendor.goto(address);
     await expect(vendor.getByText('The main photo is blurry.')).toBeVisible();
@@ -114,7 +148,49 @@ test.describe('vendor products and moderation', () => {
     await noAxeViolations(vendor);
   });
 
-  test('a customer gets a real 403 on moderation, and a person with no vendor is sent to the application', async ({ browser }) => {
+  test('when the backend refuses a rejection, the reason dialog stays open with the error and the reason kept; trying again closes it', async ({
+    browser,
+  }) => {
+    const n = String(Date.now()).slice(-7);
+    const vendor = await pageAs(browser, VENDOR_PHONE, '/en/vendor/products');
+    const address = await addAndSubmit(vendor, `Refused kurta ${n}`, `F${n}-M`);
+    const moderator = await pageAs(
+      browser,
+      MODERATOR_PHONE,
+      `/en/admin/moderation/${address.split('/').pop()}`,
+    );
+    // The first try is refused by the server; the second goes through.
+    await moderator.route('**/reject', (route) =>
+      route.fulfill({
+        status: 503,
+        json: { error: { code: 'SERVICE_UNAVAILABLE', requestId: 'req-e2e' } },
+      }),
+    );
+    await moderator.getByRole('button', { name: 'Reject', exact: true }).click();
+    const dialog = moderator.getByRole('alertdialog');
+    const reason = dialog.getByLabel('Reason (the vendor can read it)');
+    await reason.fill('The colour in the photos does not match the title.');
+    const confirm = dialog.getByRole('button', { name: 'Reject product' });
+    await confirm.click();
+    const summary = dialog.getByRole('alert').filter({ hasText: 'Fix 1 thing to continue' });
+    await expect(summary).toBeVisible();
+    await expect(summary).toBeFocused();
+    await expect(dialog).toBeVisible();
+    await expect(reason).toHaveValue('The colour in the photos does not match the title.');
+    await expect(confirm).toBeEnabled();
+    await expect(confirm).not.toHaveAttribute('aria-busy', 'true');
+
+    await moderator.unroute('**/reject');
+    await confirm.click();
+    await expect(dialog).toBeHidden();
+    await expect(
+      moderator.getByRole('status').filter({ hasText: 'Product rejected' }),
+    ).toBeVisible();
+  });
+
+  test('a customer gets a real 403 on moderation, and a person with no vendor is sent to the application', async ({
+    browser,
+  }) => {
     const customer = await pageAs(browser, freshPhone(), '/en/account');
     expect((await customer.goto('/en/admin/moderation'))?.status()).toBe(403);
     await customer.goto('/en/vendor/products');
