@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { pageOf } from './common';
+import { pageOf } from '@/types/common';
 
 /**
  * Backend Area 3a, the storefront part: the public category tree, product cards and one product, written by hand from
@@ -98,4 +98,4 @@ export function productSlug(title: string): string {
   return slug || 'product';
 }
 
-export const productPath = (lang: string, id: string, title: string) => `/${lang}/p/${id}/${productSlug(title)}`;
+export const productPath = (lang: string, id: string, title: string) => `/${lang}/product/${id}/${productSlug(title)}`;

@@ -6,7 +6,7 @@ import { get } from '@/lib/http';
 import { fill, messageFor, toAppError } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import type { ProductCard as Card } from '@/types/catalogue';
+import type { ProductCard as Card } from '@/features/storefront/types';
 import type { Page } from '@/types/common';
 import { withQuery, type Query } from '@/utils/url';
 import { ProductCard } from './product-card';

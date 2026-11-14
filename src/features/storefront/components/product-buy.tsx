@@ -14,7 +14,7 @@ import { HttpStatus } from '@/lib/http-status';
 import { type Locale, type Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { AddOutcome, type AddNotice } from '@/types/add-notice';
-import type { ProductDetail, PublicVariant } from '@/types/catalogue';
+import type { ProductDetail, PublicVariant } from '@/features/storefront/types';
 import { cn } from '@/utils/cn';
 import { formatDate } from '@/utils/format';
 import { useSession } from '@/features/auth/hooks/use-auth';

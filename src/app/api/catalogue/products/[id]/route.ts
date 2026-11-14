@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server';
-import * as catalogueApi from '@/api/catalogue';
+import * as catalogueApi from '@/features/storefront/server/storefront-api';
 import { answerPublic } from '@/middleware/endpoint';
 
 /**

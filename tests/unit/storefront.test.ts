@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { decodePendingAdd, sign } from '@/middleware/cookies';
-import { productPath, productSlug } from '@/types/catalogue';
+import { productPath, productSlug } from '@/features/storefront/types';
 
 describe('product addresses (Document 4, D4-02)', () => {
   it('makes the readable part from the title', () => {
@@ -14,7 +14,7 @@ describe('product addresses (Document 4, D4-02)', () => {
   });
 
   it('builds the full address', () => {
-    expect(productPath('hi', 'abc', 'Slim Fit Chinos')).toBe('/hi/p/abc/slim-fit-chinos');
+    expect(productPath('hi', 'abc', 'Slim Fit Chinos')).toBe('/hi/product/abc/slim-fit-chinos');
   });
 });
 

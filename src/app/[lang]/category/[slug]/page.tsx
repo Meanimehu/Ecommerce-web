@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
-import * as catalogueApi from '@/api/catalogue';
-import { ProductGrid } from '@/components/catalogue/load-more';
+import * as catalogueApi from '@/features/storefront/server/storefront-api';
+import { ProductGrid } from '@/features/storefront/components/load-more';
 import { Breadcrumbs } from '@/components/common/breadcrumbs';
 import { SiteHeader } from '@/components/common/site-header';
 import { isLocale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
-import { findInTree } from '@/types/catalogue';
+import { findInTree } from '@/features/storefront/types';
 import { fill } from '@/lib/errors';
 
 /**
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const path = findInTree((await categoryTree()).data.items, (node) => node.slug === slug);
   const category = path?.at(-1);
   if (!category) return {};
-  return { title: `${category.name} | ${getMessages(lang).site.wordmark}`, robots: { index: true, follow: true }, alternates: { canonical: `/${lang}/c/${slug}` } };
+  return { title: `${category.name} | ${getMessages(lang).site.wordmark}`, robots: { index: true, follow: true }, alternates: { canonical: `/${lang}/category/${slug}` } };
 }
 
 export default async function CategoryPage({ params }: Props) {
@@ -44,7 +44,7 @@ export default async function CategoryPage({ params }: Props) {
     <>
       <SiteHeader lang={lang} />
       <main className="mx-auto grid w-full max-w-[1200px] gap-6 px-4 py-6 sm:px-6 lg:px-8">
-        <Breadcrumbs label={t.nav.breadcrumbs} items={[{ label: t.store.home, href: `/${lang}` }, ...path.map((node, index) => ({ label: node.name, href: index < path.length - 1 ? `/${lang}/c/${node.slug}` : undefined }))]} />
+        <Breadcrumbs label={t.nav.breadcrumbs} items={[{ label: t.store.home, href: `/${lang}` }, ...path.map((node, index) => ({ label: node.name, href: index < path.length - 1 ? `/${lang}/category/${node.slug}` : undefined }))]} />
         <div className="grid gap-1">
           <h1 className="type-h1 text-ink">{category.name}</h1>
           <p className="text-ink-2">{fill(first.total === 1 ? t.store.productsOne : t.store.productsMany, { count: first.total })}</p>
@@ -54,7 +54,7 @@ export default async function CategoryPage({ params }: Props) {
             <ul className="flex flex-wrap gap-2">
               {category.children.map((child) => (
                 <li key={child.id}>
-                  <a href={`/${lang}/c/${child.slug}`} className="inline-flex min-h-11 items-center rounded-2 border border-control bg-surface px-3 type-small text-ink no-underline hover:border-ink">
+                  <a href={`/${lang}/category/${child.slug}`} className="inline-flex min-h-11 items-center rounded-2 border border-control bg-surface px-3 type-small text-ink no-underline hover:border-ink">
                     {child.name}
                   </a>
                 </li>

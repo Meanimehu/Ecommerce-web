@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { get } from '@/lib/http';
-import type { CategoryNode } from '@/types/catalogue';
+import type { CategoryNode } from '@/features/storefront/types';
 
 /**
  * The public category tree, for showing a category's name and path. It waits here until `storefront`, which owns

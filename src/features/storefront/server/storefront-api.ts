@@ -1,7 +1,7 @@
 import 'server-only';
-import { CategoryTreeSchema, ProductCardPageSchema, ProductDetailSchema } from '@/types/catalogue';
+import { CategoryTreeSchema, ProductCardPageSchema, ProductDetailSchema } from '@/features/storefront/types';
 import type { Query } from '@/utils/url';
-import { callBackend } from './client';
+import { callBackend } from '@/api/client';
 
 /**
  * Backend Area 3a, the storefront part (area-3a-catalogue.md, section 1). The admin lists are in

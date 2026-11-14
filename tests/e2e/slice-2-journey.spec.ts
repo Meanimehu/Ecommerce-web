@@ -64,7 +64,7 @@ test.describe('Slice 2: the first path, end to end', () => {
       photoRequests.push(route.request().url());
       return route.fulfill({ status: 200, contentType: 'image/png', body: KURTA_PHOTO.buffer });
     });
-    await page.goto('/en/c/kurtas');
+    await page.goto('/en/category/kurtas');
     await expect(page.getByRole('heading', { name: 'Kurtas', level: 1 })).toBeVisible();
     await noAxeViolations(page);
     const card = page.getByRole('link', { name: new RegExp(title) });
@@ -74,7 +74,7 @@ test.describe('Slice 2: the first path, end to end', () => {
 
     // The product page: the address carries the readable name (D4-02).
     await card.click();
-    await expect(page).toHaveURL(new RegExp(`/en/p/${productId}/journey-block-print-kurta-${n}$`));
+    await expect(page).toHaveURL(new RegExp(`/en/product/${productId}/journey-block-print-kurta-${n}$`));
     await expect(page.getByRole('heading', { name: title, level: 1 })).toBeVisible();
     await expect(page.getByText('₹1,499.50')).toBeVisible();
     await noAxeViolations(page);
@@ -84,7 +84,7 @@ test.describe('Slice 2: the first path, end to end', () => {
     await page.getByRole('button', { name: 'Add to cart' }).click();
     await expect(page).toHaveURL(/\/en\/login$/);
     await logIn(page, freshPhone());
-    await expect(page).toHaveURL(new RegExp(`/en/p/${productId}/`));
+    await expect(page).toHaveURL(new RegExp(`/en/product/${productId}/`));
     await expect(page.getByRole('status').filter({ hasText: 'Added to cart' })).toBeVisible();
     expect((await customer.cookies()).map((c) => c.name)).not.toContain('__Host-dhaaga_pa');
     await expect(page.getByRole('link', { name: /^Cart\s*1\s*item$/ })).toBeVisible();

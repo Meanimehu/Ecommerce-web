@@ -91,19 +91,29 @@ test.describe('the storefront', () => {
   test.setTimeout(180_000);
 
   test('a product that is not visible is a real 404, and a missing or wrong name part redirects to the full address', async ({ page }) => {
-    const missing = await page.goto('/en/p/00000000-0000-4000-8000-000000000000/anything');
+    const missing = await page.goto('/en/product/00000000-0000-4000-8000-000000000000/anything');
     expect(missing?.status()).toBe(404);
-    expect((await page.goto('/en/c/no-such-category'))?.status()).toBe(404);
+    expect((await page.goto('/en/category/no-such-category'))?.status()).toBe(404);
 
-    await page.goto('/en/c/women');
-    const first = page.locator('main a[href*="/p/"]').first();
+    await page.goto('/en/category/women');
+    const first = page.locator('main a[href*="/product/"]').first();
     const href = (await first.getAttribute('href')) ?? '';
     const id = href.split('/')[3] ?? '';
-    const short = await page.request.get(`/en/p/${id}`, { maxRedirects: 0 });
+    const short = await page.request.get(`/en/product/${id}`, { maxRedirects: 0 });
     expect(short.status()).toBe(308);
     expect(short.headers().location).toBe(href);
-    const wrong = await page.request.get(`/en/p/${id}/wrong-name`, { maxRedirects: 0 });
+    const wrong = await page.request.get(`/en/product/${id}/wrong-name`, { maxRedirects: 0 });
     expect(wrong.status()).toBe(308);
+  });
+
+  test('the old short addresses /c/… and /p/… are a real 404, not redirected (Document 7, 20.13, step 8)', async ({ page }) => {
+    await page.goto('/en/category/women');
+    const href = (await page.locator('main a[href*="/product/"]').first().getAttribute('href')) ?? '';
+    const [, , , id, name] = href.split('/');
+    for (const old of ['/en/c/women', `/en/p/${id}/${name}`, `/hi/p/${id}`]) {
+      const answer = await page.request.get(old, { maxRedirects: 0 });
+      expect(answer.status(), old).toBe(404);
+    }
   });
 
   test('category and product pages stay inside the 300 KB first-load budget, and photos may load only from the photo host', async ({ page }) => {
@@ -113,10 +123,10 @@ test.describe('the storefront', () => {
       if (request.resourceType() === 'font' && request.url().includes('devanagari')) return;
       sizes.push(request.sizes().then((s) => s.responseBodySize + s.responseHeadersSize));
     });
-    const answer = await page.goto('/en/c/women', { waitUntil: 'networkidle' });
+    const answer = await page.goto('/en/category/women', { waitUntil: 'networkidle' });
     expect(answer?.headers()['content-security-policy']).toMatch(/^img-src 'self' data: blob:/);
     const category = (await Promise.all(sizes)).reduce((a, b) => a + b, 0);
-    console.log(`/en/c/women first load: ${(category / 1024).toFixed(1)} KB`);
+    console.log(`/en/category/women first load: ${(category / 1024).toFixed(1)} KB`);
     expect(category).toBeLessThanOrEqual(300 * 1024);
   });
 
@@ -133,7 +143,7 @@ test.describe('the storefront', () => {
     ]);
 
     const customer = await pageAs(browser, freshPhone(), '/en/account');
-    await customer.goto(`/en/p/${id}`);
+    await customer.goto(`/en/product/${id}`);
     await expect(customer.getByRole('heading', { name: title, level: 1 })).toBeVisible();
     const addButton = customer.getByRole('button', { name: 'Add to cart' });
     await expect(addButton).toBeDisabled();
@@ -175,8 +185,8 @@ test.describe('the storefront', () => {
         ]);
       }
     }
-    await page.goto('/en/c/kurtas');
-    const cards = page.locator('main ul > li > a[href*="/p/"]');
+    await page.goto('/en/category/kurtas');
+    const cards = page.locator('main ul > li > a[href*="/product/"]');
     await expect(cards).toHaveCount(FIRST_BATCH);
     const total = Number((await page.getByText(/^Showing 24 of \d+$/).textContent())?.match(/of (\d+)/)?.[1]);
     expect(total).toBeGreaterThan(FIRST_BATCH);
@@ -193,14 +203,14 @@ test.describe('the storefront', () => {
   });
 
   test('the Hindi category and product pages', async ({ page }) => {
-    await page.goto('/hi/c/kurtas');
+    await page.goto('/hi/category/kurtas');
     await expect(page.getByRole('navigation', { name: 'आप यहाँ हैं' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Kurtas', level: 1 })).toBeVisible();
     await expect(page.getByText(/^\d+ उत्पाद$/)).toBeVisible();
     await expect(page.getByRole('button', { name: 'और दिखाएँ' })).toBeVisible();
     await noAxeViolations(page);
-    await page.locator('main ul > li > a[href*="/p/"]').first().click();
-    await expect(page).toHaveURL(/\/hi\/p\/[^/]+\/[a-z0-9-]+$/);
+    await page.locator('main ul > li > a[href*="/product/"]').first().click();
+    await expect(page).toHaveURL(/\/hi\/product\/[^/]+\/[a-z0-9-]+$/);
     await expect(page.getByRole('button', { name: 'कार्ट में जोड़ें' })).toBeVisible();
     await expect(page.getByText(/^विक्रेता /)).toBeVisible();
     await noAxeViolations(page);

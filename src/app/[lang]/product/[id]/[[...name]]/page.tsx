@@ -1,18 +1,18 @@
 import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { cache } from 'react';
-import * as catalogueApi from '@/api/catalogue';
-import { ProductBuy } from '@/components/catalogue/product-buy';
-import { ProductGallery } from '@/components/catalogue/product-gallery';
+import * as catalogueApi from '@/features/storefront/server/storefront-api';
+import { ProductBuy } from '@/features/storefront/components/product-buy';
+import { ProductGallery } from '@/features/storefront/components/product-gallery';
 import { Breadcrumbs } from '@/components/common/breadcrumbs';
 import { SiteHeader } from '@/components/common/site-header';
 import { AppError } from '@/lib/errors';
 import { isLocale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
-import { productPath, productSlug } from '@/types/catalogue';
+import { productPath, productSlug } from '@/features/storefront/types';
 
 /**
- * The product page (Document 5, section 6.2; Document 4, D4-02): /{lang}/p/{id}/{name}. The id is what is looked up;
+ * The product page (Document 5, section 6.2; Document 4, D4-02): /{lang}/product/{id}/{name}. The id is what is looked up;
  * a missing or wrong name part redirects to the full address. A product that is not visible is a real 404. The page
  * holds nothing about who is looking, so it may be kept for 60 seconds; price and stock are read again in the browser
  * before adding to the cart.
@@ -52,8 +52,8 @@ export default async function ProductPage({ params }: Props) {
   const t = getMessages(lang);
   const crumbs = [
     { label: t.store.home, href: `/${lang}` },
-    ...product.categoryPath.map((c) => ({ label: c.name, href: `/${lang}/c/${c.slug}` })),
-    ...(product.categoryPath.some((c) => c.id === product.category.id) ? [] : [{ label: product.category.name, href: `/${lang}/c/${product.category.slug}` }]),
+    ...product.categoryPath.map((c) => ({ label: c.name, href: `/${lang}/category/${c.slug}` })),
+    ...(product.categoryPath.some((c) => c.id === product.category.id) ? [] : [{ label: product.category.name, href: `/${lang}/category/${product.category.slug}` }]),
     { label: product.title },
   ];
   return (
