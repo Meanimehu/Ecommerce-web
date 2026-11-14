@@ -7,7 +7,7 @@ import {
   compareCatalogues,
   FRAMEWORK_CODES_WITH_MESSAGES,
   FRONTEND_CODES_WITH_MESSAGES,
-} from '../src/utils/message-checks';
+} from './message-checks';
 import { enumSource } from './gen-error-codes';
 
 const dir = fileURLToPath(new URL('../src/messages/', import.meta.url));
