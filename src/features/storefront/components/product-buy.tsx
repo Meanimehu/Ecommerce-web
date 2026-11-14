@@ -12,12 +12,8 @@ import { formatDate } from '@/utils/format';
 import { useProductAdd } from '@/features/storefront/hooks/use-product-add';
 import { useProductNow } from '@/features/storefront/hooks/use-storefront';
 import { useVariantChoice } from '@/features/storefront/hooks/use-variant-choice';
-import {
-  MissingChoice,
-  StockLevel,
-  stockLevelOf,
-  type ProductDetail,
-} from '@/features/storefront/types';
+import { MissingChoice, StockLevel, stockLevelOf } from '@/features/storefront/rules';
+import type { ProductDetail } from '@/features/storefront/types';
 import { ColourChoice } from './colour-choice';
 import { Price } from './price';
 import { SizeChoice } from './size-choice';

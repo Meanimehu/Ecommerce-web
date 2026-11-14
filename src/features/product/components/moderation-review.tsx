@@ -16,7 +16,7 @@ import { messageFor, type AppError } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { moderationQueuePath } from '@/lib/routes';
-import { findInTree } from '@/features/storefront/types';
+import { findInTree } from '@/features/storefront/rules';
 import { reviewPhotoSrc, useProductForReview } from '@/features/product/hooks/use-product';
 import { useProductDecision } from '@/features/product/hooks/use-product-decision';
 import {

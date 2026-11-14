@@ -2,7 +2,8 @@ import { Breadcrumbs } from '@/components/common/breadcrumbs';
 import type { Locale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
 import { categoryPath, homePath } from '@/lib/routes';
-import { categoryTrail, type ProductDetail } from '@/features/storefront/types';
+import { categoryTrail } from '@/features/storefront/rules';
+import type { ProductDetail } from '@/features/storefront/types';
 import { ProductBuy } from './product-buy';
 import { ProductGallery } from './product-gallery';
 

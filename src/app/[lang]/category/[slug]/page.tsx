@@ -7,7 +7,7 @@ import { getMessages } from '@/lib/messages';
 import { categoryPath } from '@/lib/routes';
 import { CategoryScreen } from '@/features/storefront/components/category-screen';
 import * as storefrontApi from '@/features/storefront/server/storefront-api';
-import { findInTree, ProductSort } from '@/features/storefront/types';
+import { findInTree, ProductSort } from '@/features/storefront/rules';
 
 /**
  * A category page (Document 5, section 6.1; Document 4, section 5): /{lang}/category/{slug}, the

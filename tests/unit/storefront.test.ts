@@ -10,10 +10,8 @@ import {
   sizesOf,
   StockLevel,
   stockLevelOf,
-  type CategoryNode,
-  type ProductDetail,
-  type PublicVariant,
-} from '@/features/storefront/types';
+} from '@/features/storefront/rules';
+import type { CategoryNode, ProductDetail, PublicVariant } from '@/features/storefront/types';
 
 describe('the pending add (Document 2, D2-02)', () => {
   const variantId = '01a1a154-0367-773c-9d27-5989f07f5628';

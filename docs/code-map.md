@@ -307,7 +307,8 @@ category tree.
 
 | File | What it does |
 | --- | --- |
-| `types.ts` | The answer schemas; `ProductSort`, `StockLevel`, `MissingChoice`, `AddMessageTone`; the shared rules: `findInTree`, `categoryTrail`, `sizesOf`, `coloursOf`, `chosenVariant`, `isAvailable`, `missingChoiceOf`, `stockLevelOf` |
+| `types.ts` | The answer schemas and their types (used by the server) |
+| `rules.ts` | No Zod, so the public pages stay light: `ProductSort`, `StockLevel`, `MissingChoice`, `AddMessageTone`; `findInTree`, `categoryTrail`, `sizesOf`, `coloursOf`, `chosenVariant`, `isAvailable`, `missingChoiceOf`, `stockLevelOf` |
 | `components/category-screen.tsx`, `product-screen.tsx` | A category page's and a product page's content, drawn on the server |
 | `components/product-grid.tsx`, `product-card.tsx`, `price.tsx` | The product grid with "Load more", the product card, the price line |
 | `components/product-gallery.tsx` | The product page's photos |

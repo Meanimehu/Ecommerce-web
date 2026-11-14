@@ -11,7 +11,7 @@ import { useCategoryTree } from '@/features/storefront/hooks/use-storefront';
 import type { Locale, Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { moderationProductPath, moderationQueuePath } from '@/lib/routes';
-import { findInTree } from '@/features/storefront/types';
+import { findInTree } from '@/features/storefront/rules';
 import { useReviewQueue } from '@/features/product/hooks/use-product';
 import { ReviewKind, type ModerationRow } from '@/features/product/types';
 import { formatDate } from '@/utils/format';

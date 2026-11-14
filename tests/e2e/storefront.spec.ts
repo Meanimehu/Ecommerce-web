@@ -116,18 +116,27 @@ test.describe('the storefront', () => {
     }
   });
 
-  test('category and product pages stay inside the 300 KB first-load budget, and photos may load only from the photo host', async ({ page }) => {
-    const sizes: Promise<number>[] = [];
-    page.on('requestfinished', (request) => {
-      if (!['document', 'stylesheet', 'script', 'font'].includes(request.resourceType())) return;
-      if (request.resourceType() === 'font' && request.url().includes('devanagari')) return;
-      sizes.push(request.sizes().then((s) => s.responseBodySize + s.responseHeadersSize));
-    });
-    const answer = await page.goto('/en/category/women', { waitUntil: 'networkidle' });
-    expect(answer?.headers()['content-security-policy']).toMatch(/^img-src 'self' data: blob:/);
-    const category = (await Promise.all(sizes)).reduce((a, b) => a + b, 0);
-    console.log(`/en/category/women first load: ${(category / 1024).toFixed(1)} KB`);
-    expect(category).toBeLessThanOrEqual(300 * 1024);
+  test('category and product pages stay inside the 300 KB first-load budget, and photos may load only from the photo host', async ({ browser }) => {
+    // The first load of one page: document, styles, scripts and Latin fonts (Document 7, section 12).
+    async function firstLoad(address: string) {
+      const page = await browser.newPage({ baseURL: test.info().project.use.baseURL, ignoreHTTPSErrors: true });
+      const sizes: Promise<number>[] = [];
+      page.on('requestfinished', (request) => {
+        if (!['document', 'stylesheet', 'script', 'font'].includes(request.resourceType())) return;
+        if (request.resourceType() === 'font' && request.url().includes('devanagari')) return;
+        sizes.push(request.sizes().then((s) => s.responseBodySize + s.responseHeadersSize));
+      });
+      const answer = await page.goto(address, { waitUntil: 'networkidle' });
+      const total = (await Promise.all(sizes)).reduce((a, b) => a + b, 0);
+      console.log(`${address} first load: ${(total / 1024).toFixed(1)} KB`);
+      return { page, answer, total };
+    }
+    const category = await firstLoad('/en/category/women');
+    expect(category.answer?.headers()['content-security-policy']).toMatch(/^img-src 'self' data: blob:/);
+    expect(category.total).toBeLessThanOrEqual(300 * 1024);
+    const productAddress = (await category.page.locator('main a[href*="/product/"]').first().getAttribute('href')) ?? '';
+    const product = await firstLoad(productAddress);
+    expect(product.total).toBeLessThanOrEqual(300 * 1024);
   });
 
   test('choosing a size and a colour: what is not in stock is crossed out, the button waits for a choice, and the price follows it; a logged-in customer adds it', async ({ browser }) => {

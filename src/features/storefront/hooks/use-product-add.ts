@@ -9,7 +9,8 @@ import type { Locale, Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { AddOutcome, type AddNotice } from '@/types/add-notice';
 import { useSession } from '@/features/auth/hooks/use-auth';
-import { AddMessageTone, type AddMessage, type PublicVariant } from '@/features/storefront/types';
+import { AddMessageTone, type AddMessage } from '@/features/storefront/rules';
+import type { PublicVariant } from '@/features/storefront/types';
 
 /** An "Add to cart" is always one item; the quantity changes in the cart. */
 const QUANTITY_ADDED = 1;

@@ -7,8 +7,8 @@ import {
   isAvailable,
   missingChoiceOf,
   sizesOf,
-  type PublicVariant,
-} from '@/features/storefront/types';
+} from '@/features/storefront/rules';
+import type { PublicVariant } from '@/features/storefront/types';
 
 /**
  * Choosing a size and a colour (Document 5, section 6.2; Document 6, 8.5). When there is only one
