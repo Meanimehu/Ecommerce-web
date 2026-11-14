@@ -10,6 +10,7 @@ import {
   twoSizesAndColours,
   variantsOf,
 } from './support/products';
+import { countFirstLoad, expectWithinBudget } from './support/page-size';
 import { nextRequestBody } from './support/requests';
 
 /**
@@ -219,6 +220,25 @@ test.describe('the cart', () => {
       await expect(customer.getByText('Your cart is empty')).toBeVisible();
     } finally {
       await setStock(vendor, product.mediumId, 5);
+    }
+  });
+
+  test('the cart page, in English and Hindi, stays inside the first-load budget', async ({
+    browser,
+  }) => {
+    for (const lang of ['en', 'hi'] as const) {
+      // Logged in, then the cart opened in a new window with an empty cache (Document 6, section 14).
+      const loggedIn = await newCustomer(browser, lang);
+      const context = await browser.newContext({
+        storageState: await loggedIn.context().storageState(),
+        ignoreHTTPSErrors: true,
+        baseURL: test.info().project.use.baseURL,
+      });
+      const page = await context.newPage();
+      const counted = countFirstLoad(page, lang);
+      await page.goto(`/${lang}/cart`, { waitUntil: 'networkidle' });
+      expectWithinBudget(`/${lang}/cart`, lang, await counted());
+      await context.close();
     }
   });
 
