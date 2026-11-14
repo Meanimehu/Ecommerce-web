@@ -1,21 +1,19 @@
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { BackendErrorCode } from '@/lib/error-codes';
-import { AppError } from '@/lib/errors';
 import { HttpStatus } from '@/lib/http-status';
 import { DEFAULT_LOCALE, isLocale, type Locale } from '@/lib/i18n';
-import { COOKIE, decodePendingAdd, deleteCookie } from '@/middleware/cookies';
 import { fail, fromAppError, guardChange, ok, readJson } from '@/middleware/responses';
-import * as cartApi from '@/features/cart/server/cart-api';
 import { forgetPageAfterLogin, readPageAfterLogin } from '@/features/auth/after-login-page';
 import * as authApi from '@/features/auth/server/auth-api';
 import { defaultDestination, setSessionCookies } from '@/features/auth/server/session';
-import { AddOutcome, type AddNotice } from '@/lib/add-notice';
+import { forgetPendingAdd, runPendingAdd } from '@/features/cart/server/pending-add';
 
 /**
  * POST /api/auth/verify: checks the code with the backend and, when it is right, sets the login
  * cookies (D2-01). The answer says where to go next: the page the person asked for, else the
- * default for their role (D2-03).
+ * default for their role (D2-03). An "Add to cart" made before logging in runs here once, through
+ * `cart` (D2-02); the answer says what happened to it.
  */
 const VerifyCodeBody = z.object({
   phone: z.string().trim().min(1).max(20),
@@ -41,10 +39,7 @@ export async function POST(request: NextRequest) {
     const askedForPage = readPageAfterLogin(request);
     const destination = askedForPage ?? defaultDestination(login.user.roles, lang);
 
-    const pendingAdd = decodePendingAdd(request.cookies.get(COOKIE.pendingAdd)?.value);
-    const pendingAddResult = pendingAdd
-      ? await runPendingAdd(login.accessToken, pendingAdd)
-      : undefined;
+    const pendingAddResult = await runPendingAdd(request, login.accessToken);
 
     const response = ok({
       user: login.user,
@@ -59,29 +54,9 @@ export async function POST(request: NextRequest) {
 
     // Both cookies are used once, whatever the outcome (D4-08).
     forgetPageAfterLogin(response);
-    deleteCookie(response, COOKIE.pendingAdd);
+    forgetPendingAdd(response);
     return response;
   } catch (error) {
     return fromAppError(error);
-  }
-}
-
-/**
- * The "Add to cart" made before logging in (D2-02), run once as a normal cart request against the
- * product, price and stock of this moment. An add whose outcome is unknown is not repeated; the
- * page tells the person instead.
- */
-async function runPendingAdd(
-  accessToken: string,
-  pendingAdd: { variantId: string; quantity: number },
-): Promise<AddNotice> {
-  try {
-    await cartApi.addToCart(accessToken, pendingAdd);
-    return { outcome: AddOutcome.Added };
-  } catch (error) {
-    if (error instanceof AppError && !error.outcomeUnknown) {
-      return { outcome: AddOutcome.Failed, code: error.code };
-    }
-    return { outcome: AddOutcome.Unknown };
   }
 }

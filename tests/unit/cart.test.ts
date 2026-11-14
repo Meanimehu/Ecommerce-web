@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { decodePendingAdd, sign } from '@/middleware/cookies';
+import { sign } from '@/middleware/cookies';
+import { decodePendingAdd } from '@/features/cart/server/pending-add';
 import { AddOutcome, isAddNotice } from '@/lib/add-notice';
-import { isUnbuyable, type CartLine } from '@/features/cart/types';
+import { hasProblem, isUnbuyable, LineStatus, type CartLine } from '@/features/cart/types';
 
 describe('the pending add (Document 2, D2-02)', () => {
   const variantId = '01a1a154-0367-773c-9d27-5989f07f5628';
@@ -33,13 +34,25 @@ describe('the add notice login hands to the next page (D2-02)', () => {
 });
 
 describe('lines the backend can clear in one call', () => {
-  const line = (status: CartLine['status']) => ({ status }) as CartLine;
+  const line = (status: LineStatus) => ({ status }) as CartLine;
 
   it('are the unavailable and out-of-stock lines only', () => {
-    expect(isUnbuyable(line('unavailable'))).toBe(true);
-    expect(isUnbuyable(line('out_of_stock'))).toBe(true);
-    expect(isUnbuyable(line('insufficient_stock'))).toBe(false);
-    expect(isUnbuyable(line('low_stock'))).toBe(false);
-    expect(isUnbuyable(line('ok'))).toBe(false);
+    expect(isUnbuyable(line(LineStatus.Unavailable))).toBe(true);
+    expect(isUnbuyable(line(LineStatus.OutOfStock))).toBe(true);
+    expect(isUnbuyable(line(LineStatus.InsufficientStock))).toBe(false);
+    expect(isUnbuyable(line(LineStatus.LowStock))).toBe(false);
+    expect(isUnbuyable(line(LineStatus.Ok))).toBe(false);
+  });
+});
+
+describe('lines that need attention', () => {
+  const line = (status: LineStatus) => ({ status }) as CartLine;
+
+  it('are the ones that cannot be bought as they are', () => {
+    expect(hasProblem(line(LineStatus.Unavailable))).toBe(true);
+    expect(hasProblem(line(LineStatus.OutOfStock))).toBe(true);
+    expect(hasProblem(line(LineStatus.InsufficientStock))).toBe(true);
+    expect(hasProblem(line(LineStatus.LowStock))).toBe(false);
+    expect(hasProblem(line(LineStatus.Ok))).toBe(false);
   });
 });
