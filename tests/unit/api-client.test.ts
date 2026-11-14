@@ -56,7 +56,7 @@ describe('the backend client (Document 3; D7-01, D7-10)', () => {
       schema: Schema,
       fetchImpl,
       sleep: noSleep,
-    }).catch((failure: unknown) => failure);
+    }).catch((caughtError: unknown) => caughtError);
     expect(fetchImpl).toHaveBeenCalledTimes(1);
     expect(error).toMatchObject({ status: 503, outcomeUnknown: true });
   });
@@ -70,7 +70,7 @@ describe('the backend client (Document 3; D7-01, D7-10)', () => {
       schema: Schema,
       fetchImpl: timeout,
       sleep: noSleep,
-    }).catch((failure: unknown) => failure)) as AppError;
+    }).catch((caughtError: unknown) => caughtError)) as AppError;
     expect(save).toMatchObject({ code: 'TIMEOUT', outcomeUnknown: true });
     expect(timeout).toHaveBeenCalledTimes(1);
     const messages = getMessages('en');
@@ -84,7 +84,7 @@ describe('the backend client (Document 3; D7-01, D7-10)', () => {
       schema: Schema,
       fetchImpl: timeout,
       sleep: noSleep,
-    }).catch((failure: unknown) => failure)) as AppError;
+    }).catch((caughtError: unknown) => caughtError)) as AppError;
     expect(messageFor(view, messages)).toBe('Something went wrong. Please try again.');
   });
 
@@ -118,7 +118,7 @@ describe('the backend client (Document 3; D7-01, D7-10)', () => {
       schema: Schema,
       fetchImpl,
       sleep: noSleep,
-    }).catch((failure: unknown) => failure)) as AppError;
+    }).catch((caughtError: unknown) => caughtError)) as AppError;
     expect(error.code).toBe('CODE_TAKEN');
     expect(error.requestId).toBe('req-1');
     expect(error.details).toEqual({ field: 'code' });
@@ -141,7 +141,7 @@ describe('the backend client (Document 3; D7-01, D7-10)', () => {
       schema: Schema,
       fetchImpl,
       sleep: noSleep,
-    }).catch((failure: unknown) => failure)) as AppError;
+    }).catch((caughtError: unknown) => caughtError)) as AppError;
     expect(error.code).toBe('VALIDATION_FAILED');
     expect(error.fields).toEqual([{ field: 'email', messages: ['email must be an email'] }]);
     expect(error.details).toBeUndefined();
@@ -159,7 +159,7 @@ describe('the backend client (Document 3; D7-01, D7-10)', () => {
       schema: Schema,
       fetchImpl,
       sleep: noSleep,
-    }).catch((failure: unknown) => failure)) as AppError;
+    }).catch((caughtError: unknown) => caughtError)) as AppError;
     expect(error.code).toBe('RESPONSE_MISMATCH');
     // One plain line with the listed call name, never the real address or the data (Document 7, section 20.10).
     expect(spy).toHaveBeenCalledWith(
@@ -222,7 +222,7 @@ describe('Document 3 alignment', () => {
       schema: Schema,
       fetchImpl,
       sleep: noSleep,
-    }).catch((failure: unknown) => failure)) as AppError;
+    }).catch((caughtError: unknown) => caughtError)) as AppError;
     expect(error.details?.retryAfterSeconds).toBe(42);
     expect(messageFor(error, getMessages('en'))).toBe(
       'Too many requests. Please wait a moment and try again. Please try again in 42 seconds.',
@@ -261,7 +261,7 @@ describe('Document 3 alignment', () => {
       schema: Schema,
       fetchImpl,
       sleep: noSleep,
-    }).catch((failure: unknown) => failure)) as AppError;
+    }).catch((caughtError: unknown) => caughtError)) as AppError;
     expect(messageFor(error, getMessages('en'))).toBe(
       'The answer of GET /me does not match its schema (fields: ok).',
     );

@@ -165,7 +165,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `common/data-table.tsx`, `pagination.tsx` | Staff tables (stacked blocks on phones) and numbered pages |
 | `common/breadcrumbs.tsx` | Breadcrumbs (only the parent on phones) |
 | `common/load-states.tsx` | Loading and "could not be loaded, Try again" for one part of a screen |
-| `common/reason-dialog.tsx` | A confirmation that asks for a reason (reject, suspend) |
+| `common/reason-dialog.tsx` | A confirmation that asks for a reason (reject, suspend); only draws |
 | `common/toast.tsx` | The success toast ("Saved") |
 | `ui/button.tsx` | Primary, secondary, quiet, destructive and destructive-confirm buttons; large, default and small; loading state |
 | `ui/input.tsx`, `select.tsx`, `textarea.tsx`, `checkbox.tsx` | The text input, select, text area and checkbox |
@@ -178,6 +178,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | File | What it does |
 | --- | --- |
 | `use-app-form.ts` | `useAppForm` (React Hook Form with Zod; it keeps the changed fields up to date, so an edit sends only what changed), `applyServerError` (backend errors under the right field), `useErrorSummaryFocus` (focus after a failed submit), message keys |
+| `use-reason-dialog.ts` | The reason dialog's action hook: the reason checked, handed to the feature's decision with `onSuccess` (close) and `onError` (show the refusal); `ReasonOutcome`, `ConfirmWithReason` |
 
 ### `api/` — calls to the backend (server only)
 
