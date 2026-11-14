@@ -741,11 +741,16 @@ D-11 makes budget Android phones and slow connections the reference case and lea
 | Fonts and the total | Fonts for the page language are **inside** the 300 KB, not on top of it. English fonts (about 42 KB) leave about 258 KB for everything else. Hindi fonts (about 146 KB) leave about 154 KB, so the Hindi pages have much less room for code and styles. A second-script font loaded on demand (5.4, D6-21) is not counted in these figures; how it is counted is settled after measurement |
 | The 150 KB font limit | A limit within the total: no page language loads more than 150 KB of fonts |
 
+**Planned change for Hindi pages (owner, 14 Nov 2026; applied only after the owner has reviewed the Q7-7 measurements in Document 7).** A Hindi page needs Noto Sans Devanagari as well as Outfit, so its fonts are about 100 KB more than an English page's while its code is the same. With fonts inside one 300 KB total, a Hindi page would need about 100 KB less code than the English page, which is not realistic (the Hindi login page is 402 KB, the English one 298.6 KB). The owner approved two changes, both waiting for the measurements:
+
+1. **The budget is split in two.** Everything except fonts (document, styles, scripts, interface graphics): **258 KB or less, the same in every language**. Fonts: **150 KB or less per page language**, as above. An English page therefore stays within 300 KB as before; a Hindi page can reach about 408 KB, and the extra is fonts only. The reason: fonts do not hold up reading (text shows at once in a fallback font of matched size and the font replaces it when it arrives, 5.4), while code holds up the page becoming usable, so the code limit stays the same for everyone.
+2. **The Devanagari font files are trimmed** to the characters normal Hindi text uses, leaving out Vedic signs and similar rarely used marks. A first test gives about 40 KB instead of 50 KB per weight, about 21 KB less for both. Real Hindi text (conjuncts, vowel signs, nukta, the rupee sign) is checked on screen against the full font before this is used.
+
 **Items that need technical validation.**
 
 1. The 100 KB first-screen data allowance, against real API responses (all three areas).
 2. Whether 300 KB suits vendor and admin screens, which carry more interface code.
-3. How Hindi pages fit: about 154 KB remains after fonts, and staff screens in Hindi have the least room.
+3. How Hindi pages fit: about 154 KB remains after fonts, and staff screens in Hindi have the least room. **Planned (owner, 14 Nov 2026):** the split budget and the trimmed font above, applied after the Q7-7 measurements are reviewed.
 4. How a font loaded on demand for a second script counts (5.4).
 5. Largest Contentful Paint on staff screens that wait for data.
 6. The budget-device and slower-connection profiles, which Document 7 pins.
@@ -995,3 +1000,4 @@ Approved decisions in Documents 1 to 5 are not changed by this document. It appl
 | 27 | Stage 5 Admin area approved (9 Nov 2026); all three areas approved. Still open, not claimed: contrast of the combinations used on the screens, keyboard and screen reader behaviour (Document 7, section 10), testing with real vendor photos in the 4:5 frames, Hindi wording review, hero choice storage (Document 7, T7-8) | Owner-approved screens; checks open | Open |
 | 28 | Stand-in images decided (D6-62): generated garment illustrations used for design; real-photo testing deferred to when real photos exist (T7-7) | Owner-approved | Done; real-photo test open |
 | 29 | 8.8: when the last "Load more" batch has loaded and the button is gone, focus moves to the first card added (Document 7, pull request #48) | Owner-approved (14 Nov 2026) | Done |
+| 30 | Section 14: for Hindi pages, a split budget (258 KB without fonts in every language, fonts 150 KB per language) and a trimmed Devanagari font; item 3 updated | Owner-approved (14 Nov 2026), applied only after the Q7-7 measurements are reviewed | Planned |
