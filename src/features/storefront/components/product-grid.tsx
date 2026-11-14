@@ -17,7 +17,8 @@ const EAGER_CARDS = 4;
  * A category's products with "Load more" (Document 5, section 6.1; Document 6, 8.8): the first
  * batch comes drawn from the server, each further batch is added below. "Showing 8 of 128" with a
  * thin progress line; the number added is announced. A failure shows inside this part with "Try
- * again". It only draws; the batches are in `use-product-grid.ts`.
+ * again". Focus stays where it was (Document 6, 8.8). It only draws; the batches and the focus are in
+ * `use-product-grid.ts`.
  */
 export function ProductGrid({
   lang,
@@ -30,7 +31,7 @@ export function ProductGrid({
 }) {
   const messages = useMessages();
   const storeMessages = messages.store;
-  const productGrid = useProductGrid({ firstBatch, query });
+  const { loadMoreButton, firstAddedCard, ...productGrid } = useProductGrid({ firstBatch, query });
   const { cards, total } = productGrid;
 
   return (
@@ -43,6 +44,7 @@ export function ProductGrid({
               lang={lang}
               messages={messages}
               isEager={index < EAGER_CARDS}
+              ref={index === productGrid.firstAddedIndex ? firstAddedCard : undefined}
             />
           </li>
         ))}
@@ -67,6 +69,7 @@ export function ProductGrid({
             </p>
           ) : null}
           <Button
+            ref={loadMoreButton}
             type="button"
             variant="secondary"
             size="large"

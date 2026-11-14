@@ -1,3 +1,4 @@
+import type { Ref } from 'react';
 import { PhotoFrame } from '@/components/common/photo-frame';
 import type { Locale, Messages } from '@/lib/i18n';
 import { productPath } from '@/lib/routes';
@@ -15,15 +16,19 @@ export function ProductCard({
   lang,
   messages,
   isEager = false,
+  ref,
 }: {
   product: ProductCardData;
   lang: Locale;
   messages: Messages;
   isEager?: boolean;
+  /** For "Load more", which moves focus to the first card added (Document 6, 8.8). */
+  ref?: Ref<HTMLAnchorElement>;
 }) {
   const storeMessages = messages.store;
   return (
     <a
+      ref={ref}
       href={productPath(lang, product.id, product.title)}
       className="group grid content-start gap-2 rounded-1 text-ink no-underline"
     >
