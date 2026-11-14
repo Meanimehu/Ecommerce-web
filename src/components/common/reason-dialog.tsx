@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -14,14 +14,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { ErrorSummary } from '@/components/form/error-summary';
 import { TextareaField } from '@/components/form/textarea-field';
-import { applyServerError, useAppForm } from '@/hooks/use-app-form';
-import { toAppError } from '@/lib/errors';
+import { useReasonDialog, type ConfirmWithReason } from '@/hooks/use-reason-dialog';
 import type { Messages } from '@/lib/i18n';
-import { ReasonSchema, type ReasonInput } from '@/types/common';
 
 /**
  * A confirmation that asks for a reason the other person will read (Document 6, 8.10): it names the thing and what
  * will happen, has "Cancel" and the verb, and stays open with the error in its summary when the backend refuses.
+ * It only draws; the sending is in `hooks/use-reason-dialog.ts`, and the decision in the feature's hook.
  */
 export function ReasonDialog({
   trigger,
@@ -39,36 +38,20 @@ export function ReasonDialog({
   label: string;
   confirmLabel: string;
   maxLength: number;
-  onConfirm: (reason: string) => Promise<unknown>;
+  onConfirm: ConfirmWithReason;
   messages: Messages;
 }) {
-  const [open, setOpen] = useState(false);
-  const [focus, setFocus] = useState(0);
-  const form = useAppForm<ReasonInput, { reason: string }>(ReasonSchema, { reason: '' });
-  const submit = form.handleSubmit(
-    async (values) => {
-      try {
-        await onConfirm(values.reason);
-        form.reset();
-        setOpen(false);
-      } catch (error) {
-        applyServerError(form, toAppError(error), messages);
-        setFocus((signal) => signal + 1);
-      }
-    },
-    () => setFocus((signal) => signal + 1),
-  );
+  const reasonDialog = useReasonDialog({ onConfirm, messages });
+  const { form } = reasonDialog;
   return (
-    <AlertDialog
-      open={open}
-      onOpenChange={(next) => {
-        setOpen(next);
-        if (!next) form.reset();
-      }}
-    >
+    <AlertDialog open={reasonDialog.isOpen} onOpenChange={reasonDialog.changeOpen}>
       <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
       <AlertDialogContent>
-        <form className="grid gap-4" noValidate onSubmit={(event) => void submit(event)}>
+        <form
+          className="grid gap-4"
+          noValidate
+          onSubmit={(event) => void reasonDialog.submit(event)}
+        >
           <AlertDialogHeader>
             <AlertDialogTitle>{title}</AlertDialogTitle>
             <AlertDialogDescription>{body}</AlertDialogDescription>
@@ -77,7 +60,7 @@ export function ReasonDialog({
             form={form}
             fieldIds={{ reason: 'reason-dialog-reason' }}
             messages={messages}
-            focusSignal={focus}
+            focusSignal={reasonDialog.focusSignal}
           />
           <TextareaField
             form={form}
@@ -88,14 +71,10 @@ export function ReasonDialog({
             messages={messages}
           />
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={form.formState.isSubmitting}>
+            <AlertDialogCancel disabled={reasonDialog.isSending}>
               {messages.common.cancel}
             </AlertDialogCancel>
-            <Button
-              type="submit"
-              variant="destructiveConfirm"
-              loading={form.formState.isSubmitting}
-            >
+            <Button type="submit" variant="destructiveConfirm" loading={reasonDialog.isSending}>
               {confirmLabel}
             </Button>
           </AlertDialogFooter>
