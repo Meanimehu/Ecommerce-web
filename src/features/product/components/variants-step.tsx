@@ -22,6 +22,7 @@ import { StatusChip } from '@/components/common/status-chip';
 import { fill, messageFor } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { myProductPath } from '@/lib/routes';
 import { useVariantActions } from '@/features/product/hooks/use-variant-actions';
 import {
   dictionaryLabel,
@@ -218,10 +219,7 @@ export function VariantsStep({
           <span />
         )}
         <Button asChild>
-          <Link
-            href={`/${lang}/vendor/products/${product.id}?step=${ProductStep.Photos}`}
-            className="no-underline"
-          >
+          <Link href={myProductPath(lang, product.id, ProductStep.Photos)} className="no-underline">
             {productMessages.continue}
           </Link>
         </Button>

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { loginPath } from '@/lib/routes';
 import { useSession } from '@/features/auth/hooks/use-auth';
 import { endsSession } from '@/features/auth/hooks/use-session-end';
 
@@ -29,8 +30,7 @@ export function SessionCheck({ lang, path }: { lang: Locale; path: string }) {
     if (session.data.user) router.refresh();
     // A full page load on purpose: the login page is rendered on the server with the current
     // cookies.
-    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-    else window.location.assign(`/${lang}/login?next=${encodeURIComponent(path)}`);
+    else window.location.assign(loginPath(lang, path));
   }, [session.data, lang, path, router]);
 
   if (!error || endsSession(error)) {
@@ -59,7 +59,7 @@ export function SessionCheck({ lang, path }: { lang: Locale; path: string }) {
               {messages.errors.tryAgain}
             </Button>
             <Button asChild variant="secondary">
-              <a href={`/${lang}/login`} className="no-underline">
+              <a href={loginPath(lang)} className="no-underline">
                 {messages.nav.logIn}
               </a>
             </Button>

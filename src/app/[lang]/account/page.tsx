@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { NeedsScript } from '@/components/common/needs-script';
 import { SiteHeader } from '@/components/common/site-header';
 import { getMessages } from '@/lib/messages';
+import { adminHomePath, vendorApplyPath, vendorHomePath } from '@/lib/routes';
 import { formatPhone } from '@/utils/format';
 import { LogoutButtons } from '@/features/auth/components/logout-buttons';
 import { requireUser } from '@/features/auth/components/require-user';
@@ -27,12 +28,12 @@ export default async function AccountPage({ params }: { params: Promise<{ lang: 
   // wrong one.
   const vendorPresence = await findVendorPresence(token);
   const areas = [
-    ...(isStaff(user.roles) ? [{ href: `/${lang}/admin`, label: messages.nav.adminArea }] : []),
+    ...(isStaff(user.roles) ? [{ href: adminHomePath(lang), label: messages.nav.adminArea }] : []),
     ...(vendorPresence === VendorPresence.Exists
-      ? [{ href: `/${lang}/vendor`, label: messages.nav.vendorArea }]
+      ? [{ href: vendorHomePath(lang), label: messages.nav.vendorArea }]
       : []),
     ...(vendorPresence === VendorPresence.None
-      ? [{ href: `/${lang}/vendor/apply`, label: messages.nav.becomeVendor }]
+      ? [{ href: vendorApplyPath(lang), label: messages.nav.becomeVendor }]
       : []),
   ];
   return (

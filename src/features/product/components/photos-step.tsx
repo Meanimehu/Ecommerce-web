@@ -9,6 +9,7 @@ import { ErrorMessage } from '@/components/common/error-message';
 import { messageFor } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { myProductPath } from '@/lib/routes';
 import { UPLOAD_RULES } from '@/lib/uploads';
 import { usePhotoOrder } from '@/features/product/hooks/use-photo-order';
 import { usePhotoUploads } from '@/features/product/hooks/use-photo-uploads';
@@ -124,10 +125,7 @@ export function PhotosStep({ lang, product }: { lang: Locale; product: ProductVi
       <p className="type-small text-muted-foreground">{photoMessages.help}</p>
       <div className="flex justify-end">
         <Button asChild>
-          <Link
-            href={`/${lang}/vendor/products/${product.id}?step=${ProductStep.Review}`}
-            className="no-underline"
-          >
+          <Link href={myProductPath(lang, product.id, ProductStep.Review)} className="no-underline">
             {productMessages.continue}
           </Link>
         </Button>

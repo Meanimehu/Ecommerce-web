@@ -6,6 +6,7 @@ import { Breadcrumbs } from '@/components/common/breadcrumbs';
 import { LoadingBlock, PartError } from '@/components/common/load-states';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { myProductsPath } from '@/lib/routes';
 import { useMyVendor } from '@/features/vendor/hooks/use-vendor';
 import { VendorStatus } from '@/features/vendor/types';
 import { useDictionaries, useMyProduct } from '@/features/product/hooks/use-product';
@@ -44,7 +45,7 @@ export function ProductEditor({ lang, id }: { lang: Locale; id: string | null })
     dictionaries.isPending || myVendor.isPending || (id !== null && myProduct.isPending);
   const loadError = dictionaries.error ?? myVendor.error ?? (id !== null ? myProduct.error : null);
   const crumbs = [
-    { label: productMessages.title, href: `/${lang}/vendor/products` },
+    { label: productMessages.title, href: myProductsPath(lang) },
     { label: id ? (myProduct.data?.title ?? productMessages.product) : productMessages.add },
   ];
 

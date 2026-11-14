@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { isLocale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
+import { vendorApplyPath } from '@/lib/routes';
 
 /**
  * Vendor home (Document 5, section 7.2). The needs-attention list arrives with the rest of the
@@ -18,7 +19,7 @@ export default async function VendorHome({ params }: { params: Promise<{ lang: s
         <li>
           <a
             className="inline-flex min-h-11 items-center underline underline-offset-4"
-            href={`/${lang}/vendor/apply`}
+            href={vendorApplyPath(lang)}
           >
             {messages.nav.application}
           </a>

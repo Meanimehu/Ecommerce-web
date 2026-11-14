@@ -6,6 +6,7 @@ import { useToast } from '@/components/common/toast';
 import type { AppError } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { myProductsPath } from '@/lib/routes';
 import { useDeleteProduct, useSubmitProduct } from './use-product';
 
 /**
@@ -36,7 +37,7 @@ export function useProductSubmit({ lang, productId }: { lang: Locale; productId:
 
   function showDeleted() {
     toast(messages.product.review.deleted);
-    router.push(`/${lang}/vendor/products`);
+    router.push(myProductsPath(lang));
   }
 
   return {

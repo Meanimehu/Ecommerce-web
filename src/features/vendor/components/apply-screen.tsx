@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { fill } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { vendorApplyPath, vendorHomePath } from '@/lib/routes';
 import { useMyVendor } from '@/features/vendor/hooks/use-vendor';
 import {
   APPLY_STEPS,
@@ -87,7 +88,6 @@ function ApplyContent({
 
 function ApplySteps({ lang, vendor, step }: { lang: Locale; vendor: Vendor; step: ApplyStep }) {
   const messages = useMessages();
-  const applyPage = `/${lang}/vendor/apply`;
   const isMissingFor = (applyStep: ApplyStep) =>
     vendor.missing.some((missingItem) => stepFor(missingItem) === applyStep);
 
@@ -101,7 +101,7 @@ function ApplySteps({ lang, vendor, step }: { lang: Locale; vendor: Vendor; step
     key: applyStep,
     label: messages.vendor.steps[applyStep],
     short: messages.vendor.steps.short[applyStep],
-    href: `${applyPage}?step=${applyStep}`,
+    href: vendorApplyPath(lang, applyStep),
     done: done[applyStep],
   }));
   const stepPosition = fill(messages.vendor.stepOf, {
@@ -177,30 +177,29 @@ function StatusCard({ lang, vendor }: { lang: Locale; vendor: Vendor | null }) {
  */
 function StatusCardAction({ lang, vendor }: { lang: Locale; vendor: Vendor | null }) {
   const messages = useMessages();
-  const applyPage = `/${lang}/vendor/apply`;
 
   if (!vendor) {
     return (
-      <StepLink href={`${applyPage}?step=${ApplyStep.Details}`} label={messages.vendor.start} />
+      <StepLink href={vendorApplyPath(lang, ApplyStep.Details)} label={messages.vendor.start} />
     );
   }
 
   switch (vendor.status) {
     case VendorStatus.Draft: {
       const firstStep = vendor.missing[0] ? stepFor(vendor.missing[0]) : ApplyStep.Review;
-      return <StepLink href={`${applyPage}?step=${firstStep}`} label={messages.vendor.continue} />;
+      return <StepLink href={vendorApplyPath(lang, firstStep)} label={messages.vendor.continue} />;
     }
     case VendorStatus.Rejected:
       return (
         <StepLink
-          href={`${applyPage}?step=${ApplyStep.Details}`}
+          href={vendorApplyPath(lang, ApplyStep.Details)}
           label={messages.vendor.editResubmit}
         />
       );
     case VendorStatus.Approved:
       return (
         <Button asChild>
-          <a href={`/${lang}/vendor`} className="no-underline">
+          <a href={vendorHomePath(lang)} className="no-underline">
             {messages.vendor.goHome}
           </a>
         </Button>

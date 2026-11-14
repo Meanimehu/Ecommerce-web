@@ -13,6 +13,7 @@ import { Pagination } from '@/components/common/pagination';
 import { StateBlock } from '@/components/common/state-block';
 import type { Locale, Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { addProductPath, myProductPath, myProductsPath } from '@/lib/routes';
 import { useMyVendor } from '@/features/vendor/hooks/use-vendor';
 import { VendorStatus } from '@/features/vendor/types';
 import { useMyProducts } from '@/features/product/hooks/use-product';
@@ -49,7 +50,7 @@ export function ProductList({ lang }: { lang: Locale }) {
   const myVendor = useMyVendor();
   const vendorStatus = myVendor.data?.status;
   const isApproved = vendorStatus === VendorStatus.Approved;
-  const listPath = `/${lang}/vendor/products`;
+  const listPath = myProductsPath(lang);
 
   const columns: Column<ProductRow>[] = [
     {
@@ -58,7 +59,7 @@ export function ProductList({ lang }: { lang: Locale }) {
       lead: true,
       cell: (row) => (
         <Link
-          href={`${listPath}/${row.id}`}
+          href={myProductPath(lang, row.id)}
           className="inline-flex min-h-11 items-center font-medium underline underline-offset-4"
         >
           {row.title}
@@ -95,7 +96,7 @@ export function ProductList({ lang }: { lang: Locale }) {
         <h1 className="type-h2 text-ink">{productMessages.title}</h1>
         {isApproved ? (
           <Button asChild>
-            <Link href={`${listPath}/add`} className="no-underline">
+            <Link href={addProductPath(lang)} className="no-underline">
               {productMessages.add}
             </Link>
           </Button>

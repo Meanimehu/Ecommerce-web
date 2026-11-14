@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { get, send } from '@/lib/http';
 import type { Locale } from '@/lib/i18n';
+import { homePath } from '@/lib/routes';
 import type { AddNotice } from '@/types/add-notice';
 import type { SessionAnswer } from '@/features/auth/types';
 
@@ -87,8 +88,7 @@ export function useLogout(lang: Locale) {
   const queryClient = useQueryClient();
   const leave = () => {
     queryClient.clear();
-    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-    window.location.assign(`/${lang}`);
+    window.location.assign(homePath(lang));
   };
   return useMutation({
     mutationFn: (everywhere: boolean) =>

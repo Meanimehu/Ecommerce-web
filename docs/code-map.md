@@ -14,7 +14,7 @@ moved or removed.
 | `hooks/` | Reusable logic: TanStack Query hooks (our "slices") of areas that have not moved, and the form hook | Browser |
 | `api/` | Backend handlers: the calls from our server to the backend | **Server only** |
 | `middleware/` | Shared technical helpers for our endpoints, knowing nothing about the session: answers, the forgery check, public reads, uploads, the cookie list and tools | **Server only** (except `cookies.ts`) |
-| `lib/` | Configs and integrations: settings, the browser's call helper, languages and text, errors, the server log | Both |
+| `lib/` | Configs and integrations: settings, the browser's call helper, languages and text, page addresses, errors, the server log | Both |
 | `utils/` | Helper functions: money, dates, phone numbers | Both |
 | `types/` | Types and the Zod shapes they come from; `generated/` for tool-made files | Both |
 | `messages/` | `en.json` and `hi.json`: every text on screen | Both |
@@ -315,6 +315,7 @@ Backend Area 3b: products, variants, photos, the form guide (`/catalogue/diction
 | `lib/server-log.ts` | `logServerEvent`: the only way our server writes a log, one plain-text line per event (Document 7, 20.10); `errorTypeOf` for an unexpected error's kind. Server only |
 | `lib/uploads.ts` | Upload limits copied from the backend, for a quick check before sending |
 | `lib/i18n.ts` | The two languages and choosing one |
+| `lib/routes.ts` | Every page address, one helper per kind of page (`homePath`, `loginPath`, `myProductPath`, `adminVendorPath`, …); no feature, server-only or Zod import, so `proxy.ts` can use it (Document 7, 20.2) |
 | `lib/messages.ts` | `getMessages` for server pages; the shared text and the Vendor and Admin areas' own text |
 | `lib/messages-context.tsx` | `useMessages`: the page's text in the browser, only its language (and area text only inside those areas) |
 | `lib/errors.ts` | `AppError`, `toAppError`, and `messageFor`: our own message for any error |

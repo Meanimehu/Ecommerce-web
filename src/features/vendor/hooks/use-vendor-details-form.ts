@@ -8,6 +8,7 @@ import { BackendErrorCode } from '@/lib/error-codes';
 import type { AppError } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { vendorApplyPath } from '@/lib/routes';
 import {
   ApplyStep,
   isSellerType,
@@ -79,13 +80,9 @@ export function useVendorDetailsForm({ lang, vendor }: { lang: Locale; vendor: V
   }
 
   function goToNextPage() {
-    const applyPage = `/${lang}/vendor/apply`;
     toast(messages.vendor.saved);
-    router.push(
-      afterSaveRef.current === AfterSave.Continue
-        ? `${applyPage}?step=${ApplyStep.Address}`
-        : applyPage,
-    );
+    const nextStep = afterSaveRef.current === AfterSave.Continue ? ApplyStep.Address : undefined;
+    router.push(vendorApplyPath(lang, nextStep));
   }
 
   function showSaveError(error: AppError) {

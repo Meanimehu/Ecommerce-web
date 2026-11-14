@@ -8,6 +8,7 @@ import { BackendErrorCode } from '@/lib/error-codes';
 import type { AppError } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { myProductPath } from '@/lib/routes';
 import {
   BasicsFormSchema,
   flattenCategories,
@@ -83,7 +84,7 @@ export function useBasicsForm({
 
   function showSaved(productId: string) {
     toast(messages.product.saved);
-    router.push(`/${lang}/vendor/products/${productId}?step=${ProductStep.Attributes}`);
+    router.push(myProductPath(lang, productId, ProductStep.Attributes));
   }
 
   function showSaveError(error: AppError) {

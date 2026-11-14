@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { vendorApplyPath } from '@/lib/routes';
 import { ApplyStep, DOCUMENT_TYPES, type Vendor } from '@/features/vendor/types';
 import { DocumentRow } from './document-row';
 
@@ -31,7 +32,7 @@ export function DocumentsStep({ lang, vendor }: { lang: Locale; vendor: Vendor }
       <p className="type-small text-muted-foreground">{messages.vendor.documents.help}</p>
       <div className="flex justify-end">
         <Button asChild>
-          <Link href={`/${lang}/vendor/apply?step=${ApplyStep.Review}`} className="no-underline">
+          <Link href={vendorApplyPath(lang, ApplyStep.Review)} className="no-underline">
             {messages.vendor.continueStep}
           </Link>
         </Button>

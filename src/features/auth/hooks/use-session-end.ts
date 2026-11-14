@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { BackendErrorCode } from '@/lib/error-codes';
 import { AppError } from '@/lib/errors';
 import { DEFAULT_LOCALE, isLocale } from '@/lib/i18n';
+import { loginPath } from '@/lib/routes';
 
 /**
  * One place that ends the session in the browser when the backend confirms it is over (Document 2,
@@ -48,17 +49,14 @@ export function endSession(error: AppError): void {
   }
   const firstPathPart = window.location.pathname.split('/')[1];
   const lang = isLocale(firstPathPart) ? firstPathPart : DEFAULT_LOCALE;
-  if (window.location.pathname === `/${lang}/login`) {
+  if (window.location.pathname === loginPath(lang)) {
     ending = false;
     window.dispatchEvent(new Event(NOTICE_EVENT));
     return;
   }
   // A full page load on purpose: the login page is rendered on the server without the cleared
   // cookies.
-  // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-  window.location.assign(
-    `/${lang}/login?next=${encodeURIComponent(window.location.pathname + window.location.search)}`,
-  );
+  window.location.assign(loginPath(lang, window.location.pathname + window.location.search));
 }
 
 /** The notice for the login page, shown once. */
