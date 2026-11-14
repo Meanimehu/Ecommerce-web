@@ -41,7 +41,7 @@ const codeStyleFiles = [
   'src/app/[[]lang]/login/page.tsx',
   'src/components/form/form.tsx',
   'src/types/react-query.d.ts',
-  'src/types/add-notice.ts',
+  'src/lib/add-notice.ts',
   'tests/unit/error-codes.test.ts',
   'tests/unit/product.test.ts',
   'tests/unit/routes.test.ts',

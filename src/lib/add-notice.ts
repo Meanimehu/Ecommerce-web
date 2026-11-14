@@ -1,8 +1,8 @@
 import type { ErrorCode } from '@/lib/error-codes';
 
 /*
- * Kept apart from types/cart.ts on purpose: the storefront header reads this on every page, and
- * types/cart.ts brings Zod with it (about 32 KB). Nothing here may import Zod.
+ * Kept apart from features/cart/types.ts on purpose: the storefront header reads this on every page, and
+ * features/cart/types.ts brings Zod with it (about 32 KB). Nothing here may import Zod.
  */
 
 /** What happened to an "Add to cart" made before logging in (D2-02). The values are stored in the browser. */

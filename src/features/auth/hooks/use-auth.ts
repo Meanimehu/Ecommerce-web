@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tansta
 import { get, send } from '@/lib/http';
 import type { Locale } from '@/lib/i18n';
 import { homePath } from '@/lib/routes';
-import type { AddNotice } from '@/types/add-notice';
+import type { AddNotice } from '@/lib/add-notice';
 import type { SessionAnswer } from '@/features/auth/types';
 
 /**

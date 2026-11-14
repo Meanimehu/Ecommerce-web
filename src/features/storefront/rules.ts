@@ -10,7 +10,7 @@ import type {
 /**
  * The small rules the storefront's screens and hooks share. This file has no Zod and imports only
  * types, so a public page that uses a rule does not load Zod (about 31 KB) into the browser, as
- * `types/add-notice.ts` does for the cart (Document 7, 20.9). The answer schemas stay in
+ * `lib/add-notice.ts` does for the cart (Document 7, 20.9). The answer schemas stay in
  * `types.ts`, used by the server.
  */
 

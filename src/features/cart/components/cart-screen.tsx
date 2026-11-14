@@ -22,11 +22,11 @@ import { LoadingBlock, PartError } from '@/components/common/load-states';
 import { StateBlock } from '@/components/common/state-block';
 import { StatusChip } from '@/components/common/status-chip';
 import { PhotoFrame } from '@/components/common/photo-frame';
-import { useCart, useChangeQuantity, useRemoveLine, useRemoveUnavailable } from '@/hooks/use-cart';
+import { useCart, useChangeQuantity, useRemoveLine, useRemoveUnavailable } from '@/features/cart/hooks/use-cart';
 import { fill, messageFor, toAppError } from '@/lib/errors';
 import { type Locale, type Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import { isUnbuyable, type Cart, type CartLine } from '@/types/cart';
+import { isUnbuyable, type Cart, type CartLine } from '@/features/cart/types';
 import { productPath } from '@/lib/routes';
 import { formatRupees } from '@/utils/format';
 

@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { addAfterLogin, takeAddNotice, useAddToCart } from '@/hooks/use-cart';
+import { addAfterLogin, takeAddNotice, useAddToCart } from '@/features/cart/hooks/use-cart';
 import { AppErrorCode, BackendErrorCode } from '@/lib/error-codes';
 import { AppError } from '@/lib/errors';
 import { HttpStatus } from '@/lib/http-status';
 import type { Locale, Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import { AddOutcome, type AddNotice } from '@/types/add-notice';
+import { AddOutcome, type AddNotice } from '@/lib/add-notice';
 import { useSession } from '@/features/auth/hooks/use-auth';
 import { AddMessageTone, type AddMessage } from '@/features/storefront/rules';
 import type { PublicVariant } from '@/features/storefront/types';

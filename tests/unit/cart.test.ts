@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { decodePendingAdd, sign } from '@/middleware/cookies';
-import { AddOutcome, isAddNotice } from '@/types/add-notice';
-import { isUnbuyable, type CartLine } from '@/types/cart';
+import { AddOutcome, isAddNotice } from '@/lib/add-notice';
+import { isUnbuyable, type CartLine } from '@/features/cart/types';
 
 describe('the pending add (Document 2, D2-02)', () => {
   const variantId = '01a1a154-0367-773c-9d27-5989f07f5628';

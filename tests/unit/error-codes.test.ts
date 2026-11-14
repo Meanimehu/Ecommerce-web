@@ -4,7 +4,7 @@ import { AppError, messageFor, retryAfterSecondsOf, toAppError } from '@/lib/err
 import { HttpStatus, isClientError, isServerError, isSuccess } from '@/lib/http-status';
 import { getMessages } from '@/lib/messages';
 import { SessionNotice } from '@/features/auth/hooks/use-session-end';
-import { AddOutcome, isAddNotice } from '@/types/add-notice';
+import { AddOutcome, isAddNotice } from '@/lib/add-notice';
 import { isSingular } from '@/utils/format';
 import { enumMemberName } from '../../scripts/gen-error-codes';
 

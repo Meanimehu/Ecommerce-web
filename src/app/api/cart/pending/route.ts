@@ -4,7 +4,7 @@ import { isLocale } from '@/lib/i18n';
 import { COOKIE, cookieOptions, isSafeLocalPath, LIFETIME_SECONDS, sign } from '@/middleware/cookies';
 import { fail, guardChange, ok, readJson } from '@/middleware/responses';
 import { rememberPageAfterLogin } from '@/features/auth/after-login-page';
-import { PendingAddSchema } from '@/types/cart';
+import { PendingAddSchema } from '@/features/cart/types';
 
 /**
  * POST /api/cart/pending: "Add to cart" by someone not logged in (Document 2, D2-02; Document 4, section 9). Only the

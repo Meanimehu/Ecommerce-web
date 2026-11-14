@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server';
-import * as cartApi from '@/api/cart';
+import * as cartApi from '@/features/cart/server/cart-api';
 import { jsonObject } from '@/middleware/endpoint';
 import { fail } from '@/middleware/responses';
 import { answerAsUser } from '@/features/auth/server/answer-as-user';

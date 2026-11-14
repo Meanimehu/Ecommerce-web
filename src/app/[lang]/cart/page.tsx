@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { requireUser } from '@/features/auth/components/require-user';
-import { CartScreen } from '@/components/cart/cart-screen';
+import { CartScreen } from '@/features/cart/components/cart-screen';
 import { NeedsScript } from '@/components/common/needs-script';
 import { SiteHeader } from '@/components/common/site-header';
 import { getMessages, sectionMessages } from '@/lib/messages';

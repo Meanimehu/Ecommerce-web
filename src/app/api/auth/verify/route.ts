@@ -6,11 +6,11 @@ import { HttpStatus } from '@/lib/http-status';
 import { DEFAULT_LOCALE, isLocale, type Locale } from '@/lib/i18n';
 import { COOKIE, decodePendingAdd, deleteCookie } from '@/middleware/cookies';
 import { fail, fromAppError, guardChange, ok, readJson } from '@/middleware/responses';
-import * as cartApi from '@/api/cart';
+import * as cartApi from '@/features/cart/server/cart-api';
 import { forgetPageAfterLogin, readPageAfterLogin } from '@/features/auth/after-login-page';
 import * as authApi from '@/features/auth/server/auth-api';
 import { defaultDestination, setSessionCookies } from '@/features/auth/server/session';
-import { AddOutcome, type AddNotice } from '@/types/add-notice';
+import { AddOutcome, type AddNotice } from '@/lib/add-notice';
 
 /**
  * POST /api/auth/verify: checks the code with the backend and, when it is right, sets the login

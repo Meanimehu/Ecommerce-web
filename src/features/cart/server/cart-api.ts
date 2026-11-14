@@ -1,6 +1,6 @@
 import 'server-only';
-import { CartSchema } from '@/types/cart';
-import { callBackend } from './client';
+import { CartSchema } from '@/features/cart/types';
+import { callBackend } from '@/api/client';
 
 /**
  * Backend Area 5, the cart (area-5-sales-cart-coupons.md, part 2). Every call answers the cart view. The coupon code is

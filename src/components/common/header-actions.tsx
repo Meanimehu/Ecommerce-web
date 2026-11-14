@@ -1,7 +1,7 @@
 'use client';
 
 import { ShoppingBag, UserRound } from 'lucide-react';
-import { useCartCount } from '@/hooks/use-cart';
+import { useCartCount } from '@/features/cart/hooks/use-cart';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { useSession } from '@/features/auth/hooks/use-auth';

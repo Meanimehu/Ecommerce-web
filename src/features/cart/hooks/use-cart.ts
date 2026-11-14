@@ -3,8 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { get, patch, remove, send } from '@/lib/http';
 import type { Locale } from '@/lib/i18n';
-import { isAddNotice, type AddNotice } from '@/types/add-notice';
-import type { Cart } from '@/types/cart';
+import { isAddNotice, type AddNotice } from '@/lib/add-notice';
+import type { Cart } from '@/features/cart/types';
 import { withQuery } from '@/utils/url';
 import { useSession } from '@/features/auth/hooks/use-auth';
 

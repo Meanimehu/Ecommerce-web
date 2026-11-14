@@ -8,7 +8,7 @@ import { retryAfterSecondsOf, type AppError } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { accountPath } from '@/lib/routes';
-import { keepAddNotice } from '@/hooks/use-cart';
+import { keepAddNotice } from '@/features/cart/hooks/use-cart';
 import {
   CodeFormSchema,
   PhoneFormSchema,
