@@ -5,7 +5,7 @@ import { SiteHeader } from '@/features/layout/components/site-header';
 import { isLocale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
 import { categoryPath } from '@/lib/routes';
-import { CategoryScreen } from '@/features/storefront/components/category-screen';
+import { CategoryScreen } from '@/features/storefront/product-list/components/category-screen';
 import * as storefrontApi from '@/features/storefront/server/storefront-api';
 import { findInTree, ProductSort } from '@/features/storefront/rules';
 

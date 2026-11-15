@@ -5,7 +5,7 @@ import { SiteHeader } from '@/features/layout/components/site-header';
 import { isLocale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
 import { productPath, productSlug } from '@/lib/routes';
-import { ProductScreen } from '@/features/storefront/components/product-screen';
+import { ProductScreen } from '@/features/storefront/product-page/components/product-screen';
 import * as storefrontApi from '@/features/storefront/server/storefront-api';
 
 /**

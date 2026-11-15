@@ -9,13 +9,13 @@ import type { Locale, Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { cartPath } from '@/lib/routes';
 import { formatDate } from '@/utils/format';
-import { useProductAdd } from '@/features/storefront/hooks/use-product-add';
+import { useProductAdd } from '@/features/storefront/product-page/hooks/use-product-add';
 import { useProductNow } from '@/features/storefront/hooks/use-storefront';
-import { useVariantChoice } from '@/features/storefront/hooks/use-variant-choice';
+import { useVariantChoice } from '@/features/storefront/product-page/hooks/use-variant-choice';
 import { MissingChoice, StockLevel, stockLevelOf } from '@/features/storefront/rules';
 import type { ProductDetail } from '@/features/storefront/types';
 import { ColourChoice } from './colour-choice';
-import { Price } from './price';
+import { Price } from '@/components/common/price';
 import { SizeChoice } from './size-choice';
 
 /**

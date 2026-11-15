@@ -6,7 +6,7 @@ import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import type { Page } from '@/types/common';
 import type { Query } from '@/utils/url';
-import { useProductGrid } from '@/features/storefront/hooks/use-product-grid';
+import { useProductGrid } from '@/features/storefront/product-list/hooks/use-product-grid';
 import type { ProductCardData } from '@/features/storefront/types';
 import { ProductCard } from './product-card';
 
