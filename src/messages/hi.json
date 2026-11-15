@@ -1,8 +1,7 @@
 {
   "site": {
     "wordmark": "Dhaaga",
-    "title": "Dhaaga",
-    "underConstruction": "हमारी नई साइट बन रही है। कृपया कुछ समय बाद फिर देखें।"
+    "title": "Dhaaga"
   },
   "nav": {
     "storefront": "शॉप",
@@ -798,7 +797,17 @@
     "priceFrom": "{min} से ऊपर",
     "priceUpTo": "{max} तक",
     "noMatches": "इन फ़िल्टर से कोई उत्पाद नहीं मिला",
-    "noMatchesText": "कोई फ़िल्टर हटाएँ, या सभी हटा दें।"
+    "noMatchesText": "कोई फ़िल्टर हटाएँ, या सभी हटा दें।",
+    "shopByCategory": "श्रेणी के अनुसार",
+    "brands": "ब्रांड",
+    "newArrivals": "नए उत्पाद",
+    "newArrivalsError": "नए उत्पाद लोड नहीं हो सके।",
+    "categoriesError": "श्रेणियाँ लोड नहीं हो सकीं।",
+    "brandsError": "ब्रांड लोड नहीं हो सके।",
+    "heroTitle": "नए उत्पाद देखें",
+    "heroText": "सबसे नई लिस्टिंग देखें।",
+    "categories": "श्रेणियाँ",
+    "brandNoProducts": "इस ब्रांड के अभी कोई उत्पाद नहीं हैं। कोई श्रेणी देखें।"
   },
   "cart": {
     "title": "आपका कार्ट",

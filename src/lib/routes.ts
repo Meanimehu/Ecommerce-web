@@ -37,6 +37,9 @@ export const cartPath = (lang: Locale) => `/${lang}/cart`;
 /** A category page, by the backend's category slug. */
 export const categoryPath = (lang: Locale, slug: string) => `/${lang}/category/${slug}`;
 
+/** A brand page, by the backend's brand slug. */
+export const brandPath = (lang: Locale, slug: string) => `/${lang}/brand/${slug}`;
+
 /** The readable part of a product address is at most this long. */
 const PRODUCT_SLUG_MAX_LENGTH = 80;
 /** The readable part for a title with no Latin letters or digits (for example one fully in Hindi). */

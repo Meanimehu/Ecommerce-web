@@ -31,6 +31,11 @@ export const CategoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(() =>
 export const CategoryTreeSchema = z.object({ items: z.array(CategoryNodeSchema) });
 export type CategoryTree = z.infer<typeof CategoryTreeSchema>;
 
+/** GET /catalogue/brands: the active brands, by name, a page at a time. */
+export const BrandSchema = z.object({ id: z.string(), name: z.string(), slug: z.string() });
+export type Brand = z.infer<typeof BrandSchema>;
+export const BrandPageSchema = pageOf(BrandSchema);
+
 /** A product card (GET /catalogue/products, each item). */
 export const ProductCardSchema = z.object({
   id: z.string(),
