@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { cache } from 'react';
+import { SiteFooter } from '@/features/layout/components/site-footer';
 import { SiteHeader } from '@/features/layout/components/site-header';
 import { isLocale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
@@ -47,6 +48,7 @@ export default async function ProductPage({ params }: Props) {
     <>
       <SiteHeader lang={lang} />
       <ProductScreen lang={lang} product={product} />
+      <SiteFooter lang={lang} />
     </>
   );
 }

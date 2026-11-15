@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { SiteFooter } from '@/features/layout/components/site-footer';
 import { SiteHeader } from '@/features/layout/components/site-header';
 import { isLocale } from '@/lib/i18n';
 import { getMessages, sectionMessages } from '@/lib/messages';
@@ -71,6 +72,7 @@ export default async function Home({ params }: Props) {
           <NewArrivals lang={lang} drawn={newest?.items ?? null} limit={NEW_ARRIVALS} />
         </MessagesProvider>
       </main>
+      <SiteFooter lang={lang} />
     </>
   );
 }

@@ -25,7 +25,14 @@
     "products": "उत्पाद",
     "cart": "कार्ट",
     "cartOne": "आइटम",
-    "cartMany": "आइटम"
+    "cartMany": "आइटम",
+    "search": "खोजें",
+    "searchLabel": "दुकान में खोजें",
+    "searchPlaceholder": "कुर्ते, ब्रांड खोजें",
+    "suggestedProducts": "उत्पाद",
+    "suggestedCategories": "श्रेणियाँ",
+    "suggestedBrands": "ब्रांड",
+    "categories": "श्रेणियाँ"
   },
   "login": {
     "title": "लॉग इन या साइन अप करें",
@@ -807,7 +814,12 @@
     "heroTitle": "नए उत्पाद देखें",
     "heroText": "सबसे नई लिस्टिंग देखें।",
     "categories": "श्रेणियाँ",
-    "brandNoProducts": "इस ब्रांड के अभी कोई उत्पाद नहीं हैं। कोई श्रेणी देखें।"
+    "brandNoProducts": "इस ब्रांड के अभी कोई उत्पाद नहीं हैं। कोई श्रेणी देखें।",
+    "searchTitle": "खोज",
+    "resultsFor": "“{text}” के नतीजे",
+    "nothingMatches": "“{text}” से कुछ नहीं मिला",
+    "nothingMatchesText": "वर्तनी जाँचें, या कोई फ़िल्टर हटाएँ। आप कोई श्रेणी भी देख सकते हैं।",
+    "searchPrompt": "खोज बॉक्स में लिखें कि आप क्या ढूँढ रहे हैं।"
   },
   "cart": {
     "title": "आपका कार्ट",

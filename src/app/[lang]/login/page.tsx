@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { NeedsScript } from '@/components/common/needs-script';
+import { SiteFooter } from '@/features/layout/components/site-footer';
 import { SiteHeader } from '@/features/layout/components/site-header';
 import { isLocale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
@@ -31,6 +32,7 @@ export default async function LoginPage({ params }: LoginPageProps) {
         <NeedsScript messages={messages} />
         <LoginForm lang={lang} />
       </main>
+      <SiteFooter lang={lang} />
     </>
   );
 }

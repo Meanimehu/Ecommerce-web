@@ -23,6 +23,12 @@ const PHONE = { width: 390, height: 844 };
 const MODERATOR_PHONE = process.env.E2E_MODERATOR_PHONE ?? '9000000002';
 const VENDOR_PHONE = process.env.E2E_VENDOR_PHONE ?? '9000000011';
 
+/** On compact screens the language switch is in the storefront menu (Document 6, 7.3): open it. */
+async function openMenuIfCompact(page: Page) {
+  const menu = page.getByRole('banner').locator('summary');
+  if (await menu.isVisible()) await menu.click();
+}
+
 async function noAxeViolations(page: Page) {
   expect((await new AxeBuilder({ page }).withTags(WCAG).analyze()).violations).toEqual([]);
 }
@@ -38,6 +44,7 @@ test('the storefront header logged out: "Log in" and the cart, with no count', a
   await page.goto('/en');
   const header = page.getByRole('banner');
   await expect(header.getByRole('link', { name: 'Log in' })).toHaveAttribute('href', '/en/login');
+  await openMenuIfCompact(page);
   await expect(header.getByRole('link', { name: 'Cart', exact: true })).toHaveAttribute(
     'href',
     '/en/cart',
@@ -50,11 +57,13 @@ test('the language switch opens the same page in the other language and remember
 }) => {
   // The login page, which needs no backend, so this also runs in CI.
   await page.goto('/en/login');
+  await openMenuIfCompact(page);
   await page.getByRole('banner').getByRole('link', { name: 'हिन्दी' }).click();
   await expect(page).toHaveURL(/\/hi\/login$/);
   expect(
     (await page.context().cookies()).find((cookie) => cookie.name === '__Host-dhaaga_lang')?.value,
   ).toBe('hi');
+  await openMenuIfCompact(page);
   await expect(page.getByRole('banner').getByRole('link', { name: 'English' })).toHaveAttribute(
     'href',
     '/en/login',

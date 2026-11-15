@@ -19,7 +19,16 @@ import {
  * shows it is busy; the page does not jump to the top, and focus stays on the control used. The
  * controls show the new choice at once, and a second change made meanwhile builds on it.
  */
-export function useListFilters({ filters, path }: { filters: ListFilters; path: string }) {
+export function useListFilters({
+  filters,
+  path,
+  fixedQuery,
+}: {
+  filters: ListFilters;
+  path: string;
+  /** Address values that stay whatever the filters, such as the search text. */
+  fixedQuery?: Record<string, string>;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [shown, setShown] = useOptimistic(filters);
@@ -27,7 +36,7 @@ export function useListFilters({ filters, path }: { filters: ListFilters; path: 
   function open(next: ListFilters) {
     startTransition(() => {
       setShown(next);
-      router.push(withQuery(path, listSearch(next)), { scroll: false });
+      router.push(withQuery(path, { ...fixedQuery, ...listSearch(next) }), { scroll: false });
     });
   }
 

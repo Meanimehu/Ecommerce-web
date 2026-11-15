@@ -12,6 +12,7 @@ import {
   NO_FILTERS,
   ProductSort,
   readListFilters,
+  readSearchText,
   withoutFilters,
   withToggled,
 } from '@/features/storefront/product-list/rules';
@@ -157,5 +158,14 @@ describe('the home page category entries (Document 6, 7.4)', () => {
       node('empty', 0),
     ];
     expect(categoryEntries(tree).map((entry) => entry.slug)).toEqual(['kurtas', 'gifts']);
+  });
+});
+
+describe('the search text in the address', () => {
+  it('is trimmed and cut to the 100 characters the backend takes', () => {
+    expect(readSearchText('  kurta  ')).toBe('kurta');
+    expect(readSearchText(['silk', 'cotton'])).toBe('silk');
+    expect(readSearchText(undefined)).toBe('');
+    expect(readSearchText('x'.repeat(150))).toHaveLength(100);
   });
 });
