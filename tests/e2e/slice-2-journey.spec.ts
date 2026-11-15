@@ -84,7 +84,12 @@ test.describe('Slice 2: the first path, end to end', () => {
     await expect(page.getByRole('heading', { name: 'Kurtas', level: 1 })).toBeVisible();
     await noAxeViolations(page);
     const card = page.getByRole('link', { name: new RegExp(title) });
-    await expect(card).toBeVisible();
+    // Our server keeps a list answer for 60 seconds (Document 7, section 12), so a product
+    // approved a moment ago may take up to a minute to appear when the list was read just before.
+    await expect(async () => {
+      await page.reload();
+      await expect(card).toBeVisible({ timeout: 2_000 });
+    }).toPass({ timeout: 75_000, intervals: [5_000] });
     await expect(card.locator('img')).toHaveAttribute('src', /\/product-images\/.+\/medium\.webp$/);
     await expect.poll(() => photoRequests.length).toBeGreaterThan(0);
 

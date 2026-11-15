@@ -48,3 +48,31 @@ export const ProductCardSchema = z.object({
 });
 export type ProductCardData = z.infer<typeof ProductCardSchema>;
 export const ProductCardPageSchema = pageOf(ProductCardSchema);
+
+/**
+ * The filter counts of a product list (GET /catalogue/products, `facets`): each value counted with
+ * every filter on except its own group's, so a customer sees what another choice would give.
+ */
+export const FacetsSchema = z.object({
+  brands: z.array(
+    z.object({ id: z.string(), name: z.string(), slug: z.string(), count: z.number().int() }),
+  ),
+  sizes: z.array(z.object({ code: z.string(), label: z.string(), count: z.number().int() })),
+  colours: z.array(
+    z.object({
+      code: z.string(),
+      label: z.string(),
+      hex: z.string().nullable(),
+      count: z.number().int(),
+    }),
+  ),
+  price: z.object({
+    minPaise: z.number().int().nullable(),
+    maxPaise: z.number().int().nullable(),
+  }),
+});
+export type Facets = z.infer<typeof FacetsSchema>;
+
+/** One batch of a product list with its filter counts. */
+export const ProductListSchema = ProductCardPageSchema.extend({ facets: FacetsSchema });
+export type ProductList = z.infer<typeof ProductListSchema>;

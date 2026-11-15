@@ -10,7 +10,18 @@ import * as productListApi from '@/features/storefront/product-list/server/produ
 export const dynamic = 'force-dynamic';
 
 const FRESH_SECONDS = 60;
-const QUERY_NAMES = ['categorySlug', 'categoryId', 'sort', 'page', 'limit'];
+const QUERY_NAMES = [
+  'categorySlug',
+  'categoryId',
+  'size',
+  'colour',
+  'brandId',
+  'minPrice',
+  'maxPrice',
+  'sort',
+  'page',
+  'limit',
+];
 
 export function GET(request: NextRequest) {
   const query = pick(request.nextUrl.searchParams, QUERY_NAMES);

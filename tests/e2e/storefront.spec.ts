@@ -169,12 +169,21 @@ test.describe('the storefront', () => {
         ]);
       }
     }
-    await page.goto('/en/category/kurtas');
+    // Our server keeps the first batch for up to 60 seconds (Document 7, section 12). A product
+    // made since would move the later batches by one, so wait until the page's total is the
+    // backend's: then every batch is read from the same list.
+    const backendTotal = (
+      (await (await fetch(`${BACKEND}/catalogue/products?categorySlug=kurtas&limit=1`)).json()) as {
+        total: number;
+      }
+    ).total;
+    await expect(async () => {
+      await page.goto('/en/category/kurtas');
+      await expect(page.getByText(`Showing 24 of ${backendTotal}`)).toBeVisible({ timeout: 2_000 });
+    }).toPass({ timeout: 75_000, intervals: [5_000] });
     const cards = page.locator('main ul > li > a[href*="/product/"]');
     await expect(cards).toHaveCount(FIRST_BATCH);
-    const total = Number(
-      (await page.getByText(/^Showing 24 of \d+$/).textContent())?.match(/of (\d+)/)?.[1],
-    );
+    const total = backendTotal;
     expect(total).toBeGreaterThan(FIRST_BATCH);
     // Pressed with the keyboard, batch by batch, until every product is shown (Document 6, 8.8).
     const loadMore = page.getByRole('button', { name: 'Load more' });

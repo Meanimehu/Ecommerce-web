@@ -115,7 +115,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | --- | --- |
 | `[lang]/layout.tsx`, `providers.tsx` | The page frame for `/en` and `/hi`; the QueryClient and its session-end handler |
 | `[lang]/page.tsx` | Home (a placeholder until Slice 3) |
-| `[lang]/category/[slug]` | A category page: its products, newest first, with "Load more" (kept for 60 seconds); the screen is in `features/storefront/product-list/` |
+| `[lang]/category/[slug]` | A category page: its products with filters and sort in the address, then "Load more"; drawn on each request, its list answer kept for 60 seconds; only the plain list is indexed; the screen is in `features/storefront/product-list/` |
 | `[lang]/product/[id]/[[...name]]` | A product page; a missing or wrong name part redirects to the full address (kept for 60 seconds); the screen is in `features/storefront/product-page/`. The old `/c/` and `/p/` addresses are a real 404 |
 | `[lang]/cart` | The cart (needs login): `CartScreen` from `cart` |
 | `[lang]/login/page.tsx` | The login page |
@@ -306,12 +306,17 @@ screens use its category tree (`useCategoryTree`, `findInTree`).
 | File | What it does |
 | --- | --- |
 | `types.ts` | The answer schemas and their types: the category tree, the product card (used by the server) |
-| `rules.ts` | No Zod, so the public pages stay light: `ProductSort`, `findInTree` |
+| `rules.ts` | No Zod, so the public pages stay light: `ProductSort`, `LIST_SORTS`, `findInTree`; the filters in the address (`ListParam`, `FilterGroup`, `ListFilters`, `readListFilters`, `listSearch`, `backendFilters`, `withToggled`, `activeFilterCount`, `isPlainList`; at most 20 values) |
 | `components/category-screen.tsx` | A category page's content, drawn on the server |
+| `components/filtered-list.tsx` | A list with its filters and sort, shared by the category, brand and search pages: the side panel (wide), the sheet (narrow), the sort, the chips, the grid, "no products match" |
+| `components/filter-groups.tsx`, `price-filter.tsx` | The filter groups in order (size, colour, price, brand) with the backend's counts; the price from and to, in rupees |
+| `components/filter-sheet.tsx` | The "Filters · 2" button and the full-height sheet with "Show N results" (narrow screens) |
+| `components/active-filters.tsx`, `sort-choice.tsx` | The chosen filters as removable chips with "Clear all"; the sort |
 | `components/product-grid.tsx`, `product-card.tsx` | The product grid with "Load more", the product card |
 | `hooks/use-product-list.ts` | The call hooks: `useCategoryTree`, `useProductCards` (the batches of "Load more"); `productListKeys` |
+| `hooks/use-list-filters.ts` | A change of filter or sort opens the new address without scrolling; the controls show the new choice at once |
 | `hooks/use-product-grid.ts` | The cards shown, "Showing 8 of 128", what to announce after each batch |
-| `server/product-list-api.ts` | Backend Area 3a: the tree and the cards |
+| `server/product-list-api.ts` | Backend Area 3a: the tree and the cards with their filter counts; list answers kept 60 seconds on our server (at most 2,000) |
 
 #### `storefront/product-page/` — one product
 
@@ -392,6 +397,7 @@ storefront's buy box uses its call hooks; the login endpoint asks it to run the 
 | `utils/format.ts` | Dates and times in IST, rupees, phone numbers, GST rates; `isSingular` for one-or-many messages |
 | `utils/cn.ts` | The class-name helper the shadcn/ui tool expects |
 | `utils/url.ts` | Addresses with their query (`withQuery`), page numbers, picking list filters |
+| `utils/bounded-cache.ts` | A small in-memory cache with a life per entry and a limit on entries (the public list answers, Document 4, section 7) |
 | `types/error.ts` | The backend's error answer |
 | `types/common.ts` | Shapes every area shares: a page of a list, a reason |
 | `types/react-query.d.ts` | Tells TanStack Query that every error is an `AppError` |

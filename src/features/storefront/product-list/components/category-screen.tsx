@@ -4,26 +4,29 @@ import type { Locale } from '@/lib/i18n';
 import { getMessages, sectionMessages } from '@/lib/messages';
 import { MessagesProvider } from '@/lib/messages-context';
 import { categoryPath, homePath } from '@/lib/routes';
-import type { Page } from '@/types/common';
 import type { Query } from '@/utils/url';
-import type { CategoryNode, ProductCardData } from '@/features/storefront/product-list/types';
-import { ProductGrid } from './product-grid';
+import { LIST_SORTS, type ListFilters } from '@/features/storefront/product-list/rules';
+import type { CategoryNode, ProductList } from '@/features/storefront/product-list/types';
+import { FilteredList } from './filtered-list';
 
 /**
  * A category page's content (Document 5, section 6.1): where it sits, its name and how many
- * products it has, its sub-categories, and its products with "Load more". Drawn on the server. It
+ * products it has, its sub-categories, and its products with filters, sort and "Load more". Drawn
+ * on the server for the filters in the address. It
  * gives the browser the shop's text (`store`), which only the shop's pages carry (lib/messages.ts).
  */
 export function CategoryScreen({
   lang,
   categoryPathNodes,
+  filters,
   firstBatch,
   query,
 }: {
   lang: Locale;
   /** From the top level down to this category. */
   categoryPathNodes: CategoryNode[];
-  firstBatch: Page<ProductCardData>;
+  filters: ListFilters;
+  firstBatch: ProductList;
   query: Query;
 }) {
   const messages = getMessages(lang);
@@ -63,15 +66,17 @@ export function CategoryScreen({
           </ul>
         </nav>
       ) : null}
-      {firstBatch.items.length ? (
-        <MessagesProvider messages={sectionMessages(lang, ['store'])}>
-          <ProductGrid lang={lang} firstBatch={firstBatch} query={query} />
-        </MessagesProvider>
-      ) : (
-        <p className="rounded-1 border border-dashed border-control bg-surface px-6 py-10 text-center text-ink-2">
-          {storeMessages.noProducts}
-        </p>
-      )}
+      <MessagesProvider messages={sectionMessages(lang, ['store'])}>
+        <FilteredList
+          lang={lang}
+          path={categoryPath(lang, category.slug)}
+          filters={filters}
+          firstBatch={firstBatch}
+          query={query}
+          sorts={LIST_SORTS}
+          emptyText={storeMessages.noProducts}
+        />
+      </MessagesProvider>
     </main>
   );
 }
