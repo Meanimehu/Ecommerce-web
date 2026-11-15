@@ -1,21 +1,22 @@
 import { expect, type Page } from '@playwright/test';
 
 /**
- * The first-load page-size budget (Document 6, section 14; owner, 14 Nov 2026). Bytes as
+ * The first-load page-size budget (Document 6, section 14; owner, 14 Nov 2026, limits raised 15 Nov
+ * 2026 for the storefront header). Bytes as
  * transferred, after compression, with headers, on an empty cache. Photos and API data are not
  * counted.
  *
  * - Everything except fonts (document, styles, scripts): the same limit in every language.
  * - Fonts for the page language: their own limit. A Hindi page needs Noto Sans Devanagari as well
  *   as Outfit, so it may be heavier than an English page by its fonts only.
- * - An English page also stays within the 300 KB total.
+ * - An English page also stays within the 307 KB total.
  * - On an English page, the Hindi font loaded on demand (for the "हिन्दी" link or a vendor's Hindi
  *   text) is reported on its own and not counted (Document 6, section 14, item 4, open).
  */
 const KB = 1024;
-const WITHOUT_FONTS_LIMIT_KB = 258;
+const WITHOUT_FONTS_LIMIT_KB = 265;
 const FONTS_LIMIT_KB = 150;
-const ENGLISH_TOTAL_LIMIT_KB = 300;
+const ENGLISH_TOTAL_LIMIT_KB = 307;
 const COUNTED = new Set(['document', 'stylesheet', 'script', 'font']);
 
 type Part = { bytes: number; isFont: boolean; isOnDemand: boolean };
