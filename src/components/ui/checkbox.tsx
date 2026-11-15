@@ -13,7 +13,10 @@ function Checkbox({ className, ...props }: Omit<React.ComponentProps<'input'>, '
       data-slot="checkbox"
       className={cn(
         'mt-0.5 size-6 shrink-0 cursor-pointer appearance-none rounded-1 border border-control bg-surface transition-colors duration-100 hover:border-ink',
-        "checked:border-ink checked:bg-ink checked:bg-[url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fbfaf7' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5 9-10'/%3E%3C/svg%3E\")] checked:bg-[length:18px] checked:bg-center checked:bg-no-repeat",
+        // The tick is part of a class name, so it has no spaces and no quotes (%20, %22): Tailwind
+        // and the class merger read class names up to a space, which once dropped the tick and the
+        // ink fill.
+        'checked:border-ink checked:bg-ink checked:bg-[url(data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2024%2024%22%20fill=%22none%22%20stroke=%22%23fbfaf7%22%20stroke-width=%223%22%20stroke-linecap=%22round%22%20stroke-linejoin=%22round%22%3E%3Cpath%20d=%22M5%2012l5%205%209-10%22/%3E%3C/svg%3E)] checked:bg-[length:18px] checked:bg-center checked:bg-no-repeat',
         'aria-invalid:border-2 aria-invalid:border-error disabled:cursor-not-allowed disabled:bg-sunken',
         'forced-colors:appearance-auto',
         className,
