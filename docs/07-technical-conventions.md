@@ -30,6 +30,7 @@ The technical rules the first build follows, so that Documents 1 to 6 can leave 
 | D7-17 | **Feature code lives in feature folders** (`src/features/<feature>/`); shared code stays in `components/ui`, `components/form`, `components/common`, `lib`, `utils`, `middleware`, `api/client.ts` and `types` (section 16). **`auth` owns everything about the session:** login, logout, reading, writing, clearing and renewing the login cookies, running a call as the person, the answer when a session fails, and page access. Other features use it only through its public helpers (20.4). **`layout` owns page frames, headers, navigation and page structure;** it may show `auth` and `cart` information but holds none of their logic. **Shared code depends on no feature and holds no business logic.** "Admin" is a role, not a feature. Features move one at a time, `auth` first as the pilot, each in a commit that only moves files | Agreed by the owner (12 Nov 2026). The owner reviews the `auth` pilot before other features move |
 | D7-18 | **Server logs are plain text, one line per event, written only through `logServerEvent`** (section 20.10). Each event is named in `ServerEvent`, and the helper gives each event its level. `JSON.stringify` is not used for logging. The helper's types accept only our request id, error codes, backend call names, field names and named true/false flags; never personal data, tokens, cookies, headers or request and response bodies | Agreed by the owner (12 Nov 2026) |
 | D7-19 | **Work goes slice by slice** (Document 8). Each slice is finished, cleaned up, tested and reviewed before the next one starts. Clean-up that a slice's work does not need is not mixed into that slice's pull requests. The code written in Slices 0 to 2 is brought to section 20 before Slice 3 starts; from Slice 3 on, code is written to section 20 from the start | Agreed by the owner (12 Nov 2026). Settles Q7-8 |
+| D7-20 | **A group folder holds features that belong to one area of the site** (section 16, 20.4). `src/features/storefront/` is the first: it holds the parts of the shopping side (`product-list`, `product-page`, `search`, `home`) and no files of its own. Each part is a feature in its own right, with the usual folders and the same rules between features. One level only | Agreed by the owner (15 Nov 2026) |
 
 ## 3. Timeouts (D7-01)
 
@@ -207,6 +208,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 35 | 14 Nov 2026 | Status: step 9 done (#50), its bug fix done (#51); step 10 in progress. **Agreed by the owner:** the step 10 plan in 20.13 (the layout folder, the staff-screen rule in `auth`, the language switch's hooks, the layout spec first) and that the account page's own links are left for Slice 3. No other decision changed |
 | 36 | 14 Nov 2026 | Status: step 10 done (#52); step 11 in progress. **Agreed by the owner:** the step 11 plan in 20.13, including fixing the reason dialog to the 20.9 pattern (a shared action hook, named callbacks, no `try`/`catch`) rather than recording it as an exception, with its test written first. No other decision changed |
 | 37 | 15 Nov 2026 | Status: step 11 done (#53), the clean-up complete. **Agreed by the owner:** in section 11, the backend tests in CI and the other browsers are postponed until the whole application is built (pull request #54 stays open, unmerged), and the testing status is recorded; in 20.13, Slice 3 follows step 11 directly. No other decision changed |
+| 38 | 15 Nov 2026 | **Agreed by the owner:** D7-20, a group folder for the features of one area; `storefront` becomes a group with four parts (`product-list`, `product-page`, `search`, `home`) and `account` is a new feature (section 16, 20.4). The Slice 3 plan is in Document 8, section 4. No other decision changed |
 
 ## 16. Names: folders and files
 
@@ -239,12 +241,18 @@ Recorded 10 Nov 2026; folders by kind of code chosen by the owner on 11 Nov 2026
 | `vendor` | The vendor application, who may enter the vendor area, and the admin's vendor review |
 | `catalogue` | The admin lists: categories with attributes, HSN codes, GST rates, brands, sizes, colours |
 | `product` | A vendor's products and their moderation: the same backend area (3b), the same types and the same photos |
-| `storefront` | Category and product pages |
+| `storefront/` (group, D7-20) | The shopping side, in four parts. The group folder holds no files of its own |
+| `storefront/product-list` | Every list of products a customer sees: the category page, the brand page, search results and New arrivals; the filters, the sort and "Load more"; the product card; the public category tree and brand list, and the map from a brand's slug to its id (Document 4, section 5) |
+| `storefront/product-page` | One product's page: photos, size and colour choice, stock message, price and the buy box (which uses `cart`'s Add to cart hook) |
+| `storefront/search` | The search box in the header and its suggestions while typing |
+| `storefront/home` | The home hero |
+| `account` | The customer's own settings: profile (name and email), saved addresses, the account tabs and the links to the areas the person may enter. Logout stays in `auth`, which the security page shows |
 | `cart` | The cart and Add to cart, including the add that waits for login (D2-02): what its signed cookie means, writing it, reading it (`decodePendingAdd`) and running the add. The login endpoint asks `cart` to run it; `auth` never calls the cart, and deleting the cookie at a session end needs only its name from the shared list |
 | `layout` | Page frames, headers, navigation and page structure: the storefront header and the staff area frame and menus. It shows `auth` and `cart` information (who is logged in, the cart count) through their public hooks, but owns none of their logic |
 
 - "Admin" is a role, not a feature. Admin pages in `src/app/[lang]/admin/` show screens from `vendor`, `catalogue` and `product`.
 - A folder is created when its first file is written.
+- **A group folder (D7-20)** holds only its parts, never a file of its own, and has no group inside it. Its parts are imported by their full path (`@/features/storefront/product-list/...`). `account` is not part of `storefront`: like `cart` and `auth`, it is its own feature.
 - How names, imports and dependencies between features are handled is in section 20.
 
 ## 17. Local HTTPS and cookies (D7-12, D7-13)
@@ -349,6 +357,7 @@ Every cookie uses the `__Host-` prefix, `Secure`, `HttpOnly`, `SameSite=Lax`, pa
 - **A feature never uses another feature's screens or form hooks,** and nothing outside `auth` uses its other files (its backend calls, token renewal, its cookie writing).
 - **Who places screens on a page:** only `src/app/` (pages, endpoints and `proxy.ts`) and `layout` put feature screens together. A page may show `LoginForm` from `auth` and the header from `layout`; a feature's own screen never contains another feature's screen.
 - **A component two features need** moves to `components/common/` (for example the photo frame).
+- **The parts of a group are features** (D7-20): they follow every rule in this section between each other. For example `product-page` may use `product-list`'s category tree hook and types, but never its screens; the price both parts show moves to `components/common/`.
 - **No circular dependencies.** If two features would need each other, the part both need moves to shared code, or the combining moves up to `src/app/`. The login endpoint (`app/api/auth/verify/route.ts`) calls `auth` to log the person in and `cart` to run the pending add, so neither feature imports the other.
 
   **Migration exception, now closed:** one loop was tolerated during the clean-up: login imported the add-to-cart result from `cart` while `cart` imports the session from `auth` (D2-02). The `cart` pull request (20.13, step 9) removed it by making the add-to-cart result shared code (`lib/add-notice.ts`). This rule now applies with no exception.

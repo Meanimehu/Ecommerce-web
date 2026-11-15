@@ -46,6 +46,23 @@ Each slice ends with something that can be tried by a person, not just a list of
 - **Photos when testing locally.** The local backend keeps files in memory, so public photo addresses do not load on a developer's computer; pages show the approved "Photo unavailable" state (Document 6, 12.1). Tests check the photo address, not the picture. Staging shows real photos.
 - **Four parts.** Slice 2 is built as four reviewed parts in order: 2a vendor application and vendor review; 2b catalogue lists; 2c vendor products and moderation; 2d storefront and cart.
 
+**Slice 3 notes (15 Nov 2026, owner decisions).** Recorded with the Slice 3 plan; no approved decision changes.
+- **Folders (Document 7, D7-20).** `storefront` becomes a group of four features: `product-list` (category, brand and search results, New arrivals, filters, sort, "Load more", the product card, the category tree and the brand list), `product-page`, `search` (the header box and its suggestions) and `home` (the hero). `account` is a new feature, outside the group. Pages in `src/app/` put the parts together.
+- **Seven parts, one pull request each, in this order:**
+  - **3.0** today's `storefront` moves into `product-list` and `product-page`, and the price display into `components/common/`. Nothing a person sees changes; the storefront, cart and layout specs and the page sizes are checked before and after;
+  - **3a** filters and sort on the category page;
+  - **3b** brand pages and the home page;
+  - **3c** search: the header box with suggestions and the results page;
+  - **3d** account: profile, addresses, security, the account tabs and the account menu;
+  - **3e** the loading, empty, error and not-found states of every storefront and account screen, in both languages, and the check that the slice is done.
+- **Filters follow the approved Stage 5 storefront screens:** size, colour, price (from and to, in rupees) and brand, with the counts the backend sends; the brand page has no brand filter. Sort: newest, price low to high, price high to low, and on search results "best match" (the backend's `relevance`). Filters and sort live in the address, with their values in one fixed order. On a narrow screen the filters open as a full-height sheet with "Show N results" at its foot (Document 6, 8.8).
+- **Not offered in Slice 3:** filters on product attributes such as fit. The backend can filter on them (`attr.<key>`), but no public call says which attributes and values a customer can pick, so there is nothing to show (section 5). "On sale" and "In stock" are not in the approved screens, so they are not added.
+- **The home hero** shows the approved text-only fallback (Document 6, 12.4) with the approved Stage 5 lines, "Browse new arrivals" and "Browse the newest listings.", until the hero photo's storage (T7-8) and the vendor's photo permission are settled. The owner may replace the lines; no claim is added.
+- **Brand entries on the home page:** the active brands, by name, up to 100 (one page of the public brand list); revisited if brands grow beyond that.
+- **Header:** the search box and the top-level categories as links, as in the approved screens. The screens also show a "Brands" link and footer links (About, Help, Terms, Privacy); no page exists for any of them, so they are not built (no route or legal text is invented).
+- **Lists that read filters are drawn on each request** (a page that reads its query string cannot be kept as a whole). To keep the backend load as before, our server keeps public list answers in a small shared cache (Document 4, section 7): the key is every input in one fixed form, nothing personal, errors not kept, at most 2,000 entries; lists and category pages 60 seconds, search results 30 seconds, suggestions 10 seconds (Document 7, section 12).
+- **Testing (Document 7, section 11):** each part has its end-to-end spec against the real backend in Chromium, and every earlier spec runs again before its pull request; the page-size check adds the brand and search pages.
+
 Slices 3, 4 and 5 do not depend on each other, so they can follow in any order or be worked on at the same time. This document does not choose between them.
 
 ## 5. Waiting on others
@@ -56,6 +73,7 @@ Slices 3, 4 and 5 do not depend on each other, so they can follow in any order o
 | The `canSell` rule (Area 2 Part B), a draft design only | Backend and owner | Needed before Area 6 |
 | Pre-launch backend items B1 to B6 (`backend-gap-list.md`) | Backend | Before real customers: database names in errors, one generic "vendor not approved" message, unknown-variant answer, an incomplete OpenAPI description, seed data gaps |
 | Hero choice storage (D6-61, T7-8) | Owner | The home hero in Slice 3 shows the text-only fallback until decided |
+| Filter values for product attributes (`attr.<key>`) | Backend | Customers cannot filter on attributes such as fit until a public call lists the filterable attributes and their values (Slice 3 notes) |
 | Minimum browser versions (Q7-1) | Owner and first build | Build settings in Slice 0 |
 | Error monitoring after launch (Q7-2) | Owner | Not needed for the first release (D7-05) |
 | Catalogue data on staging: the backend's sample-data command does not run on staging (see section 7, Q8-1), so an admin must create the lists | Admin, using the Slice 2 catalogue screens | Slice 2 |
@@ -112,3 +130,4 @@ Nothing below has been done. Each is a check, not a promise.
 | 8 | 12 Nov 2026 | Slice 2 notes: no quantity on the product form (stock stays in Slice 4), demo terms text until Q8-4 and Q8-5 are answered, photos when testing locally, and the four parts 2a to 2d (owner decisions) |
 | 9 | 12 Nov 2026 | **Agreed by the owner:** working slice by slice (Document 7, D7-19); the code from Slices 0 to 2 is brought to Document 7, section 20 before Slice 3. No other decision changed |
 | 10 | 13 Nov 2026 | The clean-up before Slice 3 is described as changing no behaviour and adding no feature, with its progress kept in Document 7, section 20.13 (owner, 13 Nov 2026). No decision changed |
+| 11 | 15 Nov 2026 | Slice 3 notes: the folders (Document 7, D7-20), the seven parts, the filters of the approved screens, what is not offered, the hero text, brand entries, the header, the list cache and testing (owner decisions). Section 5: attribute filter values. No approved decision changed |
