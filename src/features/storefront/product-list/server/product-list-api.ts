@@ -3,8 +3,10 @@ import { callBackend, type CallResult } from '@/api/client';
 import { boundedCache } from '@/utils/bounded-cache';
 import { withQuery, type Query } from '@/utils/url';
 import {
+  BrandPageSchema,
   CategoryTreeSchema,
   ProductListSchema,
+  type CategoryTree,
   type ProductList,
 } from '@/features/storefront/product-list/types';
 
@@ -16,18 +18,41 @@ import {
 /** Public list answers kept on our server: 60 seconds, at most 2,000 (Document 7, section 12). */
 const LIST_CACHE_LIFE_MS = 60_000;
 const CACHE_MAX_ENTRIES = 2_000;
+/** The category tree changes rarely: 10 minutes (Document 7, section 12). */
+const TREE_CACHE_LIFE_MS = 600_000;
+const TREE_KEY = 'tree';
 
 const listCache = boundedCache<CallResult<ProductList>>({
   lifeMs: LIST_CACHE_LIFE_MS,
   maxEntries: CACHE_MAX_ENTRIES,
 });
+const treeCache = boundedCache<CallResult<CategoryTree>>({
+  lifeMs: TREE_CACHE_LIFE_MS,
+  maxEntries: 1,
+});
 
+/**
+ * The public category tree, kept on our server for 10 minutes: the header shows its top level on
+ * every page, and the category and home pages read it too.
+ */
 export const getCategoryTree = () =>
+  treeCache(TREE_KEY, () =>
+    callBackend({
+      method: 'GET',
+      path: '/catalogue/categories',
+      kind: 'view',
+      schema: CategoryTreeSchema,
+    }),
+  );
+
+/** One page of the active brands, by name (`limit` 1 to 100). */
+export const listBrands = (page: number, limit: number) =>
   callBackend({
     method: 'GET',
-    path: '/catalogue/categories',
+    path: '/catalogue/brands',
+    query: { page, limit },
     kind: 'view',
-    schema: CategoryTreeSchema,
+    schema: BrandPageSchema,
   });
 
 /**

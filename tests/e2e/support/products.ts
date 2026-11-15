@@ -40,13 +40,14 @@ export type Variant = { sizeCode: string; colourCode: string; pricePaise: number
 
 /**
  * An approved product in Kurtas with these variants and stock, made by the vendor and approved by
- * a moderator. Returns its id.
+ * a moderator, with a brand when one is given. Returns its id.
  */
 export async function approvedProduct(
   vendor: Page,
   moderator: Page,
   title: string,
   variants: Variant[],
+  brandId?: string,
 ): Promise<string> {
   const tree = (await (await fetch(`${BACKEND}/catalogue/categories`)).json()) as {
     items: { slug: string; id: string; children: { slug: string; id: string }[] }[];
@@ -57,6 +58,7 @@ export async function approvedProduct(
   const product = (await backend(vendor, 'POST', '/vendors/me/products', {
     title,
     categoryId: kurtas?.id,
+    ...(brandId ? { brandId } : {}),
   })) as { id: string };
   const stamp = String(Date.now()).slice(-7);
   for (const [index, variant] of variants.entries()) {
@@ -123,4 +125,13 @@ export async function staff(browser: Browser) {
 /** The admin, for a marketplace coupon (active at once). */
 export async function admin(browser: Browser) {
   return pageAs(browser, ADMIN_PHONE, '/en/admin');
+}
+
+/** A new active brand, made by the admin. Returns its id, name and slug. */
+export async function newBrand(adminPage: Page, name: string) {
+  return (await backend(adminPage, 'POST', '/admin/catalogue/brands', { name })) as {
+    id: string;
+    name: string;
+    slug: string;
+  };
 }

@@ -4,6 +4,7 @@ import { withQuery } from '@/utils/url';
 import {
   activeFilterCount,
   backendFilters,
+  categoryEntries,
   FilterGroup,
   isPlainList,
   listSearch,
@@ -14,6 +15,7 @@ import {
   withoutFilters,
   withToggled,
 } from '@/features/storefront/product-list/rules';
+import type { CategoryNode } from '@/features/storefront/product-list/types';
 
 describe('the filters in a list address (Document 5, section 6.1)', () => {
   it('reads sizes, colours, brands, prices and the sort, each value once and in one order', () => {
@@ -135,5 +137,25 @@ describe('the bounded cache for public list answers (Document 4, section 7)', ()
     await expect(cached('x', failing)).rejects.toThrow('backend down');
     await expect(cached('x', failing)).rejects.toThrow('backend down');
     expect(failing).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('the home page category entries (Document 6, 7.4)', () => {
+  const node = (slug: string, productCount: number, children: CategoryNode[] = []) => ({
+    id: slug,
+    name: slug,
+    slug,
+    productCount,
+    children,
+  });
+
+  it('offers the second level, or a top level with nothing below it, only with products', () => {
+    const tree = [
+      node('women', 5, [node('kurtas', 5), node('sarees', 0)]),
+      node('men', 0, [node('shirts', 0)]),
+      node('gifts', 2),
+      node('empty', 0),
+    ];
+    expect(categoryEntries(tree).map((entry) => entry.slug)).toEqual(['kurtas', 'gifts']);
   });
 });

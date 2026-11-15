@@ -1,8 +1,7 @@
 {
   "site": {
     "wordmark": "Dhaaga",
-    "title": "Dhaaga",
-    "underConstruction": "Our new site is being built. Please check back soon."
+    "title": "Dhaaga"
   },
   "nav": {
     "storefront": "Shop",
@@ -798,7 +797,17 @@
     "priceFrom": "From {min}",
     "priceUpTo": "Up to {max}",
     "noMatches": "No products match these filters",
-    "noMatchesText": "Remove a filter, or clear them all."
+    "noMatchesText": "Remove a filter, or clear them all.",
+    "shopByCategory": "Shop by category",
+    "brands": "Brands",
+    "newArrivals": "New arrivals",
+    "newArrivalsError": "We could not load new arrivals.",
+    "categoriesError": "We could not load the categories.",
+    "brandsError": "We could not load the brands.",
+    "heroTitle": "Browse new arrivals",
+    "heroText": "Browse the newest listings.",
+    "categories": "Categories",
+    "brandNoProducts": "No products from this brand yet. Have a look at a category."
   },
   "cart": {
     "title": "Your cart",

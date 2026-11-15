@@ -201,3 +201,14 @@ export function findInTree(
   }
   return null;
 }
+
+/**
+ * The categories the home page offers (Document 6, 7.4): the second level of the tree (such as
+ * Kurtas under Women), or a top-level category that has none below it, each only when it has
+ * products, in the tree's order.
+ */
+export function categoryEntries(nodes: readonly CategoryNode[]): CategoryNode[] {
+  return nodes
+    .flatMap((node) => (node.children.length ? node.children : [node]))
+    .filter((node) => node.productCount > 0);
+}
