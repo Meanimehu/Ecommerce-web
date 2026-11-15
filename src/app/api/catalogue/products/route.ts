@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { answerPublic } from '@/middleware/endpoint';
 import { pick } from '@/utils/url';
-import * as storefrontApi from '@/features/storefront/server/storefront-api';
+import * as productListApi from '@/features/storefront/product-list/server/product-list-api';
 
 /**
  * GET /api/catalogue/products: product cards for "Load more" (area-3a-catalogue.md); fresh for 60
@@ -14,5 +14,5 @@ const QUERY_NAMES = ['categorySlug', 'categoryId', 'sort', 'page', 'limit'];
 
 export function GET(request: NextRequest) {
   const query = pick(request.nextUrl.searchParams, QUERY_NAMES);
-  return answerPublic(() => storefrontApi.listProducts(query), FRESH_SECONDS);
+  return answerPublic(() => productListApi.listProducts(query), FRESH_SECONDS);
 }

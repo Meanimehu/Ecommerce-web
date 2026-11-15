@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { PhotoFrame } from '@/components/common/photo-frame';
 import { fill } from '@/lib/errors';
 import { useMessages } from '@/lib/messages-context';
-import type { ProductImage } from '@/features/storefront/types';
+import type { ProductImage } from '@/features/storefront/product-page/types';
 import { cn } from '@/utils/cn';
 
 /**

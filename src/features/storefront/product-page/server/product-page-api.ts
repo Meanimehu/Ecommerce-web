@@ -2,35 +2,12 @@ import 'server-only';
 import { callBackend } from '@/api/client';
 import { BackendErrorCode } from '@/lib/error-codes';
 import { AppError } from '@/lib/errors';
-import type { Query } from '@/utils/url';
-import {
-  CategoryTreeSchema,
-  ProductCardPageSchema,
-  ProductDetailSchema,
-  type ProductDetail,
-} from '@/features/storefront/types';
+import { ProductDetailSchema, type ProductDetail } from '@/features/storefront/product-page/types';
 
 /**
- * Backend Area 3a, the storefront part (area-3a-catalogue.md, section 1): no login, and the answer
- * is the same for everyone.
+ * Backend Area 3a, one product as a customer sees it (area-3a-catalogue.md, section 1): no login,
+ * and the answer is the same for everyone.
  */
-
-export const getCategoryTree = () =>
-  callBackend({
-    method: 'GET',
-    path: '/catalogue/categories',
-    kind: 'view',
-    schema: CategoryTreeSchema,
-  });
-
-export const listProducts = (query: Query) =>
-  callBackend({
-    method: 'GET',
-    path: '/catalogue/products',
-    query,
-    kind: 'view',
-    schema: ProductCardPageSchema,
-  });
 
 export const getProduct = (id: string) =>
   callBackend({

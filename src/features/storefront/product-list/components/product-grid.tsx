@@ -7,7 +7,7 @@ import { useMessages } from '@/lib/messages-context';
 import type { Page } from '@/types/common';
 import type { Query } from '@/utils/url';
 import { useProductGrid } from '@/features/storefront/product-list/hooks/use-product-grid';
-import type { ProductCardData } from '@/features/storefront/types';
+import type { ProductCardData } from '@/features/storefront/product-list/types';
 import { ProductCard } from './product-card';
 
 /** The first cards load at once; the rest when they come into view. */

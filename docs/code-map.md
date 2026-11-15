@@ -9,7 +9,7 @@ moved or removed.
 | Folder | What goes in it | Runs in |
 | --- | --- | --- |
 | `app/` | Routing and layouts: pages in `[lang]/`, our own endpoints in `api/` | Both |
-| `features/<feature>/` | One folder per feature, once it has moved (Document 7, D7-17): `components/`, `hooks/`, `server/` (server only) and `types.ts`. **`auth`, `vendor`, `catalogue` (the admin lists), `product`, `storefront`, `cart` and `layout` have moved | Both; `server/` server only |
+| `features/<feature>/` | One folder per feature, once it has moved (Document 7, D7-17): `components/`, `hooks/`, `server/` (server only) and `types.ts`. **`auth`, `vendor`, `catalogue` (the admin lists), `product`, `storefront` (a group of parts, D7-20), `cart` and `layout` have moved | Both; `server/` server only |
 | `components/` | Reusable UI any feature may use: `ui/` (shadcn), `form/`, `common/`. It imports no feature | Browser and server pages |
 | `hooks/` | Reusable logic: the form hook; each feature's hooks are in its `hooks/` | Browser |
 | `api/` | `client.ts`: the one way our server calls the backend; each feature's calls are in its `server/` | **Server only** |
@@ -115,8 +115,8 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | --- | --- |
 | `[lang]/layout.tsx`, `providers.tsx` | The page frame for `/en` and `/hi`; the QueryClient and its session-end handler |
 | `[lang]/page.tsx` | Home (a placeholder until Slice 3) |
-| `[lang]/category/[slug]` | A category page: its products, newest first, with "Load more" (kept for 60 seconds); the screen is in `features/storefront/` |
-| `[lang]/product/[id]/[[...name]]` | A product page; a missing or wrong name part redirects to the full address (kept for 60 seconds); the screen is in `features/storefront/`. The old `/c/` and `/p/` addresses are a real 404 |
+| `[lang]/category/[slug]` | A category page: its products, newest first, with "Load more" (kept for 60 seconds); the screen is in `features/storefront/product-list/` |
+| `[lang]/product/[id]/[[...name]]` | A product page; a missing or wrong name part redirects to the full address (kept for 60 seconds); the screen is in `features/storefront/product-page/`. The old `/c/` and `/p/` addresses are a real 404 |
 | `[lang]/cart` | The cart (needs login): `CartScreen` from `cart` |
 | `[lang]/login/page.tsx` | The login page |
 | `[lang]/account/page.tsx` | Account: log out, log out everywhere, the areas this person may open |
@@ -137,8 +137,8 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `api/admin/vendors/…` | Vendor review: list, one vendor, its documents, and the decisions |
 | `api/admin/catalogue/[list]/…` | The catalogue lists: read, add, change (and switch off or on) |
 | `api/catalogue/dictionaries` | What the product form offers (the backend's own address; it belongs to `product`) |
-| `api/catalogue/categories` | The public category tree (`storefront`) |
-| `api/catalogue/products/…` | Product cards for "Load more"; one product as it is now (before adding to the cart) (`storefront`) |
+| `api/catalogue/categories` | The public category tree (`storefront/product-list`) |
+| `api/catalogue/products/…` | Product cards for "Load more"; one product as it is now (before adding to the cart) (`storefront/product-list`, `storefront/product-page`) |
 | `api/cart/…` | The cart: view (with a coupon preview), add, change quantity, remove, remove unavailable |
 | `api/cart/pending` | "Add to cart" while logged out: kept in a signed cookie until login (D2-02) |
 | `api/auth/verify` | Also runs a pending add, once |
@@ -160,6 +160,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `common/state-block.tsx` | Whole-screen states: error, no access, not found |
 | `common/needs-script.tsx` | The "needs JavaScript" notice |
 | `common/status-chip.tsx` | A status chip: icon, words and a tone |
+| `common/price.tsx` | A price: the price, the MRP struck through when higher, "32% off" (the product card and the product page use it) |
 | `common/photo-frame.tsx` | A product photo in its 4:5 frame, or "Photo unavailable" (the storefront, the cart and `product` use it) |
 | `common/steps.tsx` | The steps of a long form |
 | `common/data-table.tsx`, `pagination.tsx` | Staff tables (stacked blocks on phones) and numbered pages |
@@ -249,7 +250,7 @@ example `useMyVendor`, which `product` uses); `app/` pages also use `findVendorP
 
 Categories, HSN codes, brands, sizes and colours; GST rates are read here only as choices. Other features use its types
 (`product` uses `Attribute` and `AttributeSchema`). The storefront's category tree and product cards are in
-`features/storefront/`.
+`features/storefront/product-list/`.
 
 | File | What it does |
 | --- | --- |
@@ -293,25 +294,40 @@ Backend Area 3b: products, variants, photos, the form guide (`/catalogue/diction
 | `server/product-api.ts` | Backend Area 3b, the vendor's side: the form guide, products, variants, photos |
 | `server/moderation-api.ts` | Backend Area 3b, moderation: the queue, one product, the decision, its photos |
 
-### `features/storefront/` — what a shopper browses
+### `features/storefront/` — what a shopper browses (a group, Document 7, D7-20)
 
-Backend Area 3a, the storefront part: the public category tree, product cards and one product. It uses the cart's
-call hooks for "Add to cart" (`useAddToCart`, `useAddAfterLogin`) and `auth`'s session; `product`'s moderation screens use its
-category tree.
+A group folder: it holds only its parts, each a feature with the usual folders. Backend Area 3a, the public part.
+
+#### `storefront/product-list/` — the lists of products
+
+The public category tree and the product cards, and the category page that shows them. `product`'s moderation
+screens use its category tree (`useCategoryTree`, `findInTree`).
 
 | File | What it does |
 | --- | --- |
-| `types.ts` | The answer schemas and their types (used by the server) |
-| `rules.ts` | No Zod, so the public pages stay light: `ProductSort`, `StockLevel`, `MissingChoice`, `AddMessageTone`; `findInTree`, `categoryTrail`, `sizesOf`, `coloursOf`, `chosenVariant`, `isAvailable`, `missingChoiceOf`, `stockLevelOf` |
-| `components/category-screen.tsx`, `product-screen.tsx` | A category page's and a product page's content, drawn on the server |
-| `components/product-grid.tsx`, `product-card.tsx`, `price.tsx` | The product grid with "Load more", the product card, the price line |
+| `types.ts` | The answer schemas and their types: the category tree, the product card (used by the server) |
+| `rules.ts` | No Zod, so the public pages stay light: `ProductSort`, `findInTree` |
+| `components/category-screen.tsx` | A category page's content, drawn on the server |
+| `components/product-grid.tsx`, `product-card.tsx` | The product grid with "Load more", the product card |
+| `hooks/use-product-list.ts` | The call hooks: `useCategoryTree`, `useProductCards` (the batches of "Load more"); `productListKeys` |
+| `hooks/use-product-grid.ts` | The cards shown, "Showing 8 of 128", what to announce after each batch |
+| `server/product-list-api.ts` | Backend Area 3a: the tree and the cards |
+
+#### `storefront/product-page/` — one product
+
+It uses the cart's call hooks for "Add to cart" (`useAddToCart`, `useAddAfterLogin`) and `auth`'s session.
+
+| File | What it does |
+| --- | --- |
+| `types.ts` | The answer schema of one product and its types (used by the server) |
+| `rules.ts` | No Zod: `StockLevel`, `MissingChoice`, `AddMessageTone`; `categoryTrail`, `sizesOf`, `coloursOf`, `chosenVariant`, `isAvailable`, `missingChoiceOf`, `stockLevelOf` |
+| `components/product-screen.tsx` | A product page's content, drawn on the server |
 | `components/product-gallery.tsx` | The product page's photos |
 | `components/product-buy.tsx`, `size-choice.tsx`, `colour-choice.tsx` | Price, size and colour, stock, Add to cart (logic in its hooks) |
-| `hooks/use-storefront.ts` | The call hooks: `useCategoryTree`, `useProductNow` (the product read again in the browser), `useProductCards` (the batches of "Load more"); `storefrontKeys` |
+| `hooks/use-product-page.ts` | The call hook `useProductNow` (the product read again in the browser); `productPageKeys` |
 | `hooks/use-variant-choice.ts` | The size and colour chosen, what is available, what is still to choose |
 | `hooks/use-product-add.ts` | Add to cart now, or log in and add on the way back; the messages |
-| `hooks/use-product-grid.ts` | The cards shown, "Showing 8 of 128", what to announce after each batch |
-| `server/storefront-api.ts` | Backend Area 3a, the storefront part: the tree, the cards, one product; `findVisibleProduct` (null for a real 404) |
+| `server/product-page-api.ts` | Backend Area 3a: one product; `findVisibleProduct` (null for a real 404) |
 
 ### `features/layout/` — the page frames
 

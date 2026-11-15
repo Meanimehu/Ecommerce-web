@@ -1,16 +1,17 @@
 import { describe, expect, it } from 'vitest';
+import { findInTree } from '@/features/storefront/product-list/rules';
+import type { CategoryNode } from '@/features/storefront/product-list/types';
 import {
   categoryTrail,
   chosenVariant,
-  findInTree,
   isAvailable,
   MissingChoice,
   missingChoiceOf,
   sizesOf,
   StockLevel,
   stockLevelOf,
-} from '@/features/storefront/rules';
-import type { CategoryNode, ProductDetail, PublicVariant } from '@/features/storefront/types';
+} from '@/features/storefront/product-page/rules';
+import type { ProductDetail, PublicVariant } from '@/features/storefront/product-page/types';
 
 const variant = (
   id: string,

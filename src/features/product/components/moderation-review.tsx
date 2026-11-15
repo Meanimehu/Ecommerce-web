@@ -10,13 +10,13 @@ import { ErrorMessage } from '@/components/common/error-message';
 import { LoadingBlock, PartError } from '@/components/common/load-states';
 import { PhotoFrame } from '@/components/common/photo-frame';
 import { ReasonDialog } from '@/components/common/reason-dialog';
-import { useCategoryTree } from '@/features/storefront/hooks/use-storefront';
+import { useCategoryTree } from '@/features/storefront/product-list/hooks/use-product-list';
 import { BackendErrorCode } from '@/lib/error-codes';
 import { messageFor, type AppError } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { moderationQueuePath } from '@/lib/routes';
-import { findInTree } from '@/features/storefront/rules';
+import { findInTree } from '@/features/storefront/product-list/rules';
 import { reviewPhotoSrc, useProductForReview } from '@/features/product/hooks/use-product';
 import { useProductDecision } from '@/features/product/hooks/use-product-decision';
 import {

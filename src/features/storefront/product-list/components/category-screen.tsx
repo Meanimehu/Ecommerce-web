@@ -6,7 +6,7 @@ import { MessagesProvider } from '@/lib/messages-context';
 import { categoryPath, homePath } from '@/lib/routes';
 import type { Page } from '@/types/common';
 import type { Query } from '@/utils/url';
-import type { CategoryNode, ProductCardData } from '@/features/storefront/types';
+import type { CategoryNode, ProductCardData } from '@/features/storefront/product-list/types';
 import { ProductGrid } from './product-grid';
 
 /**

@@ -5,8 +5,8 @@ import { fill, messageFor } from '@/lib/errors';
 import { useMessages } from '@/lib/messages-context';
 import type { Page } from '@/types/common';
 import type { Query } from '@/utils/url';
-import type { ProductCardData } from '@/features/storefront/types';
-import { useProductCards } from '@/features/storefront/hooks/use-storefront';
+import type { ProductCardData } from '@/features/storefront/product-list/types';
+import { useProductCards } from '@/features/storefront/product-list/hooks/use-product-list';
 
 /**
  * "Load more" (Document 5, section 6.1; Document 6, 8.8): the cards shown so far, each once even if
