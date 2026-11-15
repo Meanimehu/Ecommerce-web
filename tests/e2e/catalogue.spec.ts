@@ -93,6 +93,10 @@ test.describe('catalogue lists', () => {
     await attribute.getByLabel('Type').selectOption('choice');
     await attribute.getByLabel('Options').fill('Cotton\nSilk');
     await attribute.getByLabel('Vendors must give a value').check();
+    // A ticked box looks ticked: an ink fill with the tick drawn on it (Document 6, 8.4).
+    const ticked = attribute.getByLabel('Vendors must give a value');
+    await expect(ticked).toHaveCSS('background-color', 'rgb(43, 44, 48)');
+    await expect(ticked).toHaveCSS('background-image', /^url\("data:image\/svg\+xml/);
     await admin.getByRole('button', { name: 'Save' }).click();
     await expect(
       admin.getByRole('alert').filter({ hasText: /Fix 1 thing to continue/ }),
