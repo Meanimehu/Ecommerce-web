@@ -28,7 +28,11 @@ export const AREA_SECTIONS = [
  * Text used only on some storefront pages, which add it themselves: `store` on the shop's pages, `cart` on the cart
  * page, `account` on the account pages. The other pages, such as login, do not carry it (Document 6, section 14).
  */
-export const PAGE_SECTIONS = ['store', 'cart', 'account'] as const satisfies readonly (keyof Messages)[];
+export const PAGE_SECTIONS = [
+  'store',
+  'cart',
+  'account',
+] as const satisfies readonly (keyof Messages)[];
 
 const NOT_SHARED: readonly string[] = [...AREA_SECTIONS, ...PAGE_SECTIONS];
 
