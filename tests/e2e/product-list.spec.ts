@@ -229,4 +229,29 @@ test.describe('filters and sort', () => {
       await page.close();
     }
   });
+
+  test('a "Load more" that fails says so in place, keeps the cards, and "Try again" loads them', async ({
+    page,
+  }) => {
+    await page.setViewportSize(WIDE);
+    await page.goto(KURTAS);
+    const cards = page.locator('main ul > li > a[href*="/product/"]');
+    await expect(cards).toHaveCount(24);
+    // The next batch fails once.
+    let failed = false;
+    await page.route('**/api/catalogue/products?*', async (route) => {
+      if (failed) return route.continue();
+      failed = true;
+      return route.fulfill({ status: 503, json: { error: { code: 'SERVICE_UNAVAILABLE' } } });
+    });
+    await page.getByRole('button', { name: 'Load more' }).click();
+    // Next.js keeps its own route announcer (also an alert) outside main.
+    const loadError = page.getByRole('main').getByRole('alert');
+    await expect(loadError).toBeVisible();
+    await expect(cards).toHaveCount(24);
+    await noAxeViolations(page);
+    await page.getByRole('button', { name: 'Try again' }).click();
+    await expect(cards).toHaveCount(48);
+    await expect(loadError).toHaveCount(0);
+  });
 });

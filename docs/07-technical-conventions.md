@@ -212,6 +212,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 39 | 15 Nov 2026 | **Agreed by the owner:** the first-load limits are raised to 265 KB without fonts in every language and 307 KB in total for English pages (Document 6, section 14), for the storefront header of Slice 3. No other decision changed |
 | 40 | 15 Nov 2026 | In 20.4, the storefront header (`layout`) reads the category tree through `product-list`'s server call and shows `search`'s box (Slice 3c). No other decision changed |
 | 41 | 15 Nov 2026 | Slice 3d: the new `account` feature (profile, saved addresses, the account tabs, the areas); the account's text is carried only by the account pages (`PAGE_SECTIONS`); the account page's links left from step 10 are done. No decision changed |
+| 42 | 15 Nov 2026 | Slice 3e: the error, no-access and not-found pages build their home address with `homePath` (20.2). No decision changed |
 
 ## 16. Names: folders and files
 

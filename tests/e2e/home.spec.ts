@@ -140,4 +140,22 @@ test.describe('the home page and brand pages', () => {
     expect(body.limit).toBe(100);
     expect(body.items.length).toBeGreaterThan(0);
   });
+
+  test('a brand with no products yet says so, in English and Hindi', async ({ browser, page }) => {
+    const empty = await newBrand(await admin(browser), `Empty brand ${Date.now()}`);
+    await expect(async () => {
+      expect((await page.goto(`/en/brand/${empty.slug}`))?.status()).toBe(200);
+    }).toPass(KEPT);
+    await expect(page.getByRole('heading', { name: empty.name, level: 1 })).toBeVisible();
+    await expect(
+      page.getByText('No products from this brand yet. Have a look at a category.'),
+    ).toBeVisible();
+    // With nothing to filter, the filters are not offered.
+    await expect(page.getByRole('complementary', { name: 'Filters' })).toHaveCount(0);
+    await noAxeViolations(page);
+    await page.goto(`/hi/brand/${empty.slug}`);
+    await expect(
+      page.getByText('इस ब्रांड के अभी कोई उत्पाद नहीं हैं। कोई श्रेणी देखें।'),
+    ).toBeVisible();
+  });
 });
