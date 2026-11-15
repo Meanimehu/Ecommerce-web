@@ -7,6 +7,7 @@ import { StateBlock } from '@/components/common/state-block';
 import { Button } from '@/components/ui/button';
 import { isLocale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
+import { homePath } from '@/lib/routes';
 
 /**
  * When a page fails: what failed, "Try again", and a way on, never a blank page (D-12; Document 6, section 10).
@@ -34,7 +35,7 @@ export default function PageError({
           {messages.errors.tryAgain}
         </Button>
         <Button asChild variant="secondary">
-          <a href={`/${lang}`} className="no-underline">
+          <a href={homePath(lang)} className="no-underline">
             {messages.errorPage.home}
           </a>
         </Button>

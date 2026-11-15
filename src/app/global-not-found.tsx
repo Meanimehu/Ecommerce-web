@@ -4,6 +4,7 @@ import { notoDevanagari, outfit, outfitExtended } from '@/lib/fonts';
 import en from '@/messages/en.json';
 import hi from '@/messages/hi.json';
 import './globals.css';
+import { homePath } from '@/lib/routes';
 
 /**
  * "Not found" with a real 404, for any address no page answers and for every notFound() (Document 4, sections 5 and 10;
@@ -26,9 +27,8 @@ export default function GlobalNotFound() {
               <h1 className="type-h3 text-ink">{en.notFound.title}</h1>
               <p className="text-muted-foreground">{en.notFound.body}</p>
               {/* A full page load on purpose: this page is outside the app's router. */}
-              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
               <a
-                href="/en"
+                href={homePath('en')}
                 className="inline-flex h-12 items-center rounded-2 bg-madder px-5 font-medium text-white no-underline hover:bg-madder-hover lg:h-11"
               >
                 {en.notFound.home}
@@ -41,9 +41,8 @@ export default function GlobalNotFound() {
               <h2 className="type-h3 text-ink">{hi.notFound.title}</h2>
               <p className="text-muted-foreground">{hi.notFound.body}</p>
               {/* A full page load on purpose: this page is outside the app's router. */}
-              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
               <a
-                href="/hi"
+                href={homePath('hi')}
                 className="inline-flex h-12 items-center rounded-2 border border-control bg-surface px-5 font-medium text-ink no-underline hover:border-ink lg:h-11"
               >
                 {hi.notFound.home}

@@ -219,4 +219,67 @@ test.describe('the account', () => {
     await visitor.goto('/en/account/addresses');
     await expect(visitor).toHaveURL(/\/en\/login$/);
   });
+
+  test('failures are shown on the page: a profile save the server cannot do, and a delete of an address that is gone', async ({
+    browser,
+  }) => {
+    const page = await pageAs(browser, freshPhone(), '/en/account');
+    await page.route('**/api/me', (route) =>
+      route.fulfill({
+        status: 503,
+        json: { error: { code: 'SERVICE_UNAVAILABLE', requestId: 'req-test-1' } },
+      }),
+    );
+    await page.getByLabel('Name').fill('Kabir');
+    await page.getByRole('button', { name: 'Save changes' }).click();
+    // The message is in the form's summary with the request id, not only in a toast.
+    await expect(page.getByText('req-test-1').first()).toBeVisible();
+    await expect(page.getByText('Your changes are saved')).toHaveCount(0);
+    await page.unroute('**/api/me');
+
+    await backend(page, 'POST', '/me/addresses', {
+      label: 'Home',
+      name: 'Kabir Shah',
+      phone: '9666666666',
+      line1: '3 Lake Road',
+      city: 'Bhopal',
+      state: 'Madhya Pradesh',
+      pincode: '462001',
+    });
+    await page.goto('/en/account/addresses');
+    await page.route('**/api/me/addresses/*', (route) =>
+      route.request().method() === 'DELETE'
+        ? route.fulfill({ status: 404, json: { error: { code: 'ADDRESS_NOT_FOUND' } } })
+        : route.continue(),
+    );
+    await page
+      .getByRole('article', { name: 'Home' })
+      .getByRole('button', { name: 'Delete' })
+      .click();
+    await page
+      .getByRole('alertdialog', { name: 'Delete this address?' })
+      .getByRole('button', { name: 'Delete' })
+      .click();
+    await expect(page.getByText('This address was not found. Reload the page.')).toBeVisible();
+    await expect(page.getByText('Address deleted')).toHaveCount(0);
+    await noAxeViolations(page);
+  });
+
+  test('every account tab in Hindi', async ({ browser }) => {
+    const page = await pageAs(browser, freshPhone(), '/hi/account');
+    const tabs = [
+      { path: '/hi/account', tab: 'प्रोफ़ाइल', text: 'मोबाइल नंबर यहाँ नहीं बदला जा सकता।' },
+      { path: '/hi/account/addresses', tab: 'पते', text: 'अभी कोई पता सेव नहीं है' },
+      { path: '/hi/account/security', tab: 'सुरक्षा', text: null },
+    ];
+    for (const { path, tab, text } of tabs) {
+      await page.goto(path);
+      await expect(page.getByRole('heading', { name: 'आपका खाता', level: 1 })).toBeVisible();
+      await expect(
+        page.getByRole('navigation', { name: 'खाते के पेज' }).getByRole('link', { name: tab }),
+      ).toHaveAttribute('aria-current', 'page');
+      if (text) await expect(page.getByText(text)).toBeVisible();
+      await noAxeViolations(page);
+    }
+  });
 });
