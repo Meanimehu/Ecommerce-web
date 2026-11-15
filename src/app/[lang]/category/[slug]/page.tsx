@@ -5,9 +5,9 @@ import { SiteHeader } from '@/features/layout/components/site-header';
 import { isLocale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
 import { categoryPath } from '@/lib/routes';
-import { CategoryScreen } from '@/features/storefront/components/category-screen';
-import * as storefrontApi from '@/features/storefront/server/storefront-api';
-import { findInTree, ProductSort } from '@/features/storefront/rules';
+import { CategoryScreen } from '@/features/storefront/product-list/components/category-screen';
+import * as productListApi from '@/features/storefront/product-list/server/product-list-api';
+import { findInTree, ProductSort } from '@/features/storefront/product-list/rules';
 
 /**
  * A category page (Document 5, section 6.1; Document 4, section 5): /{lang}/category/{slug}, the
@@ -20,7 +20,7 @@ export const revalidate = 60;
 /** The first batch, and each batch "Load more" adds. */
 const PAGE_SIZE = 24;
 
-const loadCategoryTree = cache(() => storefrontApi.getCategoryTree());
+const loadCategoryTree = cache(() => productListApi.getCategoryTree());
 
 /** The path from the top level down to the category with this slug, or null. */
 async function findCategoryPath(slug: string) {
@@ -48,7 +48,7 @@ export default async function CategoryPage({ params }: Props) {
   const categoryPathNodes = await findCategoryPath(slug);
   if (!categoryPathNodes?.length) notFound();
   const query = { categorySlug: slug, sort: ProductSort.Newest };
-  const firstBatch = (await storefrontApi.listProducts({ ...query, page: 1, limit: PAGE_SIZE }))
+  const firstBatch = (await productListApi.listProducts({ ...query, page: 1, limit: PAGE_SIZE }))
     .data;
   return (
     <>

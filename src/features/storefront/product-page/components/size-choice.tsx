@@ -1,5 +1,5 @@
 import type { Messages } from '@/lib/i18n';
-import type { VariantSize } from '@/features/storefront/types';
+import type { VariantSize } from '@/features/storefront/product-page/types';
 import { cn } from '@/utils/cn';
 
 /**

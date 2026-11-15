@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { answerPublic } from '@/middleware/endpoint';
-import * as storefrontApi from '@/features/storefront/server/storefront-api';
+import * as productPageApi from '@/features/storefront/product-page/server/product-page-api';
 
 /**
  * GET /api/catalogue/products/{id}: one product as it is now. The product page asks again before
@@ -16,5 +16,5 @@ type Context = { params: Promise<{ id: string }> };
 
 export async function GET(_request: NextRequest, { params }: Context) {
   const { id } = await params;
-  return answerPublic(() => storefrontApi.getProduct(id), FRESH_SECONDS);
+  return answerPublic(() => productPageApi.getProduct(id), FRESH_SECONDS);
 }

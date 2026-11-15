@@ -2,8 +2,8 @@ import type { Ref } from 'react';
 import { PhotoFrame } from '@/components/common/photo-frame';
 import type { Locale, Messages } from '@/lib/i18n';
 import { productPath } from '@/lib/routes';
-import type { ProductCardData } from '@/features/storefront/types';
-import { Price } from './price';
+import type { ProductCardData } from '@/features/storefront/product-list/types';
+import { Price } from '@/components/common/price';
 
 /**
  * The product card (Document 6, 8.6): the complete photo in a 4:5 frame, the title (two lines at

@@ -3,8 +3,8 @@ import type { Locale } from '@/lib/i18n';
 import { getMessages, sectionMessages } from '@/lib/messages';
 import { MessagesProvider } from '@/lib/messages-context';
 import { categoryPath, homePath } from '@/lib/routes';
-import { categoryTrail } from '@/features/storefront/rules';
-import type { ProductDetail } from '@/features/storefront/types';
+import { categoryTrail } from '@/features/storefront/product-page/rules';
+import type { ProductDetail } from '@/features/storefront/product-page/types';
 import { ProductBuy } from './product-buy';
 import { ProductGallery } from './product-gallery';
 

@@ -5,8 +5,8 @@ import { SiteHeader } from '@/features/layout/components/site-header';
 import { isLocale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
 import { productPath, productSlug } from '@/lib/routes';
-import { ProductScreen } from '@/features/storefront/components/product-screen';
-import * as storefrontApi from '@/features/storefront/server/storefront-api';
+import { ProductScreen } from '@/features/storefront/product-page/components/product-screen';
+import * as productPageApi from '@/features/storefront/product-page/server/product-page-api';
 
 /**
  * The product page (Document 5, section 6.2; Document 4, D4-02): /{lang}/product/{id}/{name}. The
@@ -19,7 +19,7 @@ export const revalidate = 60;
 /** The description's start, for search results. */
 const DESCRIPTION_PREVIEW_LENGTH = 160;
 
-const loadProduct = cache((id: string) => storefrontApi.findVisibleProduct(id));
+const loadProduct = cache((id: string) => productPageApi.findVisibleProduct(id));
 
 type Props = { params: Promise<{ lang: string; id: string; name?: string[] }> };
 
