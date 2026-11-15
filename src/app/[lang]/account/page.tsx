@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { NeedsScript } from '@/components/common/needs-script';
+import { SiteFooter } from '@/features/layout/components/site-footer';
 import { SiteHeader } from '@/features/layout/components/site-header';
 import { getMessages } from '@/lib/messages';
 import { adminHomePath, vendorApplyPath, vendorHomePath } from '@/lib/routes';
@@ -77,6 +78,7 @@ export default async function AccountPage({ params }: { params: Promise<{ lang: 
           <LogoutButtons lang={lang} />
         </div>
       </main>
+      <SiteFooter lang={lang} />
     </>
   );
 }

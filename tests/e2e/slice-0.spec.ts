@@ -48,10 +48,12 @@ test('standalone controls have at least a 44 by 44 px hit area on a phone (Docum
 }) => {
   await page.setViewportSize({ width: 360, height: 780 });
   await page.goto('/en/login');
+  // On a phone the language switch is in the menu and in the footer (Document 6, 7.3).
   for (const control of [
     page.getByRole('button', { name: 'Send code' }),
-    page.getByRole('link', { name: 'हिन्दी' }),
-    page.getByRole('link', { name: 'Dhaaga' }),
+    page.getByRole('contentinfo').getByRole('link', { name: 'हिन्दी' }),
+    page.getByRole('banner').getByRole('link', { name: 'Dhaaga' }),
+    page.getByRole('banner').locator('summary', { hasText: 'Menu' }),
   ]) {
     const box = await control.boundingBox();
     expect(box?.height, await control.innerText()).toBeGreaterThanOrEqual(44);
@@ -70,7 +72,7 @@ for (const lang of ['en', 'hi'] as const) {
   test(`/${lang} renders in its language with no accessibility violations`, async ({ page }) => {
     await page.goto(`/${lang}`);
     await expect(page.locator('html')).toHaveAttribute('lang', lang);
-    await expect(page.getByText('Dhaaga', { exact: true })).toBeVisible();
+    await expect(page.getByRole('banner').getByText('Dhaaga', { exact: true })).toBeVisible();
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
       .analyze();

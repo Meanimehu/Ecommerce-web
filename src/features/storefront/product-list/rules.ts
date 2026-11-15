@@ -22,6 +22,18 @@ export const LIST_SORTS = [
   ProductSort.PriceHighToLow,
 ] as const;
 
+/** Search results offer the best match first, then the list orders. */
+export const SEARCH_SORTS = [ProductSort.BestMatch, ...LIST_SORTS] as const;
+
+/** The backend takes search text of up to 100 characters. */
+export const SEARCH_TEXT_MAX = 100;
+
+/** The search text in the address (`?q=`), trimmed and cut to what the backend takes; '' for none. */
+export function readSearchText(value: string | string[] | undefined): string {
+  const text = Array.isArray(value) ? value[0] : value;
+  return (text ?? '').trim().slice(0, SEARCH_TEXT_MAX);
+}
+
 // ---- Filters (Document 5, section 6.1; Document 6, 8.8) ----
 
 /** The names of the filters and the sort in a list page's address, such as ?size=M,L&sort=price_asc. */

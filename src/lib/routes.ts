@@ -37,6 +37,10 @@ export const cartPath = (lang: Locale) => `/${lang}/cart`;
 /** A category page, by the backend's category slug. */
 export const categoryPath = (lang: Locale, slug: string) => `/${lang}/category/${slug}`;
 
+/** The search results for some text; with no text, the search page itself. */
+export const searchPath = (lang: Locale, text?: string) =>
+  text ? `/${lang}/search?q=${encodeURIComponent(text)}` : `/${lang}/search`;
+
 /** A brand page, by the backend's brand slug. */
 export const brandPath = (lang: Locale, slug: string) => `/${lang}/brand/${slug}`;
 

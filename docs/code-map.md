@@ -118,6 +118,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `[lang]/brand/[slug]` | A brand page: the brand's products with filters (no brand filter) and sort, then "Load more"; an unknown slug is a real 404; the screen is in `features/storefront/product-list/` |
 | `[lang]/category/[slug]` | A category page: its products with filters and sort in the address, then "Load more"; drawn on each request, its list answer kept for 60 seconds; only the plain list is indexed; the screen is in `features/storefront/product-list/` |
 | `[lang]/product/[id]/[[...name]]` | A product page; a missing or wrong name part redirects to the full address (kept for 60 seconds); the screen is in `features/storefront/product-page/`. The old `/c/` and `/p/` addresses are a real 404 |
+| `[lang]/search` | Search results: `?q=` with the filters and sort, best match first; drawn on each request, its list answer kept 30 seconds; never indexed; with no text it asks for some; the screen is in `features/storefront/product-list/` |
 | `[lang]/cart` | The cart (needs login): `CartScreen` from `cart` |
 | `[lang]/login/page.tsx` | The login page |
 | `[lang]/account/page.tsx` | Account: log out, log out everywhere, the areas this person may open |
@@ -139,6 +140,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `api/admin/catalogue/[list]/…` | The catalogue lists: read, add, change (and switch off or on) |
 | `api/catalogue/dictionaries` | What the product form offers (the backend's own address; it belongs to `product`) |
 | `api/catalogue/categories` | The public category tree (`storefront/product-list`) |
+| `api/catalogue/suggest` | Suggestions while typing, fresh for 10 seconds (`storefront/search`) |
 | `api/catalogue/brands` | A page of the active brands, fresh for 10 minutes (`storefront/product-list`) |
 | `api/catalogue/products/…` | Product cards for "Load more"; one product as it is now (before adding to the cart) (`storefront/product-list`, `storefront/product-page`) |
 | `api/cart/…` | The cart: view (with a coupon preview), add, change quantity, remove, remove unavailable |
@@ -308,8 +310,9 @@ screens use its category tree (`useCategoryTree`, `findInTree`).
 | File | What it does |
 | --- | --- |
 | `types.ts` | The answer schemas and their types: the category tree, the product card (used by the server) |
-| `rules.ts` | No Zod, so the public pages stay light: `ProductSort`, `LIST_SORTS`, `findInTree`, `categoryEntries`; the filters in the address (`ListParam`, `FilterGroup`, `ListFilters`, `readListFilters`, `listSearch`, `backendFilters`, `withToggled`, `activeFilterCount`, `isPlainList`; at most 20 values) |
+| `rules.ts` | No Zod, so the public pages stay light: `ProductSort`, `LIST_SORTS`, `SEARCH_SORTS`, `readSearchText` (at most 100 characters), `findInTree`, `categoryEntries`; the filters in the address (`ListParam`, `FilterGroup`, `ListFilters`, `readListFilters`, `listSearch`, `backendFilters`, `withToggled`, `activeFilterCount`, `isPlainList`; at most 20 values) |
 | `components/category-screen.tsx`, `brand-screen.tsx` | A category page's and a brand page's content, drawn on the server (the brand page has no brand filter) |
+| `components/search-screen.tsx` | The search results: "Results for “…”", the count, the list best match first with the text kept in the address, or "Nothing matches" with categories to browse |
 | `components/catalogue-entries.tsx`, `new-arrivals.tsx` | The home page's "Shop by category" and "Brands" (names only, brands hidden on compact), and New arrivals (4 cards); each part reads again with "Try again" if it failed |
 | `components/filtered-list.tsx` | A list with its filters and sort, shared by the category, brand and search pages: the side panel (wide), the sheet (narrow), the sort, the chips, the grid, "no products match" |
 | `components/filter-groups.tsx`, `price-filter.tsx` | The filter groups in order (size, colour, price, brand) with the backend's counts; the price from and to, in rupees |
@@ -317,10 +320,22 @@ screens use its category tree (`useCategoryTree`, `findInTree`).
 | `components/active-filters.tsx`, `sort-choice.tsx` | The chosen filters as removable chips with "Clear all"; the sort |
 | `components/product-grid.tsx`, `product-card.tsx` | The product grid with "Load more", the product card |
 | `hooks/use-product-list.ts` | The call hooks: `useCategoryTree`, `useBrands`, `useNewArrivals` (each may start from what the server drew), `useProductCards` (the batches of "Load more"); `productListKeys` |
-| `hooks/use-list-filters.ts` | A change of filter or sort opens the new address without scrolling; the controls show the new choice at once |
+| `hooks/use-list-filters.ts` | A change of filter or sort opens the new address without scrolling, keeping fixed values such as the search text; the controls show the new choice at once |
 | `hooks/use-product-grid.ts` | The cards shown, "Showing 8 of 128", what to announce after each batch |
-| `server/product-list-api.ts` | Backend Area 3a: the tree (kept 10 minutes on our server), a page of brands, and the cards with their filter counts (kept 60 seconds, at most 2,000) |
+| `server/product-list-api.ts` | Backend Area 3a: the tree (kept 10 minutes on our server), a page of brands, and the cards with their filter counts (kept 60 seconds, search results 30, at most 2,000 each) |
 | `server/brand-slugs.ts` | `findBrand`: a brand by its slug, from a map of the whole public brand list kept 10 minutes; an unknown slug reads the list again at most once a minute (Document 4, section 5) |
+
+#### `storefront/search/` — the search box
+
+`layout` shows the box in the storefront header.
+
+| File | What it does |
+| --- | --- |
+| `types.ts` | The suggestions' answer schema and type |
+| `components/search-box.tsx` | A plain search form (it works before any script) with a list of suggestions as a combobox; it only draws |
+| `hooks/use-search-box.ts` | The suggestions in groups (products, categories, brands), Up and Down, Enter opens the chosen one, Escape closes the list |
+| `hooks/use-suggestions.ts` | The call hook: asks once typing pauses (250 ms); `searchKeys` |
+| `server/search-api.ts` | Backend Area 3a: suggestions, kept 10 seconds on our server (at most 2,000 texts) |
 
 #### `storefront/home/` — the home hero
 
@@ -352,7 +367,9 @@ The storefront header and the Vendor and Admin frame with their menus (Document 
 
 | File | What it does |
 | --- | --- |
-| `components/site-header.tsx` | The storefront header: wordmark, language switch, "Log in" or the account, the cart |
+| `components/site-header.tsx` | The storefront header (Document 6, 7.3): wordmark, search box, language switch, "Log in" or the account, the cart, and the row of top-level categories with products; on compact screens the menu, and the search box on its own row. It reads the category tree through `product-list`'s server call |
+| `components/site-menu.tsx` | The compact menu: a native disclosure (no script) with the language switch and the categories |
+| `components/site-footer.tsx` | The storefront footer: the wordmark and the language switch |
 | `components/header-actions.tsx` | "Log in" or the account, and the cart with its count |
 | `components/language-switch.tsx` | The other language's name with a globe icon; only draws |
 | `components/wordmark.tsx` | The Dhaaga wordmark, a link to the home page |

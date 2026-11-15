@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
+import { SiteFooter } from '@/features/layout/components/site-footer';
 import { SiteHeader } from '@/features/layout/components/site-header';
 import { isLocale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
@@ -70,6 +71,7 @@ export default async function BrandPage({ params, searchParams }: Props) {
         firstBatch={firstBatch}
         query={query}
       />
+      <SiteFooter lang={lang} />
     </>
   );
 }

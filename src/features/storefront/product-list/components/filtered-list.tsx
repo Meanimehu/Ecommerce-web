@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { fill } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
@@ -37,7 +37,9 @@ export function FilteredList({
   query,
   sorts,
   hiddenGroups,
+  fixedQuery,
   emptyText,
+  browseLinks,
 }: {
   lang: Locale;
   /** The list's own address, without filters. */
@@ -49,12 +51,16 @@ export function FilteredList({
   /** The orders this list offers; the first is its default. */
   sorts: readonly ProductSort[];
   hiddenGroups?: readonly FilterGroup[];
+  /** Address values that stay whatever the filters, such as the search text. */
+  fixedQuery?: Record<string, string>;
   /** What to say when the list has no products and no filter is on. */
   emptyText: string;
+  /** Links to browse on when the list is empty or nothing matches (the search page shows categories). */
+  browseLinks?: ReactNode;
 }) {
   const messages = useMessages();
   const storeMessages = messages.store;
-  const control = useListFilters({ filters, path });
+  const control = useListFilters({ filters, path, fixedQuery });
   // The list's count is said only after a change, not when the page opens (the heading shows it).
   const queryKey = withQuery('', query);
   const [firstQueryKey] = useState(queryKey);
@@ -65,9 +71,10 @@ export function FilteredList({
 
   if (!total && !hasFilters) {
     return (
-      <p className="rounded-1 border border-dashed border-control bg-surface px-6 py-10 text-center text-ink-2">
-        {emptyText}
-      </p>
+      <div className="grid justify-items-center gap-3 rounded-1 border border-dashed border-control bg-surface px-6 py-10 text-center">
+        <p className="text-ink-2">{emptyText}</p>
+        {browseLinks}
+      </div>
     );
   }
 
@@ -112,6 +119,7 @@ export function FilteredList({
               <Button type="button" variant="secondary" onClick={control.clearAll}>
                 {storeMessages.clearAllFilters}
               </Button>
+              {browseLinks}
             </div>
           )}
         </div>

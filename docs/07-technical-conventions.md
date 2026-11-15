@@ -210,6 +210,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 37 | 15 Nov 2026 | Status: step 11 done (#53), the clean-up complete. **Agreed by the owner:** in section 11, the backend tests in CI and the other browsers are postponed until the whole application is built (pull request #54 stays open, unmerged), and the testing status is recorded; in 20.13, Slice 3 follows step 11 directly. No other decision changed |
 | 38 | 15 Nov 2026 | **Agreed by the owner:** D7-20, a group folder for the features of one area; `storefront` becomes a group with four parts (`product-list`, `product-page`, `search`, `home`) and `account` is a new feature (section 16, 20.4). The Slice 3 plan is in Document 8, section 4. No other decision changed |
 | 39 | 15 Nov 2026 | **Agreed by the owner:** the first-load limits are raised to 265 KB without fonts in every language and 307 KB in total for English pages (Document 6, section 14), for the storefront header of Slice 3. No other decision changed |
+| 40 | 15 Nov 2026 | In 20.4, the storefront header (`layout`) reads the category tree through `product-list`'s server call and shows `search`'s box (Slice 3c). No other decision changed |
 
 ## 16. Names: folders and files
 
@@ -366,7 +367,7 @@ Every cookie uses the `__Host-` prefix, `Secure`, `HttpOnly`, `SameSite=Lax`, pa
   - **The owning feature** decides what its cookie means and does the normal reading and writing: `auth` for the login cookies and the after-login page, `cart` for the add that waits for login.
   - **Shared code** (`middleware/cookies.ts`) supplies only generic tools: the list of cookie names and lifetimes, the options every cookie uses, signing, and deleting a cookie by name.
   - **`auth` starts the clean-up** when a session ends or the person logs out, deleting the login cookies and the short-lived cookies Document 4, section 9 requires. It does this with the shared list and delete tool, so it never imports `cart` code.
-- **`layout` shows, it does not decide.** It owns page frames, headers, navigation and page structure, and may show `auth` and `cart` information through their public hooks (who is logged in, the cart count). Rules such as who may enter an area belong to `auth` (page access) and to the feature (for example `vendor`: no vendor means the application page).
+- **`layout` shows, it does not decide.** It owns page frames, headers, navigation and page structure, and may show `auth` and `cart` information through their public hooks (who is logged in, the cart count). On the server the storefront header shows the top-level categories through `product-list`'s category-tree call, the server side of a call hook, and it places `search`'s search box (Slice 3). Rules such as who may enter an area belong to `auth` (page access) and to the feature (for example `vendor`: no vendor means the application page).
 - **`lib/` and `utils/`:** `lib/` knows the app; `utils/` is plain functions with no app knowledge.
 - **Calls to the backend (D3-03):**
   - The browser calls only our own server; the one exception is approved public product photos, which load straight from the public photo host (D3-04).

@@ -25,7 +25,14 @@
     "products": "Products",
     "cart": "Cart",
     "cartOne": "item",
-    "cartMany": "items"
+    "cartMany": "items",
+    "search": "Search",
+    "searchLabel": "Search the shop",
+    "searchPlaceholder": "Search kurtas, brands",
+    "suggestedProducts": "Products",
+    "suggestedCategories": "Categories",
+    "suggestedBrands": "Brands",
+    "categories": "Categories"
   },
   "login": {
     "title": "Log in or sign up",
@@ -807,7 +814,12 @@
     "heroTitle": "Browse new arrivals",
     "heroText": "Browse the newest listings.",
     "categories": "Categories",
-    "brandNoProducts": "No products from this brand yet. Have a look at a category."
+    "brandNoProducts": "No products from this brand yet. Have a look at a category.",
+    "searchTitle": "Search",
+    "resultsFor": "Results for “{text}”",
+    "nothingMatches": "Nothing matches “{text}”",
+    "nothingMatchesText": "Check the spelling, or clear a filter. You can also browse a category.",
+    "searchPrompt": "Type what you are looking for in the search box."
   },
   "cart": {
     "title": "Your cart",
