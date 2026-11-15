@@ -56,6 +56,11 @@ test.describe('login and sessions', () => {
     await page.reload();
     await expect(page.getByRole('heading', { name: 'Your account' })).toBeVisible();
 
+    // Log out is on the account's Security tab (approved Stage 5 screens; Slice 3).
+    await page
+      .getByRole('navigation', { name: 'Account pages' })
+      .getByRole('link', { name: 'Security' })
+      .click();
     await page.getByRole('button', { name: 'Log out', exact: true }).click();
     await expect(page).toHaveURL(/\/en$/);
     const after = (await context.cookies()).map((cookie) => cookie.name);
@@ -110,7 +115,7 @@ test.describe('login and sessions', () => {
   test('log out everywhere asks first, then ends the session', async ({ page }) => {
     await page.goto('/en/login');
     await logIn(page, freshPhone());
-    await page.goto('/en/account');
+    await page.goto('/en/account/security');
     await page.getByRole('button', { name: 'Log out everywhere' }).click();
     await expect(page.getByRole('alertdialog')).toBeVisible();
     await page.getByRole('alertdialog').getByRole('button', { name: 'Log out everywhere' }).click();

@@ -85,6 +85,10 @@ export const BACKEND_CODES_IN_USE = [
   'CART_QUANTITY_LIMIT',
   'CART_LINE_LIMIT',
   'CART_ITEM_NOT_FOUND',
+  // the account: profile and saved addresses (Area 1): Slice 3d
+  'EMAIL_TAKEN',
+  'ADDRESS_LIMIT',
+  'ADDRESS_NOT_FOUND',
 ] as const;
 
 /** Codes from the backend's framework, not in its catalogue (api-contract.md, section 3), that a built screen can show. */

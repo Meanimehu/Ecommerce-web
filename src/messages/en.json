@@ -64,7 +64,44 @@
     "cancel": "Cancel",
     "loggingOut": "Logging out…",
     "sessions": "Log out",
-    "logOutEverywhereHelp": "This ends your login on every device, including this one."
+    "logOutEverywhereHelp": "This ends your login on every device, including this one.",
+    "tabs": "Account pages",
+    "profile": "Profile",
+    "addresses": "Addresses",
+    "security": "Security",
+    "phoneHelp": "The mobile number cannot be changed here.",
+    "name": "Name",
+    "email": "Email",
+    "saveProfile": "Save changes",
+    "profileSaved": "Your changes are saved",
+    "address": {
+      "heading": "Saved addresses",
+      "add": "Add a new address",
+      "addTitle": "Add an address",
+      "editTitle": "Edit address",
+      "label": "Label",
+      "labelHelp": "For example Home or Work.",
+      "name": "Name",
+      "phone": "Mobile number",
+      "line1": "Address line 1",
+      "line2": "Address line 2",
+      "city": "City",
+      "state": "State",
+      "pincode": "Pin code",
+      "save": "Save address",
+      "saved": "Address saved",
+      "edit": "Edit",
+      "remove": "Delete",
+      "makeDefault": "Make default",
+      "isDefault": "Default",
+      "defaultChanged": "Default address changed",
+      "removeTitle": "Delete this address?",
+      "removeBody": "{address} will be deleted.",
+      "removed": "Address deleted",
+      "none": "No saved addresses yet",
+      "noneText": "Add an address you want to keep.",
+      "limitReached": "You have 10 addresses, the most you can keep. Delete one to add another."
+    }
   },
   "session": {
     "checking": "Checking your login…",
@@ -182,7 +219,10 @@
       "VARIANT_UNAVAILABLE": "This item can no longer be bought.",
       "CART_QUANTITY_LIMIT": "You can have up to 10 of one item in your cart.",
       "CART_LINE_LIMIT": "Your cart can hold up to 50 different items.",
-      "CART_ITEM_NOT_FOUND": "This item is no longer in your cart. Reload the page."
+      "CART_ITEM_NOT_FOUND": "This item is no longer in your cart. Reload the page.",
+      "ADDRESS_LIMIT": "You can keep up to 10 addresses. Delete one to add another.",
+      "ADDRESS_NOT_FOUND": "This address was not found. Reload the page.",
+      "EMAIL_TAKEN": "Another account uses this email address."
     }
   },
   "languageNames": {
@@ -210,7 +250,8 @@
     "hexShape": "Enter a colour like #1A1A1A, or leave it empty.",
     "taxPair": "Choose both an HSN code and a GST rate, or neither to use the category's default.",
     "number": "Enter a number.",
-    "moneyShape": "Enter an amount in rupees, for example 1499 or 1499.50."
+    "moneyShape": "Enter an amount in rupees, for example 1499 or 1499.50.",
+    "emailShape": "Enter an email address like name@example.com."
   },
   "noScript": {
     "interactive": "This page needs JavaScript. Turn it on in your browser settings, or use a newer browser."

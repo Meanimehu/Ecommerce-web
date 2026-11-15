@@ -30,6 +30,10 @@ export const loginPath = (lang: Locale, nextPage?: string) =>
 
 export const accountPath = (lang: Locale) => `/${lang}/account`;
 
+export const accountAddressesPath = (lang: Locale) => `/${lang}/account/addresses`;
+
+export const accountSecurityPath = (lang: Locale) => `/${lang}/account/security`;
+
 export const cartPath = (lang: Locale) => `/${lang}/cart`;
 
 // ---- Storefront (Document 4, D4-02) ----
