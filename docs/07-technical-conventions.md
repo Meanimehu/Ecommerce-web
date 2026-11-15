@@ -209,6 +209,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 36 | 14 Nov 2026 | Status: step 10 done (#52); step 11 in progress. **Agreed by the owner:** the step 11 plan in 20.13, including fixing the reason dialog to the 20.9 pattern (a shared action hook, named callbacks, no `try`/`catch`) rather than recording it as an exception, with its test written first. No other decision changed |
 | 37 | 15 Nov 2026 | Status: step 11 done (#53), the clean-up complete. **Agreed by the owner:** in section 11, the backend tests in CI and the other browsers are postponed until the whole application is built (pull request #54 stays open, unmerged), and the testing status is recorded; in 20.13, Slice 3 follows step 11 directly. No other decision changed |
 | 38 | 15 Nov 2026 | **Agreed by the owner:** D7-20, a group folder for the features of one area; `storefront` becomes a group with four parts (`product-list`, `product-page`, `search`, `home`) and `account` is a new feature (section 16, 20.4). The Slice 3 plan is in Document 8, section 4. No other decision changed |
+| 39 | 15 Nov 2026 | **Agreed by the owner:** the first-load limits are raised to 265 KB without fonts in every language and 307 KB in total for English pages (Document 6, section 14), for the storefront header of Slice 3. No other decision changed |
 
 ## 16. Names: folders and files
 

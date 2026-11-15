@@ -748,6 +748,8 @@ D-11 makes budget Android phones and slow connections the reference case and lea
 
 **First figures under this rule (14 Nov 2026):** Hindi login 381.1 KB (257.0 KB without fonts, 124.1 KB fonts), Hindi home 273.8 KB, Hindi category page 350.4 KB (fonts 137.0 KB); English login 297.4 KB. To bring the Hindi login page under 258 KB without fonts, the shop's text (`store`) and the cart's text (`cart`) are now carried only by the pages that use them (Document 7, T7-2). The page-size tests check every rule (`tests/e2e/support/page-size.ts`).
 
+**Raised for the storefront header (owner, 15 Nov 2026).** Slice 3 adds the storefront header of 7.3 to every shop page: the search box with suggestions, the category row, the compact menu and the footer. With it the login page, the heaviest shop page because it is the only one that still loads the form-checking library, measured 261.2 KB without fonts in English (302.8 KB in total) and 262.3 KB in Hindi. The owner chose to raise the limits rather than give login a lighter header or change its form checks: **everything except fonts 265 KB or less, the same in every language** (was 258 KB); **an English page 307 KB or less in total** (was 300 KB). Fonts stay at 150 KB or less per page language. The page-size tests check the new figures (`tests/e2e/support/page-size.ts`).
+
 **Items that need technical validation.**
 
 1. The 100 KB first-screen data allowance, against real API responses (all three areas).
@@ -1004,3 +1006,4 @@ Approved decisions in Documents 1 to 5 are not changed by this document. It appl
 | 29 | 8.8: when the last "Load more" batch has loaded and the button is gone, focus moves to the first card added (Document 7, pull request #48) | Owner-approved (14 Nov 2026) | Done |
 | 30 | Section 14: for Hindi pages, a split budget (258 KB without fonts in every language, fonts 150 KB per language) and a trimmed Devanagari font; item 3 updated | Owner-approved (14 Nov 2026), applied only after the Q7-7 measurements are reviewed | Done in row 31 |
 | 31 | Section 14 and 5.4: the split budget and the trimmed font applied after the owner reviewed the Q7-7 results; first figures under the rule; item 3 settled | Owner-approved (14 Nov 2026) | Done (pull request #49) |
+| 32 | Section 14: everything except fonts 265 KB or less in every language (was 258 KB), an English page 307 KB or less in total (was 300 KB), for the storefront header of 7.3 on every shop page | Owner-approved (15 Nov 2026) | Done (Slice 3) |
