@@ -211,6 +211,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 38 | 15 Nov 2026 | **Agreed by the owner:** D7-20, a group folder for the features of one area; `storefront` becomes a group with four parts (`product-list`, `product-page`, `search`, `home`) and `account` is a new feature (section 16, 20.4). The Slice 3 plan is in Document 8, section 4. No other decision changed |
 | 39 | 15 Nov 2026 | **Agreed by the owner:** the first-load limits are raised to 265 KB without fonts in every language and 307 KB in total for English pages (Document 6, section 14), for the storefront header of Slice 3. No other decision changed |
 | 40 | 15 Nov 2026 | In 20.4, the storefront header (`layout`) reads the category tree through `product-list`'s server call and shows `search`'s box (Slice 3c). No other decision changed |
+| 41 | 15 Nov 2026 | Slice 3d: the new `account` feature (profile, saved addresses, the account tabs, the areas); the account's text is carried only by the account pages (`PAGE_SECTIONS`); the account page's links left from step 10 are done. No decision changed |
 
 ## 16. Names: folders and files
 
@@ -565,7 +566,7 @@ The steps:
     - Which admin screens each role may use is a page-access rule, so it moves to `auth` (`features/auth/staff-screens.ts`); the Admin menu and the Admin home read it (20.4: `layout` shows, it does not decide).
     - The header then takes who is logged in from `auth` and the cart count from `cart` as `layout` may, which ends the header's temporary exception from step 9. `components/auth/` goes.
     - **The layout spec is written first** (`tests/e2e/layout.spec.ts`), passing on the old code: the storefront header logged out and logged in with the cart count, the language switch (same page, choice remembered), the Vendor menu with and without a vendor, the Admin menu and Admin home for a moderator and for an admin, the phone menu drawer, and the staff frame in Hindi with an accessibility check.
-    - **Left for Slice 3 (owner, 14 Nov 2026):** the account page (`src/app/[lang]/account/page.tsx`) builds its own short list of links (Admin area, Vendor area, Become a vendor). That is page content, not the frame, so it stays as it is in step 10 and is cleaned up when the account page is built out in Slice 3 (profile, addresses and the account tabs, Document 5, section 6.5).
+    - **Left for Slice 3 (owner, 14 Nov 2026):** the account page (`src/app/[lang]/account/page.tsx`) builds its own short list of links (Admin area, Vendor area, Become a vendor). That is page content, not the frame, so it stays as it is in step 10 and is cleaned up when the account page is built out in Slice 3 (profile, addresses and the account tabs, Document 5, section 6.5). **Done in Slice 3d:** the links are `account`'s `AccountAreas`, on the profile tab.
 11. **Finally:**
     - the lint rule for one-letter names and nested ternaries covers all of `src/`, the format check joins CI, and the temporary file list in `eslint.config.mjs` goes;
     - `utils/message-checks.ts` moves to `scripts/`, after checking again that no app code uses it. Today its only users are the message check (`scripts/check-messages.ts`) and that check's unit test (`tests/unit/messages.test.ts`), whose import changes with it.

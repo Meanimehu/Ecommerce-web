@@ -9,7 +9,7 @@ moved or removed.
 | Folder | What goes in it | Runs in |
 | --- | --- | --- |
 | `app/` | Routing and layouts: pages in `[lang]/`, our own endpoints in `api/` | Both |
-| `features/<feature>/` | One folder per feature, once it has moved (Document 7, D7-17): `components/`, `hooks/`, `server/` (server only) and `types.ts`. **`auth`, `vendor`, `catalogue` (the admin lists), `product`, `storefront` (a group of parts, D7-20), `cart` and `layout` have moved | Both; `server/` server only |
+| `features/<feature>/` | One folder per feature, once it has moved (Document 7, D7-17): `components/`, `hooks/`, `server/` (server only) and `types.ts`. **`auth`, `vendor`, `catalogue` (the admin lists), `product`, `storefront` (a group of parts, D7-20), `cart`, `account` and `layout` have moved | Both; `server/` server only |
 | `components/` | Reusable UI any feature may use: `ui/` (shadcn), `form/`, `common/`. It imports no feature | Browser and server pages |
 | `hooks/` | Reusable logic: the form hook; each feature's hooks are in its `hooks/` | Browser |
 | `api/` | `client.ts`: the one way our server calls the backend; each feature's calls are in its `server/` | **Server only** |
@@ -121,7 +121,9 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `[lang]/search` | Search results: `?q=` with the filters and sort, best match first; drawn on each request, its list answer kept 30 seconds; never indexed; with no text it asks for some; the screen is in `features/storefront/product-list/` |
 | `[lang]/cart` | The cart (needs login): `CartScreen` from `cart` |
 | `[lang]/login/page.tsx` | The login page |
-| `[lang]/account/page.tsx` | Account: log out, log out everywhere, the areas this person may open |
+| `[lang]/account/page.tsx` | Account, the Profile tab: the phone, the name and email, the areas this person may open (needs login) |
+| `[lang]/account/addresses` | Account, the Addresses tab: saved addresses, read on the server (needs login) |
+| `[lang]/account/security` | Account, the Security tab: log out, log out everywhere (`auth`'s `LogoutButtons`) (needs login) |
 | `[lang]/admin/layout.tsx`, `page.tsx` | Admin area (any staff role): `AreaShell` and `AdminHome` from `layout` |
 | `[lang]/admin/vendors/…` | Vendor review: the list, and one application (admin only); the screens are in `features/vendor/` |
 | `[lang]/admin/catalogue/[list]` | Catalogue lists: categories, HSN codes, brands, sizes, colours (admin only); the screens are in `features/catalogue/` |
@@ -140,6 +142,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `api/admin/catalogue/[list]/…` | The catalogue lists: read, add, change (and switch off or on) |
 | `api/catalogue/dictionaries` | What the product form offers (the backend's own address; it belongs to `product`) |
 | `api/catalogue/categories` | The public category tree (`storefront/product-list`) |
+| `api/me`, `api/me/addresses/…` | Change one's own name and email; the saved addresses: list, add, change, delete, make default (`account`) |
 | `api/catalogue/suggest` | Suggestions while typing, fresh for 10 seconds (`storefront/search`) |
 | `api/catalogue/brands` | A page of the active brands, fresh for 10 minutes (`storefront/product-list`) |
 | `api/catalogue/products/…` | Product cards for "Load more"; one product as it is now (before adding to the cart) (`storefront/product-list`, `storefront/product-page`) |
@@ -359,6 +362,23 @@ It uses the cart's call hooks for "Add to cart" (`useAddToCart`, `useAddAfterLog
 | `hooks/use-product-add.ts` | Add to cart now, or log in and add on the way back; the messages |
 | `server/product-page-api.ts` | Backend Area 3a: one product; `findVisibleProduct` (null for a real 404) |
 
+### `features/account/` — the customer's own settings
+
+Backend Area 1, the person's own profile and saved addresses (Document 5, section 6.5). The profile is `auth`'s `User`;
+logout stays in `auth`.
+
+| File | What it does |
+| --- | --- |
+| `types.ts` | The address schema, the generated request bodies, the profile and address form schemas, `MAX_ADDRESSES` (10) |
+| `components/account-tabs.tsx` | The heading and the Profile, Addresses and Security tabs (`AccountTab`) |
+| `components/profile-form.tsx` | The phone (shown, not changed), the name and email (both optional) |
+| `components/address-list.tsx`, `address-form.tsx` | Saved addresses, default first, with Edit, Delete (asks first) and Make default; the form opens in place; up to 10 |
+| `components/account-areas.tsx` | The Admin area, the Vendor area or "Become a vendor", as the person may |
+| `hooks/use-account.ts` | The call hooks: `useAddresses`, `useUpdateProfile`, `useAddAddress`, `useUpdateAddress`, `useRemoveAddress`, `useMakeDefaultAddress`; `accountKeys` |
+| `hooks/use-profile-form.ts`, `use-address-form.ts` | The forms: only the changed fields are sent; the backend's errors show by the fields |
+| `hooks/use-address-actions.ts` | Delete and make default, with a toast; a failure shows on the page |
+| `server/account-api.ts` | Backend Area 1: change the profile; list, add, change, delete and make default an address |
+
 ### `features/layout/` — the page frames
 
 The storefront header and the Vendor and Admin frame with their menus (Document 5, section 5; Document 6, 7.3). It shows
@@ -416,7 +436,7 @@ storefront's buy box uses its call hooks; the login endpoint asks it to run the 
 | `lib/uploads.ts` | Upload limits copied from the backend, for a quick check before sending |
 | `lib/i18n.ts` | The two languages, choosing one, and `otherLocale` (the language the switch offers) |
 | `lib/routes.ts` | Every page address, one helper per kind of page (`homePath`, `loginPath`, `categoryPath`, `productPath` with `productSlug`, `cartPath`, `myProductPath`, `adminVendorPath`, `samePageIn` for the language switch, …); no feature, server-only or Zod import, so `proxy.ts` can use it (Document 7, 20.2) |
-| `lib/messages.ts` | `getMessages` for server pages; the shared text, the Vendor and Admin areas' own text, and the text only some pages carry (`store` on the category and product pages, `cart` on the cart page) |
+| `lib/messages.ts` | `getMessages` for server pages; the shared text, the Vendor and Admin areas' own text, and the text only some pages carry (`store` on the shop's pages, `cart` on the cart page, `account` on the account pages) |
 | `lib/messages-context.tsx` | `useMessages`: the page's text in the browser, only its language (area text only inside those areas, page-only text only on those pages) |
 | `lib/add-notice.ts` | What happened to an "Add to cart" made before login: `AddOutcome`, `AddNotice`, `keepAddNotice` (login) and `takeAddNotice` (the page returned to). Shared so `auth` and `cart` never import each other; no Zod |
 | `lib/errors.ts` | `AppError`, `toAppError`, and `messageFor`: our own message for any error |
