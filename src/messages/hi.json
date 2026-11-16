@@ -13,7 +13,6 @@
     "openMenu": "मेन्यू खोलें",
     "closeMenu": "मेन्यू बंद करें",
     "vendorHome": "होम",
-    "profile": "व्यवसाय प्रोफ़ाइल",
     "adminHome": "होम",
     "application": "आवेदन",
     "becomeVendor": "विक्रेता बनें",
@@ -24,7 +23,6 @@
       "moderation": "उत्पाद समीक्षा"
     },
     "products": "उत्पाद",
-    "stock": "स्टॉक",
     "cart": "कार्ट",
     "cartOne": "आइटम",
     "cartMany": "आइटम",

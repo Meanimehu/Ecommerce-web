@@ -13,7 +13,6 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "vendorHome": "Home",
-    "profile": "Business profile",
     "adminHome": "Home",
     "application": "Application",
     "becomeVendor": "Become a vendor",
@@ -24,7 +23,6 @@
       "moderation": "Product moderation"
     },
     "products": "Products",
-    "stock": "Stock",
     "cart": "Cart",
     "cartOne": "item",
     "cartMany": "items",
