@@ -193,7 +193,11 @@ test.describe('with the local backend', () => {
     const vendor = await pageAs(browser, VENDOR_PHONE, '/hi/vendor');
     await vendor.setViewportSize(WIDE);
     await expect(vendor.getByText('विक्रेता क्षेत्र', { exact: true })).toBeVisible();
-    await expect(await sideMenu(vendor, 'मेन्यू')).toHaveText(['होम', 'उत्पाद', 'आवेदन']);
+    await expect(await sideMenu(vendor, 'मेन्यू')).toHaveText([
+      'होम',
+      'व्यवसाय प्रोफ़ाइल',
+      'उत्पाद',
+    ]);
     await expect(vendor.getByRole('banner').getByRole('link', { name: 'खाता' })).toHaveAttribute(
       'href',
       '/hi/account',
