@@ -227,7 +227,12 @@
       "STOCK_BULK_INVALID": "Nothing was changed. Some rows have problems.",
       "REVISION_NOT_FOUND": "This product has no revision. Reload the page.",
       "REVISION_STATE_INVALID": "This cannot be done in the revision's current status. Reload the page.",
-      "REVISION_NO_CHANGES": "The revision changes nothing yet. Change something before sending it for review."
+      "REVISION_NO_CHANGES": "The revision changes nothing yet. Change something before sending it for review.",
+      "SALE_PRICE_INVALID": "The sale price must be below the normal price.",
+      "SALE_WINDOW_INVALID": "The end must be after the start, the start cannot be in the past, and a sale lasts at most 90 days.",
+      "SALE_OVERLAP": "This variant already has a sale at that time.",
+      "SALE_NOT_FOUND": "This sale was not found. Reload the page.",
+      "SALE_STATE_INVALID": "This sale has already ended, so it cannot be cancelled."
     }
   },
   "languageNames": {
@@ -943,6 +948,51 @@
       "resultTitle": "Stock after the update",
       "outcomeUnknown": "We could not tell whether the update went through. The Now column shows the stock we have now; check it before sending again."
     }
+  },
+  "sales": {
+    "title": "Sales",
+    "newSale": "New sale",
+    "intro": "A sale is a lower price for a set time. A sale cannot be edited: cancel it and create a new one.",
+    "status": {
+      "upcoming": "Upcoming",
+      "active": "Active",
+      "ended": "Ended",
+      "cancelled": "Cancelled"
+    },
+    "filters": {
+      "status": "Status",
+      "all": "All",
+      "show": "Show"
+    },
+    "columns": {
+      "variant": "Variant",
+      "salePrice": "Sale price",
+      "starts": "Starts",
+      "ends": "Ends",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "cancel": "Cancel sale",
+    "cancelTitle": "Cancel this sale?",
+    "cancelBody": "The sale price on {variant} stops at once. A cancelled sale cannot be started again; create a new one instead.",
+    "keep": "Keep the sale",
+    "cancelled": "Sale cancelled",
+    "empty": "No sales yet",
+    "emptyText": "Create a sale to offer a lower price for a set time.",
+    "emptyFiltered": "No sales with this status",
+    "emptyFilteredText": "Choose another status to see more.",
+    "created": "Sale created",
+    "fields": {
+      "variant": "Variant",
+      "normalPrice": "Normal price",
+      "salePrice": "Sale price (₹)",
+      "salePriceHelp": "Below the normal price.",
+      "startsAt": "Starts",
+      "endsAt": "Ends",
+      "timesHelp": "Times are in IST. A sale lasts at most 90 days."
+    },
+    "create": "Create sale",
+    "noVariants": "You have no variants yet. Add a product with its sizes and colours first."
   },
   "moderation": {
     "title": "Product moderation",

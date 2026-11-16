@@ -33,7 +33,13 @@ test.describe('the business profile and the read-only banner', () => {
     await page.setViewportSize(WIDE);
     await page.goto('/en/vendor/profile');
     await expect(page.getByRole('heading', { name: 'Business profile', level: 1 })).toBeVisible();
-    await expect(sideMenu(page)).toHaveText(['Home', 'Business profile', 'Products', 'Stock']);
+    await expect(sideMenu(page)).toHaveText([
+      'Home',
+      'Business profile',
+      'Products',
+      'Stock',
+      'Sales',
+    ]);
     await expect(sideMenu(page).nth(1)).toHaveAttribute('aria-current', 'page');
     // An approved vendor sees no read-only banner.
     await expect(page.getByText(NOT_APPROVED)).toHaveCount(0);

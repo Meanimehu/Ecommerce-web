@@ -5,6 +5,7 @@ import {
   adminVendorsPath,
   moderationQueuePath,
   myProductsPath,
+  mySalesPath,
   myStockPath,
   vendorApplyPath,
   vendorHomePath,
@@ -39,8 +40,8 @@ const ADMIN_SCREEN_ICONS: Record<AdminScreen, NavIcon> = {
 
 /**
  * The Vendor area menu, as in the approved screens (Document 8, Slice 4 notes): a person with no
- * vendor sees only the application; a person with a vendor sees Home, Business profile, Products
- * and Stock, and reaches the application from those pages, not from the menu. The newer labels
+ * vendor sees only the application; a person with a vendor sees Home, Business profile, Products,
+ * Stock and Sales, and reaches the application from those pages, not from the menu. The newer labels
  * come from the Vendor area's own text, which only its pages carry to the browser, not from `nav`,
  * which every page carries (Document 6, section 14).
  */
@@ -53,6 +54,7 @@ export function vendorNav(lang: Locale, messages: Messages, hasVendor: boolean):
     { href: vendorProfilePath(lang), label: messages.vendor.profile.title, icon: 'profile' },
     { href: myProductsPath(lang), label: messages.nav.products, icon: 'products' },
     { href: myStockPath(lang), label: messages.stock.title, icon: 'stock' },
+    { href: mySalesPath(lang), label: messages.sales.title, icon: 'sales' },
   ];
 }
 

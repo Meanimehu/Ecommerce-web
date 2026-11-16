@@ -21,6 +21,8 @@ import {
   vendorHomePath,
   vendorProfilePath,
   myStockPath,
+  mySalesPath,
+  newSalePath,
   bulkStockPath,
   variantStockPath,
   stockHistoryPath,
@@ -64,6 +66,8 @@ describe('page addresses (lib/routes.ts)', () => {
     expect(vendorProfilePath('hi')).toBe('/hi/vendor/profile');
     expect(myProductsPath('en')).toBe('/en/vendor/products');
     expect(myStockPath('en')).toBe('/en/vendor/stock');
+    expect(mySalesPath('hi')).toBe('/hi/vendor/sales');
+    expect(newSalePath('en')).toBe('/en/vendor/sales/new');
     expect(bulkStockPath('hi')).toBe('/hi/vendor/stock/bulk');
     expect(variantStockPath('en', 'p1', 'v 2')).toBe('/en/vendor/stock/p1/v%202');
     expect(stockHistoryPath('en', 'p1', 'v2')).toBe('/en/vendor/stock/p1/v2/history');
