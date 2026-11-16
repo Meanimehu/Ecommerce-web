@@ -8,6 +8,8 @@ import {
   ProductPageSchema,
   ProductSchema,
   ProductViewSchema,
+  RevisionGallerySchema,
+  RevisionSchema,
   VariantSchema,
   type AddVariantBody,
   type ChangePhotoBody,
@@ -168,4 +170,105 @@ export const openMyPhoto = (token: string, id: string, imageId: string, size: Ph
   openBackendFile({
     path: `${myPhotoPath(id, imageId)}/file?size=${encodeURIComponent(size)}`,
     token,
+  });
+
+// ---- Revisions: changes to an approved product (area-3b-products.md, section 5) ----
+
+const myRevisionPath = (id: string) => `${myProductPath(id)}/revision`;
+const myRevisionPhotoPath = (id: string, imageId: string) =>
+  `${myRevisionPath(id)}/images/${encodeURIComponent(imageId)}`;
+
+export const getRevision = (token: string, id: string) =>
+  callBackend({
+    method: 'GET',
+    path: myRevisionPath(id),
+    kind: 'view',
+    token,
+    schema: RevisionSchema,
+  });
+
+/** Starts a revision when there is none; a rejected one becomes a draft again. */
+export const changeRevision = (token: string, id: string, body: ChangeProductBody) =>
+  callBackend({
+    method: 'PATCH',
+    path: myRevisionPath(id),
+    kind: 'save',
+    token,
+    body,
+    schema: RevisionSchema,
+  });
+
+export const discardRevision = (token: string, id: string) =>
+  callBackend({ method: 'DELETE', path: myRevisionPath(id), kind: 'save', token, schema: null });
+
+export const submitRevision = (token: string, id: string) =>
+  callBackend({
+    method: 'POST',
+    path: `${myRevisionPath(id)}/submit`,
+    kind: 'save',
+    token,
+    schema: RevisionSchema,
+  });
+
+export const withdrawRevision = (token: string, id: string) =>
+  callBackend({
+    method: 'POST',
+    path: `${myRevisionPath(id)}/withdraw`,
+    kind: 'save',
+    token,
+    schema: RevisionSchema,
+  });
+
+export const uploadRevisionPhoto = (token: string, id: string, upload: UploadBody) =>
+  callBackend({
+    method: 'POST',
+    path: `${myRevisionPath(id)}/images`,
+    kind: 'upload',
+    token,
+    upload,
+    schema: RevisionGallerySchema,
+  });
+
+export const orderRevisionPhotos = (token: string, id: string, body: OrderPhotosBody) =>
+  callBackend({
+    method: 'PUT',
+    path: `${myRevisionPath(id)}/images/order`,
+    kind: 'save',
+    token,
+    body,
+    schema: RevisionGallerySchema,
+  });
+
+export const changeRevisionPhoto = (
+  token: string,
+  id: string,
+  imageId: string,
+  body: ChangePhotoBody,
+) =>
+  callBackend({
+    method: 'PATCH',
+    path: myRevisionPhotoPath(id, imageId),
+    kind: 'save',
+    token,
+    body,
+    schema: RevisionGallerySchema,
+  });
+
+/** A photo the revision added is deleted; a live one is marked for removal. */
+export const removeRevisionPhoto = (token: string, id: string, imageId: string) =>
+  callBackend({
+    method: 'DELETE',
+    path: myRevisionPhotoPath(id, imageId),
+    kind: 'save',
+    token,
+    schema: RevisionGallerySchema,
+  });
+
+export const restoreRevisionPhoto = (token: string, id: string, imageId: string) =>
+  callBackend({
+    method: 'POST',
+    path: `${myRevisionPhotoPath(id, imageId)}/restore`,
+    kind: 'save',
+    token,
+    schema: RevisionGallerySchema,
   });

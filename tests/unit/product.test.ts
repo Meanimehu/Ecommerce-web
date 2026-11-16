@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { AttributeType } from '@/features/catalogue/types';
-import { attributeValues } from '@/features/product/hooks/use-attributes-form';
-import { changedProduct, newProduct } from '@/features/product/hooks/use-basics-form';
+import { attributeDefaults, attributeValues } from '@/features/product/hooks/use-attributes-form';
+import {
+  basicsDefaults,
+  changedProduct,
+  newProduct,
+} from '@/features/product/hooks/use-basics-form';
 import { changedVariant, newVariant } from '@/features/product/hooks/use-variant-form';
 import {
   BasicsFormSchema,
@@ -22,6 +26,10 @@ import {
   VariantFormSchema,
   type DictionaryCategory,
   type Photo,
+  canEditRevision,
+  changesPhotos,
+  RevisionStatus,
+  type Revision,
 } from '@/features/product/types';
 
 describe('money typed in rupees, sent in paise (D-15; Document 3, section 7)', () => {
@@ -198,5 +206,51 @@ describe('photos and moderation', () => {
     expect(canReviewProducts(['moderator'])).toBe(true);
     expect(canReviewProducts(['customer', 'admin'])).toBe(true);
     expect(canReviewProducts(['customer', 'vendor_owner'])).toBe(false);
+  });
+});
+
+describe('revisions (Document 5, section 7.3; area-3b-products.md, section 5)', () => {
+  const revision = (photoChanges: Partial<Revision['photoChanges']>): Revision => ({
+    status: RevisionStatus.Draft,
+    reason: null,
+    submittedAt: null,
+    content: {
+      categoryId: 'c1',
+      brandId: null,
+      title: 'Kurta',
+      description: null,
+      attributes: {},
+      hsnCode: null,
+      gstRateBps: null,
+      taxSource: 'category_default',
+    },
+    changes: [],
+    images: [],
+    removed: [],
+    photoChanges: { added: [], removed: [], reordered: false, altTextChanged: [], ...photoChanges },
+    missing: [],
+  });
+
+  it('a draft or rejected revision can be edited; one waiting for review cannot', () => {
+    expect(canEditRevision(RevisionStatus.Draft)).toBe(true);
+    expect(canEditRevision(RevisionStatus.Rejected)).toBe(true);
+    expect(canEditRevision(RevisionStatus.Submitted)).toBe(false);
+  });
+
+  it('knows when the photos change at all', () => {
+    expect(changesPhotos(revision({}))).toBe(false);
+    expect(changesPhotos(revision({ added: ['p1'] }))).toBe(true);
+    expect(changesPhotos(revision({ reordered: true }))).toBe(true);
+    expect(changesPhotos(revision({ altTextChanged: ['p2'] }))).toBe(true);
+  });
+
+  it('a revision starts from the same basics as the product, and sends only what changed', () => {
+    const content = revision({}).content;
+    expect(basicsDefaults(content)).toMatchObject({
+      title: 'Kurta',
+      categoryId: 'c1',
+      hsnCode: '',
+    });
+    expect(attributeDefaults({ fit: 'Relaxed', size: null }, [])).toEqual({});
   });
 });

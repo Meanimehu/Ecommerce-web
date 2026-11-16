@@ -224,7 +224,10 @@
       "ADDRESS_NOT_FOUND": "This address was not found. Reload the page.",
       "EMAIL_TAKEN": "Another account uses this email address.",
       "STOCK_INVALID": "The number must be from 0 to 1,000,000, and stock cannot go below 0.",
-      "STOCK_BULK_INVALID": "Nothing was changed. Some rows have problems."
+      "STOCK_BULK_INVALID": "Nothing was changed. Some rows have problems.",
+      "REVISION_NOT_FOUND": "This product has no revision. Reload the page.",
+      "REVISION_STATE_INVALID": "This cannot be done in the revision's current status. Reload the page.",
+      "REVISION_NO_CHANGES": "The revision changes nothing yet. Change something before sending it for review."
     }
   },
   "languageNames": {
@@ -652,7 +655,7 @@
     "emptyFiltered": "No products match",
     "emptyFilteredText": "Try another status or clear the search.",
     "inReview": "This product is waiting for review and cannot be changed until a moderator decides.",
-    "live": "This product is approved. Changes to an approved product are made through a revision, which is not available yet.",
+    "live": "This product is live. Changes go through a revision. The live version stays on sale until the revision is approved.",
     "moderatorReason": "Reason from the moderator",
     "steps": {
       "label": "Product steps",
@@ -770,6 +773,54 @@
         "variant": "At least one variant that is on",
         "image": "At least one photo"
       }
+    },
+    "revision": {
+      "compareTitle": "Live version and revision",
+      "field": "Field",
+      "liveColumn": "Live version",
+      "revisionColumn": "Your revision",
+      "changed": "Changed",
+      "status": {
+        "draft": "Draft",
+        "submitted": "Waiting for review",
+        "rejected": "Rejected"
+      },
+      "none": "No changes proposed",
+      "noneText": "Propose changes and send them for review. Customers keep seeing the live version until a moderator approves them.",
+      "propose": "Propose changes",
+      "edit": "Edit revision",
+      "doneEditing": "Done editing",
+      "submit": "Send for review",
+      "submitted": "Revision sent for review",
+      "withdraw": "Withdraw",
+      "withdrawn": "Revision withdrawn. You can edit it again.",
+      "discard": "Discard revision",
+      "discardTitle": "Discard this revision?",
+      "discardBody": "Your proposed changes and new photos are dropped. The live version does not change.",
+      "discarded": "Revision discarded",
+      "waitingText": "A moderator is reviewing these changes. Withdraw them to edit again.",
+      "detailsTitle": "Details",
+      "saveDetails": "Save changes",
+      "saved": "Revision saved",
+      "attributesTitle": "Attributes",
+      "saveAttributes": "Save attributes",
+      "attributes": "Attributes",
+      "photos": "Photos",
+      "photoCount": "{count} photos",
+      "photoCountOne": "1 photo",
+      "photoChanges": "Added {added}, removed {removed}",
+      "photosReordered": "Order changed",
+      "notGiven": "Not given",
+      "taxDefault": "The category's default",
+      "photoNew": "New",
+      "photoRemoved": "Will be removed",
+      "restore": "Keep this photo",
+      "restored": "Photo kept",
+      "removedPhotos": "Photos to be removed",
+      "photosHelp": "One photo at a time: JPEG, PNG or WebP, up to 10 MB, at least 500 px on the shorter side. New photos stay private until the revision is approved.",
+      "addPhoto": "Add a photo",
+      "photoAdded": "Photo added",
+      "missingTitle": "Fix these to send the revision for review"
     }
   },
   "stock": {

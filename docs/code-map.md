@@ -152,7 +152,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `api/cart/pending` | "Add to cart" while logged out: kept in a signed cookie until login (D2-02) |
 | `api/auth/verify` | Also runs a pending add, once |
 | `api/vendors/me/inventory/…` | The vendor's stock: the list, the summary, set, add or remove, the threshold, the history and the bulk update |
-| `api/vendors/me/products/…` | The vendor's products: details, variants, photos (upload, order, description, private view), submit |
+| `api/vendors/me/products/…` | The vendor's products: details, variants, photos (upload, order, description, private view), submit; the revision (`…/revision`: read, change, discard, submit, withdraw, and its photos) |
 | `api/moderation/products/…` | Moderation: queue, one product, its photos, approve or reject |
 | `api/language` | Remembers the language choice (the switch in `layout`) |
 | `api/health` | Health check for the hosting |
@@ -282,16 +282,19 @@ Categories, HSN codes, brands, sizes and colours; GST rates are read here only a
 | `hooks/use-gst-rate-options.ts` | The GST choices: the active rates, and the current one if switched off |
 | `server/catalogue-api.ts` | Backend Area 3a, the admin lists: list, add, change |
 
-### `features/product/` — a vendor's products, and their moderation
+### `features/product/` — a vendor's products, their revisions, and their moderation
 
 Backend Area 3b: products, variants, photos, the form guide (`/catalogue/dictionaries`) and moderation. It uses
 `catalogue`'s `Attribute`, `vendor`'s `useMyVendor` and `VendorStatus`, `auth`'s role names, and the shared photo frame.
 
 | File | What it does |
 | --- | --- |
-| `types.ts` | The answer schemas; the enums `ProductStatus`, `VariantStatus`, `TaxSource`, `ReviewKind`, `ProductDecision`, `PhotoSize`, `ProductStep`, `MissingItem`, `UploadState`; the request bodies; the forms (`BasicsFormSchema`, `attributesFormSchema`, `VariantFormSchema`, which turns rupees into paise); small rules: `productStepFor`, `productStepToShow`, `canEditProduct`, `canReviewProducts`, `sortedPhotos`, `flattenCategories`, `findCategoryChoice`, `dictionaryLabel`, `rupeesToPaise`, `paiseToRupees`, `photoSizeOf`, `MAX_PHOTOS` |
+| `types.ts` | The answer schemas; the enums `ProductStatus`, `VariantStatus`, `TaxSource`, `ReviewKind`, `ProductDecision`, `PhotoSize`, `ProductStep`, `MissingItem`, `UploadState`, `RevisionStatus`, `RevisionPhotoState`, `RevisionField`; the revision schemas; the request bodies; the forms (`BasicsFormSchema`, `attributesFormSchema`, `VariantFormSchema`, which turns rupees into paise); small rules: `canEditRevision`, `changesPhotos`, `productStepFor`, `productStepToShow`, `canEditProduct`, `canReviewProducts`, `sortedPhotos`, `flattenCategories`, `findCategoryChoice`, `dictionaryLabel`, `rupeesToPaise`, `paiseToRupees`, `photoSizeOf`, `MAX_PHOTOS` |
 | `components/product-list.tsx` | My products: filters, table, numbered pages |
-| `components/product-editor.tsx` | One product: the five steps while it can change, otherwise its summary; the notices above it |
+| `components/product-editor.tsx` | One product: the five steps while it can change, otherwise its summary; the notices above it; for an approved product, the revision panel above the summary |
+| `components/basics-fields.tsx`, `attribute-fields.tsx` | The basics fields and the attribute fields, drawn by a product's steps and by a revision's editor |
+| `components/revision-panel.tsx` | An approved product's revision: the live version and the revision side by side, changes marked, its status and reason, what is missing, and its actions |
+| `components/revision-editor.tsx`, `revision-photos.tsx` | Editing a revision: its details, its attributes and its photos (add, order, description, remove, keep) |
 | `components/product-step-nav.tsx` | The step bar, with "step 2 of 5" for screen readers |
 | `components/basics-step.tsx`, `attributes-step.tsx`, `variants-step.tsx`, `photos-step.tsx`, `review-step.tsx` | The five steps (logic in their hooks) |
 | `components/attributes-form.tsx`, `variant-form.tsx` | The attributes form and one variant's form |
@@ -305,7 +308,9 @@ Backend Area 3b: products, variants, photos, the form guide (`/catalogue/diction
 | `hooks/use-photo-order.ts`, `use-photo-actions.ts`, `use-variant-actions.ts` | Moving photos; one photo's description and Remove; switching a variant off or on and removing it |
 | `hooks/use-product-submit.ts` | Sending for review, deleting a draft |
 | `hooks/use-product-decision.ts` | A moderator's approve (with the tax confirmation) and reject |
-| `server/product-api.ts` | Backend Area 3b, the vendor's side: the form guide, products, variants, photos |
+| `hooks/use-revision-details-form.ts`, `use-revision-attributes-form.ts` | A revision's two forms: they start from the revision (or the live product) and send only what changed; the first save starts the revision |
+| `hooks/use-revision-actions.ts`, `use-revision-photos.ts` | A revision's actions (send for review, withdraw, discard) and its photo actions |
+| `server/product-api.ts` | Backend Area 3b, the vendor's side: the form guide, products, variants, photos and revisions |
 | `server/moderation-api.ts` | Backend Area 3b, moderation: the queue, one product, the decision, its photos |
 
 ### `features/stock/` — a vendor's stock
