@@ -130,6 +130,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `[lang]/admin/moderation/…` | Product moderation: the queue and one product (moderator, admin); the screens are in `features/product/` |
 | `[lang]/vendor/layout.tsx` | Vendor area: never indexed, always rendered for the person |
 | `[lang]/vendor/apply/page.tsx` | Become a vendor: open to anyone logged in |
+| `[lang]/vendor/(needs-vendor)/page.tsx` | The vendor home: it places `vendor`'s application summary and `product`'s and `stock`'s counts |
 | `[lang]/vendor/(needs-vendor)/…` | Every other vendor page: needs a vendor in any status (the `(needs-vendor)` folder groups them, it is not in the address) |
 | `[lang]/vendor/(needs-vendor)/profile/page.tsx` | The business profile; the screen is in `features/vendor/` |
 | `[lang]/vendor/(needs-vendor)/sales/…` | Sale prices (`sales`) and a new sale (`sales/new`); the screens are in `features/sales/` |
@@ -177,6 +178,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `common/steps.tsx` | The steps of a long form |
 | `common/data-table.tsx`, `pagination.tsx` | Staff tables (stacked blocks on phones) and numbered pages |
 | `common/breadcrumbs.tsx` | Breadcrumbs (only the parent on phones) |
+| `common/count-tile.tsx` | A count and its label as a link to the list it counts (the vendor home) |
 | `common/load-states.tsx` | Loading and "could not be loaded, Try again" for one part of a screen |
 | `common/reason-dialog.tsx` | A confirmation that asks for a reason (reject, suspend); only draws |
 | `common/toast.tsx` | The success toast ("Saved") |
@@ -242,6 +244,7 @@ example `useMyVendor`, which `product` uses); `app/` pages also use `findVendorP
 | `types.ts` | The backend answer schemas (vendor, address, document, admin views); the enums (`VendorStatus`, `SellerType`, `DocumentType`, `DocumentStatus`, `AddressType`, `VendorDecision`, `DocumentDecision`, `MissingItem`, `ApplyStep`); the request bodies from the generated types; the forms (`VendorDetailsFormSchema`, `VendorAddressFormSchema`, and `ProfileDetailsFormSchema` for the profile after approval); the small rules `stepFor` (which step fixes a missing item) and `isEditable` (which statuses the owner may change) |
 | `components/vendor-area.tsx` | `VendorArea`: who may open which vendor page; the application page is open to anyone logged in. Every other vendor page shows the read-only banner when the vendor is not approved |
 | `components/read-only-banner.tsx` | `ReadOnlyBanner`: the one banner of Document 5, section 7.5 (not approved, or suspended), with a link to the application |
+| `components/application-summary.tsx` | The vendor home's application line: the status, what it means, and the way to the application until it is approved |
 | `components/business-profile.tsx` | The business profile: details, addresses and documents; an approved vendor changes the shop name and email, the addresses and the documents, others read only (logic in `hooks/use-profile-details-form.ts`) |
 | `components/apply-screen.tsx` | Become a vendor: the status card with its one way on, and the four steps |
 | `components/details-step.tsx` | Step 1, business details (logic in `hooks/use-vendor-details-form.ts`) |
@@ -295,6 +298,7 @@ Backend Area 3b: products, variants, photos, the form guide (`/catalogue/diction
 | `components/product-list.tsx` | My products: filters, table, numbered pages |
 | `components/product-editor.tsx` | One product: the five steps while it can change, otherwise its summary; the notices above it; for an approved product, the revision panel above the summary |
 | `components/basics-fields.tsx`, `attribute-fields.tsx` | The basics fields and the attribute fields, drawn by a product's steps and by a revision's editor |
+| `components/product-attention.tsx` | The vendor home's product counts: waiting for review and rejected, each a link to the filtered list |
 | `components/revision-panel.tsx` | An approved product's revision: the live version and the revision side by side, changes marked, its status and reason, what is missing, and its actions |
 | `components/revision-editor.tsx`, `revision-photos.tsx` | Editing a revision: its details, its attributes and its photos (add, order, description, remove, keep) |
 | `components/product-step-nav.tsx` | The step bar, with "step 2 of 5" for screen readers |
@@ -328,6 +332,7 @@ Backend Area 4. It uses `product`'s form guide (`useDictionaries`) for size and 
 | `components/stock-history.tsx` | One variant's history, numbered pages |
 | `components/bulk-stock.tsx` | The bulk update by SKU: the table, its problems by row, the result, and the stock now after an unknown outcome |
 | `components/stock-state-chip.tsx` | In stock, low, out |
+| `components/stock-attention.tsx` | The vendor home's stock counts: low and out, each a link to the filtered list |
 | `hooks/use-stock.ts` | The call hooks, one per call, and `useEveryStockRow` (read only after an unknown bulk outcome); `stockKeys` |
 | `hooks/use-stock-change-form.ts`, `use-threshold-form.ts`, `use-bulk-stock-form.ts` | One form hook per form: what each sends, its errors, and an unknown outcome, never sent again |
 | `server/stock-api.ts` | Backend Area 4, the vendor's side |

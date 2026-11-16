@@ -168,3 +168,16 @@ export async function draftWithTwoVariants(vendor: Page, title: string) {
   }
   return { productId: product.id, variants };
 }
+
+/** Adds one photo to a draft and submits it for review, so it waits for a moderator. */
+export async function submitDraft(vendor: Page, productId: string) {
+  const photo = new FormData();
+  photo.append('file', new Blob([KURTA_PHOTO.buffer], { type: 'image/png' }), 'kurta.png');
+  const upload = await fetch(`${BACKEND}/vendors/me/products/${productId}/images`, {
+    method: 'POST',
+    headers: { authorization: `Bearer ${await tokenOf(vendor)}` },
+    body: photo,
+  });
+  expect(upload.status).toBe(201);
+  await backend(vendor, 'POST', `/vendors/me/products/${productId}/submit`);
+}

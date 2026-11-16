@@ -118,7 +118,6 @@
     "adminHome": "Admin home",
     "adminIntro": "Screens you can use with your roles.",
     "vendorHome": "Vendor home",
-    "vendorIntro": "Your vendor screens are listed in the menu.",
     "noScreens": "You do not have access to any admin screen",
     "noScreensText": "Your account has a staff role that has no screens here. Ask an admin if this is wrong."
   },
@@ -448,6 +447,10 @@
       "locked": "Your legal name, GSTIN and seller type cannot be changed after approval.",
       "noValue": "Not given",
       "documentsText": "A new file is reviewed on its own. The approved file stays on record until the new one is approved."
+    },
+    "home": {
+      "attention": "Needs your attention",
+      "openApplication": "Open your application"
     }
   },
   "adminVendors": {
@@ -826,6 +829,10 @@
       "addPhoto": "Add a photo",
       "photoAdded": "Photo added",
       "missingTitle": "Fix these to send the revision for review"
+    },
+    "attention": {
+      "waiting": "Waiting for review",
+      "rejected": "Rejected products"
     }
   },
   "stock": {
@@ -947,6 +954,10 @@
       "doneMany": "Stock updated. {count} variants changed.",
       "resultTitle": "Stock after the update",
       "outcomeUnknown": "We could not tell whether the update went through. The Now column shows the stock we have now; check it before sending again."
+    },
+    "attention": {
+      "low": "Low stock",
+      "out": "Out of stock"
     }
   },
   "sales": {
