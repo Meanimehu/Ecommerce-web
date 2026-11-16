@@ -3,29 +3,14 @@
 import { MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import { ErrorMessage } from '@/components/common/error-message';
 import { StateBlock } from '@/components/common/state-block';
-import { useToast } from '@/components/common/toast';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { fill, messageFor } from '@/lib/errors';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { vendorApplyPath } from '@/lib/routes';
-import { formatPhone } from '@/utils/format';
-import { useRemoveVendorAddress } from '@/features/vendor/hooks/use-vendor';
-import { ApplyStep, type Vendor, type VendorAddress } from '@/features/vendor/types';
+import { ApplyStep, type Vendor } from '@/features/vendor/types';
 import { AddressForm } from './address-form';
+import { VendorAddressCard } from './vendor-address-card';
 
 /**
  * Step 2, pickup address (Document 5, section 7.1): the addresses on the application, each with
@@ -78,7 +63,7 @@ export function AddressStep({ lang, vendor }: { lang: Locale; vendor: Vendor }) 
             {editingId === address.id ? (
               <AddressForm address={address} onDone={stopEditing} />
             ) : (
-              <AddressCard address={address} onEdit={() => startEditing(address.id)} />
+              <VendorAddressCard address={address} onEdit={() => startEditing(address.id)} />
             )}
           </li>
         ))}
@@ -99,69 +84,5 @@ export function AddressStep({ lang, vendor }: { lang: Locale; vendor: Vendor }) 
         </Button>
       </div>
     </section>
-  );
-}
-
-function AddressCard({ address, onEdit }: { address: VendorAddress; onEdit: () => void }) {
-  const messages = useMessages();
-  const toast = useToast();
-  const removeVendorAddress = useRemoveVendorAddress();
-  const oneLine = [address.line1, address.line2, address.city, address.state, address.pincode]
-    .filter(Boolean)
-    .join(', ');
-  const removeError = removeVendorAddress.error;
-
-  function removeAddress() {
-    removeVendorAddress.mutate(address.id, {
-      onSuccess: () => toast(messages.vendor.address.removed),
-    });
-  }
-
-  return (
-    <div className="grid gap-3 rounded-1 border border-line p-4">
-      <div className="grid gap-1">
-        <p className="type-label text-ink">{messages.vendor.address.types[address.type]}</p>
-        <p className="text-ink">{oneLine}</p>
-        <p className="type-small text-ink-2 tabular-nums">{formatPhone(address.contactPhone)}</p>
-      </div>
-      {removeError ? (
-        <ErrorMessage
-          text={messageFor(removeError, messages)}
-          requestId={removeError.requestId}
-          messages={messages}
-        />
-      ) : null}
-      <div className="flex flex-wrap gap-2">
-        <Button type="button" variant="secondary" size="small" onClick={onEdit}>
-          {messages.vendor.address.edit}
-        </Button>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              type="button"
-              variant="destructive"
-              size="small"
-              disabled={removeVendorAddress.isPending}
-            >
-              {messages.vendor.address.remove}
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{messages.vendor.address.removeTitle}</AlertDialogTitle>
-              <AlertDialogDescription>
-                {fill(messages.vendor.address.removeBody, { address: oneLine })}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>{messages.common.cancel}</AlertDialogCancel>
-              <AlertDialogAction variant="destructiveConfirm" onClick={removeAddress}>
-                {messages.vendor.address.remove}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
-    </div>
   );
 }

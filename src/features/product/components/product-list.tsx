@@ -3,7 +3,6 @@
 import { Package } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
@@ -28,15 +27,9 @@ import { ProductStatusChip } from './product-status-chip';
  * address; each row shows the status, the number of variants, whether anything is still missing,
  * and the last change. The product list the backend sends has no photo or price
  * (area-3b-products.md, GET /vendors/me/products), so none is shown here. Only an approved vendor
- * can add products; others see why (Document 5, section 7.5).
+ * can add products; the Vendor area's one banner says why to the others (Document 5, section 7.5).
  */
 const PAGE_SIZE = 20;
-
-/** A vendor that was refused or stopped sees the notice as an error; one still waiting, as information. */
-const VENDOR_STOPPED: ReadonlySet<VendorStatus> = new Set([
-  VendorStatus.Suspended,
-  VendorStatus.Rejected,
-]);
 
 export function ProductList({ lang }: { lang: Locale }) {
   const messages = useMessages();
@@ -102,11 +95,6 @@ export function ProductList({ lang }: { lang: Locale }) {
           </Button>
         ) : null}
       </div>
-      {vendorStatus && !isApproved ? (
-        <Banner tone={VENDOR_STOPPED.has(vendorStatus) ? 'error' : 'info'}>
-          {productMessages.notApproved}
-        </Banner>
-      ) : null}
       <form method="get" action={listPath} className="flex flex-wrap items-end gap-3">
         <label className="grid gap-1.5">
           <span className="type-label text-ink">{productMessages.filters.status}</span>

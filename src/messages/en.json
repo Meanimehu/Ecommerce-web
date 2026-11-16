@@ -13,6 +13,7 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "vendorHome": "Home",
+    "profile": "Business profile",
     "adminHome": "Home",
     "application": "Application",
     "becomeVendor": "Become a vendor",
@@ -423,6 +424,21 @@
       "submitHelp": "Submit turns on when nothing is missing and the terms are accepted. The backend decides in the end.",
       "submitted": "Application submitted",
       "termsChanged": "The vendor terms have changed. Read them again and agree to submit."
+    },
+    "readOnly": {
+      "notApproved": "Your application has not been approved yet. You can read this page but not change it.",
+      "suspended": "Your vendor account is suspended. You can read this page but not change it.",
+      "seeApplication": "See your application"
+    },
+    "profile": {
+      "title": "Business profile",
+      "details": "Details",
+      "editDetails": "Edit details",
+      "save": "Save changes",
+      "saved": "Your changes are saved",
+      "locked": "Your legal name, GSTIN and seller type cannot be changed after approval.",
+      "noValue": "Not given",
+      "documentsText": "A new file is reviewed on its own. The approved file stays on record until the new one is approved."
     }
   },
   "adminVendors": {
@@ -634,7 +650,6 @@
     "emptyText": "Add your first product. It is saved as a draft until you submit it.",
     "emptyFiltered": "No products match",
     "emptyFilteredText": "Try another status or clear the search.",
-    "notApproved": "Your vendor application is not approved, so products cannot be added or changed. You can read everything here.",
     "inReview": "This product is waiting for review and cannot be changed until a moderator decides.",
     "live": "This product is approved. Changes to an approved product are made through a revision, which is not available yet.",
     "moderatorReason": "Reason from the moderator",

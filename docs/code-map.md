@@ -131,6 +131,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `[lang]/vendor/layout.tsx` | Vendor area: never indexed, always rendered for the person |
 | `[lang]/vendor/apply/page.tsx` | Become a vendor: open to anyone logged in |
 | `[lang]/vendor/(needs-vendor)/…` | Every other vendor page: needs a vendor in any status (the `(needs-vendor)` folder groups them, it is not in the address) |
+| `[lang]/vendor/(needs-vendor)/profile/page.tsx` | The business profile; the screen is in `features/vendor/` |
 | `[lang]/vendor/(needs-vendor)/products/…` | My products (`products`), add a product (`products/add`), one product (`products/{id}`); the screens are in `features/product/` |
 | `[lang]/error.tsx`, `forbidden.tsx`, `global-error.tsx` | Error page, "no access" page (real 403), last-resort error page |
 | `global-not-found.tsx` | "Not found" with a real 404, in English and Hindi together (the pages sit under a language segment, so Next.js uses one global page) |
@@ -227,19 +228,22 @@ Other features use only its public helpers (Document 7, section 20.4): `useSessi
 | `server/answer-as-user.ts` | `answerAsUser` (forgery check for a change, run as the person, renew the login, answer) and `fileAsUser` (a private file) |
 | `server/logout.ts` | `logoutRoute`: logout and "log out everywhere" |
 
-### `features/vendor/` — becoming a vendor, and the admin's vendor review
+### `features/vendor/` — becoming a vendor, the business profile, and the admin's vendor review
 
 Admin is a role, not a feature, so the admin's vendor screens are here too. Other features use its call hooks (for
 example `useMyVendor`, which `product` uses); `app/` pages also use `findVendorPresence`.
 
 | File | What it does |
 | --- | --- |
-| `types.ts` | The backend answer schemas (vendor, address, document, admin views); the enums (`VendorStatus`, `SellerType`, `DocumentType`, `DocumentStatus`, `AddressType`, `VendorDecision`, `DocumentDecision`, `MissingItem`, `ApplyStep`); the request bodies from the generated types; the two forms (`VendorDetailsFormSchema`, `VendorAddressFormSchema`); the small rules `stepFor` (which step fixes a missing item) and `isEditable` (which statuses the owner may change) |
-| `components/vendor-area.tsx` | `VendorArea`: who may open which vendor page; the application page is open to anyone logged in |
+| `types.ts` | The backend answer schemas (vendor, address, document, admin views); the enums (`VendorStatus`, `SellerType`, `DocumentType`, `DocumentStatus`, `AddressType`, `VendorDecision`, `DocumentDecision`, `MissingItem`, `ApplyStep`); the request bodies from the generated types; the forms (`VendorDetailsFormSchema`, `VendorAddressFormSchema`, and `ProfileDetailsFormSchema` for the profile after approval); the small rules `stepFor` (which step fixes a missing item) and `isEditable` (which statuses the owner may change) |
+| `components/vendor-area.tsx` | `VendorArea`: who may open which vendor page; the application page is open to anyone logged in. Every other vendor page shows the read-only banner when the vendor is not approved |
+| `components/read-only-banner.tsx` | `ReadOnlyBanner`: the one banner of Document 5, section 7.5 (not approved, or suspended), with a link to the application |
+| `components/business-profile.tsx` | The business profile: details, addresses and documents; an approved vendor changes the shop name and email, the addresses and the documents, others read only (logic in `hooks/use-profile-details-form.ts`) |
 | `components/apply-screen.tsx` | Become a vendor: the status card with its one way on, and the four steps |
 | `components/details-step.tsx` | Step 1, business details (logic in `hooks/use-vendor-details-form.ts`) |
-| `components/address-step.tsx`, `address-form.tsx` | Step 2: the addresses with Edit and Remove, and the add/change form (logic in `hooks/use-vendor-address-form.ts`) |
-| `components/documents-step.tsx`, `document-row.tsx` | Step 3: one row per document type, with upload, progress, Cancel, View and Remove (logic in `hooks/use-document-upload.ts`) |
+| `components/address-step.tsx`, `address-form.tsx` | Step 2: the addresses, and the add/change form (logic in `hooks/use-vendor-address-form.ts`) |
+| `components/vendor-address-card.tsx` | One address with Edit and Remove, or read only; on the application and the business profile |
+| `components/documents-step.tsx`, `document-row.tsx` | Step 3: one row per document type, with upload, progress, Cancel, View and Remove (logic in `hooks/use-document-upload.ts`); the business profile shows the same rows, read only unless the vendor is approved. Remove only while the application is a draft or rejected |
 | `components/review-step.tsx` | Step 4: the checklist, the terms and Submit (logic in `hooks/use-vendor-submit.ts`) |
 | `components/vendor-status-chip.tsx` | The vendor status chip |
 | `components/vendor-list.tsx` | Admin: the vendor review list with its filters and pages |
@@ -247,11 +251,12 @@ example `useMyVendor`, which `product` uses); `app/` pages also use `findVendorP
 | `hooks/use-vendor.ts` | The call hooks, one per call: `useMyVendor`, `useApplyAsVendor`, `useUpdateMyVendor`, `useSubmitMyVendor`, `useAddVendorAddress`, `useUpdateVendorAddress`, `useRemoveVendorAddress`, `useUploadVendorDocument`, `useRemoveVendorDocument`, `useVendorList`, `useVendor`, `useDecideVendor`, `useReviewVendorDocument`; `vendorKeys` |
 | `hooks/use-vendor-details-form.ts` | The details form: a new application sends every detail, an existing one only what changed; `GSTIN_TAKEN` goes under its field |
 | `hooks/use-vendor-address-form.ts` | The address form: add or change; an emptied second line is removed |
+| `hooks/use-profile-details-form.ts` | The business profile's details form: only the shop name or email that changed is sent |
 | `hooks/use-document-upload.ts` | Action hook: check the file, upload with progress and Cancel, an unknown outcome |
 | `hooks/use-vendor-submit.ts` | Action hook: submit with the terms version; changed terms clear the box |
 | `hooks/use-vendor-decisions.ts` | Action hook: the admin's decisions on the vendor and each document; what approval still lacks |
 | `server/vendor-api.ts` | Backend Area 2: the application and the admin review, made through `api/client.ts` |
-| `server/vendor-presence.ts` | `findVendorPresence`: whether the person has a vendor (`Exists`, `None`, or `Unknown` when the backend cannot be asked), for the vendor area and the account page |
+| `server/vendor-presence.ts` | `lookUpVendor`: whether the person has a vendor (`Exists`, `None`, or `Unknown` when the backend cannot be asked) and its status, for the vendor area; `findVendorPresence` gives only the first, for the account page |
 
 ### `features/catalogue/` — the admin catalogue lists
 

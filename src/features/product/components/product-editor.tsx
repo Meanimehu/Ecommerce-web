@@ -98,8 +98,8 @@ function NewProduct({
   dictionaries: Dictionaries;
   isVendorApproved: boolean;
 }) {
-  const productMessages = useMessages().product;
-  if (!isVendorApproved) return <Banner tone="info">{productMessages.notApproved}</Banner>;
+  // A vendor that is not approved cannot start a product; the Vendor area's banner says why.
+  if (!isVendorApproved) return null;
   return (
     <div className="grid gap-5">
       <ProductStepNav lang={lang} product={null} currentStep={ProductStep.Basics} />
@@ -141,7 +141,7 @@ function ExistingProduct({
           <p className="whitespace-pre-line">{product.statusReason}</p>
         </Banner>
       ) : null}
-      <ProductNotice status={product.status} isVendorApproved={isVendorApproved} />
+      <ProductNotice status={product.status} />
       {isEditable ? (
         <>
           <ProductStepNav lang={lang} product={product} currentStep={currentStep} />
@@ -159,16 +159,12 @@ function ExistingProduct({
   );
 }
 
-/** Why the product cannot be changed now, if it cannot: the vendor, or its status. */
-function ProductNotice({
-  status,
-  isVendorApproved,
-}: {
-  status: ProductStatus;
-  isVendorApproved: boolean;
-}) {
+/**
+ * Why the product cannot be changed now because of its status. A vendor that is not approved is
+ * told once, by the Vendor area's banner (Document 5, section 7.5).
+ */
+function ProductNotice({ status }: { status: ProductStatus }) {
   const productMessages = useMessages().product;
-  if (!isVendorApproved) return <Banner tone="info">{productMessages.notApproved}</Banner>;
   if (status === ProductStatus.Submitted) {
     return <Banner tone="info">{productMessages.inReview}</Banner>;
   }

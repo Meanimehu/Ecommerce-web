@@ -27,6 +27,7 @@ import { myDocumentHref, useRemoveVendorDocument } from '@/features/vendor/hooks
 import {
   DocumentStatus,
   DocumentType,
+  isEditable,
   MISSING_DOCUMENT_PREFIX,
   type Vendor,
   type VendorDocument,
@@ -45,7 +46,16 @@ export const DOCUMENT_TONES: Record<DocumentStatus, ChipTone> = {
   [DocumentStatus.Rejected]: 'error',
 };
 
-export function DocumentRow({ vendor, type }: { vendor: Vendor; type: DocumentType }) {
+export function DocumentRow({
+  vendor,
+  type,
+  canChange = true,
+}: {
+  vendor: Vendor;
+  type: DocumentType;
+  /** False shows the document and its status only (the business profile of a vendor not approved). */
+  canChange?: boolean;
+}) {
   const messages = useMessages();
   const documentMessages = messages.vendor.documents;
   const label = documentMessages.types[type];
@@ -105,7 +115,8 @@ export function DocumentRow({ vendor, type }: { vendor: Vendor; type: DocumentTy
               </a>
             </Button>
           ) : null}
-          {latest?.status === DocumentStatus.Pending ? (
+          {/* A pending document can be removed only while the application is a draft or rejected. */}
+          {canChange && isEditable(vendor.status) && latest?.status === DocumentStatus.Pending ? (
             <RemoveDocument
               vendorDocument={latest}
               label={label}
@@ -117,31 +128,35 @@ export function DocumentRow({ vendor, type }: { vendor: Vendor; type: DocumentTy
               }
             />
           ) : null}
-          <input
-            ref={fileInput}
-            id={`document-file-${type}`}
-            type="file"
-            accept={UPLOAD_RULES.document.accept}
-            className="sr-only"
-            tabIndex={-1}
-            aria-hidden="true"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              event.target.value = '';
-              if (file) documentUpload.uploadFile(file);
-            }}
-          />
-          <Button
-            type="button"
-            variant="secondary"
-            size="small"
-            disabled={documentUpload.isUploading}
-            onClick={() => fileInput.current?.click()}
-          >
-            <Upload aria-hidden="true" />
-            {latest ? documentMessages.replace : documentMessages.add}
-            <span className="sr-only">: {label}</span>
-          </Button>
+          {canChange ? (
+            <>
+              <input
+                ref={fileInput}
+                id={`document-file-${type}`}
+                type="file"
+                accept={UPLOAD_RULES.document.accept}
+                className="sr-only"
+                tabIndex={-1}
+                aria-hidden="true"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  event.target.value = '';
+                  if (file) documentUpload.uploadFile(file);
+                }}
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                size="small"
+                disabled={documentUpload.isUploading}
+                onClick={() => fileInput.current?.click()}
+              >
+                <Upload aria-hidden="true" />
+                {latest ? documentMessages.replace : documentMessages.add}
+                <span className="sr-only">: {label}</span>
+              </Button>
+            </>
+          ) : null}
         </div>
       </div>
       {progress !== null ? (

@@ -233,3 +233,14 @@ export const VendorAddressFormSchema = z.object({
 });
 export type VendorAddressFormInput = z.input<typeof VendorAddressFormSchema>;
 export type VendorAddressFormValues = z.output<typeof VendorAddressFormSchema>;
+
+/**
+ * The business profile's details after approval: only the shop name and the contact email can
+ * change (area-2-vendors.md, PATCH /vendors/me).
+ */
+export const ProfileDetailsFormSchema = VendorDetailsFormSchema.pick({
+  displayName: true,
+  contactEmail: true,
+});
+export type ProfileDetailsFormInput = z.input<typeof ProfileDetailsFormSchema>;
+export type ProfileDetailsFormValues = z.output<typeof ProfileDetailsFormSchema>;

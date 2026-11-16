@@ -19,6 +19,7 @@ import {
   samePageIn,
   vendorApplyPath,
   vendorHomePath,
+  vendorProfilePath,
 } from '@/lib/routes';
 
 /**
@@ -56,6 +57,7 @@ describe('page addresses (lib/routes.ts)', () => {
     expect(vendorHomePath('en')).toBe('/en/vendor');
     expect(vendorApplyPath('en')).toBe('/en/vendor/apply');
     expect(vendorApplyPath('hi', 'documents')).toBe('/hi/vendor/apply?step=documents');
+    expect(vendorProfilePath('hi')).toBe('/hi/vendor/profile');
     expect(myProductsPath('en')).toBe('/en/vendor/products');
     expect(addProductPath('hi')).toBe('/hi/vendor/products/add');
     expect(myProductPath('en', ID)).toBe(`/en/vendor/products/${ID}`);

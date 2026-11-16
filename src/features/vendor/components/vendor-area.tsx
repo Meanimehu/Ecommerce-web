@@ -5,12 +5,14 @@ import { StaffArea, vendorNav } from '@/features/layout/menus';
 import { getMessages } from '@/lib/messages';
 import { vendorApplyPath } from '@/lib/routes';
 import { requireUser, Unavailable } from '@/features/auth/components/require-user';
-import { findVendorPresence, VendorPresence } from '@/features/vendor/server/vendor-presence';
+import { lookUpVendor, VendorPresence } from '@/features/vendor/server/vendor-presence';
+import { ReadOnlyBanner } from './read-only-banner';
 
 /**
  * Who may open the Vendor area (Document 5, section 4): the application page is open to any
  * logged-in person; every other vendor page needs a vendor in any status, and a person with no
- * vendor is sent to the application page.
+ * vendor is sent to the application page. Those other pages show the one read-only banner when the
+ * vendor is not approved (section 7.5).
  */
 export async function VendorArea({
   langParam,
@@ -25,18 +27,18 @@ export async function VendorArea({
   if ('render' in result) return result.render;
   const { lang, token } = result;
 
-  const vendorPresence = await findVendorPresence(token);
-  if (vendorPresence === VendorPresence.Unknown) return <Unavailable lang={lang} />;
+  const vendor = await lookUpVendor(token);
+  if (vendor.presence === VendorPresence.Unknown) return <Unavailable lang={lang} />;
 
-  const hasVendor = vendorPresence === VendorPresence.Exists;
+  const hasVendor = vendor.presence === VendorPresence.Exists;
   if (needsVendor && !hasVendor) redirect(vendorApplyPath(lang));
 
+  const messages = getMessages(lang);
   return (
-    <AreaShell
-      lang={lang}
-      area={StaffArea.Vendor}
-      nav={vendorNav(lang, getMessages(lang), hasVendor)}
-    >
+    <AreaShell lang={lang} area={StaffArea.Vendor} nav={vendorNav(lang, messages, hasVendor)}>
+      {needsVendor && vendor.status ? (
+        <ReadOnlyBanner lang={lang} status={vendor.status} messages={messages} />
+      ) : null}
       {children}
     </AreaShell>
   );

@@ -8,6 +8,7 @@ import { ClipboardCheck, Eye, House, Package, Store, Tags, type LucideIcon } fro
 export const NAV_ICONS = {
   home: House,
   application: ClipboardCheck,
+  profile: Store,
   products: Package,
   vendors: Store,
   catalogue: Tags,
