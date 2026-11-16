@@ -441,6 +441,7 @@ storefront's buy box uses its call hooks; the login endpoint asks it to run the 
 | `lib/uploads.ts` | Upload limits copied from the backend, for a quick check before sending |
 | `lib/i18n.ts` | The two languages, choosing one, and `otherLocale` (the language the switch offers) |
 | `lib/routes.ts` | Every page address, one helper per kind of page (`homePath`, `loginPath`, `categoryPath`, `productPath` with `productSlug`, `cartPath`, `myProductPath`, `adminVendorPath`, `samePageIn` for the language switch, …); no feature, server-only or Zod import, so `proxy.ts` can use it (Document 7, 20.2) |
+| `lib/global-error-text.ts` | The last-resort error page's three lines, the catalogue's words copied so the catalogue stays off every page (a unit test checks they match) |
 | `lib/messages.ts` | `getMessages` for server pages; the shared text, the Vendor and Admin areas' own text, and the text only some pages carry (`store` on the shop's pages, `cart` on the cart page, `account` on the account pages) |
 | `lib/messages-context.tsx` | `useMessages`: the page's text in the browser, only its language (area text only inside those areas, page-only text only on those pages) |
 | `lib/add-notice.ts` | What happened to an "Add to cart" made before login: `AddOutcome`, `AddNotice`, `keepAddNotice` (login) and `takeAddNotice` (the page returned to). Shared so `auth` and `cart` never import each other; no Zod |
