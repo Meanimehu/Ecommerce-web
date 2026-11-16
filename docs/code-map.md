@@ -9,7 +9,7 @@ moved or removed.
 | Folder | What goes in it | Runs in |
 | --- | --- | --- |
 | `app/` | Routing and layouts: pages in `[lang]/`, our own endpoints in `api/` | Both |
-| `features/<feature>/` | One folder per feature, once it has moved (Document 7, D7-17): `components/`, `hooks/`, `server/` (server only) and `types.ts`. **`auth`, `vendor`, `catalogue` (the admin lists), `product`, `storefront` (a group of parts, D7-20), `cart`, `account` and `layout` have moved | Both; `server/` server only |
+| `features/<feature>/` | One folder per feature, once it has moved (Document 7, D7-17): `components/`, `hooks/`, `server/` (server only) and `types.ts`. **`auth`, `vendor`, `catalogue` (the admin lists), `product`, `stock`, `storefront` (a group of parts, D7-20), `cart`, `account` and `layout` have moved | Both; `server/` server only |
 | `components/` | Reusable UI any feature may use: `ui/` (shadcn), `form/`, `common/`. It imports no feature | Browser and server pages |
 | `hooks/` | Reusable logic: the form hook; each feature's hooks are in its `hooks/` | Browser |
 | `api/` | `client.ts`: the one way our server calls the backend; each feature's calls are in its `server/` | **Server only** |
@@ -132,6 +132,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `[lang]/vendor/apply/page.tsx` | Become a vendor: open to anyone logged in |
 | `[lang]/vendor/(needs-vendor)/…` | Every other vendor page: needs a vendor in any status (the `(needs-vendor)` folder groups them, it is not in the address) |
 | `[lang]/vendor/(needs-vendor)/profile/page.tsx` | The business profile; the screen is in `features/vendor/` |
+| `[lang]/vendor/(needs-vendor)/stock/…` | Stock (`stock`), the bulk update (`stock/bulk`), one variant (`stock/{productId}/{variantId}`) and its history (`…/history`); the screens are in `features/stock/` |
 | `[lang]/vendor/(needs-vendor)/products/…` | My products (`products`), add a product (`products/add`), one product (`products/{id}`); the screens are in `features/product/` |
 | `[lang]/error.tsx`, `forbidden.tsx`, `global-error.tsx` | Error page, "no access" page (real 403), last-resort error page |
 | `global-not-found.tsx` | "Not found" with a real 404, in English and Hindi together (the pages sit under a language segment, so Next.js uses one global page) |
@@ -150,6 +151,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `api/cart/…` | The cart: view (with a coupon preview), add, change quantity, remove, remove unavailable |
 | `api/cart/pending` | "Add to cart" while logged out: kept in a signed cookie until login (D2-02) |
 | `api/auth/verify` | Also runs a pending add, once |
+| `api/vendors/me/inventory/…` | The vendor's stock: the list, the summary, set, add or remove, the threshold, the history and the bulk update |
 | `api/vendors/me/products/…` | The vendor's products: details, variants, photos (upload, order, description, private view), submit |
 | `api/moderation/products/…` | Moderation: queue, one product, its photos, approve or reject |
 | `api/language` | Remembers the language choice (the switch in `layout`) |
@@ -177,7 +179,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `common/reason-dialog.tsx` | A confirmation that asks for a reason (reject, suspend); only draws |
 | `common/toast.tsx` | The success toast ("Saved") |
 | `ui/button.tsx` | Primary, secondary, quiet, destructive and destructive-confirm buttons; large, default and small; loading state |
-| `ui/input.tsx`, `select.tsx`, `textarea.tsx`, `checkbox.tsx` | The text input, select, text area and checkbox |
+| `ui/input.tsx`, `select.tsx`, `textarea.tsx`, `checkbox.tsx`, `radio.tsx` | The text input, select, text area, checkbox and radio |
 | `ui/alert-dialog.tsx` | The confirmation dialog |
 | `ui/banner.tsx` | Information, success, warning and error banners |
 | `ui/skeleton.tsx` | Static loading shapes |
@@ -305,6 +307,23 @@ Backend Area 3b: products, variants, photos, the form guide (`/catalogue/diction
 | `hooks/use-product-decision.ts` | A moderator's approve (with the tax confirmation) and reject |
 | `server/product-api.ts` | Backend Area 3b, the vendor's side: the form guide, products, variants, photos |
 | `server/moderation-api.ts` | Backend Area 3b, moderation: the queue, one product, the decision, its photos |
+
+### `features/stock/` — a vendor's stock
+
+Backend Area 4. It uses `product`'s form guide (`useDictionaries`) for size and colour names, and `vendor`'s
+`useMyVendor` to show the change buttons only to an approved vendor.
+
+| File | What it does |
+| --- | --- |
+| `types.ts` | The answer schemas (stock row, summary, history entry, bulk result and its failures); the enums `StockState`, `StockReason`, `BulkProblem`, `StockChangeMode`; the backend's limits; the request bodies; the forms; small rules: `variantName`, `changeText`, `signed`, `bulkFailuresOf` |
+| `components/stock-screen.tsx` | The stock list: the summary strip (a part of its own), the state filter, the table with Change and History |
+| `components/stock-change.tsx` | One variant: what is available now, the change form (set, add, remove) and the threshold form; read only for a vendor not approved |
+| `components/stock-history.tsx` | One variant's history, numbered pages |
+| `components/bulk-stock.tsx` | The bulk update by SKU: the table, its problems by row, the result, and the stock now after an unknown outcome |
+| `components/stock-state-chip.tsx` | In stock, low, out |
+| `hooks/use-stock.ts` | The call hooks, one per call, and `useEveryStockRow` (read only after an unknown bulk outcome); `stockKeys` |
+| `hooks/use-stock-change-form.ts`, `use-threshold-form.ts`, `use-bulk-stock-form.ts` | One form hook per form: what each sends, its errors, and an unknown outcome, never sent again |
+| `server/stock-api.ts` | Backend Area 4, the vendor's side |
 
 ### `features/storefront/` — what a shopper browses (a group, Document 7, D7-20)
 

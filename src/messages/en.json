@@ -24,6 +24,7 @@
       "moderation": "Product moderation"
     },
     "products": "Products",
+    "stock": "Stock",
     "cart": "Cart",
     "cartOne": "item",
     "cartMany": "items",
@@ -223,7 +224,9 @@
       "CART_ITEM_NOT_FOUND": "This item is no longer in your cart. Reload the page.",
       "ADDRESS_LIMIT": "You can keep up to 10 addresses. Delete one to add another.",
       "ADDRESS_NOT_FOUND": "This address was not found. Reload the page.",
-      "EMAIL_TAKEN": "Another account uses this email address."
+      "EMAIL_TAKEN": "Another account uses this email address.",
+      "STOCK_INVALID": "The number must be from 0 to 1,000,000, and stock cannot go below 0.",
+      "STOCK_BULK_INVALID": "Nothing was changed. Some rows have problems."
     }
   },
   "languageNames": {
@@ -769,6 +772,127 @@
         "variant": "At least one variant that is on",
         "image": "At least one photo"
       }
+    }
+  },
+  "stock": {
+    "title": "Stock",
+    "bulkUpdate": "Bulk update",
+    "summary": {
+      "label": "Stock summary",
+      "inStock": "In stock",
+      "low": "Low",
+      "out": "Out",
+      "failed": "We could not load the stock summary."
+    },
+    "states": {
+      "in_stock": "In stock",
+      "low": "Low",
+      "out": "Out"
+    },
+    "filters": {
+      "state": "State",
+      "all": "All",
+      "show": "Show"
+    },
+    "columns": {
+      "sku": "SKU",
+      "variant": "Variant",
+      "available": "Available",
+      "state": "State",
+      "threshold": "Threshold",
+      "actions": "Actions"
+    },
+    "switchedOff": "Switched off",
+    "change": "Change",
+    "history": "History",
+    "empty": "No variants yet",
+    "emptyText": "Stock is kept for each variant. Add a product with its sizes and colours first.",
+    "emptyFiltered": "No variants in this state",
+    "emptyFilteredText": "Choose another state to see more.",
+    "notFound": "This variant was not found",
+    "notFoundText": "It may have been deleted. Go back to the stock list.",
+    "backToStock": "Back to stock",
+    "changeTitle": "Change stock",
+    "availableNow": "Available now: {count}",
+    "howToChange": "How to change it",
+    "modes": {
+      "set": "Set exact number",
+      "add": "Add",
+      "remove": "Remove"
+    },
+    "amount": {
+      "set": "New number",
+      "add": "Units to add",
+      "remove": "Units to remove"
+    },
+    "note": "Note",
+    "noteHelp": "Why, kept in the history. Up to 200 characters.",
+    "save": "Save stock",
+    "saved": "Stock saved. Available now: {count}",
+    "noChange": "Enter a number above 0 to add or remove.",
+    "outcomeUnknown": "We could not tell whether the change went through. The number shown is what we have now; check it before trying again.",
+    "threshold": {
+      "title": "Low-stock threshold",
+      "label": "Low at or below",
+      "help": "Leave it empty to use the default ({count}). 0 means this variant is never low.",
+      "save": "Save threshold",
+      "saved": "Threshold saved",
+      "current": "Now low at or below {count}.",
+      "currentDefault": "Now low at or below {count} (the default).",
+      "never": "Now never low."
+    },
+    "seeHistory": "See history",
+    "historyTitle": "History: {variant}",
+    "historyColumns": {
+      "date": "Date (IST)",
+      "change": "Change",
+      "result": "Result",
+      "note": "Note"
+    },
+    "historyEmpty": "No history yet",
+    "historyEmptyText": "Every change to this variant’s stock will be listed here.",
+    "reasons": {
+      "initial": "Starting stock",
+      "vendor_set": "Set to {count}",
+      "added": "Added {count}",
+      "removed": "Removed {count}",
+      "reserve": "Held for an order",
+      "release": "Released from an order",
+      "expire": "Unpaid order expired",
+      "retake": "Taken again for a late payment",
+      "restock": "Returned to stock"
+    },
+    "bulk": {
+      "title": "Bulk update by SKU",
+      "intro": "Type up to 500 rows, each a SKU and its new number. Rows copied from a spreadsheet can be pasted into a SKU box. Nothing changes unless every row is right.",
+      "tableLabel": "Rows to update",
+      "columns": {
+        "row": "Row",
+        "sku": "SKU",
+        "quantity": "New number",
+        "problem": "Problem",
+        "now": "Now"
+      },
+      "skuLabel": "SKU, row {row}",
+      "quantityLabel": "New number, row {row}",
+      "addRow": "Add a row",
+      "removeRow": "Remove row {row}",
+      "send": "Send update",
+      "failedOne": "Nothing was changed. 1 row has a problem. The update is all or nothing. Fix it and send again.",
+      "failedMany": "Nothing was changed. {count} rows have problems. The update is all or nothing. Fix them and send again.",
+      "problems": {
+        "SKU_UNKNOWN": "SKU not found",
+        "SKU_REPEATED": "This SKU is in the table more than once",
+        "STOCK_INVALID": "The number must be from 0 to 1,000,000",
+        "skuMissing": "Enter a SKU",
+        "quantityShape": "Enter a whole number"
+      },
+      "nothingToSend": "Add at least one row with a SKU and a number.",
+      "tooMany": "Send at most 500 rows at a time.",
+      "doneOne": "Stock updated. 1 variant changed.",
+      "doneMany": "Stock updated. {count} variants changed.",
+      "resultTitle": "Stock after the update",
+      "outcomeUnknown": "We could not tell whether the update went through. The Now column shows the stock we have now; check it before sending again."
     }
   },
   "moderation": {

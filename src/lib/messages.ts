@@ -22,6 +22,7 @@ export const AREA_SECTIONS = [
   'catalogue',
   'product',
   'moderation',
+  'stock',
 ] as const satisfies readonly (keyof Messages)[];
 
 /**

@@ -1,4 +1,13 @@
-import { ClipboardCheck, Eye, House, Package, Store, Tags, type LucideIcon } from 'lucide-react';
+import {
+  ClipboardCheck,
+  Eye,
+  House,
+  Layers,
+  Package,
+  Store,
+  Tags,
+  type LucideIcon,
+} from 'lucide-react';
 
 /**
  * One entry of a staff area's menu, and its icon by name, so the server's menus and the browser's
@@ -10,6 +19,7 @@ export const NAV_ICONS = {
   application: ClipboardCheck,
   profile: Store,
   products: Package,
+  stock: Layers,
   vendors: Store,
   catalogue: Tags,
   moderation: Eye,

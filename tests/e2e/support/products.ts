@@ -135,3 +135,36 @@ export async function newBrand(adminPage: Page, name: string) {
     slug: string;
   };
 }
+
+/**
+ * A draft product in Kurtas with two variants (sizes S and M, the first colour) and no photo. Every
+ * variant has stock from the moment it is made (area-4-inventory.md), starting at 0, so the stock
+ * screens can be tested without a review. Returns the product id and each variant's id and SKU.
+ */
+export async function draftWithTwoVariants(vendor: Page, title: string) {
+  const tree = (await (await fetch(`${BACKEND}/catalogue/categories`)).json()) as {
+    items: { slug: string; id: string; children: { slug: string; id: string }[] }[];
+  };
+  const kurtas = tree.items
+    .flatMap((node) => [node, ...node.children])
+    .find((node) => node.slug === 'kurtas');
+  const product = (await backend(vendor, 'POST', '/vendors/me/products', {
+    title,
+    categoryId: kurtas?.id,
+  })) as { id: string };
+  const { sizes, colours } = await twoSizesAndColours(vendor);
+  const stamp = String(Date.now()).slice(-7);
+  const variants: { id: string; sku: string }[] = [];
+  for (const [index, size] of sizes.entries()) {
+    const sku = `ST${stamp}-${index}`;
+    const added = (await backend(vendor, 'POST', `/vendors/me/products/${product.id}/variants`, {
+      sizeCode: size.code,
+      colourCode: colours[0]?.code,
+      sku,
+      mrpPaise: 199900,
+      pricePaise: 149900,
+    })) as { id: string };
+    variants.push({ id: added.id, sku });
+  }
+  return { productId: product.id, variants };
+}
