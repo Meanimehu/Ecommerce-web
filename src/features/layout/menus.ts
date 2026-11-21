@@ -2,6 +2,7 @@ import type { Locale, Messages } from '@/lib/i18n';
 import {
   adminAuditLogPath,
   adminCataloguePath,
+  adminCouponRequestsPath,
   adminCouponsPath,
   adminHomePath,
   adminSalesPath,
@@ -41,6 +42,7 @@ const ADMIN_SCREEN_PATHS: Record<AdminScreen, (lang: Locale) => string> = {
   [AdminScreen.Moderation]: moderationQueuePath,
   [AdminScreen.Sales]: adminSalesPath,
   [AdminScreen.Coupons]: (lang) => adminCouponsPath(lang),
+  [AdminScreen.CouponRequests]: (lang) => adminCouponRequestsPath(lang),
 };
 
 const ADMIN_SCREEN_ICONS: Record<AdminScreen, NavIcon> = {
@@ -51,6 +53,7 @@ const ADMIN_SCREEN_ICONS: Record<AdminScreen, NavIcon> = {
   [AdminScreen.Moderation]: 'moderation',
   [AdminScreen.Sales]: 'sales',
   [AdminScreen.Coupons]: 'coupons',
+  [AdminScreen.CouponRequests]: 'couponRequests',
 };
 
 /**
@@ -111,6 +114,8 @@ function adminScreenLabel(screen: AdminScreen, messages: Messages): string {
       return messages.sales.title;
     case AdminScreen.Coupons:
       return messages.coupon.staff.title;
+    case AdminScreen.CouponRequests:
+      return messages.coupon.staffRequests.title;
     case AdminScreen.Vendors:
     case AdminScreen.Catalogue:
     case AdminScreen.Moderation:

@@ -5,8 +5,11 @@ import {
   CouponRequestPageSchema,
   CouponRequestSchema,
   CouponRequestViewSchema,
+  type ApproveCouponRequestBody,
   type ChangeCouponRequestBody,
+  type CouponRequestNoteBody,
   type CreateCouponRequestBody,
+  type RequestDecision,
   type WithdrawCouponRequestBody,
 } from '@/features/coupon/types';
 
@@ -71,6 +74,46 @@ export const withdrawCouponRequest = (token: string, id: string, body: WithdrawC
   callBackend({
     method: 'POST',
     path: `${myRequestPath(id)}/withdraw`,
+    kind: 'save',
+    token,
+    body,
+    schema: CouponRequestSchema,
+  });
+
+// ---- The staff's review (admin and marketing decide; finance and support read) ----
+
+const ADMIN_REQUESTS_PATH = '/admin/coupon-requests';
+const adminRequestPath = (id: string) => `${ADMIN_REQUESTS_PATH}/${encodeURIComponent(id)}`;
+
+export const listAllCouponRequests = (token: string, query: Query) =>
+  callBackend({
+    method: 'GET',
+    path: ADMIN_REQUESTS_PATH,
+    query,
+    kind: 'view',
+    token,
+    schema: CouponRequestPageSchema,
+  });
+
+export const getCouponRequest = (token: string, id: string) =>
+  callBackend({
+    method: 'GET',
+    path: adminRequestPath(id),
+    kind: 'view',
+    token,
+    schema: CouponRequestViewSchema,
+  });
+
+/** The three decisions, each on a submitted request only. */
+export const decideCouponRequest = (
+  token: string,
+  id: string,
+  decision: RequestDecision,
+  body: ApproveCouponRequestBody | CouponRequestNoteBody,
+) =>
+  callBackend({
+    method: 'POST',
+    path: `${adminRequestPath(id)}/${decision}`,
     kind: 'save',
     token,
     body,

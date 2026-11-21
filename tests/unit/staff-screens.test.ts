@@ -25,6 +25,7 @@ describe('the admin screens of each staff role', () => {
       AdminScreen.Moderation,
       AdminScreen.Sales,
       AdminScreen.Coupons,
+      AdminScreen.CouponRequests,
     ]);
   });
 
@@ -35,15 +36,20 @@ describe('the admin screens of each staff role', () => {
     expect(canUseAdminScreen(['moderator'], AdminScreen.Users)).toBe(false);
     expect(canUseAdminScreen(['moderator'], AdminScreen.AuditLog)).toBe(false);
     expect(canUseAdminScreen(['moderator'], AdminScreen.Coupons)).toBe(false);
+    expect(canUseAdminScreen(['moderator'], AdminScreen.CouponRequests)).toBe(false);
   });
 
-  it('gives support, marketing and finance sales and coupons', () => {
+  it('gives support, marketing and finance sales, coupons and coupon requests', () => {
     for (const role of ['support', 'marketing', 'finance']) {
-      expect(adminScreensFor(['customer', role])).toEqual([AdminScreen.Sales, AdminScreen.Coupons]);
+      expect(adminScreensFor(['customer', role])).toEqual([
+        AdminScreen.Sales,
+        AdminScreen.Coupons,
+        AdminScreen.CouponRequests,
+      ]);
     }
   });
 
-  it('lets only admins and marketing change coupons', () => {
+  it('lets only admins and marketing change coupons and decide coupon requests', () => {
     expect(canChangeCoupons(['admin'])).toBe(true);
     expect(canChangeCoupons(['marketing'])).toBe(true);
     for (const role of ['finance', 'support', 'moderator', 'customer', 'vendor_owner']) {
@@ -73,6 +79,7 @@ describe('the admin screens of each staff role', () => {
       AdminScreen.Moderation,
       AdminScreen.Sales,
       AdminScreen.Coupons,
+      AdminScreen.CouponRequests,
     ]);
     expect(canUseAdminScreen(['support', 'admin'], AdminScreen.Vendors)).toBe(true);
     expect(canCancelSales(['marketing', 'moderator'])).toBe(true);
@@ -93,6 +100,7 @@ describe('the admin screens of each staff role', () => {
       'Home',
       'Sales',
       'Coupons',
+      'Coupon requests',
     ]);
     expect(adminNav('en', messages, ['admin']).map((item) => item.label)).toEqual([
       'Home',
@@ -103,6 +111,7 @@ describe('the admin screens of each staff role', () => {
       'Product moderation',
       'Sales',
       'Coupons',
+      'Coupon requests',
     ]);
   });
 });

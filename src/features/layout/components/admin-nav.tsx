@@ -1,6 +1,16 @@
 'use client';
 
-import { Eye, House, ScrollText, Store, Tag, Tags, Ticket, Users } from 'lucide-react';
+import {
+  ClipboardList,
+  Eye,
+  House,
+  ScrollText,
+  Store,
+  Tag,
+  Tags,
+  Ticket,
+  Users,
+} from 'lucide-react';
 import type { ComponentProps } from 'react';
 import type { NavIconSet } from '@/features/layout/nav-icons';
 import { AreaMenuButton, AreaSideNav } from './area-nav';
@@ -15,6 +25,7 @@ const ADMIN_NAV_ICONS: NavIconSet = {
   moderation: Eye,
   sales: Tag,
   coupons: Ticket,
+  couponRequests: ClipboardList,
 };
 
 type WithoutIcons<T> = Omit<T, 'icons'>;

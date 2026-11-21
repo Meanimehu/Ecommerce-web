@@ -21,6 +21,7 @@ export enum AdminScreen {
   Moderation = 'moderation',
   Sales = 'sales',
   Coupons = 'coupons',
+  CouponRequests = 'coupon-requests',
 }
 
 const ROLES_BY_SCREEN: Record<AdminScreen, readonly string[]> = {
@@ -31,9 +32,13 @@ const ROLES_BY_SCREEN: Record<AdminScreen, readonly string[]> = {
   [AdminScreen.Moderation]: [MODERATOR_ROLE, ADMIN_ROLE],
   [AdminScreen.Sales]: [ADMIN_ROLE, MODERATOR_ROLE, MARKETING_ROLE, FINANCE_ROLE, SUPPORT_ROLE],
   [AdminScreen.Coupons]: [ADMIN_ROLE, MARKETING_ROLE, FINANCE_ROLE, SUPPORT_ROLE],
+  [AdminScreen.CouponRequests]: [ADMIN_ROLE, MARKETING_ROLE, FINANCE_ROLE, SUPPORT_ROLE],
 };
 
-/** Who may create, change, disable and enable coupons; finance and support read, with "View only". */
+/**
+ * Who may create, change, disable and enable coupons, and decide coupon requests; finance and
+ * support read both, with "View only".
+ */
 const COUPON_CHANGE_ROLES: readonly string[] = [ADMIN_ROLE, MARKETING_ROLE];
 
 export const canChangeCoupons = (roles: readonly string[]) =>

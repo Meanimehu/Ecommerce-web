@@ -421,6 +421,18 @@ export type WithdrawCouponRequestBody = components['schemas']['OptionalReasonDto
 export type ApproveCouponRequestBody = components['schemas']['ApproveCouponRequestDto'];
 export type CouponRequestNoteBody = components['schemas']['RequestNoteDto'];
 
+/** A staff decision on a submitted request, as the backend's address names it. */
+export enum RequestDecision {
+  Approve = 'approve',
+  RequestChanges = 'request-changes',
+  Reject = 'reject',
+}
+
+const REQUEST_DECISIONS: readonly string[] = Object.values(RequestDecision);
+
+export const isRequestDecision = (value: string): value is RequestDecision =>
+  REQUEST_DECISIONS.includes(value);
+
 /** The longest note the backend takes with a request, and with a staff decision. */
 export const REQUEST_NOTE_MAX_LENGTH = 2000;
 
@@ -567,5 +579,21 @@ export function requestFormDefaults(request?: CouponRequest, now = Date.now()): 
     excludeSaleItems: terms.excludeSaleItems,
     categoryIds: terms.categoryIds,
     productIds: terms.productIds,
+  };
+}
+
+/** The staff's approve form: a final code (the proposed one unless changed) and a note. */
+export const ApproveFormSchema = z.object({
+  code: text.regex(/^([A-Za-z0-9_-]{3,20})?$/, 'validation.couponCode'),
+  note: text.max(REQUEST_NOTE_MAX_LENGTH),
+});
+export type ApproveFormInput = z.input<typeof ApproveFormSchema>;
+export type ApproveFormValues = z.output<typeof ApproveFormSchema>;
+
+/** The approve body: the code only when one is typed, the note only when written. */
+export function approveBody(values: ApproveFormValues): ApproveCouponRequestBody {
+  return {
+    ...(values.code ? { code: values.code.toUpperCase() } : {}),
+    ...(values.note ? { note: values.note } : {}),
   };
 }

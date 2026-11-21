@@ -4,7 +4,7 @@ import type { Messages } from '@/lib/i18n';
 import { CouponRequestStatus } from '@/features/coupon/types';
 
 /** A coupon request's status chip (Document 6, 8.7), in the vendor's words. */
-const STATUS_LOOK = {
+export const REQUEST_STATUS_LOOK = {
   [CouponRequestStatus.Draft]: { tone: 'neutral', icon: List },
   [CouponRequestStatus.Submitted]: { tone: 'info', icon: Clock },
   [CouponRequestStatus.ChangesRequested]: { tone: 'warning', icon: PenLine },
@@ -21,7 +21,7 @@ export function RequestStatusChip({
   status: CouponRequestStatus;
   messages: Messages;
 }) {
-  const look = STATUS_LOOK[status];
+  const look = REQUEST_STATUS_LOOK[status];
   return (
     <StatusChip tone={look.tone} icon={look.icon} label={messages.coupon.requests.status[status]} />
   );
