@@ -38,6 +38,7 @@ import {
   type Coupon,
 } from '@/features/coupon/types';
 import { CouponStatusChip } from './coupon-status-chip';
+import { CouponTab, CouponTabs } from './coupon-tabs';
 import { CouponTerms } from './coupon-terms';
 
 /**
@@ -72,7 +73,8 @@ export function MyCouponList({ lang }: { lang: Locale }) {
 
   return (
     <div className="grid gap-5">
-      <h1 className="type-h2 stitch-bottom pb-3 text-ink">{vendorMessages.title}</h1>
+      <h1 className="type-h2 text-ink">{vendorMessages.title}</h1>
+      <CouponTabs lang={lang} current={CouponTab.Coupons} messages={messages} />
       <p className="max-w-[72ch] text-ink-2">{vendorMessages.intro}</p>
       <form
         method="get"

@@ -4,7 +4,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { get, patch, send } from '@/lib/http';
 import type { Page } from '@/types/common';
 import { withQuery, type Query } from '@/utils/url';
-import type { ChangeCouponBody, Coupon, CreateCouponBody } from '@/features/coupon/types';
+import type {
+  ChangeCouponBody,
+  ChangeCouponRequestBody,
+  Coupon,
+  CouponRequest,
+  CouponRequestView,
+  CreateCouponBody,
+  CreateCouponRequestBody,
+} from '@/features/coupon/types';
 
 /**
  * The calls of `coupon`, one hook per call, to our own /api/admin/coupons and
@@ -101,5 +109,70 @@ export function useDisableMyCoupon() {
   return useMutation({
     mutationFn: (id: string) => send<Coupon>(`${myCouponPath(id)}/disable`),
     onSettled: reloadCoupons,
+  });
+}
+
+// ---- The vendor's coupon requests ----
+
+const MY_REQUESTS_PATH = '/api/vendors/me/coupon-requests';
+const myRequestPath = (id: string) => `${MY_REQUESTS_PATH}/${encodeURIComponent(id)}`;
+
+export const couponRequestKeys = {
+  all: ['coupon-request'] as const,
+  mine: (query: Query) => ['coupon-request', 'mine', query] as const,
+  mineOne: (id: string) => ['coupon-request', 'mine', id] as const,
+};
+
+/** After a change, the requests and the coupons are read again (an approved one makes a coupon). */
+function useReloadRequests() {
+  const queryClient = useQueryClient();
+  return () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: couponRequestKeys.all }),
+      queryClient.invalidateQueries({ queryKey: couponKeys.all }),
+    ]);
+}
+
+export const useMyCouponRequests = (query: Query) =>
+  useQuery({
+    queryKey: couponRequestKeys.mine(query),
+    queryFn: () => get<Page<CouponRequest>>(withQuery(MY_REQUESTS_PATH, query)),
+  });
+
+export const useMyCouponRequest = (id: string) =>
+  useQuery({
+    queryKey: couponRequestKeys.mineOne(id),
+    queryFn: () => get<CouponRequestView>(myRequestPath(id)),
+  });
+
+export function useCreateCouponRequest() {
+  const reloadRequests = useReloadRequests();
+  return useMutation({
+    mutationFn: (body: CreateCouponRequestBody) => send<CouponRequest>(MY_REQUESTS_PATH, body),
+    onSettled: reloadRequests,
+  });
+}
+
+export function useChangeCouponRequest(id: string) {
+  const reloadRequests = useReloadRequests();
+  return useMutation({
+    mutationFn: (body: ChangeCouponRequestBody) => patch<CouponRequest>(myRequestPath(id), body),
+    onSettled: reloadRequests,
+  });
+}
+
+export function useSubmitCouponRequest(id: string) {
+  const reloadRequests = useReloadRequests();
+  return useMutation({
+    mutationFn: () => send<CouponRequest>(`${myRequestPath(id)}/submit`),
+    onSettled: reloadRequests,
+  });
+}
+
+export function useWithdrawCouponRequest(id: string) {
+  const reloadRequests = useReloadRequests();
+  return useMutation({
+    mutationFn: () => send<CouponRequest>(`${myRequestPath(id)}/withdraw`),
+    onSettled: reloadRequests,
   });
 }

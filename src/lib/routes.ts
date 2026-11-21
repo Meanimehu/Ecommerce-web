@@ -103,6 +103,17 @@ export const myImportPath = (lang: Locale, id: string) =>
 /** The coupons that charge the vendor. */
 export const myCouponsPath = (lang: Locale) => `/${lang}/vendor/coupons`;
 
+/** The vendor's coupon requests, a new one, one request and a change to it. */
+export const myCouponRequestsPath = (lang: Locale) => `/${lang}/vendor/coupon-requests`;
+
+export const newCouponRequestPath = (lang: Locale) => `${myCouponRequestsPath(lang)}/new`;
+
+export const myCouponRequestPath = (lang: Locale, id: string) =>
+  `${myCouponRequestsPath(lang)}/${encodeURIComponent(id)}`;
+
+export const changeCouponRequestPath = (lang: Locale, id: string) =>
+  `${myCouponRequestPath(lang, id)}/change`;
+
 /** The vendor's stock, one row per variant. */
 export const myStockPath = (lang: Locale) => `/${lang}/vendor/stock`;
 

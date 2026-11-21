@@ -82,6 +82,28 @@ export const CouponSchema = z.object({
 });
 export type Coupon = z.infer<typeof CouponSchema>;
 
+/** The terms every coupon and coupon request has; who pays and the vendor's side are a coupon's. */
+export type CouponTermsShape = Pick<
+  Coupon,
+  | 'discountType'
+  | 'value'
+  | 'maxDiscountPaise'
+  | 'minCartPaise'
+  | 'startsAt'
+  | 'endsAt'
+  | 'usageLimit'
+  | 'perUserLimit'
+  | 'excludeSaleItems'
+  | 'categoryIds'
+  | 'productIds'
+> &
+  Partial<
+    Pick<
+      Coupon,
+      'fundedBy' | 'vendorId' | 'marketplaceShareBps' | 'maxExposurePaise' | 'vendorAcceptedAt'
+    >
+  >;
+
 export const CouponPageSchema = pageOf(CouponSchema);
 
 /** Request bodies, from the generated backend types (D7-02). The backend checks every field. */
@@ -302,5 +324,248 @@ export function couponFormDefaults(coupon?: Coupon): CouponFormInput {
       coupon.fundedBy === FundedBy.Split ? bpsToPercentText(coupon.marketplaceShareBps) : '',
     categoryIds: coupon.categoryIds,
     productIds: coupon.productIds.join('\n'),
+  };
+}
+
+// ---- Coupon requests (Area 5, part 4): a vendor proposes a coupon it pays for; staff decide ----
+
+export enum CouponRequestStatus {
+  Draft = 'draft',
+  Submitted = 'submitted',
+  ChangesRequested = 'changes_requested',
+  Approved = 'approved',
+  Rejected = 'rejected',
+  Withdrawn = 'withdrawn',
+  Declined = 'declined',
+}
+
+export const COUPON_REQUEST_STATUSES: readonly CouponRequestStatus[] =
+  Object.values(CouponRequestStatus);
+
+export function isCouponRequestStatus(value: string | null): value is CouponRequestStatus {
+  return value !== null && (COUPON_REQUEST_STATUSES as readonly string[]).includes(value);
+}
+
+/** The vendor edits and submits a draft, or a request whose changes were asked for. */
+export const canEditRequest = (status: CouponRequestStatus) =>
+  status === CouponRequestStatus.Draft || status === CouponRequestStatus.ChangesRequested;
+
+/** A request can be withdrawn until it is decided. */
+export const canWithdrawRequest = (status: CouponRequestStatus) =>
+  canEditRequest(status) || status === CouponRequestStatus.Submitted;
+
+/** Who took a step in a request's history. */
+export enum RequestActor {
+  Vendor = 'vendor',
+  Staff = 'staff',
+  System = 'system',
+}
+
+const RequestTermsSchema = z.object({
+  discountType: z.enum(DiscountType),
+  value: z.number().int(),
+  maxDiscountPaise: z.number().int().nullable(),
+  minCartPaise: z.number().int(),
+  startsAt: z.string(),
+  endsAt: z.string(),
+  usageLimit: z.number().int(),
+  perUserLimit: z.number().int(),
+  excludeSaleItems: z.boolean(),
+  categoryIds: z.array(z.string()),
+  productIds: z.array(z.string()),
+});
+
+export const CouponRequestSchema = z.object({
+  id: z.string(),
+  vendorId: z.string(),
+  status: z.enum(CouponRequestStatus),
+  revision: z.number().int(),
+  proposedCode: z.string().nullable(),
+  note: z.string().nullable(),
+  terms: RequestTermsSchema,
+  maxExposurePaise: z.number().int().nullable(),
+  submittedAt: z.string().nullable(),
+  reviewedAt: z.string().nullable(),
+  feedback: z.string().nullable(),
+  coupon: z.object({ id: z.string(), code: z.string(), status: z.enum(CouponStatus) }).nullable(),
+  /** Only the staff's view carries it. */
+  reviewedBy: z.string().nullable().optional(),
+  requestedBy: z.string().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+export type CouponRequest = z.infer<typeof CouponRequestSchema>;
+
+export const CouponRequestStepSchema = z.object({
+  id: z.string(),
+  revision: z.number().int(),
+  actorKind: z.enum(RequestActor),
+  /** The backend's words for the step; new ones are shown as they come. */
+  action: z.string(),
+  toStatus: z.string(),
+  note: z.string().nullable(),
+  createdAt: z.string(),
+});
+export type CouponRequestStep = z.infer<typeof CouponRequestStepSchema>;
+
+export const CouponRequestViewSchema = CouponRequestSchema.extend({
+  timeline: z.array(CouponRequestStepSchema),
+});
+export type CouponRequestView = z.infer<typeof CouponRequestViewSchema>;
+
+export const CouponRequestPageSchema = pageOf(CouponRequestSchema);
+
+export type CreateCouponRequestBody = components['schemas']['CreateCouponRequestDto'];
+export type ChangeCouponRequestBody = components['schemas']['UpdateCouponRequestDto'];
+export type WithdrawCouponRequestBody = components['schemas']['OptionalReasonDto'];
+export type ApproveCouponRequestBody = components['schemas']['ApproveCouponRequestDto'];
+export type CouponRequestNoteBody = components['schemas']['RequestNoteDto'];
+
+/** The longest note the backend takes with a request, and with a staff decision. */
+export const REQUEST_NOTE_MAX_LENGTH = 2000;
+
+/** A request's terms as the terms list shows them, with the most the vendor could pay. */
+export const requestTermsShape = (request: CouponRequest): CouponTermsShape => ({
+  ...request.terms,
+  maxExposurePaise: request.maxExposurePaise,
+});
+
+// ---- The vendor's coupon request form. The vendor pays all of it, so there is no "who pays". ----
+
+const DATE_TIME_REQUIRED = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+const requiredWhole = text.regex(/^\d{1,8}$/, 'validation.wholeNumber');
+
+export const RequestFormSchema = z
+  .object({
+    proposedCode: text.regex(/^([A-Za-z0-9_-]{3,20})?$/, 'validation.couponCode'),
+    note: text.max(REQUEST_NOTE_MAX_LENGTH),
+    discountType: z.enum(DiscountType),
+    value: text.min(1, 'validation.required'),
+    maxDiscount: optionalRupees,
+    minCart: optionalRupees,
+    startsAt: text.regex(DATE_TIME_REQUIRED, 'validation.required'),
+    endsAt: text.regex(DATE_TIME_REQUIRED, 'validation.required'),
+    usageLimit: requiredWhole,
+    perUserLimit: requiredWhole,
+    excludeSaleItems: z.boolean(),
+    categoryIds: z.array(z.string()),
+    productIds: z.array(z.string()),
+  })
+  .superRefine((values, context) => {
+    const isPercent = values.discountType === DiscountType.Percent;
+    if (isPercent ? !PERCENT.test(values.value) : rupeesToPaise(values.value) === null) {
+      context.addIssue({
+        code: 'custom',
+        path: ['value'],
+        message: isPercent ? 'validation.percentShape' : 'validation.moneyShape',
+      });
+    }
+    // The backend needs a cap for a percentage (area-5-sales-cart-coupons.md, part 4, rules).
+    if (isPercent && values.maxDiscount === '') {
+      context.addIssue({ code: 'custom', path: ['maxDiscount'], message: 'validation.required' });
+    }
+  });
+export type RequestFormInput = z.input<typeof RequestFormSchema>;
+export type RequestFormValues = z.output<typeof RequestFormSchema>;
+
+/** The request's terms in the backend's units. */
+function requestTerms(values: RequestFormValues) {
+  const isPercent = values.discountType === DiscountType.Percent;
+  return {
+    proposedCode: values.proposedCode === '' ? null : values.proposedCode.toUpperCase(),
+    note: values.note === '' ? null : values.note,
+    discountType: values.discountType,
+    value: isPercent ? Math.round(Number(values.value) * 100) : (rupeesToPaise(values.value) ?? 0),
+    maxDiscountPaise: isPercent ? paiseOrNull(values.maxDiscount) : null,
+    minCartPaise: paiseOrNull(values.minCart) ?? 0,
+    startsAt: istToIso(values.startsAt),
+    endsAt: istToIso(values.endsAt),
+    usageLimit: Number(values.usageLimit),
+    perUserLimit: Number(values.perUserLimit),
+    excludeSaleItems: values.excludeSaleItems,
+    categoryIds: values.categoryIds,
+    productIds: values.productIds,
+  };
+}
+
+/** A new request, saved as a draft: an empty code or note, and a cap on a fixed amount, are left out. */
+export function newCouponRequest(values: RequestFormValues): CreateCouponRequestBody {
+  const { proposedCode, note, maxDiscountPaise, ...terms } = requestTerms(values);
+  return {
+    ...terms,
+    ...(proposedCode ? { proposedCode } : {}),
+    ...(note ? { note } : {}),
+    ...(maxDiscountPaise === null ? {} : { maxDiscountPaise }),
+  };
+}
+
+const REQUEST_TERMS_OF_FIELD = {
+  proposedCode: ['proposedCode'],
+  note: ['note'],
+  discountType: ['discountType', 'value', 'maxDiscountPaise'],
+  value: ['value'],
+  maxDiscount: ['maxDiscountPaise'],
+  minCart: ['minCartPaise'],
+  startsAt: ['startsAt'],
+  endsAt: ['endsAt'],
+  usageLimit: ['usageLimit'],
+  perUserLimit: ['perUserLimit'],
+  excludeSaleItems: ['excludeSaleItems'],
+  categoryIds: ['categoryIds'],
+  productIds: ['productIds'],
+} as const satisfies Record<keyof RequestFormInput, readonly string[]>;
+
+/** A change: only the changed terms; an emptied code or note is sent as null, which clears it. */
+export function changedCouponRequest(
+  values: RequestFormValues,
+  dirty: Partial<Record<keyof RequestFormInput, unknown>>,
+): ChangeCouponRequestBody {
+  const terms = requestTerms(values);
+  const sent = new Set<string>();
+  for (const [field, names] of Object.entries(REQUEST_TERMS_OF_FIELD)) {
+    if (dirty[field as keyof RequestFormInput]) for (const name of names) sent.add(name);
+  }
+  return Object.fromEntries(
+    Object.entries(terms).filter(([name]) => sent.has(name)),
+  ) as ChangeCouponRequestBody;
+}
+
+/** The form's starting values: a new request starts in an hour, for a week; a change, as it is. */
+export function requestFormDefaults(request?: CouponRequest, now = Date.now()): RequestFormInput {
+  if (!request) {
+    const hour = 3_600_000;
+    const start = Math.ceil(now / hour) * hour + hour;
+    return {
+      proposedCode: '',
+      note: '',
+      discountType: DiscountType.Fixed,
+      value: '',
+      maxDiscount: '',
+      minCart: '',
+      startsAt: isoToIst(new Date(start).toISOString()),
+      endsAt: isoToIst(new Date(start + 7 * 24 * hour).toISOString()),
+      usageLimit: '',
+      perUserLimit: '1',
+      excludeSaleItems: false,
+      categoryIds: [],
+      productIds: [],
+    };
+  }
+  const { terms } = request;
+  const isPercent = terms.discountType === DiscountType.Percent;
+  return {
+    proposedCode: request.proposedCode ?? '',
+    note: request.note ?? '',
+    discountType: terms.discountType,
+    value: isPercent ? bpsToPercentText(terms.value) : paiseToRupees(terms.value),
+    maxDiscount: terms.maxDiscountPaise === null ? '' : paiseToRupees(terms.maxDiscountPaise),
+    minCart: terms.minCartPaise === 0 ? '' : paiseToRupees(terms.minCartPaise),
+    startsAt: isoToIst(terms.startsAt),
+    endsAt: isoToIst(terms.endsAt),
+    usageLimit: String(terms.usageLimit),
+    perUserLimit: String(terms.perUserLimit),
+    excludeSaleItems: terms.excludeSaleItems,
+    categoryIds: terms.categoryIds,
+    productIds: terms.productIds,
   };
 }

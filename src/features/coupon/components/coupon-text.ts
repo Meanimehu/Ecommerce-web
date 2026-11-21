@@ -2,12 +2,17 @@ import { fill } from '@/lib/errors';
 import type { Locale, Messages } from '@/lib/i18n';
 import { formatDate, formatRupees, formatTime } from '@/utils/format';
 import type { CategoryNode } from '@/features/storefront/product-list/types';
-import { bpsToPercentText, DiscountType, type Coupon } from '@/features/coupon/types';
+import {
+  bpsToPercentText,
+  DiscountType,
+  type Coupon,
+  type CouponTermsShape,
+} from '@/features/coupon/types';
 
 /** A coupon's terms in words, shared by the staff's and the vendor's coupon screens. */
 
 /** "10% off, at most ₹500" or "₹200 off". */
-export function discountText(coupon: Coupon, messages: Messages): string {
+export function discountText(coupon: CouponTermsShape, messages: Messages): string {
   const couponMessages = messages.coupon;
   const discount =
     coupon.discountType === DiscountType.Percent

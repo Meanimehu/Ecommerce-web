@@ -1601,6 +1601,96 @@
       "disabled": "Coupon stopped.",
       "termsChanged": "These terms changed while you were looking. Read the new terms below, and accept again if you agree.",
       "waitingNote": "Waiting for you to accept or decline."
+    },
+    "requests": {
+      "tabsLabel": "Coupons",
+      "tabs": {
+        "coupons": "Coupons that charge you",
+        "requests": "Your coupon requests"
+      },
+      "status": {
+        "draft": "Draft",
+        "submitted": "In review",
+        "changes_requested": "Changes asked for",
+        "approved": "Waiting for you to accept",
+        "rejected": "Rejected",
+        "withdrawn": "Withdrawn",
+        "declined": "Declined"
+      },
+      "title": "Your coupon requests",
+      "intro": "Propose a coupon you pay for. Dhaaga reviews it and may ask for changes. Once it is approved, you accept its final terms under Coupons that charge you.",
+      "add": "New request",
+      "newTitle": "New coupon request",
+      "changeTitle": "Change your request",
+      "change": "Change",
+      "created": "Request saved as a draft.",
+      "saved": "Request saved.",
+      "submit": "Send for review",
+      "submitted": "Request sent for review.",
+      "withdraw": "Withdraw",
+      "withdrawTitle": "Withdraw this request?",
+      "withdrawBody": "It closes for good. You can make a new request later.",
+      "withdrawn": "Request withdrawn.",
+      "filters": {
+        "status": "Status",
+        "all": "All",
+        "show": "Show"
+      },
+      "empty": "No coupon requests yet",
+      "emptyFiltered": "No requests in this status",
+      "emptyText": "Requests you make appear here with where they stand.",
+      "columns": {
+        "code": "Code",
+        "status": "Status",
+        "discount": "Discount",
+        "dates": "When",
+        "sent": "Sent"
+      },
+      "noCode": "No code proposed",
+      "notSent": "Not yet",
+      "proposedCode": "Code you proposed",
+      "note": "Your note",
+      "feedback": "Dhaaga's note",
+      "round": "Round {revision}",
+      "couponMade": "Coupon {code} was made from this request.",
+      "acceptOnCoupons": "Accept it under Coupons that charge you",
+      "historyTitle": "History",
+      "termsTitle": "Terms you proposed",
+      "actors": {
+        "vendor": "You",
+        "staff": "Dhaaga",
+        "system": "Dhaaga"
+      },
+      "actions": {
+        "created": "made the request",
+        "edited": "changed the request",
+        "submitted": "sent it for review",
+        "changes_requested": "asked for changes",
+        "approved": "approved it",
+        "rejected": "rejected it",
+        "withdrawn": "withdrew it",
+        "vendor_accepted": "accepted the coupon's terms",
+        "vendor_declined": "declined the coupon",
+        "vendor_disabled": "stopped the coupon",
+        "staff_disabled": "stopped the coupon",
+        "staff_enabled": "started the coupon again",
+        "terms_narrowed": "narrowed the coupon's terms"
+      },
+      "fields": {
+        "proposedCode": "Code you would like",
+        "proposedCodeHelp": "3 to 20 letters, digits, hyphens or underscores. Dhaaga may choose another.",
+        "note": "Note for Dhaaga",
+        "noteHelp": "Why you want this coupon.",
+        "limitsHelp": "Both are needed. Uses per customer cannot be more than the total.",
+        "rulesHelp": "You pay all of the discount, on your own items. Dhaaga's current limits: at most 90 days, ₹5,000 off one order, 10,000 uses and ₹5,00,000 in all.",
+        "maxDiscountHelp": "Needed for a percentage.",
+        "products": "Only these products of yours",
+        "productsHelp": "Leave all unticked for all your products. Up to 50. Your approved products are listed.",
+        "noProducts": "You have no approved products yet.",
+        "save": "Save draft",
+        "saveChanges": "Save changes",
+        "timesHelp": "Times are in IST. The start can be at most 5 minutes in the past when you send it."
+      }
     }
   },
   "screenErrors": {
@@ -1610,6 +1700,11 @@
       "COUPON_LIMIT_BELOW_USAGE": "This limit is lower than the uses already made.",
       "COUPON_LOCKED": "This term can no longer change, because the coupon has been used or the vendor has agreed to it.",
       "COUPON_NOT_FOUND": "This coupon was not found.",
+      "COUPON_REQUEST_INVALID": "These terms break one of the rules for a coupon request. Check the dates, the limits and the discount.",
+      "COUPON_REQUEST_LIMIT": "You already have 10 open requests. Send, withdraw or wait for one before making another.",
+      "COUPON_REQUEST_NOT_FOUND": "This coupon request was not found.",
+      "COUPON_REQUEST_PRODUCT_INVALID": "One of the chosen products is not yours.",
+      "COUPON_REQUEST_STATE_INVALID": "This cannot be done in the request's current status. Reload the page.",
       "COUPON_STATE_INVALID": "This coupon is not waiting for your acceptance any more. Reload the page.",
       "COUPON_TERMS_CHANGED": "The terms changed since you read them. Read them again before accepting.",
       "IMPORT_EXPIRED": "This check has expired. Upload the file again.",

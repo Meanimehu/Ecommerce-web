@@ -5,25 +5,35 @@ import type { Locale, Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { formatRupees } from '@/utils/format';
 import { useCategoryTree } from '@/features/storefront/product-list/hooks/use-product-list';
-import { bpsToPercentText, chargesVendor, FundedBy, type Coupon } from '@/features/coupon/types';
+import {
+  bpsToPercentText,
+  chargesVendor,
+  FundedBy,
+  type Coupon,
+  type CouponTermsShape,
+} from '@/features/coupon/types';
 import { categoryPaths, discountText, whenText } from './coupon-text';
 
 /**
  * Every term of a coupon, as a list of label and value (Document 5, sections 8.2 and 8.3): what it
  * takes off, its limits and dates, who pays, what it is limited to, and for a coupon a vendor pays
  * for, the most that vendor can pay and whether the vendor has accepted. The staff's and the
- * vendor's coupon screens both show it. Categories are named from the public tree; a category it
- * does not list (switched off) and the products are shown by id, since the backend gives only ids.
+ * vendor's coupon screens, and the coupon request screens (with the terms a request proposes), all
+ * show it. Categories are named from the public tree; a category it does not list (switched off) is
+ * shown by id, and products by id unless the screen knows their names: the backend gives only ids.
  */
 export function CouponTerms({
   coupon,
   lang,
   vendor,
+  productNames,
 }: {
-  coupon: Coupon;
+  coupon: CouponTermsShape;
   lang: Locale;
   /** The vendor's id, or a link to it, when the screen shows who the vendor is. */
   vendor?: ReactNode;
+  /** Product names by id, when the screen has them (a vendor's own products). */
+  productNames?: ReadonlyMap<string, string>;
 }) {
   const messages = useMessages();
   const termMessages = messages.coupon.terms;
@@ -31,7 +41,7 @@ export function CouponTerms({
   const paths = new Map(
     categoryPaths(categoryTree.data?.items ?? []).map(({ id, path }) => [id, path]),
   );
-  const isVendorPaid = chargesVendor(coupon.fundedBy);
+  const isVendorPaid = coupon.fundedBy !== undefined && chargesVendor(coupon.fundedBy);
 
   const rows: { label: string; value: ReactNode }[] = [
     { label: termMessages.discount, value: discountText(coupon, messages) },
@@ -47,13 +57,15 @@ export function CouponTerms({
       label: termMessages.excludeSaleItems,
       value: coupon.excludeSaleItems ? termMessages.excluded : termMessages.included,
     },
-    { label: termMessages.fundedBy, value: messages.coupon.fundedBy[coupon.fundedBy] },
   ];
+  if (coupon.fundedBy) {
+    rows.push({ label: termMessages.fundedBy, value: messages.coupon.fundedBy[coupon.fundedBy] });
+  }
   if (vendor && coupon.vendorId) rows.push({ label: termMessages.vendor, value: vendor });
   if (coupon.fundedBy === FundedBy.Split) {
     rows.push({
       label: termMessages.marketplaceShare,
-      value: `${bpsToPercentText(coupon.marketplaceShareBps)}%`,
+      value: `${bpsToPercentText(coupon.marketplaceShareBps ?? 0)}%`,
     });
   }
   rows.push(
@@ -69,23 +81,29 @@ export function CouponTerms({
     },
     {
       label: termMessages.products,
-      value: <IdList ids={coupon.productIds} none={termMessages.everyProduct} />,
+      value: (
+        <IdList
+          ids={coupon.productIds}
+          nameOf={(id) => productNames?.get(id)}
+          none={termMessages.everyProduct}
+        />
+      ),
     },
   );
-  if (isVendorPaid) {
-    rows.push(
-      {
-        label: termMessages.maxExposure,
-        value:
-          coupon.maxExposurePaise === null
-            ? termMessages.noLimit
-            : formatRupees(coupon.maxExposurePaise),
-      },
-      {
-        label: termMessages.acceptedAt,
-        value: whenText(coupon.vendorAcceptedAt, lang, termMessages.notAccepted),
-      },
-    );
+  if (coupon.maxExposurePaise !== undefined && (isVendorPaid || !coupon.fundedBy)) {
+    rows.push({
+      label: termMessages.maxExposure,
+      value:
+        coupon.maxExposurePaise === null
+          ? termMessages.noLimit
+          : formatRupees(coupon.maxExposurePaise),
+    });
+  }
+  if (isVendorPaid && coupon.vendorAcceptedAt !== undefined) {
+    rows.push({
+      label: termMessages.acceptedAt,
+      value: whenText(coupon.vendorAcceptedAt, lang, termMessages.notAccepted),
+    });
   }
 
   return (
