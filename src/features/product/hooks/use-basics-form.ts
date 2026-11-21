@@ -19,6 +19,7 @@ import {
   type ChangeProductBody,
   type CreateProductBody,
   type Dictionaries,
+  type ProductContent,
   type ProductView,
 } from '@/features/product/types';
 import { useChangeProduct, useCreateProduct } from './use-product';
@@ -104,8 +105,11 @@ export function useBasicsForm({
   };
 }
 
-/** The form's starting values: the tax fields only when the vendor declared their own. */
-function basicsDefaults(product: ProductView | null): BasicsFormInput {
+/**
+ * The form's starting values, from a product or a revision's content: the tax fields only when the
+ * vendor declared their own.
+ */
+export function basicsDefaults(product: ProductContent | null): BasicsFormInput {
   const isTaxDeclared = product?.taxSource === TaxSource.VendorDeclared;
   const declaredRate = isTaxDeclared ? (product?.gstRateBps ?? null) : null;
   return {

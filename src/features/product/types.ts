@@ -138,6 +138,11 @@ export const ProductPageSchema = pageOf(ProductRowSchema);
 export type Product = z.infer<typeof ProductSchema>;
 export type ProductRow = z.infer<typeof ProductRowSchema>;
 export type ProductView = z.infer<typeof ProductViewSchema>;
+/** The content a product's basics form and a revision both hold. */
+export type ProductContent = Pick<
+  ProductView,
+  'title' | 'categoryId' | 'brandId' | 'description' | 'hsnCode' | 'gstRateBps' | 'taxSource'
+>;
 
 /** GET /catalogue/dictionaries: what the product form offers (active entries only). */
 export type DictionaryCategory = {
@@ -218,6 +223,87 @@ export const ModerationViewSchema = z.object({
   taxConfirmationRequired: z.boolean(),
 });
 export type ModerationView = z.infer<typeof ModerationViewSchema>;
+
+// ---- Revisions: changes to an approved product (area-3b-products.md, section 5) ----
+
+/** Where a revision stands. */
+export enum RevisionStatus {
+  Draft = 'draft',
+  Submitted = 'submitted',
+  Rejected = 'rejected',
+}
+
+/** A photo of a revision: kept from the live product, newly proposed, or marked for removal. */
+export enum RevisionPhotoState {
+  Live = 'live',
+  PendingAdd = 'pending_add',
+  PendingRemove = 'pending_remove',
+}
+
+/** The content fields a revision can change, in the order the screens show them. */
+export enum RevisionField {
+  Title = 'title',
+  CategoryId = 'categoryId',
+  BrandId = 'brandId',
+  Description = 'description',
+  Attributes = 'attributes',
+  HsnCode = 'hsnCode',
+  GstRateBps = 'gstRateBps',
+}
+
+export const RevisionPhotoSchema = z.object({
+  id: z.string(),
+  state: z.string(),
+  sortOrder: z.number().nullable(),
+  isCover: z.boolean(),
+  altText: z.string().nullable(),
+});
+export type RevisionPhoto = z.infer<typeof RevisionPhotoSchema>;
+
+/** The proposed gallery (cover first) and the live photos the revision takes away. */
+export const RevisionGallerySchema = z.object({
+  images: z.array(RevisionPhotoSchema),
+  removed: z.array(RevisionPhotoSchema),
+});
+export type RevisionGallery = z.infer<typeof RevisionGallerySchema>;
+
+export const RevisionSchema = RevisionGallerySchema.extend({
+  status: z.enum(RevisionStatus),
+  reason: z.string().nullable(),
+  submittedAt: z.string().nullable(),
+  content: z.object({
+    categoryId: z.string(),
+    brandId: z.string().nullable(),
+    title: z.string(),
+    description: z.string().nullable(),
+    attributes: z.record(z.string(), z.unknown()),
+    hsnCode: z.string().nullable(),
+    gstRateBps: z.number().int().nullable(),
+    taxSource: z.string(),
+  }),
+  /** The content fields that differ from the live product. */
+  changes: z.array(z.string()),
+  photoChanges: z.object({
+    added: z.array(z.string()),
+    removed: z.array(z.string()),
+    reordered: z.boolean(),
+    altTextChanged: z.array(z.string()),
+  }),
+  missing: z.array(z.string()),
+});
+export type Revision = z.infer<typeof RevisionSchema>;
+export type RevisionContent = Revision['content'];
+
+/** A revision can be edited, submitted and discarded while it is a draft or was rejected. */
+export function canEditRevision(status: RevisionStatus): boolean {
+  return status === RevisionStatus.Draft || status === RevisionStatus.Rejected;
+}
+
+/** Whether the revision changes its photos at all. */
+export function changesPhotos(revision: Revision): boolean {
+  const { added, removed, reordered, altTextChanged } = revision.photoChanges;
+  return added.length > 0 || removed.length > 0 || reordered || altTextChanged.length > 0;
+}
 
 // ---- What the frontend sends: from the generated backend types (D7-02) ----
 

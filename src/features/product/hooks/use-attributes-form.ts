@@ -1,10 +1,12 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import type { UseFormReturn } from 'react-hook-form';
 import { useToast } from '@/components/common/toast';
 import { applyServerError, useAppForm, useErrorSummaryFocus } from '@/hooks/use-app-form';
 import { BackendErrorCode } from '@/lib/error-codes';
 import type { AppError } from '@/lib/errors';
+import type { Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { AttributeType, type Attribute } from '@/features/catalogue/types';
 import {
@@ -41,7 +43,7 @@ export function useAttributesForm({
   const { focusSignal, focusErrorSummary } = useErrorSummaryFocus();
   const form = useAppForm<AttributesFormValues, AttributesFormValues>(
     attributesFormSchema(attributes),
-    attributeDefaults(product, attributes),
+    attributeDefaults(product.attributes, attributes),
   );
 
   function saveAttributes(values: AttributesFormValues) {
@@ -57,22 +59,8 @@ export function useAttributesForm({
   }
 
   function showSaveError(error: AppError) {
-    const failures = error.details?.failures;
-    if (error.code === BackendErrorCode.AttributesInvalid && Array.isArray(failures)) {
-      showAttributeErrors(failures as AttributeFailure[]);
-    } else {
-      applyServerError(form, error, messages);
-    }
+    applyAttributesError(form, error, attributes, messages);
     focusErrorSummary();
-  }
-
-  function showAttributeErrors(failures: AttributeFailure[]) {
-    const message = messages.product.attributeInvalid;
-    for (const failure of failures) {
-      const isOnForm = attributes.some((attribute) => attribute.key === failure.key);
-      if (failure.key && isOnForm) form.setError(failure.key, { type: 'server', message });
-      else form.setError(`root.attribute_${failure.key ?? ''}`, { type: 'server', message });
-    }
   }
 
   return {
@@ -85,14 +73,14 @@ export function useAttributesForm({
   };
 }
 
-/** The product's saved values as text for the fields; a missing one is empty. */
-function attributeDefaults(
-  product: ProductView,
+/** The saved values (a product's or a revision's) as text for the fields; a missing one is empty. */
+export function attributeDefaults(
+  saved: Record<string, unknown>,
   attributes: readonly Attribute[],
 ): AttributesFormValues {
   const defaults: AttributesFormValues = {};
   for (const attribute of attributes) {
-    const savedValue = product.attributes[attribute.key];
+    const savedValue = saved[attribute.key];
     defaults[attribute.key] =
       savedValue === undefined || savedValue === null ? '' : String(savedValue);
   }
@@ -114,4 +102,28 @@ export function attributeValues(
     filledValues[attribute.key] = attribute.type === AttributeType.Number ? Number(value) : value;
   }
   return filledValues;
+}
+
+/**
+ * A refused save of attributes: each value the backend refused (ATTRIBUTES_INVALID) shows on its
+ * field, or in the error summary when the field is not on the form; any other error as usual.
+ * Shared by the product's attributes form and a revision's.
+ */
+export function applyAttributesError(
+  form: UseFormReturn<AttributesFormValues, unknown, AttributesFormValues>,
+  error: AppError,
+  attributes: readonly Attribute[],
+  messages: Messages,
+) {
+  const failures = error.details?.failures;
+  if (error.code !== BackendErrorCode.AttributesInvalid || !Array.isArray(failures)) {
+    applyServerError(form, error, messages);
+    return;
+  }
+  const message = messages.product.attributeInvalid;
+  for (const failure of failures as AttributeFailure[]) {
+    const isOnForm = attributes.some((attribute) => attribute.key === failure.key);
+    if (failure.key && isOnForm) form.setError(failure.key, { type: 'server', message });
+    else form.setError(`root.attribute_${failure.key ?? ''}`, { type: 'server', message });
+  }
 }

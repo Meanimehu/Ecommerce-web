@@ -3,19 +3,16 @@
 import { Button } from '@/components/ui/button';
 import { ErrorSummary } from '@/components/form/error-summary';
 import { Form } from '@/components/form/form';
-import { SelectField } from '@/components/form/select-field';
-import { TextField } from '@/components/form/text-field';
 import { useMessages } from '@/lib/messages-context';
-import { AttributeType, type Attribute } from '@/features/catalogue/types';
+import type { Attribute } from '@/features/catalogue/types';
 import { useAttributesForm } from '@/features/product/hooks/use-attributes-form';
 import type { ProductView } from '@/features/product/types';
+import { AttributeFields, attributeFieldIds } from './attribute-fields';
 
 /**
  * The attributes of the product's category, one field each: a choice is a select, anything else a
  * text field. It only draws; what happens on save is in `use-attributes-form.ts`.
  */
-const attributeFieldId = (key: string) => `attribute-${key}`;
-
 export function AttributesForm({
   product,
   attributes,
@@ -29,9 +26,7 @@ export function AttributesForm({
   const productMessages = messages.product;
   const attributesForm = useAttributesForm({ product, attributes, nextStepPath });
   const { form } = attributesForm;
-  const fieldIds = Object.fromEntries(
-    attributes.map((attribute) => [attribute.key, attributeFieldId(attribute.key)]),
-  );
+  const fieldIds = attributeFieldIds(attributes);
 
   return (
     <Form
@@ -49,38 +44,7 @@ export function AttributesForm({
         requestId={attributesForm.requestId}
         focusSignal={attributesForm.focusSignal}
       />
-      {attributes.map((attribute) =>
-        attribute.type === AttributeType.Choice ? (
-          <SelectField
-            key={attribute.key}
-            form={form}
-            name={attribute.key}
-            id={attributeFieldId(attribute.key)}
-            label={attribute.label}
-            optional={!attribute.required}
-            options={[
-              { value: '', label: messages.form.choose },
-              ...(attribute.options ?? []).map((option) => ({ value: option, label: option })),
-            ]}
-            messages={messages}
-          />
-        ) : (
-          <TextField
-            key={attribute.key}
-            form={form}
-            name={attribute.key}
-            id={attributeFieldId(attribute.key)}
-            label={attribute.label}
-            optional={!attribute.required}
-            messages={messages}
-            inputProps={
-              attribute.type === AttributeType.Number
-                ? { inputMode: 'decimal' }
-                : { maxLength: 200 }
-            }
-          />
-        ),
-      )}
+      <AttributeFields form={form} attributes={attributes} />
       <p className="type-small text-muted-foreground">{productMessages.attributesHelp}</p>
       <div className="flex justify-end">
         <Button type="submit" loading={attributesForm.isSaving}>

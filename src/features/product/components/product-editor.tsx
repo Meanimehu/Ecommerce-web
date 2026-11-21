@@ -24,14 +24,15 @@ import { PhotosStep } from './photos-step';
 import { ProductStatusChip } from './product-status-chip';
 import { ProductStepNav } from './product-step-nav';
 import { ProductSummary } from './product-summary';
+import { RevisionPanel } from './revision-panel';
 import { ReviewStep } from './review-step';
 import { VariantsStep } from './variants-step';
 
 /**
  * Add or edit a product (Document 5, section 7.3; approved Stage 5): five steps, saved as a draft
  * after the first (basics, attributes, variants, photos, review), with the step in the address. A
- * product in review or live is shown read-only: an approved product is changed through a revision
- * (Slice 4). A rejected product shows the moderator's reason at the top. A vendor that is not
+ * product in review is shown read-only; an approved product is changed through a revision, shown
+ * beside the live version (Slice 4). A rejected product shows the moderator's reason at the top. A vendor that is not
  * approved sees everything and changes nothing (Document 5, section 7.5).
  */
 export function ProductEditor({ lang, id }: { lang: Locale; id: string | null }) {
@@ -153,7 +154,16 @@ function ExistingProduct({
           />
         </>
       ) : (
-        <ProductSummary product={product} dictionaries={dictionaries} />
+        <>
+          {product.status === ProductStatus.Approved ? (
+            <RevisionPanel
+              product={product}
+              dictionaries={dictionaries}
+              isVendorApproved={isVendorApproved}
+            />
+          ) : null}
+          <ProductSummary product={product} dictionaries={dictionaries} />
+        </>
       )}
     </div>
   );
@@ -169,7 +179,7 @@ function ProductNotice({ status }: { status: ProductStatus }) {
     return <Banner tone="info">{productMessages.inReview}</Banner>;
   }
   if (status === ProductStatus.Approved) {
-    return <Banner tone="success">{productMessages.live}</Banner>;
+    return <Banner tone="info">{productMessages.live}</Banner>;
   }
   return null;
 }
