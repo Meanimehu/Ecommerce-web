@@ -215,6 +215,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 42 | 15 Nov 2026 | Slice 3e: the error, no-access and not-found pages build their home address with `homePath` (20.2). No decision changed |
 | 43 | 16 Nov 2026 | **Agreed by the owner (16 Nov 2026):** in section 16, the features follow the subject, not the area; two new features, `stock` and `sales`; `vendor` adds the business profile, the vendor home's application line and the read-only banner; `product` adds revisions. No feature for CSV imports, coupons or coupon requests while they are on hold. The Slice 4 plan is in Document 8, section 4. No other decision changed |
 | 44 | 16 Nov 2026 | Found in Slice 4 and fixed in its own pull request (20.12, item 6): the last-resort error page no longer imports the English catalogue, which had reached every page; its three lines are in `lib/global-error-text.ts`, checked against the catalogue (Document 6, section 14). No decision changed |
+| 45 | 16 Nov 2026 | Slice 4: the `sales` feature (4d); the vendor home is placed by its page from one part of each feature (`vendor`'s application summary, `product`'s and `stock`'s counts), with the shared `CountTile` (20.4). No decision changed |
 
 ## 16. Names: folders and files
 

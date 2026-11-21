@@ -91,8 +91,13 @@ test.describe('become a vendor, and admin review', () => {
     ).toBeVisible();
     await expect(page.getByText('Waiting for review')).toBeVisible();
 
-    // The admin opens it from the list, approves the document, then the vendor.
-    const admin = await pageAs(browser, ADMIN_PHONE, '/en/admin/vendors?status=submitted');
+    // The admin finds it in the list, approves the document, then the vendor. The list holds
+    // every application waiting, oldest first, so the admin searches for the shop.
+    const admin = await pageAs(
+      browser,
+      ADMIN_PHONE,
+      `/en/admin/vendors?status=submitted&q=${encodeURIComponent(shop)}`,
+    );
     await expect(admin.getByRole('heading', { name: 'Vendor review', level: 1 })).toBeVisible();
     await noAxeViolations(admin);
     await admin.getByRole('link', { name: shop }).first().click();
@@ -156,7 +161,11 @@ test.describe('become a vendor, and admin review', () => {
     await page.getByRole('button', { name: 'आवेदन जमा करें' }).click();
     await expect(page).toHaveURL(/\/hi\/vendor\/apply$/);
 
-    const admin = await pageAs(browser, ADMIN_PHONE, '/en/admin/vendors?status=submitted');
+    const admin = await pageAs(
+      browser,
+      ADMIN_PHONE,
+      `/en/admin/vendors?status=submitted&q=${encodeURIComponent(shop)}`,
+    );
     await admin.getByRole('link', { name: shop }).first().click();
     await admin.getByRole('button', { name: 'Reject', exact: true }).click();
     const dialog = admin.getByRole('alertdialog');
