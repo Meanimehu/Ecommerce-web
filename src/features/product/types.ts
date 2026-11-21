@@ -502,15 +502,17 @@ export function attributesFormSchema(
   return z.object(fields);
 }
 
-/** An amount in rupees, checked and turned into whole paise. */
-const rupeesAsPaise = trimmedText.min(1, 'validation.required').transform((rupees, context) => {
-  const paise = rupeesToPaise(rupees);
-  if (paise === null) {
-    context.issues.push({ code: 'custom', message: 'validation.moneyShape', input: rupees });
-    return z.NEVER;
-  }
-  return paise;
-});
+/** An amount in rupees, checked and turned into whole paise (D-15): the variant form and a sale. */
+export const rupeesAsPaise = trimmedText
+  .min(1, 'validation.required')
+  .transform((rupees, context) => {
+    const paise = rupeesToPaise(rupees);
+    if (paise === null) {
+      context.issues.push({ code: 'custom', message: 'validation.moneyShape', input: rupees });
+      return z.NEVER;
+    }
+    return paise;
+  });
 
 /** The variant form. The two prices are typed in rupees; the checked values hold paise. */
 export const VariantFormSchema = z.object({

@@ -106,6 +106,11 @@ export const variantStockPath = (lang: Locale, productId: string, variantId: str
 export const stockHistoryPath = (lang: Locale, productId: string, variantId: string) =>
   `${variantStockPath(lang, productId, variantId)}/history`;
 
+/** The vendor's sale prices, and a new one. */
+export const mySalesPath = (lang: Locale) => `/${lang}/vendor/sales`;
+
+export const newSalePath = (lang: Locale) => `${mySalesPath(lang)}/new`;
+
 // ---- Admin area ----
 
 export const adminHomePath = (lang: Locale) => `/${lang}/admin`;

@@ -129,18 +129,20 @@ describe('the Vendor area menu (approved screens)', () => {
     expect(vendorNav('en', messages, false).map((item) => item.href)).toEqual(['/en/vendor/apply']);
   });
 
-  it('a person with a vendor sees Home, Business profile, Products and Stock, and no Application', () => {
+  it('a person with a vendor sees Home, Business profile, Products, Stock and Sales, and no Application', () => {
     expect(vendorNav('en', messages, true).map((item) => item.label)).toEqual([
       'Home',
       'Business profile',
       'Products',
       'Stock',
+      'Sales',
     ]);
     expect(vendorNav('hi', getMessages('hi'), true).map((item) => item.href)).toEqual([
       '/hi/vendor',
       '/hi/vendor/profile',
       '/hi/vendor/products',
       '/hi/vendor/stock',
+      '/hi/vendor/sales',
     ]);
   });
 });
