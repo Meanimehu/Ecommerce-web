@@ -92,6 +92,20 @@ export const addProductPath = (lang: Locale) => `/${lang}/vendor/products/add`;
 export const myProductPath = (lang: Locale, id: string, step?: string) =>
   withStep(`${myProductsPath(lang)}/${encodeURIComponent(id)}`, step);
 
+/** The vendor's stock, one row per variant. */
+export const myStockPath = (lang: Locale) => `/${lang}/vendor/stock`;
+
+/** The bulk update by SKU. */
+export const bulkStockPath = (lang: Locale) => `${myStockPath(lang)}/bulk`;
+
+/** Change one variant's stock. The product's id lets the page find the variant's row. */
+export const variantStockPath = (lang: Locale, productId: string, variantId: string) =>
+  `${myStockPath(lang)}/${encodeURIComponent(productId)}/${encodeURIComponent(variantId)}`;
+
+/** One variant's stock history. */
+export const stockHistoryPath = (lang: Locale, productId: string, variantId: string) =>
+  `${variantStockPath(lang, productId, variantId)}/history`;
+
 // ---- Admin area ----
 
 export const adminHomePath = (lang: Locale) => `/${lang}/admin`;

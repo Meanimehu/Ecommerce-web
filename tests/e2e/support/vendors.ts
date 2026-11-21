@@ -22,6 +22,8 @@ export type MadeVendor = {
   email: string;
 };
 
+const TOO_MANY_REQUESTS = 429;
+
 const tokenOf = async (page: Page) =>
   (await page.context().cookies()).find((cookie) => cookie.name === '__Host-dhaaga_at')?.value ??
   '';
@@ -49,14 +51,7 @@ export async function vendorIn(
     pincode: '302001',
     contactPhone: phone,
   });
-  const file = new FormData();
-  file.append('type', 'pan');
-  file.append('file', new Blob([TEST_PDF], { type: 'application/pdf' }), 'pan.pdf');
-  const upload = await fetch(`${BACKEND}/vendors/me/documents`, {
-    method: 'POST',
-    headers: { authorization: `Bearer ${await tokenOf(page)}` },
-    body: file,
-  });
+  const upload = await uploadPan(page);
   expect(upload.status).toBe(201);
   const pan = (await upload.json()) as { id: string };
   const mine = (await backend(page, 'GET', '/vendors/me')) as { requiredTermsVersion: string };
@@ -73,4 +68,26 @@ export async function vendorIn(
     }
   }
   return { page, phone, id: applied.id, shop, email };
+}
+
+/**
+ * Uploads a PAN document. The backend allows 10 uploads a minute from one address, which a run that
+ * makes many vendors can reach; then it waits the time the backend gives and tries once more.
+ */
+async function uploadPan(page: Page): Promise<Response> {
+  const send = async () => {
+    const file = new FormData();
+    file.append('type', 'pan');
+    file.append('file', new Blob([TEST_PDF], { type: 'application/pdf' }), 'pan.pdf');
+    return fetch(`${BACKEND}/vendors/me/documents`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${await tokenOf(page)}` },
+      body: file,
+    });
+  };
+  const first = await send();
+  if (first.status !== TOO_MANY_REQUESTS) return first;
+  const waitSeconds = Number(first.headers.get('retry-after') ?? '60');
+  await page.waitForTimeout((waitSeconds + 1) * 1000);
+  return send();
 }

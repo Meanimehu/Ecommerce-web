@@ -20,6 +20,10 @@ import {
   vendorApplyPath,
   vendorHomePath,
   vendorProfilePath,
+  myStockPath,
+  bulkStockPath,
+  variantStockPath,
+  stockHistoryPath,
 } from '@/lib/routes';
 
 /**
@@ -59,6 +63,10 @@ describe('page addresses (lib/routes.ts)', () => {
     expect(vendorApplyPath('hi', 'documents')).toBe('/hi/vendor/apply?step=documents');
     expect(vendorProfilePath('hi')).toBe('/hi/vendor/profile');
     expect(myProductsPath('en')).toBe('/en/vendor/products');
+    expect(myStockPath('en')).toBe('/en/vendor/stock');
+    expect(bulkStockPath('hi')).toBe('/hi/vendor/stock/bulk');
+    expect(variantStockPath('en', 'p1', 'v 2')).toBe('/en/vendor/stock/p1/v%202');
+    expect(stockHistoryPath('en', 'p1', 'v2')).toBe('/en/vendor/stock/p1/v2/history');
     expect(addProductPath('hi')).toBe('/hi/vendor/products/add');
     expect(myProductPath('en', ID)).toBe(`/en/vendor/products/${ID}`);
     expect(myProductPath('en', ID, 'photos')).toBe(`/en/vendor/products/${ID}?step=photos`);
