@@ -7,12 +7,15 @@ import {
   possibleParents,
 } from '@/features/catalogue/hooks/use-category-form';
 import { changedColour, newColour } from '@/features/catalogue/hooks/use-colour-form';
+import { changedGstRate, newGstRate } from '@/features/catalogue/hooks/use-gst-rate-form';
 import { changedHsnCode, newHsnCode } from '@/features/catalogue/hooks/use-hsn-code-form';
 import { changedSize, newSize } from '@/features/catalogue/hooks/use-size-form';
 import {
   AttributeType,
   attributeBody,
+  GstRateFormSchema,
   inTreeOrder,
+  percentToBps,
   rateField,
   rateValue,
   SizeGroup,
@@ -164,5 +167,36 @@ describe('what each catalogue form sends (area-3a-catalogue.md, sections 3 to 6)
     expect(rateField(1200)).toBe('1200');
     expect(rateValue('')).toBeNull();
     expect(rateValue('1200')).toBe(1200);
+  });
+});
+
+describe('GST rates (area-3a-catalogue.md, GST rates; Slice 5e)', () => {
+  it('turns a percentage into basis points', () => {
+    expect(percentToBps('5')).toBe(500);
+    expect(percentToBps('12.5')).toBe(1250);
+    expect(percentToBps('0.01')).toBe(1);
+    expect(percentToBps('100')).toBe(10000);
+  });
+
+  it('accepts 0 to 100 with at most two decimals', () => {
+    for (const rate of ['0', '5', '12.5', '28', '99.99', '100', '100.00']) {
+      expect(GstRateFormSchema.safeParse({ rate, label: '' }).success, rate).toBe(true);
+    }
+    for (const rate of ['', '12,5', '-5', '100.01', '101', '5.125', 'five']) {
+      expect(GstRateFormSchema.safeParse({ rate, label: '' }).success, rate).toBe(false);
+    }
+  });
+
+  it('sends a new rate in basis points, with its label only when given', () => {
+    expect(newGstRate({ rate: '12.5', label: '' })).toEqual({ rateBps: 1250 });
+    expect(newGstRate({ rate: '5', label: 'Five' })).toEqual({ rateBps: 500, label: 'Five' });
+  });
+
+  it('sends only a changed, non-empty label; never the rate', () => {
+    expect(changedGstRate({ rate: '5', label: 'Five' }, { label: true, rate: true })).toEqual({
+      label: 'Five',
+    });
+    expect(changedGstRate({ rate: '5', label: '' }, { label: true })).toEqual({});
+    expect(changedGstRate({ rate: '5', label: 'Five' }, {})).toEqual({});
   });
 });

@@ -4,9 +4,10 @@ import { backendLog, freshPhone, pageAs } from './support/login';
 import { nextRequestBody } from './support/requests';
 
 /**
- * Slice 2b (Document 8, Slice 2): an admin creates the catalogue entries a product needs: an HSN code, a category with
+ * Slice 2b and 5e (Document 8, Slices 2 and 5): an admin creates the catalogue entries a product needs: an HSN code, a category with
  * attributes and default tax, a brand, a size and a colour; and edits one field of each, checking that exactly that
- * field is sent. Against the real local backend; skipped where it is not running.
+ * field is sent; and adds, renames and switches off a GST rate. Against the real local backend; skipped where it is not
+ * running.
  */
 const ADMIN_PHONE = process.env.E2E_ADMIN_PHONE ?? '9000000001';
 const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
@@ -221,6 +222,61 @@ test.describe('catalogue lists', () => {
       `Edit colour ${stamp} changed`,
       'label',
     );
+  });
+
+  test('GST rates: an admin adds a rate in per cent, changes its label and switches it off; a rate that exists is refused', async ({
+    browser,
+  }) => {
+    const admin = await pageAs(browser, ADMIN_PHONE, '/en/admin/catalogue/gst-rates');
+    await expect(admin.getByRole('link', { name: 'GST rates' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    await expect(admin.getByText('Rates never change.', { exact: false })).toBeVisible();
+    await noAxeViolations(admin);
+
+    // Only a percentage is accepted, and a rate that exists is refused under the rate.
+    await admin.getByRole('button', { name: 'Add GST rate' }).click();
+    const rateBox = admin.getByRole('textbox', { name: 'Rate (%)', exact: true });
+    await rateBox.fill('12,5');
+    await admin.getByRole('button', { name: 'Save' }).click();
+    await expect(
+      admin.getByText('Enter a percentage from 0 to 100', { exact: false }).first(),
+    ).toBeVisible();
+    await rateBox.fill('5');
+    await admin.getByRole('button', { name: 'Save' }).click();
+    await expect(admin.getByText('This code already exists.').first()).toBeVisible();
+    await expect(rateBox).toHaveAttribute('aria-invalid', 'true');
+
+    // A new rate, typed in per cent, is sent in basis points; with no label the backend names it.
+    // Rates stay in the local database, so each run picks one that is unlikely to be taken.
+    const rateBps = 1 + Math.floor(Math.random() * 9_998);
+    const percent = String(rateBps / 100);
+    await rateBox.fill(percent);
+    const sent = nextRequestBody(admin, 'POST', /^\/api\/admin\/catalogue\/gst-rates$/);
+    await admin.getByRole('button', { name: 'Save' }).click();
+    expect(await sent).toEqual({ rateBps });
+    await expect(admin.getByRole('status').filter({ hasText: 'Saved' })).toBeVisible();
+
+    // Its label changes; the rate itself is shown, not offered for change.
+    await editOneField(admin, 'gst-rates', `${percent}%`, 'Label', `Test rate ${rateBps}`, 'label');
+    await admin.goto(
+      `/en/admin/catalogue/gst-rates?q=${encodeURIComponent(`Test rate ${rateBps}`)}`,
+    );
+    await admin
+      .getByRole('button', { name: new RegExp(`^Edit\\s*: Test rate ${rateBps}$`) })
+      .click();
+    await expect(admin.getByText('A rate never changes.', { exact: false })).toBeVisible();
+    await expect(admin.getByRole('textbox', { name: 'Rate (%)' })).toHaveCount(0);
+    await admin.getByRole('button', { name: 'Cancel' }).click();
+
+    // Switched off, so no product form offers it.
+    await admin
+      .getByRole('button', { name: new RegExp(`^Switch off\\s*: Test rate ${rateBps}$`) })
+      .click();
+    await expect(
+      admin.getByRole('status').filter({ hasText: `Test rate ${rateBps} switched off` }),
+    ).toBeVisible();
   });
 
   test('the Hindi page, and a customer gets a real 403', async ({ browser }) => {

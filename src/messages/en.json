@@ -264,7 +264,8 @@
     "taxPair": "Choose both an HSN code and a GST rate, or neither to use the category's default.",
     "number": "Enter a number.",
     "moneyShape": "Enter an amount in rupees, for example 1499 or 1499.50.",
-    "emailShape": "Enter an email address like name@example.com."
+    "emailShape": "Enter an email address like name@example.com.",
+    "percentShape": "Enter a percentage from 0 to 100, with at most two decimals, for example 5 or 12.5."
   },
   "noScript": {
     "interactive": "This page needs JavaScript. Turn it on in your browser settings, or use a newer browser."
@@ -534,6 +535,7 @@
     "lists": {
       "categories": "Categories",
       "hsn-codes": "HSN codes",
+      "gst-rates": "GST rates",
       "brands": "Brands",
       "sizes": "Sizes",
       "colours": "Colours"
@@ -541,6 +543,7 @@
     "add": {
       "categories": "Add category",
       "hsn-codes": "Add HSN code",
+      "gst-rates": "Add GST rate",
       "brands": "Add brand",
       "sizes": "Add size",
       "colours": "Add colour"
@@ -580,7 +583,8 @@
       "hex": "Colour value",
       "attributes": "Attributes",
       "defaultTax": "Default HSN code and GST rate",
-      "actions": "Actions"
+      "actions": "Actions",
+      "rate": "Rate"
     },
     "sizeGroups": {
       "apparel": "Clothing",
@@ -628,8 +632,13 @@
       "attributeOptions": "Options",
       "attributeOptionsHelp": "One option per line, up to 50.",
       "attributeRequired": "Vendors must give a value",
-      "attributeFilterable": "Customers can filter by it"
-    }
+      "attributeFilterable": "Customers can filter by it",
+      "rate": "Rate (%)",
+      "rateHelp": "For example 5 or 12.5",
+      "rateFixed": "A rate never changes. To replace it, add a new rate and switch this one off.",
+      "gstLabelHelp": "What people see, for example \"5%\". Left empty, it is the rate itself."
+    },
+    "ratesNeverChange": "Rates never change. To replace a rate, add a new one and switch the old one off. Categories, HSN codes and products that already use a switched-off rate keep it."
   },
   "product": {
     "title": "Products",
