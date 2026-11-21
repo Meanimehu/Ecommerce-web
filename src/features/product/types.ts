@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { ADMIN_ROLE, MODERATOR_ROLE } from '@/features/auth/types';
 import { AttributeSchema, AttributeType, type Attribute } from '@/features/catalogue/types';
 import type { AppError } from '@/lib/errors';
 import { pageOf } from '@/types/common';
@@ -49,13 +48,6 @@ export enum ProductDecision {
 
 export function isProductDecision(value: string): value is ProductDecision {
   return (Object.values(ProductDecision) as string[]).includes(value);
-}
-
-/** Who may review products: moderators and admins (section 7). */
-const REVIEWER_ROLES: readonly string[] = [MODERATOR_ROLE, ADMIN_ROLE];
-
-export function canReviewProducts(roles: readonly string[]): boolean {
-  return roles.some((role) => REVIEWER_ROLES.includes(role));
 }
 
 /** The stored photo sizes (section 4). */

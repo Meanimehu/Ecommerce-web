@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { requireUser } from '@/features/auth/components/require-user';
-import { ADMIN_ROLE } from '@/features/auth/types';
+import { AdminScreen, canUseAdminScreen } from '@/features/auth/staff-screens';
 import { CatalogueScreen } from '@/features/catalogue/components/catalogue-screen';
 import { isEditableList } from '@/features/catalogue/types';
 
@@ -12,7 +12,9 @@ export default async function CatalogueListPage({
 }) {
   const { lang: langParam, list } = await params;
   if (!isEditableList(list)) notFound();
-  const result = await requireUser(langParam, (user) => user.roles.includes(ADMIN_ROLE));
+  const result = await requireUser(langParam, (user) =>
+    canUseAdminScreen(user.roles, AdminScreen.Catalogue),
+  );
   if ('render' in result) return result.render;
   return <CatalogueScreen lang={result.lang} list={list} />;
 }

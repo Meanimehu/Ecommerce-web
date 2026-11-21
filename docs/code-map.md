@@ -221,7 +221,7 @@ Other features use only its public helpers (Document 7, section 20.4): `useSessi
 | --- | --- |
 | `types.ts` | `User`, `isStaff`, `VENDOR_OWNER_ROLE`, `ADMIN_ROLE`, the backend answer schemas, the session answer, the phone and code forms |
 | `after-login-page.ts` | The page to return to after login: `rememberPageAfterLogin`, `readPageAfterLogin`, `forgetPageAfterLogin` (a signed cookie). No server-only import, so `proxy.ts` can use it |
-| `staff-screens.ts` | Which admin screens each staff role may use: `AdminScreen`, `adminScreensFor` (a page-access rule; `layout` shows it) |
+| `staff-screens.ts` | Which admin screens each staff role may use: `AdminScreen`, `canUseAdminScreen` (every admin page checks it), `adminScreensFor` (the menu and the Admin home). A page-access rule; `layout` shows it, and the backend still checks every call |
 | `components/login-form.tsx` | The login screen: the phone and code steps, drawing only (logic in `hooks/use-login-form.ts`) |
 | `components/require-user.tsx` | `requireUser`, the guard for pages that need login or a role; `Unavailable` ("try again shortly", with a link back to the same page); `currentPath`, the page's own address, used only inside |
 | `components/session-check.tsx` | Shown while the browser renews an expired login |
@@ -294,7 +294,7 @@ Backend Area 3b: products, variants, photos, the form guide (`/catalogue/diction
 
 | File | What it does |
 | --- | --- |
-| `types.ts` | The answer schemas; the enums `ProductStatus`, `VariantStatus`, `TaxSource`, `ReviewKind`, `ProductDecision`, `PhotoSize`, `ProductStep`, `MissingItem`, `UploadState`, `RevisionStatus`, `RevisionPhotoState`, `RevisionField`; the revision schemas; the request bodies; the forms (`BasicsFormSchema`, `attributesFormSchema`, `VariantFormSchema`, which turns rupees into paise); small rules: `canEditRevision`, `changesPhotos`, `productStepFor`, `productStepToShow`, `canEditProduct`, `canReviewProducts`, `sortedPhotos`, `flattenCategories`, `findCategoryChoice`, `dictionaryLabel`, `rupeesToPaise`, `paiseToRupees`, `photoSizeOf`, `MAX_PHOTOS` |
+| `types.ts` | The answer schemas; the enums `ProductStatus`, `VariantStatus`, `TaxSource`, `ReviewKind`, `ProductDecision`, `PhotoSize`, `ProductStep`, `MissingItem`, `UploadState`, `RevisionStatus`, `RevisionPhotoState`, `RevisionField`; the revision schemas; the request bodies; the forms (`BasicsFormSchema`, `attributesFormSchema`, `VariantFormSchema`, which turns rupees into paise); small rules: `canEditRevision`, `changesPhotos`, `productStepFor`, `productStepToShow`, `canEditProduct`, `sortedPhotos`, `flattenCategories`, `findCategoryChoice`, `dictionaryLabel`, `rupeesToPaise`, `paiseToRupees`, `photoSizeOf`, `MAX_PHOTOS` |
 | `components/product-list.tsx` | My products: filters, table, numbered pages |
 | `components/product-editor.tsx` | One product: the five steps while it can change, otherwise its summary; the notices above it; for an approved product, the revision panel above the summary |
 | `components/basics-fields.tsx`, `attribute-fields.tsx` | The basics fields and the attribute fields, drawn by a product's steps and by a revision's editor |
@@ -510,7 +510,7 @@ storefront's buy box uses its call hooks; the login endpoint asks it to run the 
 | `scripts/` | `gen-types`, `gen-error-codes` (the code list and its enum), `check-messages` (also checks the enum) with `message-checks.ts`, what it checks, and copying files after a build |
 | `.prettierrc.json`, `eslint.config.mjs` | Formatting (100-character lines) and lint; the files already following Document 7, section 20 are listed in the lint settings |
 | `tests/unit/` | Fast tests of the helpers (Vitest) |
-| `tests/e2e/` | Browser tests against the real backend (Playwright), one spec per feature; `support/` holds the shared steps (`login.ts`, `flows.ts`, `products.ts`: approved products with stock for the storefront and cart specs), `requests.ts` (`nextRequestBody`: what a click really sent) and `page-size.ts` (the first-load budget, Document 6, section 14); `fixtures/` holds the garment illustrations used as test photos |
+| `tests/e2e/` | Browser tests against the real backend (Playwright), one spec per feature; `support/` holds the shared steps (`login.ts`, `flows.ts`, `products.ts`: approved products with stock for the storefront and cart specs), `staff.ts` (`staffWith`: a new person with the staff roles a test needs), `requests.ts` (`nextRequestBody`: what a click really sent) and `page-size.ts` (the first-load budget, Document 6, section 14); `fixtures/` holds the garment illustrations used as test photos |
 
 ## To change something, look here
 
