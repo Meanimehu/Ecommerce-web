@@ -1,14 +1,22 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { backendLog } from './support/login';
-import { backend, draftWithTwoVariants, setStock, staff, submitDraft } from './support/products';
+import {
+  admin,
+  backend,
+  draftWithTwoVariants,
+  setStock,
+  staff,
+  submitDraft,
+} from './support/products';
 import { MadeStatus, vendorIn } from './support/vendors';
 
 /**
- * Slice 4e (Document 5, section 7.2; approved Stage 5 Vendor home): the application's status, and
- * what needs attention: products waiting for review, rejected products, variants low on stock and
- * out of stock, each a link to its filtered list and each loading or failing on its own. Against
- * the real local backend; skipped where it is not running.
+ * Slice 4e and held item H7 (Document 5, section 7.2; approved Stage 5 Vendor home): the
+ * application's status, and what needs attention: products waiting for review, rejected products,
+ * variants low on stock and out of stock, coupon requests whose changes were asked for and coupons
+ * waiting for the vendor's acceptance, each a link to its filtered list and each loading or failing
+ * on its own. Against the real local backend; skipped where it is not running.
  */
 const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 const WIDE = { width: 1280, height: 900 };
@@ -98,5 +106,50 @@ test.describe('vendor home', () => {
     await attention(page).getByRole('button', { name: 'Try again' }).click();
     await expect(tile(page, 'Low stock')).toBeVisible();
     await noAxeViolations(page);
+  });
+
+  test('the coupon counts: requests needing changes and coupons waiting for acceptance', async ({
+    browser,
+  }) => {
+    const vendor = await vendorIn(browser, MadeStatus.Approved);
+    const page = vendor.page;
+    await page.setViewportSize(WIDE);
+    const adminPage = await admin(browser);
+    const stamp = String(Date.now()).slice(-8);
+    await backend(adminPage, 'POST', '/admin/coupons', {
+      code: `HOME${stamp}`,
+      discountType: 'fixed',
+      value: 10000,
+      usageLimit: 10,
+      fundedBy: 'vendor',
+      vendorId: vendor.id,
+    });
+    const start = Date.now() + 3_600_000;
+    const made = (await backend(page, 'POST', '/vendors/me/coupon-requests', {
+      discountType: 'fixed',
+      value: 10000,
+      startsAt: new Date(start).toISOString(),
+      endsAt: new Date(start + 86_400_000).toISOString(),
+      usageLimit: 10,
+      perUserLimit: 1,
+    })) as { id: string };
+    await backend(page, 'POST', `/vendors/me/coupon-requests/${made.id}/submit`);
+    await backend(adminPage, 'POST', `/admin/coupon-requests/${made.id}/request-changes`, {
+      note: 'Please add a code.',
+    });
+
+    await page.goto('/en/vendor');
+    await expect(tile(page, 'Coupon requests needing changes')).toHaveText(
+      /^1\s*Coupon requests needing changes$/,
+    );
+    await expect(tile(page, 'Coupons waiting for you to accept')).toHaveText(
+      /^1\s*Coupons waiting for you to accept$/,
+    );
+    await tile(page, 'Coupon requests needing changes').click();
+    await expect(page).toHaveURL(/\/en\/vendor\/coupon-requests\?status=changes_requested$/);
+    await page.goto('/en/vendor');
+    await tile(page, 'Coupons waiting for you to accept').click();
+    await expect(page).toHaveURL(/\/en\/vendor\/coupons\?status=pending_vendor$/);
+    await expect(page.getByRole('region', { name: `HOME${stamp}` })).toBeVisible();
   });
 });

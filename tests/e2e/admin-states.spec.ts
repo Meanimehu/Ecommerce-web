@@ -4,10 +4,10 @@ import { backendLog } from './support/login';
 import { admin } from './support/products';
 
 /**
- * Slice 5g (Document 5, section 3; Document 6, section 10): when an Admin area screen built in
- * Slice 5 cannot read its own data, it says so in place with "Try again", the menu stays, and "Try
- * again" reads it again. The empty, view-only, no-access, wrong-filter and Hindi states are checked
- * in each screen's own spec.
+ * Slice 5g and held item H7 (Document 5, section 3; Document 6, section 10): when an Admin area
+ * screen built in Slice 5 or in the held items cannot read its own data, it says so in place with
+ * "Try again", the menu stays, and "Try again" reads it again. The empty, view-only, no-access,
+ * wrong-filter and Hindi states are checked in each screen's own spec.
  */
 const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 const ANY_VARIANT = '00000000-0000-4000-8000-000000000000';
@@ -51,6 +51,18 @@ const SCREENS = [
   },
   { path: '/en/admin/sales', call: '/api/admin/sales', heading: 'Sales', after: After.Anything },
   {
+    path: '/en/admin/coupons',
+    call: '/api/admin/coupons',
+    heading: 'Coupons',
+    after: After.Anything,
+  },
+  {
+    path: '/en/admin/coupon-requests',
+    call: '/api/admin/coupon-requests',
+    heading: 'Coupon requests',
+    after: After.Anything,
+  },
+  {
     path: `/en/admin/inventory/variants/${ANY_VARIANT}`,
     call: `/api/admin/inventory/variants/${ANY_VARIANT}/history`,
     heading: 'Stock history',
@@ -69,7 +81,7 @@ test.describe('Admin area states', () => {
   test.skip(!backendLog, 'needs the local backend (E2E_BACKEND_LOG)');
   test.setTimeout(150_000);
 
-  test('a Slice 5 screen whose data cannot be read says so in place, and "Try again" reads it again', async ({
+  test('a Slice 5 or held-item screen whose data cannot be read says so in place, and "Try again" reads it again', async ({
     browser,
   }) => {
     const page = await admin(browser);

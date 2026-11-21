@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { isLocale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
+import { CouponAttention } from '@/features/coupon/components/coupon-attention';
 import { ProductAttention } from '@/features/product/components/product-attention';
 import { StockAttention } from '@/features/stock/components/stock-attention';
 import { ApplicationSummary } from '@/features/vendor/components/application-summary';
@@ -8,9 +9,9 @@ import { ApplicationSummary } from '@/features/vendor/components/application-sum
 /**
  * Vendor home (Document 5, section 7.2; approved Stage 5): the application's status, then what
  * needs attention, built only from what the backend already sends: products waiting for review,
- * rejected products, variants low on stock and out of stock. No chart. Each part comes from its
- * own feature and loads, or fails, on its own; this page only places them (Document 7, 20.4).
- * Coupon requests are on hold (Document 8, Slice 4 notes), so they have no line here.
+ * rejected products, variants low on stock and out of stock, coupon requests whose changes were
+ * asked for and coupons waiting for the vendor's acceptance. No chart. Each part comes from its own
+ * feature and loads, or fails, on its own; this page only places them (Document 7, 20.4).
  */
 export default async function VendorHome({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
@@ -27,6 +28,7 @@ export default async function VendorHome({ params }: { params: Promise<{ lang: s
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <ProductAttention lang={lang} />
           <StockAttention lang={lang} />
+          <CouponAttention lang={lang} labels={messages.coupon.attention} />
         </div>
       </section>
     </div>

@@ -1753,6 +1753,10 @@
       "rejectNote": "Why",
       "rejected": "Request rejected.",
       "openCoupon": "Open coupon {code}"
+    },
+    "attention": {
+      "changesAsked": "Coupon requests needing changes",
+      "waitingAcceptance": "Coupons waiting for you to accept"
     }
   },
   "screenErrors": {
