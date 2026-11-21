@@ -1,4 +1,5 @@
 import { isLocale, type Locale } from '@/lib/i18n';
+import { withQuery } from '@/utils/url';
 
 /**
  * Every page address of our site, one helper per kind of page (Document 7, 20.2; Document 4,
@@ -119,6 +120,12 @@ export const adminUsersPath = (lang: Locale) => `/${lang}/admin/users`;
 
 export const adminUserPath = (lang: Locale, id: string) =>
   `${adminUsersPath(lang)}/${encodeURIComponent(id)}`;
+
+/** The audit log, filtered by these values when given (only those set go in the address). */
+export const adminAuditLogPath = (
+  lang: Locale,
+  filters?: { entityId?: string; actorId?: string },
+) => withQuery(`/${lang}/admin/audit-log`, filters);
 
 export const adminVendorsPath = (lang: Locale) => `/${lang}/admin/vendors`;
 

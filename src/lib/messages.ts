@@ -26,6 +26,7 @@ export const AREA_SECTIONS = [
   'stock',
   'sales',
   'users',
+  'audit',
 ] as const satisfies readonly (keyof Messages)[];
 
 /**
@@ -55,6 +56,7 @@ export const VENDOR_AREA_SECTIONS = [
  */
 export const ADMIN_SCREEN_SECTIONS = {
   users: ['users'],
+  'audit-log': ['audit', 'users'],
   vendors: ['adminVendors', 'vendor'],
   catalogue: ['catalogue'],
   moderation: ['moderation', 'product', 'catalogue', 'vendor', 'adminVendors'],

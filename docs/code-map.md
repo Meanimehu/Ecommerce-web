@@ -125,6 +125,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `[lang]/account/addresses` | Account, the Addresses tab: saved addresses, read on the server (needs login) |
 | `[lang]/account/security` | Account, the Security tab: log out, log out everywhere (`auth`'s `LogoutButtons`) (needs login) |
 | `[lang]/admin/layout.tsx`, `page.tsx` | Admin area (any staff role): `AreaShell` and `AdminHome` from `layout` |
+| `[lang]/admin/audit-log` | The audit log (admin only, read only); the screen is in `features/audit/` |
 | `[lang]/admin/users/…` | Users and roles: the list, and one person (admin only); the screens are in `features/users/` |
 | `[lang]/admin/vendors/…` | Vendor review: the list, and one application (admin only); the screens are in `features/vendor/` |
 | `[lang]/admin/catalogue/[list]` | Catalogue lists: categories, HSN codes, brands, sizes, colours (admin only); the screens are in `features/catalogue/` |
@@ -143,6 +144,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `api/auth/logout`, `api/auth/logout-all` | Log out here; log out everywhere |
 | `api/session` | Who is logged in; renews the login when needed |
 | `api/vendors/…` | The person's own vendor application: details, addresses, documents (upload and view), submit |
+| `api/admin/audit-log` | The audit log: read, with its filters |
 | `api/admin/users/…` | Users and roles: list, one person, block and unblock, give and remove a staff role |
 | `api/admin/vendors/…` | Vendor review: list, one vendor, its documents, and the decisions |
 | `api/admin/catalogue/[list]/…` | The catalogue lists: read, add, change (and switch off or on) |
@@ -364,11 +366,23 @@ and unblocks them, and gives and removes the staff roles (Document 8, Slice 5 no
 | --- | --- |
 | `types.ts` | The admin view of a user, `UserStatus`, `UserAction`, `ALL_ROLES`, the "Add role" form; small rules: `rolesToAdd`, `isStaffRole`, `isAnyRole` |
 | `components/user-list.tsx` | Find people: phone, role and status filters in the address (only those set), table, numbered pages |
-| `components/user-page.tsx` | One person: details, roles (remove with a confirmation, add one), block with a reason or unblock |
+| `components/user-page.tsx` | One person: details with links to the audit log (changes to the account, what they did), roles (remove with a confirmation, add one), block with a reason or unblock |
 | `components/user-status-chip.tsx`, `role-names.ts` | Active or blocked; roles in words |
 | `hooks/use-users.ts` | The call hooks, one per call; `userKeys` |
 | `hooks/use-user-actions.ts` | Block, unblock, add and remove a role; the backend's refusals show on the page |
 | `server/users-api.ts` | Backend Area 1, user and role management |
+
+### `features/audit/` — the audit log, for an admin
+
+Backend Area 1, section 5. Read only. Action names grow with each backend area, so an action is shown by its own name;
+the kinds of record are fixed and shown in words. A person's page in `users` links here, filtered to them.
+
+| File | What it does |
+| --- | --- |
+| `types.ts` | The row schema, `AUDIT_ENTITY_TYPES`; the filters: `badFilters` (ids and days with the wrong shape, so nothing is asked), `auditQuery` (days in IST as ISO times), `istDayStart`, `istDayEnd`; `changedNames` |
+| `components/audit-log.tsx` | Filters in the address (only those set), table with who, what, the record (linked where an admin screen shows it), the reason, and the changes opened on demand; numbered pages |
+| `hooks/use-audit-log.ts` | The one call hook; `auditKeys` |
+| `server/audit-api.ts` | Backend Area 1, the audit log |
 
 ### `features/storefront/` — what a shopper browses (a group, Document 7, D7-20)
 

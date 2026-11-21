@@ -1242,6 +1242,66 @@
     "unblock": "Unblock",
     "unblockText": "This account is blocked. Unblocking lets them log in again with a new code.",
     "blocked": "User blocked",
-    "unblocked": "User unblocked"
+    "unblocked": "User unblocked",
+    "history": "Changes to this account",
+    "actions": "What this person did"
+  },
+  "audit": {
+    "title": "Audit log",
+    "intro": "Who did what, newest first. Nothing here can be changed.",
+    "filters": {
+      "action": "Action",
+      "actionHelp": "The exact name, for example user.block",
+      "entityType": "Kind of record",
+      "allTypes": "All kinds",
+      "entityId": "Record id",
+      "actorId": "Done by (user id)",
+      "idHelp": "The full id",
+      "from": "From",
+      "to": "To",
+      "badId": "Enter the full id.",
+      "badDay": "Enter a date.",
+      "show": "Show results",
+      "clear": "Clear filters"
+    },
+    "fixFilters": "Fix the marked filters to see the log.",
+    "columns": {
+      "when": "When",
+      "action": "Action",
+      "who": "Done by",
+      "record": "Record",
+      "reason": "Reason",
+      "changes": "Changes"
+    },
+    "system": "System",
+    "actorLabels": {
+      "user": "The person themselves",
+      "system": "System"
+    },
+    "openPerson": "Open this person",
+    "showChanges": "Show changes",
+    "before": "Before",
+    "after": "After",
+    "empty": "No entries match",
+    "emptyText": "Try other filters, or clear the filters.",
+    "entityTypes": {
+      "user": "User",
+      "vendor": "Vendor",
+      "vendor_document": "Vendor document",
+      "category": "Category",
+      "brand": "Brand",
+      "size": "Size",
+      "colour": "Colour",
+      "gst_rate": "GST rate",
+      "hsn_code": "HSN code",
+      "product": "Product",
+      "product_variant": "Product variant",
+      "product_media": "Product photo",
+      "product_import": "Product import",
+      "stock_level": "Stock",
+      "variant_sale_price": "Sale price",
+      "coupon": "Coupon",
+      "coupon_request": "Coupon request"
+    }
   }
 }

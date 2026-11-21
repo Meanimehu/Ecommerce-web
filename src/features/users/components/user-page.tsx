@@ -23,7 +23,7 @@ import { Button } from '@/components/ui/button';
 import { fill, messageFor } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import { adminUsersPath } from '@/lib/routes';
+import { adminAuditLogPath, adminUsersPath } from '@/lib/routes';
 import { formatDate, formatPhone, formatTime } from '@/utils/format';
 import { VENDOR_OWNER_ROLE } from '@/features/auth/types';
 import { useUserActions } from '@/features/users/hooks/use-user-actions';
@@ -42,8 +42,9 @@ import { UserStatusChip } from './user-status-chip';
 /**
  * One person, for an admin (Document 5, section 8.3; Document 8, Slice 5 notes): their details,
  * their roles (staff roles can be removed, and one added at a time; "customer" and "vendor owner"
- * are shown but not changed here), and blocking or unblocking the account. What each change does
- * is in `features/users/hooks/use-user-actions.ts`.
+ * are shown but not changed here), blocking or unblocking the account, and links to the audit log
+ * for what happened to the account and what the person did. What each change does is in
+ * `features/users/hooks/use-user-actions.ts`.
  */
 type UserActions = ReturnType<typeof useUserActions>;
 
@@ -114,6 +115,24 @@ function UserDetails({ lang, user }: { lang: Locale; user: AdminUser }) {
               </Row>
             ) : null}
           </dl>
+          <ul className="grid gap-1">
+            <li>
+              <a
+                href={adminAuditLogPath(lang, { entityId: user.id })}
+                className="inline-flex min-h-11 items-center underline underline-offset-4"
+              >
+                {usersMessages.history}
+              </a>
+            </li>
+            <li>
+              <a
+                href={adminAuditLogPath(lang, { actorId: user.id })}
+                className="inline-flex min-h-11 items-center underline underline-offset-4"
+              >
+                {usersMessages.actions}
+              </a>
+            </li>
+          </ul>
         </Card>
         <Card title={usersMessages.rolesTitle}>
           <p className="type-small text-ink-2">{usersMessages.rolesHelp}</p>

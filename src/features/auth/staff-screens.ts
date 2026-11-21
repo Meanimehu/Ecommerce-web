@@ -9,6 +9,7 @@ import { ADMIN_ROLE, MODERATOR_ROLE } from '@/features/auth/types';
  */
 export enum AdminScreen {
   Users = 'users',
+  AuditLog = 'audit-log',
   Vendors = 'vendors',
   Catalogue = 'catalogue',
   Moderation = 'moderation',
@@ -16,6 +17,7 @@ export enum AdminScreen {
 
 const ROLES_BY_SCREEN: Record<AdminScreen, readonly string[]> = {
   [AdminScreen.Users]: [ADMIN_ROLE],
+  [AdminScreen.AuditLog]: [ADMIN_ROLE],
   [AdminScreen.Vendors]: [ADMIN_ROLE],
   [AdminScreen.Catalogue]: [ADMIN_ROLE],
   [AdminScreen.Moderation]: [MODERATOR_ROLE, ADMIN_ROLE],

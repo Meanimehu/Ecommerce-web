@@ -1,5 +1,6 @@
 import type { Locale, Messages } from '@/lib/i18n';
 import {
+  adminAuditLogPath,
   adminCataloguePath,
   adminHomePath,
   adminUsersPath,
@@ -29,6 +30,7 @@ export enum StaffArea {
 
 const ADMIN_SCREEN_PATHS: Record<AdminScreen, (lang: Locale) => string> = {
   [AdminScreen.Users]: adminUsersPath,
+  [AdminScreen.AuditLog]: (lang) => adminAuditLogPath(lang),
   [AdminScreen.Vendors]: adminVendorsPath,
   [AdminScreen.Catalogue]: (lang) => adminCataloguePath(lang),
   [AdminScreen.Moderation]: moderationQueuePath,
@@ -36,6 +38,7 @@ const ADMIN_SCREEN_PATHS: Record<AdminScreen, (lang: Locale) => string> = {
 
 const ADMIN_SCREEN_ICONS: Record<AdminScreen, NavIcon> = {
   [AdminScreen.Users]: 'users',
+  [AdminScreen.AuditLog]: 'audit',
   [AdminScreen.Vendors]: 'vendors',
   [AdminScreen.Catalogue]: 'catalogue',
   [AdminScreen.Moderation]: 'moderation',
@@ -82,6 +85,8 @@ function adminScreenLabel(screen: AdminScreen, messages: Messages): string {
   switch (screen) {
     case AdminScreen.Users:
       return messages.users.title;
+    case AdminScreen.AuditLog:
+      return messages.audit.title;
     case AdminScreen.Vendors:
     case AdminScreen.Catalogue:
     case AdminScreen.Moderation:
