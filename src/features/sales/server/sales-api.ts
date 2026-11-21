@@ -4,8 +4,11 @@ import type { Query } from '@/utils/url';
 import {
   SalePageSchema,
   SaleSchema,
+  StaffSalePageSchema,
+  StaffSaleSchema,
   type CancelSaleBody,
   type CreateSaleBody,
+  type StaffCancelSaleBody,
 } from '@/features/sales/types';
 
 /**
@@ -43,4 +46,26 @@ export const cancelSale = (token: string, id: string, body: CancelSaleBody) =>
     kind: 'save',
     token,
     schema: SaleSchema,
+  });
+
+/** Every vendor's sales, for staff (admin, moderator, marketing, finance, support). */
+export const listAllSales = (token: string, query: Query) =>
+  callBackend({
+    method: 'GET',
+    path: '/admin/sales',
+    query,
+    kind: 'view',
+    token,
+    schema: StaffSalePageSchema,
+  });
+
+/** An admin or moderator cancels a sale, with a reason. */
+export const staffCancelSale = (token: string, id: string, body: Partial<StaffCancelSaleBody>) =>
+  callBackend({
+    method: 'POST',
+    path: `/admin/sales/${encodeURIComponent(id)}/cancel`,
+    body,
+    kind: 'save',
+    token,
+    schema: StaffSaleSchema,
   });

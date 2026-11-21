@@ -3,6 +3,7 @@ import {
   adminAuditLogPath,
   adminCataloguePath,
   adminHomePath,
+  adminSalesPath,
   adminUsersPath,
   adminVendorsPath,
   moderationQueuePath,
@@ -34,6 +35,7 @@ const ADMIN_SCREEN_PATHS: Record<AdminScreen, (lang: Locale) => string> = {
   [AdminScreen.Vendors]: adminVendorsPath,
   [AdminScreen.Catalogue]: (lang) => adminCataloguePath(lang),
   [AdminScreen.Moderation]: moderationQueuePath,
+  [AdminScreen.Sales]: adminSalesPath,
 };
 
 const ADMIN_SCREEN_ICONS: Record<AdminScreen, NavIcon> = {
@@ -42,6 +44,7 @@ const ADMIN_SCREEN_ICONS: Record<AdminScreen, NavIcon> = {
   [AdminScreen.Vendors]: 'vendors',
   [AdminScreen.Catalogue]: 'catalogue',
   [AdminScreen.Moderation]: 'moderation',
+  [AdminScreen.Sales]: 'sales',
 };
 
 /**
@@ -87,6 +90,8 @@ function adminScreenLabel(screen: AdminScreen, messages: Messages): string {
       return messages.users.title;
     case AdminScreen.AuditLog:
       return messages.audit.title;
+    case AdminScreen.Sales:
+      return messages.sales.title;
     case AdminScreen.Vendors:
     case AdminScreen.Catalogue:
     case AdminScreen.Moderation:

@@ -18,7 +18,7 @@ import { BackendErrorCode } from '@/lib/error-codes';
 import { fill, messageFor, type AppError } from '@/lib/errors';
 import type { Locale, Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import { moderationQueuePath } from '@/lib/routes';
+import { moderationQueuePath, staffStockHistoryPath } from '@/lib/routes';
 import { findInTree } from '@/features/storefront/product-list/rules';
 import { reviewPhotoSrc, useProductForReview } from '@/features/product/hooks/use-product';
 import { useProductDecision } from '@/features/product/hooks/use-product-decision';
@@ -82,7 +82,7 @@ export function ModerationReview({ lang, id }: { lang: Locale; id: string }) {
         />
       );
     }
-    return <Review view={productForReview.data} />;
+    return <Review lang={lang} view={productForReview.data} />;
   }
 
   return (
@@ -93,7 +93,7 @@ export function ModerationReview({ lang, id }: { lang: Locale; id: string }) {
   );
 }
 
-function Review({ view }: { view: ModerationView }) {
+function Review({ lang, view }: { lang: Locale; view: ModerationView }) {
   const messages = useMessages();
   const moderationMessages = messages.moderation;
   const productMessages = messages.product;
@@ -172,11 +172,20 @@ function Review({ view }: { view: ModerationView }) {
                   ? ` (${productMessages.variant.inactive})`
                   : ''}
               </span>
-              <span className="tabular-nums text-ink">
-                {formatRupees(variant.pricePaise)}{' '}
-                <span className="text-muted-foreground line-through">
-                  {formatRupees(variant.mrpPaise)}
+              <span className="flex flex-wrap items-center gap-4">
+                <span className="tabular-nums text-ink">
+                  {formatRupees(variant.pricePaise)}{' '}
+                  <span className="text-muted-foreground line-through">
+                    {formatRupees(variant.mrpPaise)}
+                  </span>
                 </span>
+                <a
+                  href={staffStockHistoryPath(lang, variant.id)}
+                  className="inline-flex min-h-11 items-center underline underline-offset-4"
+                >
+                  {moderationMessages.stockHistory}
+                  <span className="sr-only">: {variant.sku}</span>
+                </a>
               </span>
             </li>
           ))}

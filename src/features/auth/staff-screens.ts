@@ -1,4 +1,10 @@
-import { ADMIN_ROLE, MODERATOR_ROLE } from '@/features/auth/types';
+import {
+  ADMIN_ROLE,
+  FINANCE_ROLE,
+  MARKETING_ROLE,
+  MODERATOR_ROLE,
+  SUPPORT_ROLE,
+} from '@/features/auth/types';
 
 /**
  * Which admin screens each staff role may use (Document 5, section 8.3; Document 8, Slice 5 notes).
@@ -13,6 +19,7 @@ export enum AdminScreen {
   Vendors = 'vendors',
   Catalogue = 'catalogue',
   Moderation = 'moderation',
+  Sales = 'sales',
 }
 
 const ROLES_BY_SCREEN: Record<AdminScreen, readonly string[]> = {
@@ -21,7 +28,20 @@ const ROLES_BY_SCREEN: Record<AdminScreen, readonly string[]> = {
   [AdminScreen.Vendors]: [ADMIN_ROLE],
   [AdminScreen.Catalogue]: [ADMIN_ROLE],
   [AdminScreen.Moderation]: [MODERATOR_ROLE, ADMIN_ROLE],
+  [AdminScreen.Sales]: [ADMIN_ROLE, MODERATOR_ROLE, MARKETING_ROLE, FINANCE_ROLE, SUPPORT_ROLE],
 };
+
+/** Who may cancel a sale: the other Sales roles read it, with "View only". */
+const SALE_CANCEL_ROLES: readonly string[] = [ADMIN_ROLE, MODERATOR_ROLE];
+
+/** Who may read any variant's stock history; it has no menu entry, only links from Sales and Moderation. */
+const STOCK_HISTORY_ROLES: readonly string[] = [ADMIN_ROLE, MODERATOR_ROLE, SUPPORT_ROLE];
+
+export const canCancelSales = (roles: readonly string[]) =>
+  SALE_CANCEL_ROLES.some((role) => roles.includes(role));
+
+export const canReadStockHistory = (roles: readonly string[]) =>
+  STOCK_HISTORY_ROLES.some((role) => roles.includes(role));
 
 /** Whether these roles may open this admin screen: any one role that allows it is enough. */
 export function canUseAdminScreen(roles: readonly string[], screen: AdminScreen): boolean {

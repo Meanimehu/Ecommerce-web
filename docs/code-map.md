@@ -129,6 +129,8 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `[lang]/admin/users/…` | Users and roles: the list, and one person (admin only); the screens are in `features/users/` |
 | `[lang]/admin/vendors/…` | Vendor review: the list, and one application (admin only); the screens are in `features/vendor/` |
 | `[lang]/admin/catalogue/[list]` | Catalogue lists: categories, HSN codes, brands, sizes, colours (admin only); the screens are in `features/catalogue/` |
+| `[lang]/admin/sales` | Every vendor's sales, for staff; the screen is in `features/sales/` |
+| `[lang]/admin/inventory/variants/[id]` | Any variant's stock history, for staff, reached by links only; the screen is in `features/stock/` |
 | `[lang]/admin/moderation/…` | Product moderation: the queue and one product (moderator, admin); the screens are in `features/product/` |
 | `[lang]/vendor/layout.tsx` | Vendor area: never indexed, always rendered for the person |
 | `[lang]/vendor/apply/page.tsx` | Become a vendor: open to anyone logged in |
@@ -145,6 +147,8 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `api/session` | Who is logged in; renews the login when needed |
 | `api/vendors/…` | The person's own vendor application: details, addresses, documents (upload and view), submit |
 | `api/admin/audit-log` | The audit log: read, with its filters |
+| `api/admin/sales/…` | Every vendor's sales, and cancelling one with a reason |
+| `api/admin/inventory/variants/[id]/history` | Any variant's stock history, for staff |
 | `api/admin/users/…` | Users and roles: list, one person, block and unblock, give and remove a staff role |
 | `api/admin/vendors/…` | Vendor review: list, one vendor, its documents, and the decisions |
 | `api/admin/catalogue/[list]/…` | The catalogue lists: read, add, change (and switch off or on) |
@@ -184,7 +188,8 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `common/breadcrumbs.tsx` | Breadcrumbs (only the parent on phones) |
 | `common/count-tile.tsx` | A count and its label as a link to the list it counts (the vendor home) |
 | `common/load-states.tsx` | Loading and "could not be loaded, Try again" for one part of a screen |
-| `common/reason-dialog.tsx` | A confirmation that asks for a reason (reject, suspend); only draws |
+| `common/reason-dialog.tsx`, `reason-dialog-form.tsx` | A confirmation that asks for a reason (reject, suspend, block, cancel); only draws. The form inside loads the first time a reason dialog opens |
+| `common/view-only-chip.tsx` | "View only" beside a page title, for a role that reads but cannot change |
 | `common/toast.tsx` | The success toast ("Saved") |
 | `ui/button.tsx` | Primary, secondary, quiet, destructive and destructive-confirm buttons; large, default and small; loading state |
 | `ui/input.tsx`, `select.tsx`, `textarea.tsx`, `checkbox.tsx`, `radio.tsx` | The text input, select, text area, checkbox and radio |
@@ -225,7 +230,7 @@ Other features use only its public helpers (Document 7, section 20.4): `useSessi
 | --- | --- |
 | `types.ts` | `User`, `isStaff`, `VENDOR_OWNER_ROLE`, `ADMIN_ROLE`, the backend answer schemas, the session answer, the phone and code forms |
 | `after-login-page.ts` | The page to return to after login: `rememberPageAfterLogin`, `readPageAfterLogin`, `forgetPageAfterLogin` (a signed cookie). No server-only import, so `proxy.ts` can use it |
-| `staff-screens.ts` | Which admin screens each staff role may use: `AdminScreen`, `canUseAdminScreen` (every admin page checks it), `adminScreensFor` (the menu and the Admin home). A page-access rule; `layout` shows it, and the backend still checks every call |
+| `staff-screens.ts` | Which admin screens and actions each staff role may use: `AdminScreen`, `canUseAdminScreen` (every admin page checks it), `adminScreensFor` (the menu and the Admin home), `canCancelSales`, `canReadStockHistory`. A page-access rule; `layout` shows it, and the backend still checks every call |
 | `components/login-form.tsx` | The login screen: the phone and code steps, drawing only (logic in `hooks/use-login-form.ts`) |
 | `components/require-user.tsx` | `requireUser`, the guard for pages that need login or a role; `Unavailable` ("try again shortly", with a link back to the same page); `currentPath`, the page's own address, used only inside |
 | `components/session-check.tsx` | Shown while the browser renews an expired login |
@@ -335,6 +340,7 @@ Backend Area 4. It uses `product`'s form guide (`useDictionaries`) for size and 
 | `components/stock-screen.tsx` | The stock list: the summary strip (a part of its own), the state filter, the table with Change and History |
 | `components/stock-change.tsx` | One variant: what is available now, the change form (set, add, remove) and the threshold form; read only for a vendor not approved |
 | `components/stock-history.tsx` | One variant's history, numbered pages |
+| `components/staff-stock-history.tsx`, `history-columns.tsx` | Any variant's history for staff (by its id), and the history columns both share |
 | `components/bulk-stock.tsx` | The bulk update by SKU: the table, its problems by row, the result, and the stock now after an unknown outcome |
 | `components/stock-state-chip.tsx` | In stock, low, out |
 | `components/stock-attention.tsx` | The vendor home's stock counts: low and out, each a link to the filtered list |
@@ -342,7 +348,7 @@ Backend Area 4. It uses `product`'s form guide (`useDictionaries`) for size and 
 | `hooks/use-stock-change-form.ts`, `use-threshold-form.ts`, `use-bulk-stock-form.ts` | One form hook per form: what each sends, its errors, and an unknown outcome, never sent again |
 | `server/stock-api.ts` | Backend Area 4, the vendor's side |
 
-### `features/sales/` — a vendor's sale prices
+### `features/sales/` — sale prices: the vendor's, and every vendor's for staff
 
 Backend Area 5, part 1. A sale names only its variant, so the screens take the variant's name from `stock`'s list
 (`useEveryStockRow`) and its normal price from `product`'s product (`useMyProduct`); the price in rupees uses
@@ -356,7 +362,9 @@ Backend Area 5, part 1. A sale names only its variant, so the screens take the v
 | `components/sale-status-chip.tsx` | Upcoming, active, ended, cancelled |
 | `hooks/use-sales.ts` | The call hooks, one per call; `salesKeys` |
 | `hooks/use-sale-form.ts`, `use-sale-cancel.ts` | The new-sale form (the backend's refusals under their fields) and cancelling one |
-| `server/sales-api.ts` | Backend Area 5, part 1, the vendor's side |
+| `components/staff-sale-list.tsx` | Every vendor's sales for staff: status, vendor and variant filters in the address, links to stock history and the vendor (by role), "View only" for the roles that read |
+| `components/staff-cancel-sale.tsx`, `hooks/use-staff-sale-cancel.ts` | Cancelling with a reason, for admins and moderators; loaded only for them |
+| `server/sales-api.ts` | Backend Area 5, part 1: the vendor's side and the staff's |
 
 ### `features/users/` — users and roles, for an admin
 

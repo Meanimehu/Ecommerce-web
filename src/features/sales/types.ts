@@ -44,9 +44,23 @@ export type Sale = z.infer<typeof SaleSchema>;
 
 export const SalePageSchema = pageOf(SaleSchema);
 
+/** A sale as staff read it: also its vendor (Area 5, GET /admin/sales). */
+export const StaffSaleSchema = SaleSchema.extend({ vendorId: z.string() });
+export type StaffSale = z.infer<typeof StaffSaleSchema>;
+export const StaffSalePageSchema = pageOf(StaffSaleSchema);
+
+/** The longest reason the backend accepts when staff cancel a sale. */
+export const STAFF_CANCEL_REASON_MAX_LENGTH = 500;
+
+const ID_SHAPE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Whether a filter has the shape of a record id (the backend takes only full ids). */
+export const isIdShape = (value: string) => ID_SHAPE.test(value);
+
 /** Request bodies, from the generated backend types (D7-02). The backend checks every field. */
 export type CreateSaleBody = components['schemas']['CreateSaleDto'];
 export type CancelSaleBody = components['schemas']['CancelSaleDto'];
+export type StaffCancelSaleBody = components['schemas']['ReasonDto'];
 
 // ---- The new-sale form (Document 5, section 8.2; approved Stage 5). Times are typed in IST. ----
 

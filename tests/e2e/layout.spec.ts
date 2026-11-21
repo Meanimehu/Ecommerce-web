@@ -141,9 +141,9 @@ test.describe('with the local backend', () => {
     const moderator = await pageAs(browser, MODERATOR_PHONE, '/en/admin');
     await moderator.setViewportSize(WIDE);
     await expect(moderator.getByText('Admin area', { exact: true })).toBeVisible();
-    await expect(await sideMenu(moderator)).toHaveText(['Home', 'Product moderation']);
+    await expect(await sideMenu(moderator)).toHaveText(['Home', 'Product moderation', 'Sales']);
     const moderatorHome = moderator.getByRole('main').getByRole('link');
-    await expect(moderatorHome).toHaveText(['Product moderation']);
+    await expect(moderatorHome).toHaveText(['Product moderation', 'Sales']);
     await expect(moderatorHome.first()).toHaveAttribute('href', '/en/admin/moderation');
 
     const adminPage = await admin(browser);
@@ -155,6 +155,7 @@ test.describe('with the local backend', () => {
       'Vendor review',
       'Catalogue lists',
       'Product moderation',
+      'Sales',
     ]);
     await expect((await sideMenu(adminPage)).first()).toHaveAttribute('aria-current', 'page');
     const adminHome = adminPage.getByRole('main').getByRole('link');
@@ -164,12 +165,14 @@ test.describe('with the local backend', () => {
       'Vendor review',
       'Catalogue lists',
       'Product moderation',
+      'Sales',
     ]);
     await expect(adminHome.nth(0)).toHaveAttribute('href', '/en/admin/users');
     await expect(adminHome.nth(1)).toHaveAttribute('href', '/en/admin/audit-log');
     await expect(adminHome.nth(2)).toHaveAttribute('href', '/en/admin/vendors');
     await expect(adminHome.nth(3)).toHaveAttribute('href', '/en/admin/catalogue');
     await expect(adminHome.nth(4)).toHaveAttribute('href', '/en/admin/moderation');
+    await expect(adminHome.nth(5)).toHaveAttribute('href', '/en/admin/sales');
     await expect(adminPage.getByRole('heading', { name: 'Admin home', level: 1 })).toBeVisible();
     await noAxeViolations(adminPage);
   });

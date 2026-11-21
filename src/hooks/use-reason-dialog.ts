@@ -20,17 +20,19 @@ export type ConfirmWithReason = (reason: string, outcome: ReasonOutcome) => void
 /**
  * A reason dialog (Document 6, 8.10): the reason checked before sending, then handed to the
  * feature's decision. It stays open with the backend's refusal in its summary, the reason kept and
- * focus on the summary, and closes once the decision is made. The screen, `reason-dialog.tsx`,
- * only draws.
+ * focus on the summary, and closes once the decision is made. The screen, `reason-dialog-form.tsx`,
+ * only draws; it is new each time the dialog opens, so each opening starts with an empty reason.
  */
 export function useReasonDialog({
   onConfirm,
   messages,
+  onClose,
 }: {
   onConfirm: ConfirmWithReason;
   messages: Messages;
+  /** Closes the dialog once the decision is made. */
+  onClose: () => void;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [focusSignal, setFocusSignal] = useState(0);
   const form = useAppForm<ReasonInput, { reason: string }>(ReasonSchema, { reason: '' });
@@ -41,8 +43,7 @@ export function useReasonDialog({
 
   function closeDialog() {
     setIsSending(false);
-    form.reset();
-    setIsOpen(false);
+    onClose();
   }
 
   function showRefusal(error: AppError) {
@@ -56,15 +57,8 @@ export function useReasonDialog({
     onConfirm(values.reason, { onSuccess: closeDialog, onError: showRefusal });
   }
 
-  function changeOpen(isNowOpen: boolean) {
-    setIsOpen(isNowOpen);
-    if (!isNowOpen) form.reset();
-  }
-
   return {
     form,
-    isOpen,
-    changeOpen,
     submit: form.handleSubmit(sendReason, moveFocusToSummary),
     isSending,
     focusSignal,
