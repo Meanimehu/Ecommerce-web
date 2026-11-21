@@ -136,6 +136,20 @@ export const adminAuditLogPath = (
 
 export const adminSalesPath = (lang: Locale) => `/${lang}/admin/sales`;
 
+/** Every coupon, filtered by these values when given (only those set go in the address). */
+export const adminCouponsPath = (
+  lang: Locale,
+  filters?: { status?: string; code?: string; vendorId?: string },
+) => withQuery(`/${lang}/admin/coupons`, filters);
+
+export const newAdminCouponPath = (lang: Locale) => `/${lang}/admin/coupons/new`;
+
+export const adminCouponPath = (lang: Locale, id: string) =>
+  `/${lang}/admin/coupons/${encodeURIComponent(id)}`;
+
+export const changeAdminCouponPath = (lang: Locale, id: string) =>
+  `${adminCouponPath(lang, id)}/change`;
+
 /** Any variant's stock history, for staff; reached by links only (Document 8, Slice 5 notes). */
 export const staffStockHistoryPath = (lang: Locale, variantId: string) =>
   `/${lang}/admin/inventory/variants/${encodeURIComponent(variantId)}`;

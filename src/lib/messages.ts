@@ -28,6 +28,7 @@ export const AREA_SECTIONS = [
   'sales',
   'users',
   'audit',
+  'coupon',
 ] as const satisfies readonly (keyof Messages)[];
 
 /**
@@ -71,6 +72,7 @@ export const ADMIN_SCREEN_SECTIONS = {
   moderation: ['moderation', 'product', 'catalogue', 'vendor', 'adminVendors'],
   sales: ['sales'],
   inventory: ['stock'],
+  coupons: ['coupon'],
 } as const satisfies Record<string, readonly AreaSection[]>;
 
 const NOT_SHARED: readonly string[] = [...AREA_SECTIONS, ...PAGE_SECTIONS];

@@ -8,6 +8,7 @@ import {
   Store,
   Tag,
   Tags,
+  Ticket,
   Users,
   type LucideIcon,
 } from 'lucide-react';
@@ -29,6 +30,7 @@ export const NAV_ICONS = {
   vendors: Store,
   catalogue: Tags,
   moderation: Eye,
+  coupons: Ticket,
 } satisfies Record<string, LucideIcon>;
 export type NavIcon = keyof typeof NAV_ICONS;
 
