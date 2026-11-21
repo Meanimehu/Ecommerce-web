@@ -80,8 +80,34 @@ Each slice ends with something that can be tried by a person, not just a list of
 - **Status: partially complete by design.** When these parts are merged, Slice 4 is done for the screens it covers. It is not marked complete until the screens on hold (Imports, Coupons, Coupon requests) are built.
 - **Status (16 Nov 2026): every part is built and open for the owner's review; Slice 4 is partially complete.** The pull requests are stacked, each on the one before, and are merged in this order: #65 (this plan), #66 (4a), #67 (a bug found on the way: the last-resort error page brought the whole English catalogue to every page; every page is now about 10 KB lighter), #68 (4b), #69 (4c), #70 (4d), #71 (4e). The vendor home, business profile, revisions, stock and sales are built and tested in English and Hindi, against the real backend in Chromium, with their loading, empty, error, read-only and not-found states.
 - **Left open by Slice 4:** CSV imports, coupons and coupon requests (on hold, owner); withdrawing a live product and a product's review history (not offered, owner); **moderating a revision**, which stays with the Admin area's product moderation in Slice 5 (owner, 16 Nov 2026; Document 5, 8.3), so until then the end-to-end tests make that decision by calling the backend; the approved revision drawing compares the price, but a price is per variant and changes directly, never through a revision, so the comparison shows only what a revision changes; the backend answers removing an approved vendor's only pickup address with its general `VENDOR_LOCKED` code; the backend tests in CI and the other browsers (Document 7, section 11, postponed).
+- **Status (21 Nov 2026): merged** (#65 to #71, owner). Slice 4 stays partially complete until the screens on hold are built.
 
-Slices 3, 4 and 5 do not depend on each other, so they can follow in any order or be worked on at the same time. The owner chose the order: Slice 3, then Slice 4 (Q8-2).
+**Slice 5 notes (21 Nov 2026, owner decisions).** Recorded with the Slice 5 plan; no approved decision changes.
+
+- **What it builds.** The Admin area screens of Document 5, section 8.3, that Slice 2 did not build: users and roles, the audit log, GST rates in the catalogue lists, moderating revisions, staff stock history, staff sales, and the menus by role with the "View only" and "no access" states. Slice 2 already built the Admin home, vendor review, the other catalogue lists and the moderation of new listings.
+- **One Admin area for every staff role (owner, 21 Nov 2026):** admin, moderator, support, marketing and finance share one Admin area. Each person sees only the screens and actions their roles allow, as the backend defines them (Document 5, section 8.3; the backend's API contract). A person with several roles sees everything any of them allows. Opening a screen the roles do not allow shows the "no access" state, and the backend still checks every call. There are no separate Admin areas for each role.
+
+  | Role | Screens in Slice 5 |
+  | --- | --- |
+  | admin | Users and roles, audit log, vendor review, catalogue lists, product moderation, stock history, sales (can cancel) |
+  | moderator | Product moderation, stock history, sales (can cancel) |
+  | support | Stock history, sales (read only) |
+  | marketing | Sales (read only) |
+  | finance | Sales (read only) |
+
+- **Roles and permissions (owner, 21 Nov 2026):** an admin gives and removes the existing staff roles (admin, moderator, support, marketing, finance) on the Users and roles screen, after finding the person by phone number; the person's account exists once they have logged in. "Customer" is automatic and "vendor owner" comes from vendor approval, so neither is given here. What each role may do is fixed in the backend: there is no screen for changing permissions and no new permission system. The backend refuses to remove the last admin (`LAST_ADMIN`), and the screen shows that answer.
+- **"View only":** in this slice only Sales has roles that read but cannot change (support, marketing and finance): no Cancel button, and the short "View only" label. Nobody changes stock history or the audit log, so they carry no label.
+- **On hold (owner, 16 Nov 2026, unchanged): coupons and coupon requests.** No screens, menu entries or buttons for them in the Admin area either. Until they are built, marketing and finance see only Sales.
+- **Not offered, kept open (owner, 16 Nov 2026, unchanged):** taking a live product down (`POST /moderation/products/{id}/unpublish`) and a product's review history (`GET /moderation/products/{id}/reviews`).
+- **Moderating revisions:** the moderation queue shows new listings and revisions (the backend's `queue=revision`); a revision is reviewed with the live version and the revision side by side, then approved, or rejected with a reason for the vendor. A `REVIEW_STALE` answer reloads the review with no silent retry (Document 5, section 9). The Slice 4 revision tests then make this decision on the screen instead of calling the backend.
+- **Stock history (owner, 21 Nov 2026):** reached only by a "Stock history" link on each row of the staff sales list and on each variant of the moderation review page. There is no box for typing a variant id, no staff link on the public product page, and no new backend call, permission or search.
+- **Folders (Document 7, section 16):** two new features, `users` (users and roles) and `audit` (the audit log); `auth` adds which admin screens and actions each role may use; `product` adds moderating revisions; `catalogue` adds the GST rates screen; `stock` and `sales` add their staff screens.
+- **Eight parts, one pull request each, in this order:** this plan; **5a** the menus by role, "View only" and "no access"; **5b** users and roles; **5c** the audit log; **5d** moderating revisions; **5e** GST rates; **5f** staff stock history and sales; **5g** the loading, empty, error, view-only and no-access states of every Admin area screen in both languages, and the check of what Slice 5 covers.
+- **Testing (Document 7, section 11):** as in Slice 4, each part has its end-to-end spec against the real backend in Chromium, every earlier spec runs again before its pull request, and each screen is tried with every role that can read it and with one that cannot.
+- **Open item (owner, 21 Nov 2026): reaching stock history.** The backend gives a variant's history only by its id, and has no staff search for products or variants. So staff reach a variant only from a sale (support, and every role that reads sales) or from a product waiting for review (admin and moderator). A variant with no sale whose product is not waiting for review has no staff route to its history. Closing this needs a backend staff search, which is not built and is not added in Slice 5.
+- **Status: partially complete by design.** When these parts are merged, Slice 5 is done for the screens it covers. It is not marked complete until the screens on hold (Coupons, Coupon requests) are built.
+
+Slices 3, 4 and 5 do not depend on each other, so they can follow in any order or be worked on at the same time. The owner chose the order: Slice 3, then Slice 4, then Slice 5 (Q8-2).
 
 ## 5. Waiting on others
 
@@ -115,7 +141,7 @@ Nothing below has been done. Each is a check, not a promise.
 | # | Question | Settled in |
 | --- | --- | --- |
 | Q8-1 | Do the backend's test data already include the catalogue lists needed to create a product? | **Settled (10 Nov 2026), checked in the backend code and docs, see below** |
-| Q8-2 | Which of Slices 3, 4 and 5 comes first, or are they worked on together? | **Settled by the owner:** Slice 3 first (merged 15 Nov 2026), then Slice 4 (16 Nov 2026); Slice 5 after |
+| Q8-2 | Which of Slices 3, 4 and 5 comes first, or are they worked on together? | **Settled by the owner:** Slice 3 first (merged 15 Nov 2026), then Slice 4 (merged 21 Nov 2026), then Slice 5 (21 Nov 2026) |
 | Q8-3 | Is a staging launch (invited vendors and testers) wanted before the real launch? | Owner |
 | Q8-4 | The vendor terms text: who supplies it, who approves it, and what is shown on staging until then | Owner, later |
 | Q8-5 | Whether the terms also need a Hindi version in the first release | Owner, later |
@@ -153,3 +179,4 @@ Nothing below has been done. Each is a check, not a promise.
 | 13 | 15 Nov 2026 | Owner confirmed the header's account link and the public list cache as built, and that vendor and admin screens read the backend directly, not this cache. No decision changed |
 | 14 | 16 Nov 2026 | Slice 3 status: merged. Slice 4 notes (owner decisions, 16 Nov 2026): what it builds; CSV imports, coupons and coupon requests on hold; withdrawing a live product and the review history kept open; the menu; the folders; the business profile, home, stock, revisions and sales; five parts; testing; partially complete until the held screens are built. Q8-2 settled. No approved decision changed |
 | 15 | 16 Nov 2026 | Slice 4 notes: the status (every part built and open for review, partially complete, the order to merge) and what Slice 4 leaves open, with revision moderation kept in Slice 5 (owner). No approved decision changed |
+| 16 | 21 Nov 2026 | Slice 4 status: merged. Slice 5 notes (owner decisions, 21 Nov 2026): one Admin area for every staff role, with the screens of each role; roles given by an admin, permissions fixed by the backend; "View only"; coupons and coupon requests still on hold; taking a product down and the review history still open; moderating revisions; stock history links from sales and moderation only; the folders; eight parts; testing; the open item on reaching stock history; partially complete until the held screens are built. Q8-2 updated. No approved decision changed |
