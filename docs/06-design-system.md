@@ -757,7 +757,7 @@ D-11 makes budget Android phones and slow connections the reference case and lea
 **Items that need technical validation.**
 
 1. The 100 KB first-screen data allowance, against real API responses (all three areas).
-2. Whether 300 KB suits vendor and admin screens, which carry more interface code.
+2. Whether 300 KB suits vendor and admin screens, which carry more interface code. **Settled (owner, 22 Nov 2026): staff pages may grow.** Vendor and Admin area pages are not held to the page-size limits above; those limits stay for the storefront and the login pages. Every staff page is still measured and its size reported in each pull request, so growth stays visible, and the rules that keep pages light still apply (each screen carries only its own text; code a page may not need loads when needed).
 3. How Hindi pages fit. **Settled (owner, 14 Nov 2026):** the split budget and the trimmed font above. Hindi staff screens are checked against the same rule when they are measured.
 4. How a font loaded on demand for a second script counts (5.4).
 5. Largest Contentful Paint on staff screens that wait for data.
@@ -1013,3 +1013,4 @@ Approved decisions in Documents 1 to 5 are not changed by this document. It appl
 | 32 | Section 14: everything except fonts 265 KB or less in every language (was 258 KB), an English page 307 KB or less in total (was 300 KB), for the storefront header of 7.3 on every shop page | Owner-approved (15 Nov 2026) | Done (Slice 3) |
 | 33 | Section 14: the English catalogue removed from every page (found in Slice 4); the limits are unchanged | Bug fix, no decision | Done (Slice 4) |
 | 34 | Section 14: each staff page carries only its own screens' text (found in Slice 5); first staff page measurements, three above the limit before and after; the limits are unchanged | Bug fix, no decision | Done (Slice 5) |
+| 35 | Section 14, item 2 settled: staff pages may grow; the limits stay for the storefront and login pages; staff pages are still measured and reported | Owner decision, 22 Nov 2026 | Done |
