@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Browser, type Page } from '@playwright/test';
 import { backendLog } from './support/login';
 import { countFirstLoad, expectWithinBudget } from './support/page-size';
-import { approvedProduct, staff, twoSizesAndColours } from './support/products';
+import { approvedProduct, BACKEND, staff, twoSizesAndColours } from './support/products';
 
 /**
  * Filters and sort on a list of products (Document 5, section 6.1; Document 6, 8.8; Document 8,
@@ -70,6 +70,36 @@ async function threeProducts(browser: Browser): Promise<Made> {
     ]);
   }
   return { low, titles, sizes, colours };
+}
+
+/** One page of a product list holds 24 cards, so "Load more" needs at least one more. */
+const LIST_PAGE = 24;
+
+/**
+ * Makes sure Kurtas has more products than one page holds, adding approved ones as needed, so the
+ * test does not depend on what earlier runs left in the local database.
+ */
+async function moreThanOnePage(browser: Browser) {
+  const answer = (await (
+    await fetch(`${BACKEND}/catalogue/products?categorySlug=kurtas&limit=1`)
+  ).json()) as {
+    total: number;
+  };
+  const missing = LIST_PAGE + 1 - answer.total;
+  if (missing <= 0) return;
+  const people = await staff(browser);
+  const { sizes, colours } = await twoSizesAndColours(people.vendor);
+  const stamp = Date.now();
+  for (let count = 0; count < missing; count++) {
+    await approvedProduct(people.vendor, people.moderator, `Page kurta ${stamp}-${count}`, [
+      {
+        sizeCode: sizes[0]?.code ?? '',
+        colourCode: colours[0]?.code ?? '',
+        pricePaise: 149_900,
+        stock: 5,
+      },
+    ]);
+  }
 }
 
 test.describe('filters and sort', () => {
@@ -232,11 +262,18 @@ test.describe('filters and sort', () => {
 
   test('a "Load more" that fails says so in place, keeps the cards, and "Try again" loads them', async ({
     page,
+    browser,
   }) => {
+    await moreThanOnePage(browser);
     await page.setViewportSize(WIDE);
-    await page.goto(KURTAS);
     const cards = page.locator('main ul > li > a[href*="/product/"]');
-    await expect(cards).toHaveCount(24);
+    const loadMore = page.getByRole('button', { name: 'Load more' });
+    // Our server keeps a list for up to 60 seconds, so new products can take that long to show.
+    await expect(async () => {
+      await page.goto(KURTAS);
+      await expect(loadMore).toBeVisible({ timeout: 2_000 });
+    }).toPass({ timeout: 75_000 });
+    await expect(cards).toHaveCount(LIST_PAGE);
     // The next batch fails once.
     let failed = false;
     await page.route('**/api/catalogue/products?*', async (route) => {
@@ -244,14 +281,14 @@ test.describe('filters and sort', () => {
       failed = true;
       return route.fulfill({ status: 503, json: { error: { code: 'SERVICE_UNAVAILABLE' } } });
     });
-    await page.getByRole('button', { name: 'Load more' }).click();
+    await loadMore.click();
     // Next.js keeps its own route announcer (also an alert) outside main.
     const loadError = page.getByRole('main').getByRole('alert');
     await expect(loadError).toBeVisible();
-    await expect(cards).toHaveCount(24);
+    await expect(cards).toHaveCount(LIST_PAGE);
     await noAxeViolations(page);
     await page.getByRole('button', { name: 'Try again' }).click();
-    await expect(cards).toHaveCount(48);
+    await expect.poll(() => cards.count()).toBeGreaterThan(LIST_PAGE);
     await expect(loadError).toHaveCount(0);
   });
 });
