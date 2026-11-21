@@ -38,10 +38,14 @@ export interface NavItem {
   icon: NavIcon;
   /** Only this exact address counts as current (an area's home). */
   isExact?: boolean;
+  /** Other addresses that belong to this entry (Products also covers the CSV imports). */
+  alsoUnder?: readonly string[];
 }
 
 /** The current screen: an area's home only at its own address; any other entry also below it. */
 export function isCurrentItem(item: NavItem, pathname: string): boolean {
   if (item.isExact) return pathname === item.href;
-  return pathname === item.href || pathname.startsWith(`${item.href}/`);
+  return [item.href, ...(item.alsoUnder ?? [])].some(
+    (href) => pathname === href || pathname.startsWith(`${href}/`),
+  );
 }

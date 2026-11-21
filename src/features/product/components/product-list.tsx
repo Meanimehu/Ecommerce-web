@@ -12,7 +12,7 @@ import { Pagination } from '@/components/common/pagination';
 import { StateBlock } from '@/components/common/state-block';
 import type { Locale, Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import { addProductPath, myProductPath, myProductsPath } from '@/lib/routes';
+import { addProductPath, myImportsPath, myProductPath, myProductsPath } from '@/lib/routes';
 import { useMyVendor } from '@/features/vendor/hooks/use-vendor';
 import { VendorStatus } from '@/features/vendor/types';
 import { useMyProducts } from '@/features/product/hooks/use-product';
@@ -87,13 +87,21 @@ export function ProductList({ lang }: { lang: Locale }) {
     <div className="grid gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3 stitch-bottom pb-3">
         <h1 className="type-h2 text-ink">{productMessages.title}</h1>
-        {isApproved ? (
-          <Button asChild>
-            <Link href={addProductPath(lang)} className="no-underline">
-              {productMessages.add}
+        <div className="flex flex-wrap gap-3">
+          {/* The template and the imports can be read in any vendor status; only uploading needs approval. */}
+          <Button asChild variant="secondary">
+            <Link href={myImportsPath(lang)} className="no-underline">
+              {productMessages.importCsv}
             </Link>
           </Button>
-        ) : null}
+          {isApproved ? (
+            <Button asChild>
+              <Link href={addProductPath(lang)} className="no-underline">
+                {productMessages.add}
+              </Link>
+            </Button>
+          ) : null}
+        </div>
       </div>
       <form method="get" action={listPath} className="flex flex-wrap items-end gap-3">
         <label className="grid gap-1.5">

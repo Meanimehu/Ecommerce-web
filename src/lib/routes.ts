@@ -93,6 +93,13 @@ export const addProductPath = (lang: Locale) => `/${lang}/vendor/products/add`;
 export const myProductPath = (lang: Locale, id: string, step?: string) =>
   withStep(`${myProductsPath(lang)}/${encodeURIComponent(id)}`, step);
 
+/** The vendor's CSV imports: the template, an upload and the imports so far. */
+export const myImportsPath = (lang: Locale) => `/${lang}/vendor/imports`;
+
+/** One import: its check, and after confirm what was created. */
+export const myImportPath = (lang: Locale, id: string) =>
+  `${myImportsPath(lang)}/${encodeURIComponent(id)}`;
+
 /** The vendor's stock, one row per variant. */
 export const myStockPath = (lang: Locale) => `/${lang}/vendor/stock`;
 

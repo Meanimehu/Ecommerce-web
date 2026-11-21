@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { compareCatalogues } from '../../scripts/message-checks';
 import { GLOBAL_ERROR_TEXT } from '@/lib/global-error-text';
-import { ADMIN_SCREEN_SECTIONS, AREA_SECTIONS, VENDOR_AREA_SECTIONS } from '@/lib/messages';
+import {
+  ADMIN_SCREEN_SECTIONS,
+  AREA_SECTIONS,
+  VENDOR_AREA_SECTIONS,
+  VENDOR_SCREEN_SECTIONS,
+} from '@/lib/messages';
 import en from '@/messages/en.json';
 import hi from '@/messages/hi.json';
 
@@ -38,9 +43,10 @@ describe('the last-resort error page (src/app/global-error.tsx)', () => {
 });
 
 describe('the staff areas’ own text (Document 6, section 14)', () => {
-  it('gives every area-only section to the Vendor area or to an Admin screen', () => {
+  it('gives every area-only section to the Vendor area, a Vendor screen or an Admin screen', () => {
     const given = new Set<string>([
       ...VENDOR_AREA_SECTIONS,
+      ...Object.values(VENDOR_SCREEN_SECTIONS).flat(),
       ...Object.values(ADMIN_SCREEN_SECTIONS).flat(),
     ]);
     expect(AREA_SECTIONS.filter((section) => !given.has(section))).toEqual([]);
@@ -50,5 +56,9 @@ describe('the staff areas’ own text (Document 6, section 14)', () => {
     for (const adminOnly of ['adminVendors', 'moderation', 'users']) {
       expect(vendorArea).not.toContain(adminOnly);
     }
+  });
+  it('keeps the CSV import text off the other vendor pages', () => {
+    const vendorArea: readonly string[] = VENDOR_AREA_SECTIONS;
+    expect(vendorArea).not.toContain('imports');
   });
 });

@@ -2,7 +2,8 @@
  * Upload limits, copied from the backend so the browser can say at once when a file will not be taken (Document 3,
  * section 10). The backend always decides: it reads the real file type, and its answer is what counts.
  * Sources: area-2-vendors.md (documents: PDF, JPEG or PNG, 5 MB); area-3b-products.md (photos: JPEG, PNG or WebP, 10 MB,
- * 8 per product).
+ * 8 per product); area-3b-products.md, CSV import (one CSV file, 2 MB; browsers name a CSV's type in several ways, and the
+ * backend reads the file itself).
  */
 const MB = 1024 * 1024;
 
@@ -16,6 +17,11 @@ export const UPLOAD_RULES = {
     maxBytes: 10 * MB,
     types: ['image/jpeg', 'image/png', 'image/webp'],
     accept: '.jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp',
+  },
+  csv: {
+    maxBytes: 2 * MB,
+    types: ['text/csv', 'application/csv', 'text/x-csv', 'application/vnd.ms-excel', 'text/plain'],
+    accept: '.csv,text/csv',
   },
 } as const;
 
