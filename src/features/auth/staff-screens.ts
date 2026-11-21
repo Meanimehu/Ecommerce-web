@@ -8,12 +8,14 @@ import { ADMIN_ROLE, MODERATOR_ROLE } from '@/features/auth/types';
  * backend would refuse. Each Slice 5 part adds its screen when it builds it.
  */
 export enum AdminScreen {
+  Users = 'users',
   Vendors = 'vendors',
   Catalogue = 'catalogue',
   Moderation = 'moderation',
 }
 
 const ROLES_BY_SCREEN: Record<AdminScreen, readonly string[]> = {
+  [AdminScreen.Users]: [ADMIN_ROLE],
   [AdminScreen.Vendors]: [ADMIN_ROLE],
   [AdminScreen.Catalogue]: [ADMIN_ROLE],
   [AdminScreen.Moderation]: [MODERATOR_ROLE, ADMIN_ROLE],

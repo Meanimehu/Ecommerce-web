@@ -2,6 +2,7 @@ import type { Locale, Messages } from '@/lib/i18n';
 import {
   adminCataloguePath,
   adminHomePath,
+  adminUsersPath,
   adminVendorsPath,
   moderationQueuePath,
   myProductsPath,
@@ -27,12 +28,14 @@ export enum StaffArea {
 }
 
 const ADMIN_SCREEN_PATHS: Record<AdminScreen, (lang: Locale) => string> = {
+  [AdminScreen.Users]: adminUsersPath,
   [AdminScreen.Vendors]: adminVendorsPath,
   [AdminScreen.Catalogue]: (lang) => adminCataloguePath(lang),
   [AdminScreen.Moderation]: moderationQueuePath,
 };
 
 const ADMIN_SCREEN_ICONS: Record<AdminScreen, NavIcon> = {
+  [AdminScreen.Users]: 'users',
   [AdminScreen.Vendors]: 'vendors',
   [AdminScreen.Catalogue]: 'catalogue',
   [AdminScreen.Moderation]: 'moderation',
@@ -66,9 +69,24 @@ export function adminScreenLinks(
 ): NavItem[] {
   return adminScreensFor(roles).map((screen) => ({
     href: ADMIN_SCREEN_PATHS[screen](lang),
-    label: messages.nav.admin[screen],
+    label: adminScreenLabel(screen, messages),
     icon: ADMIN_SCREEN_ICONS[screen],
   }));
+}
+
+/**
+ * A screen's name in the menu. The Slice 2 screens have theirs in `nav`; the newer ones take it from
+ * their own area text, which only staff pages carry to the browser (Document 6, section 14).
+ */
+function adminScreenLabel(screen: AdminScreen, messages: Messages): string {
+  switch (screen) {
+    case AdminScreen.Users:
+      return messages.users.title;
+    case AdminScreen.Vendors:
+    case AdminScreen.Catalogue:
+    case AdminScreen.Moderation:
+      return messages.nav.admin[screen];
+  }
 }
 
 /** The Admin area menu: its home, then the screens the person's roles may use. */
