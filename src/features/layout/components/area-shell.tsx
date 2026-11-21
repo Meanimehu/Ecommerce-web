@@ -2,7 +2,7 @@ import { Shield, Store, UserRound } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { NeedsScript } from '@/components/common/needs-script';
 import type { Locale } from '@/lib/i18n';
-import { areaMessages, getMessages } from '@/lib/messages';
+import { getMessages, sectionMessages, type AreaSection } from '@/lib/messages';
 import { MessagesProvider } from '@/lib/messages-context';
 import { accountPath } from '@/lib/routes';
 import { StaffArea } from '@/features/layout/menus';
@@ -18,17 +18,20 @@ const AREA_ICONS = { [StaffArea.Admin]: Shield, [StaffArea.Vendor]: Store };
  * The frame of the Vendor and Admin areas (Document 6, 7.3; approved Stage 4 and 5): a top bar on
  * surface with the wordmark, the area label with its icon ("Vendor area" with a shop, "Admin area"
  * with a shield, D5-15, D6-37), the language switch and the account; the side menu on the left (a
- * drawer below 1024 px). It gives the browser the areas' own text (lib/messages.ts).
+ * drawer below 1024 px). It gives the browser the text the whole area needs (`sections`, lib/messages.ts); an Admin
+ * screen's folder adds its own.
  */
 export function AreaShell({
   lang,
   area,
   nav,
+  sections,
   children,
 }: {
   lang: Locale;
   area: StaffArea;
   nav: readonly NavItem[];
+  sections: readonly AreaSection[];
   children: ReactNode;
 }) {
   const messages = getMessages(lang);
@@ -68,8 +71,8 @@ export function AreaShell({
         <AreaSideNav items={nav} label={navMessages.menu} />
         <main className="grid min-w-0 flex-1 content-start gap-6 px-4 py-6 sm:px-6 lg:px-8">
           <NeedsScript messages={messages} />
-          {/* The Vendor and Admin areas' own text (lib/messages.ts). */}
-          <MessagesProvider messages={areaMessages(lang)}>{children}</MessagesProvider>
+          {/* The area's own text (lib/messages.ts). */}
+          <MessagesProvider messages={sectionMessages(lang, sections)}>{children}</MessagesProvider>
         </main>
       </div>
     </div>

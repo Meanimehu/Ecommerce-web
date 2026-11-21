@@ -13,8 +13,9 @@ export function getMessages(locale: Locale): Messages {
 }
 
 /**
- * Text used only inside the Vendor and Admin areas. The storefront's pages do not carry it to the browser: those two
- * areas add it in their own layouts (Document 6, section 14: the page-size budget).
+ * Text used only inside the Vendor and Admin areas. The storefront's pages do not carry it to the browser, and a staff
+ * page carries only the sections its screens use (Document 6, section 14: the page-size budget): the Vendor area's
+ * layout adds VENDOR_AREA_SECTIONS, and each Admin screen's folder adds its own ADMIN_SCREEN_SECTIONS.
  */
 export const AREA_SECTIONS = [
   'vendor',
@@ -37,6 +38,28 @@ export const PAGE_SECTIONS = [
   'account',
 ] as const satisfies readonly (keyof Messages)[];
 
+export type AreaSection = (typeof AREA_SECTIONS)[number];
+
+/** The Vendor area's text. Its screens link to each other and share parts, so its layout carries all of it. */
+export const VENDOR_AREA_SECTIONS = [
+  'vendor',
+  'product',
+  'catalogue',
+  'stock',
+  'sales',
+] as const satisfies readonly AreaSection[];
+
+/**
+ * Each Admin screen's text, by its folder under `app/[lang]/admin/`: that folder's layout adds it, so one admin page
+ * never carries another screen's text. The Admin home needs none of it.
+ */
+export const ADMIN_SCREEN_SECTIONS = {
+  users: ['users'],
+  vendors: ['adminVendors', 'vendor'],
+  catalogue: ['catalogue'],
+  moderation: ['moderation', 'product', 'catalogue', 'vendor', 'adminVendors'],
+} as const satisfies Record<string, readonly AreaSection[]>;
+
 const NOT_SHARED: readonly string[] = [...AREA_SECTIONS, ...PAGE_SECTIONS];
 
 /** The text every page carries to the browser: everything except the area-only and page-only sections. */
@@ -45,11 +68,6 @@ export function sharedMessages(locale: Locale): Partial<Messages> {
   return Object.fromEntries(
     Object.entries(all).filter(([key]) => !NOT_SHARED.includes(key)),
   ) as Partial<Messages>;
-}
-
-/** The area-only text, for the Vendor and Admin layouts. */
-export function areaMessages(locale: Locale): Partial<Messages> {
-  return sectionMessages(locale, AREA_SECTIONS);
 }
 
 /** Some sections of the text, for a page that adds them (PAGE_SECTIONS). */
