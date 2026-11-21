@@ -231,7 +231,11 @@
       "SALE_WINDOW_INVALID": "The end must be after the start, the start cannot be in the past, and a sale lasts at most 90 days.",
       "SALE_OVERLAP": "This variant already has a sale at that time.",
       "SALE_NOT_FOUND": "This sale was not found. Reload the page.",
-      "SALE_STATE_INVALID": "This sale has already ended, so it cannot be cancelled."
+      "SALE_STATE_INVALID": "This sale has already ended, so it cannot be cancelled.",
+      "USER_NOT_FOUND": "This user was not found.",
+      "CANNOT_BLOCK_SELF": "You cannot block your own account.",
+      "ROLE_NOT_FOUND": "This person no longer has that role.",
+      "LAST_ADMIN": "The last admin cannot be removed."
     }
   },
   "languageNames": {
@@ -1170,5 +1174,74 @@
     "removeUnavailableTitle": "Remove the unavailable items?",
     "removeUnavailableBody": "Items that are out of stock or no longer sold are removed from your cart.",
     "changeUnknown": "We could not confirm your change. Check the cart before trying again."
+  },
+  "users": {
+    "title": "Users and roles",
+    "filters": {
+      "phone": "Phone number",
+      "phoneHelp": "Any part of the number",
+      "role": "Role",
+      "allRoles": "All roles",
+      "status": "Status",
+      "allStatuses": "All statuses",
+      "show": "Show results",
+      "clear": "Clear filters"
+    },
+    "columns": {
+      "phone": "Phone",
+      "name": "Name",
+      "roles": "Roles",
+      "status": "Status",
+      "lastLogin": "Last login"
+    },
+    "empty": "No users match",
+    "emptyText": "Try another filter, or clear the filters.",
+    "roleNames": {
+      "customer": "Customer",
+      "vendor_owner": "Vendor owner",
+      "admin": "Admin",
+      "moderator": "Moderator",
+      "finance": "Finance",
+      "support": "Support",
+      "marketing": "Marketing"
+    },
+    "statuses": {
+      "active": "Active",
+      "blocked": "Blocked"
+    },
+    "user": "User",
+    "details": "Details",
+    "name": "Name",
+    "email": "Email",
+    "notGiven": "Not given",
+    "createdAt": "Account created",
+    "lastLoginAt": "Last login",
+    "never": "Never",
+    "blockedAt": "Blocked on",
+    "blockReason": "Reason given",
+    "rolesTitle": "Roles",
+    "rolesHelp": "What each role may do is fixed by the system. You can give and remove staff roles.",
+    "automatic": "Every account has it",
+    "fromVendor": "Comes from vendor approval",
+    "remove": "Remove",
+    "removeTitle": "Remove the {role} role?",
+    "removeBody": "They lose the screens of that role at once.",
+    "keep": "Keep it",
+    "addRole": "Add role",
+    "role": "Role",
+    "allRolesHeld": "This person has every staff role.",
+    "roleAdded": "Role added",
+    "roleRemoved": "Role removed",
+    "access": "Account access",
+    "block": "Block",
+    "blockText": "They are logged out everywhere at once and cannot log in until they are unblocked.",
+    "blockTitle": "Block {phone}?",
+    "blockBody": "They are logged out everywhere at once and cannot log in until they are unblocked. Your reason is kept in the audit log.",
+    "blockConfirm": "Block user",
+    "reasonLabel": "Reason",
+    "unblock": "Unblock",
+    "unblockText": "This account is blocked. Unblocking lets them log in again with a new code.",
+    "blocked": "User blocked",
+    "unblocked": "User unblocked"
   }
 }

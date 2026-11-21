@@ -7,6 +7,7 @@ import {
   Store,
   Tag,
   Tags,
+  Users,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -22,6 +23,7 @@ export const NAV_ICONS = {
   products: Package,
   stock: Layers,
   sales: Tag,
+  users: Users,
   vendors: Store,
   catalogue: Tags,
   moderation: Eye,

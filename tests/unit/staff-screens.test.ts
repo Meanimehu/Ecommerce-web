@@ -11,6 +11,7 @@ import { adminNav } from '@/features/layout/menus';
 describe('the admin screens of each staff role', () => {
   it('gives an admin every screen built so far, in menu order', () => {
     expect(adminScreensFor(['customer', 'admin'])).toEqual([
+      AdminScreen.Users,
       AdminScreen.Vendors,
       AdminScreen.Catalogue,
       AdminScreen.Moderation,
@@ -21,6 +22,7 @@ describe('the admin screens of each staff role', () => {
     expect(adminScreensFor(['moderator'])).toEqual([AdminScreen.Moderation]);
     expect(canUseAdminScreen(['moderator'], AdminScreen.Vendors)).toBe(false);
     expect(canUseAdminScreen(['moderator'], AdminScreen.Catalogue)).toBe(false);
+    expect(canUseAdminScreen(['moderator'], AdminScreen.Users)).toBe(false);
   });
 
   it('gives support, marketing and finance none of the screens built so far', () => {
@@ -45,5 +47,12 @@ describe('the admin screens of each staff role', () => {
       'Product moderation',
     ]);
     expect(adminNav('en', messages, ['finance']).map((item) => item.label)).toEqual(['Home']);
+    expect(adminNav('en', messages, ['admin']).map((item) => item.label)).toEqual([
+      'Home',
+      'Users and roles',
+      'Vendor review',
+      'Catalogue lists',
+      'Product moderation',
+    ]);
   });
 });

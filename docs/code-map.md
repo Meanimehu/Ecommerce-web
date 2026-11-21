@@ -125,6 +125,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `[lang]/account/addresses` | Account, the Addresses tab: saved addresses, read on the server (needs login) |
 | `[lang]/account/security` | Account, the Security tab: log out, log out everywhere (`auth`'s `LogoutButtons`) (needs login) |
 | `[lang]/admin/layout.tsx`, `page.tsx` | Admin area (any staff role): `AreaShell` and `AdminHome` from `layout` |
+| `[lang]/admin/users/…` | Users and roles: the list, and one person (admin only); the screens are in `features/users/` |
 | `[lang]/admin/vendors/…` | Vendor review: the list, and one application (admin only); the screens are in `features/vendor/` |
 | `[lang]/admin/catalogue/[list]` | Catalogue lists: categories, HSN codes, brands, sizes, colours (admin only); the screens are in `features/catalogue/` |
 | `[lang]/admin/moderation/…` | Product moderation: the queue and one product (moderator, admin); the screens are in `features/product/` |
@@ -142,6 +143,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `api/auth/logout`, `api/auth/logout-all` | Log out here; log out everywhere |
 | `api/session` | Who is logged in; renews the login when needed |
 | `api/vendors/…` | The person's own vendor application: details, addresses, documents (upload and view), submit |
+| `api/admin/users/…` | Users and roles: list, one person, block and unblock, give and remove a staff role |
 | `api/admin/vendors/…` | Vendor review: list, one vendor, its documents, and the decisions |
 | `api/admin/catalogue/[list]/…` | The catalogue lists: read, add, change (and switch off or on) |
 | `api/catalogue/dictionaries` | What the product form offers (the backend's own address; it belongs to `product`) |
@@ -352,6 +354,21 @@ Backend Area 5, part 1. A sale names only its variant, so the screens take the v
 | `hooks/use-sales.ts` | The call hooks, one per call; `salesKeys` |
 | `hooks/use-sale-form.ts`, `use-sale-cancel.ts` | The new-sale form (the backend's refusals under their fields) and cancelling one |
 | `server/sales-api.ts` | Backend Area 5, part 1, the vendor's side |
+
+### `features/users/` — users and roles, for an admin
+
+Backend Area 1, section 4. The roles and what each may do are fixed by the backend; an admin finds people, blocks
+and unblocks them, and gives and removes the staff roles (Document 8, Slice 5 notes).
+
+| File | What it does |
+| --- | --- |
+| `types.ts` | The admin view of a user, `UserStatus`, `UserAction`, `ALL_ROLES`, the "Add role" form; small rules: `rolesToAdd`, `isStaffRole`, `isAnyRole` |
+| `components/user-list.tsx` | Find people: phone, role and status filters in the address (only those set), table, numbered pages |
+| `components/user-page.tsx` | One person: details, roles (remove with a confirmation, add one), block with a reason or unblock |
+| `components/user-status-chip.tsx`, `role-names.ts` | Active or blocked; roles in words |
+| `hooks/use-users.ts` | The call hooks, one per call; `userKeys` |
+| `hooks/use-user-actions.ts` | Block, unblock, add and remove a role; the backend's refusals show on the page |
+| `server/users-api.ts` | Backend Area 1, user and role management |
 
 ### `features/storefront/` — what a shopper browses (a group, Document 7, D7-20)
 

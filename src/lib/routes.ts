@@ -115,6 +115,11 @@ export const newSalePath = (lang: Locale) => `${mySalesPath(lang)}/new`;
 
 export const adminHomePath = (lang: Locale) => `/${lang}/admin`;
 
+export const adminUsersPath = (lang: Locale) => `/${lang}/admin/users`;
+
+export const adminUserPath = (lang: Locale, id: string) =>
+  `${adminUsersPath(lang)}/${encodeURIComponent(id)}`;
+
 export const adminVendorsPath = (lang: Locale) => `/${lang}/admin/vendors`;
 
 export const adminVendorPath = (lang: Locale, id: string) =>
