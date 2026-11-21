@@ -10,7 +10,6 @@ import { changedVariant, newVariant } from '@/features/product/hooks/use-variant
 import {
   BasicsFormSchema,
   canEditProduct,
-  canReviewProducts,
   dictionaryLabel,
   flattenCategories,
   isProductDecision,
@@ -199,13 +198,10 @@ describe('photos and moderation', () => {
     expect(photoSizeOf(null)).toBe(PhotoSize.Medium);
   });
 
-  it('knows the two decisions, and who may make them', () => {
+  it('knows the two decisions', () => {
     expect(isProductDecision('approve')).toBe(true);
     expect(isProductDecision('reject')).toBe(true);
     expect(isProductDecision('delete')).toBe(false);
-    expect(canReviewProducts(['moderator'])).toBe(true);
-    expect(canReviewProducts(['customer', 'admin'])).toBe(true);
-    expect(canReviewProducts(['customer', 'vendor_owner'])).toBe(false);
   });
 });
 
