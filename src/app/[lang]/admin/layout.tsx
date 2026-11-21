@@ -9,7 +9,10 @@ import { getMessages } from '@/lib/messages';
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
-/** Admin area: any staff role (Document 2, section 5; Document 5, section 4). Each screen narrows this further. */
+/**
+ * Admin area: any staff role (Document 2, section 5; Document 5, section 4). Each screen narrows this further, and each
+ * screen's folder adds its own text (lib/messages.ts, ADMIN_SCREEN_SECTIONS).
+ */
 export default async function AdminLayout({
   children,
   params,
@@ -26,6 +29,7 @@ export default async function AdminLayout({
       lang={lang}
       area={StaffArea.Admin}
       nav={adminNav(lang, getMessages(lang), user.roles)}
+      sections={[]}
     >
       {children}
     </AreaShell>

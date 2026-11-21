@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { AreaShell } from '@/features/layout/components/area-shell';
 import { StaffArea, vendorNav } from '@/features/layout/menus';
-import { getMessages } from '@/lib/messages';
+import { getMessages, VENDOR_AREA_SECTIONS } from '@/lib/messages';
 import { vendorApplyPath } from '@/lib/routes';
 import { requireUser, Unavailable } from '@/features/auth/components/require-user';
 import { lookUpVendor, VendorPresence } from '@/features/vendor/server/vendor-presence';
@@ -35,7 +35,12 @@ export async function VendorArea({
 
   const messages = getMessages(lang);
   return (
-    <AreaShell lang={lang} area={StaffArea.Vendor} nav={vendorNav(lang, messages, hasVendor)}>
+    <AreaShell
+      lang={lang}
+      area={StaffArea.Vendor}
+      nav={vendorNav(lang, messages, hasVendor)}
+      sections={VENDOR_AREA_SECTIONS}
+    >
       {needsVendor && vendor.status ? (
         <ReadOnlyBanner lang={lang} status={vendor.status} messages={messages} />
       ) : null}

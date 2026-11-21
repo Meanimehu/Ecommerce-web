@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { compareCatalogues } from '../../scripts/message-checks';
 import { GLOBAL_ERROR_TEXT } from '@/lib/global-error-text';
+import { ADMIN_SCREEN_SECTIONS, AREA_SECTIONS, VENDOR_AREA_SECTIONS } from '@/lib/messages';
 import en from '@/messages/en.json';
 import hi from '@/messages/hi.json';
 
@@ -33,5 +34,21 @@ describe('the last-resort error page (src/app/global-error.tsx)', () => {
       body: en.errorPage.body,
       tryAgain: en.errors.tryAgain,
     });
+  });
+});
+
+describe('the staff areas’ own text (Document 6, section 14)', () => {
+  it('gives every area-only section to the Vendor area or to an Admin screen', () => {
+    const given = new Set<string>([
+      ...VENDOR_AREA_SECTIONS,
+      ...Object.values(ADMIN_SCREEN_SECTIONS).flat(),
+    ]);
+    expect(AREA_SECTIONS.filter((section) => !given.has(section))).toEqual([]);
+  });
+  it('keeps the admin-only text off the Vendor area', () => {
+    const vendorArea: readonly string[] = VENDOR_AREA_SECTIONS;
+    for (const adminOnly of ['adminVendors', 'moderation', 'users']) {
+      expect(vendorArea).not.toContain(adminOnly);
+    }
   });
 });

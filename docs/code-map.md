@@ -462,7 +462,8 @@ The storefront header and the Vendor and Admin frame with their menus (Document 
 | `components/header-actions.tsx` | "Log in" or the account, and the cart with its count |
 | `components/language-switch.tsx` | The other language's name with a globe icon; only draws |
 | `components/wordmark.tsx` | The Dhaaga wordmark, a link to the home page |
-| `components/area-shell.tsx` | The Vendor and Admin frame: top bar (wordmark, area label, language, account), side menu, the areas' text |
+| `components/area-shell.tsx` | The Vendor and Admin frame: top bar (wordmark, area label, language, account), side menu, the text the whole area needs |
+| `components/screen-text.tsx` | `ScreenText`: one Admin screen's own text, given by that screen's folder layout |
 | `components/area-nav.tsx` | The side menu, and the menu button with its drawer below 1024 px |
 | `components/admin-home.tsx` | Admin home: links to the screens this person's roles can use |
 | `hooks/use-layout.ts` | The call hook: `useRememberLanguage` |
@@ -506,7 +507,7 @@ storefront's buy box uses its call hooks; the login endpoint asks it to run the 
 | `lib/i18n.ts` | The two languages, choosing one, and `otherLocale` (the language the switch offers) |
 | `lib/routes.ts` | Every page address, one helper per kind of page (`homePath`, `loginPath`, `categoryPath`, `productPath` with `productSlug`, `cartPath`, `myProductPath`, `adminVendorPath`, `samePageIn` for the language switch, …); no feature, server-only or Zod import, so `proxy.ts` can use it (Document 7, 20.2) |
 | `lib/global-error-text.ts` | The last-resort error page's three lines, the catalogue's words copied so the catalogue stays off every page (a unit test checks they match) |
-| `lib/messages.ts` | `getMessages` for server pages; the shared text, the Vendor and Admin areas' own text, and the text only some pages carry (`store` on the shop's pages, `cart` on the cart page, `account` on the account pages) |
+| `lib/messages.ts` | `getMessages` for server pages; the shared text; the staff areas' own text (`AREA_SECTIONS`): the Vendor area's (`VENDOR_AREA_SECTIONS`) and each Admin screen's (`ADMIN_SCREEN_SECTIONS`, added by that screen's folder layout with `layout`'s `ScreenText`); and the text only some pages carry (`store` on the shop's pages, `cart` on the cart page, `account` on the account pages) |
 | `lib/messages-context.tsx` | `useMessages`: the page's text in the browser, only its language (area text only inside those areas, page-only text only on those pages) |
 | `lib/add-notice.ts` | What happened to an "Add to cart" made before login: `AddOutcome`, `AddNotice`, `keepAddNotice` (login) and `takeAddNotice` (the page returned to). Shared so `auth` and `cart` never import each other; no Zod |
 | `lib/errors.ts` | `AppError`, `toAppError`, and `messageFor`: our own message for any error |
@@ -533,7 +534,7 @@ storefront's buy box uses its call hooks; the login endpoint asks it to run the 
 
 | I want to… | Files |
 | --- | --- |
-| Change a text on screen | `messages/en.json` and `hi.json` (both). Text only the Vendor or Admin area uses goes in a section listed in `AREA_SECTIONS` (`lib/messages.ts`) |
+| Change a text on screen | `messages/en.json` and `hi.json` (both). Text only the Vendor or Admin area uses goes in a section listed in `AREA_SECTIONS`, and in `VENDOR_AREA_SECTIONS` or the screen's `ADMIN_SCREEN_SECTIONS` (`lib/messages.ts`) |
 | Change a colour, size or type style | `app/globals.css` (tokens) or the component in `components/ui/` |
 | Change what a backend error says | `errors.codes` in the same two files |
 | Change a form's checks | Its schema in `features/<feature>/types.ts` |
