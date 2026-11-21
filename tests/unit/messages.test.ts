@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { compareCatalogues } from '../../scripts/message-checks';
+import { GLOBAL_ERROR_TEXT } from '@/lib/global-error-text';
 import en from '@/messages/en.json';
 import hi from '@/messages/hi.json';
 
@@ -22,5 +23,15 @@ describe('message catalogues (Document 4, section 6)', () => {
         { key: 'y', problem: 'missing in b' },
       ]),
     );
+  });
+});
+
+describe('the last-resort error page (src/app/global-error.tsx)', () => {
+  it('uses the English catalogue’s words, copied so the catalogue stays off every page', () => {
+    expect(GLOBAL_ERROR_TEXT).toEqual({
+      title: en.errorPage.title,
+      body: en.errorPage.body,
+      tryAgain: en.errors.tryAgain,
+    });
   });
 });

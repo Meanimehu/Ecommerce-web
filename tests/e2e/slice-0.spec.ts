@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+import en from '../../src/messages/en.json' with { type: 'json' };
 import { countFirstLoad, expectWithinBudget } from './support/page-size';
 
 /** Slice 0: the blank pages, the language redirect, the health check, accessibility and the first-load page-size budget. */
@@ -88,3 +89,23 @@ for (const lang of ['en', 'hi'] as const) {
       expectWithinBudget(path, lang, await firstLoad());
     });
 }
+
+/**
+ * Text kept off storefront pages (lib/messages.ts, AREA_SECTIONS; Document 6, section 14): the
+ * Hindi login page's browser files carry none of the Vendor area's text and no English text it does
+ * not show. Found in Slice 4: the last-resort error page brought the whole English catalogue to
+ * every page.
+ */
+test('the Hindi login page carries no Vendor area text and no unneeded English text', async ({
+  page,
+}) => {
+  const scripts: Promise<string>[] = [];
+  page.on('response', (response) => {
+    if (response.url().endsWith('.js')) scripts.push(response.text());
+  });
+  await page.goto('/hi/login', { waitUntil: 'networkidle' });
+  const browserCode = (await Promise.all(scripts)).join('\n');
+  expect(scripts.length).toBeGreaterThan(0);
+  expect(browserCode.includes(en.vendor.applyIntro), 'Vendor area text').toBe(false);
+  expect(browserCode.includes(en.nav.searchPlaceholder), 'English shared text').toBe(false);
+});

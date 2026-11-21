@@ -1,10 +1,11 @@
 'use client';
 
-import en from '@/messages/en.json';
+import { GLOBAL_ERROR_TEXT } from '@/lib/global-error-text';
 
 /**
  * Last resort when even the page frame fails (D-12): a plain message instead of a blank page. The language is not known
- * here, so it is English, from the message catalogue.
+ * here, so it is English: the catalogue's words, kept in `lib/global-error-text.ts` so the whole catalogue does not
+ * reach every page's browser files.
  */
 export default function GlobalError({ reset }: { reset: () => void }) {
   return (
@@ -17,10 +18,10 @@ export default function GlobalError({ reset }: { reset: () => void }) {
           margin: '0 auto',
         }}
       >
-        <h1>{en.errorPage.title}</h1>
-        <p>{en.errorPage.body}</p>
+        <h1>{GLOBAL_ERROR_TEXT.title}</h1>
+        <p>{GLOBAL_ERROR_TEXT.body}</p>
         <button type="button" onClick={reset}>
-          {en.errors.tryAgain}
+          {GLOBAL_ERROR_TEXT.tryAgain}
         </button>
       </body>
     </html>
