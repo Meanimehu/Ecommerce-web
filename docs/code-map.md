@@ -304,6 +304,7 @@ Backend Area 3b: products, variants, photos, the form guide (`/catalogue/diction
 | `components/basics-fields.tsx`, `attribute-fields.tsx` | The basics fields and the attribute fields, drawn by a product's steps and by a revision's editor |
 | `components/product-attention.tsx` | The vendor home's product counts: waiting for review and rejected, each a link to the filtered list |
 | `components/revision-panel.tsx` | An approved product's revision: the live version and the revision side by side, changes marked, its status and reason, what is missing, and its actions |
+| `components/revision-comparison.tsx` | The side-by-side table of a revision (`RevisionComparison`, `ComparedRow`) and the photo counts, shared by the vendor's panel and the moderator's review |
 | `components/revision-editor.tsx`, `revision-photos.tsx` | Editing a revision: its details, its attributes and its photos (add, order, description, remove, keep) |
 | `components/product-step-nav.tsx` | The step bar, with "step 2 of 5" for screen readers |
 | `components/basics-step.tsx`, `attributes-step.tsx`, `variants-step.tsx`, `photos-step.tsx`, `review-step.tsx` | The five steps (logic in their hooks) |
@@ -311,7 +312,7 @@ Backend Area 3b: products, variants, photos, the form guide (`/catalogue/diction
 | `components/upload-row.tsx`, `photo-row.tsx` | A photo being uploaded; a saved photo with its description, order and Remove |
 | `components/product-summary.tsx` | A product the vendor cannot change right now, read-only |
 | `components/product-status-chip.tsx`, `missing-count-text.ts` | The product status chip; "1 thing missing" |
-| `components/moderation-queue.tsx`, `moderation-review.tsx` | The moderation queue, and one product with the decision |
+| `components/moderation-queue.tsx`, `moderation-review.tsx` | The moderation queues (new listings, and revisions with `?queue=revision`), and one product with the decision; a revision shows the live version and the revision side by side, and its proposed photos |
 | `hooks/use-product.ts` | The call hooks, one per call: the form guide, the vendor's products, variants and photos, and moderation; `productKeys`, `moderationKeys`, the photo addresses |
 | `hooks/use-basics-form.ts`, `use-attributes-form.ts`, `use-variant-form.ts` | One form hook per form: what it sends (a new one: what is filled; a change: only what changed) and where the backend's errors go |
 | `hooks/use-photo-uploads.ts` | The upload queue: one file at a time, progress, Cancel and Retry; it keeps going after the step closes (Document 7, 20.9) |

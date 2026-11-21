@@ -2,7 +2,6 @@
 
 import { FilePen } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
-import { DataTable, type Column } from '@/components/common/data-table';
 import { ErrorMessage } from '@/components/common/error-message';
 import { LoadingBlock, PartError } from '@/components/common/load-states';
 import { StateBlock } from '@/components/common/state-block';
@@ -20,10 +19,10 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
-import { fill, messageFor } from '@/lib/errors';
+import { messageFor } from '@/lib/errors';
 import type { Messages } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
-import { formatRate, isSingular } from '@/utils/format';
+import { formatRate } from '@/utils/format';
 import { useRevision } from '@/features/product/hooks/use-product';
 import { useRevisionActions } from '@/features/product/hooks/use-revision-actions';
 import {
@@ -39,6 +38,12 @@ import {
   type Revision,
 } from '@/features/product/types';
 import { RevisionEditor } from './revision-editor';
+import {
+  photoCountText,
+  photosText,
+  RevisionComparison,
+  type ComparedRow,
+} from './revision-comparison';
 
 /**
  * An approved product's revision (Document 5, section 7.3; approved Stage 5, "Live version and
@@ -234,14 +239,6 @@ function RevisionActions({
   );
 }
 
-interface ComparedRow {
-  key: string;
-  label: string;
-  live: string;
-  proposed: string;
-  isChanged: boolean;
-}
-
 /** The live and proposed values of everything a revision can change, side by side. */
 function Comparison({
   product,
@@ -304,44 +301,10 @@ function Comparison({
     key: 'photos',
     label: revisionMessages.photos,
     live: photoCountText(product.images.length, messages),
-    proposed: photosText(revision, messages),
+    proposed: photosText(revision.images.length, revision.photoChanges, messages),
     isChanged: changesPhotos(revision),
   });
-
-  const columns: Column<ComparedRow>[] = [
-    { key: 'field', header: revisionMessages.field, lead: true, cell: (row) => row.label },
-    {
-      key: 'live',
-      header: revisionMessages.liveColumn,
-      cell: (row) => <span className="whitespace-pre-line">{row.live}</span>,
-    },
-    {
-      key: 'proposed',
-      header: revisionMessages.revisionColumn,
-      cell: (row) => (
-        <span
-          className={
-            row.isChanged ? 'grid gap-1 rounded-1 bg-warning-fill px-2 py-1' : 'grid gap-1'
-          }
-        >
-          <span className="whitespace-pre-line">{row.proposed}</span>
-          {row.isChanged ? (
-            <span>
-              <StatusChip tone="warning" label={revisionMessages.changed} />
-            </span>
-          ) : null}
-        </span>
-      ),
-    },
-  ];
-  return (
-    <DataTable
-      rows={rows}
-      columns={columns}
-      rowKey={(row) => row.key}
-      caption={revisionMessages.compareTitle}
-    />
-  );
+  return <RevisionComparison rows={rows} />;
 }
 
 /** The content's values as text: names for the category and brand, the tax in words. */
@@ -378,27 +341,6 @@ function attributesText(
       return `${label}: ${String(value)}`;
     });
   return lines.length > 0 ? lines.join('\n') : '—';
-}
-
-function photoCountText(count: number, messages: Messages): string {
-  const revisionMessages = messages.product.revision;
-  return isSingular(count)
-    ? revisionMessages.photoCountOne
-    : fill(revisionMessages.photoCount, { count });
-}
-
-/** The proposed photos: how many, and what changed. */
-function photosText(revision: Revision, messages: Messages): string {
-  const revisionMessages = messages.product.revision;
-  const { added, removed, reordered } = revision.photoChanges;
-  const parts = [photoCountText(revision.images.length, messages)];
-  if (added.length > 0 || removed.length > 0) {
-    parts.push(
-      fill(revisionMessages.photoChanges, { added: added.length, removed: removed.length }),
-    );
-  }
-  if (reordered) parts.push(revisionMessages.photosReordered);
-  return parts.join('\n');
 }
 
 /** One missing item in words, from the review step's list; one it does not know as it is. */
