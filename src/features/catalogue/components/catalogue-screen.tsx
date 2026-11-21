@@ -14,6 +14,7 @@ import {
   type Category,
   type Colour,
   type EditableList,
+  type GstRate,
   type HsnCode,
   type Size,
 } from '@/features/catalogue/types';
@@ -21,14 +22,14 @@ import { BrandForm } from './brand-form';
 import { CatalogueTable, statusColumn } from './catalogue-table';
 import { CategoryForm } from './category-form';
 import { ColourForm } from './colour-form';
+import { GstRateForm } from './gst-rate-form';
 import { HsnCodeForm } from './hsn-code-form';
 import { SizeForm } from './size-form';
 
 /**
- * Catalogue lists (Document 5, section 8.3; approved Stage 5): categories, HSN codes, brands, sizes
- * and colours, the lists a product needs (Document 8, Slice 2). One pattern for all, in
- * `catalogue-table.tsx`. GST rates are only offered as choices here; their own screen comes in
- * Slice 5.
+ * Catalogue lists (Document 5, section 8.3; approved Stage 5): categories, HSN codes, GST rates,
+ * brands, sizes and colours, the lists a product needs (Document 8, Slices 2 and 5). One pattern for
+ * all, in `catalogue-table.tsx`.
  */
 
 /** How far each level of a sub-category is indented in the table. */
@@ -62,6 +63,7 @@ export function CatalogueScreen({ lang, list }: { lang: Locale; list: EditableLi
       </nav>
       {list === CatalogueList.Categories ? <Categories lang={lang} /> : null}
       {list === CatalogueList.HsnCodes ? <HsnCodes lang={lang} /> : null}
+      {list === CatalogueList.GstRates ? <GstRates lang={lang} /> : null}
       {list === CatalogueList.Brands ? <Brands lang={lang} /> : null}
       {list === CatalogueList.Sizes ? <Sizes lang={lang} /> : null}
       {list === CatalogueList.Colours ? <Colours lang={lang} /> : null}
@@ -99,6 +101,32 @@ function HsnCodes({ lang }: { lang: Locale }) {
       ]}
       form={(item, onDone) => <HsnCodeForm item={item} onDone={onDone} />}
       note={messages.catalogue.codesNeverChange}
+    />
+  );
+}
+
+function GstRates({ lang }: { lang: Locale }) {
+  const messages = useMessages();
+  const columnMessages = messages.catalogue.columns;
+  return (
+    <CatalogueTable<GstRate>
+      lang={lang}
+      list={CatalogueList.GstRates}
+      nameOf={(item) => item.label}
+      columns={[
+        {
+          key: 'rate',
+          header: columnMessages.rate,
+          lead: true,
+          cell: (item) => (
+            <span className="font-medium tabular-nums">{formatRate(item.rateBps)}</span>
+          ),
+        },
+        statusColumn(messages),
+        { key: 'label', header: columnMessages.label, cell: (item) => item.label },
+      ]}
+      form={(item, onDone) => <GstRateForm item={item} onDone={onDone} />}
+      note={messages.catalogue.ratesNeverChange}
     />
   );
 }

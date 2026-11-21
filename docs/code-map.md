@@ -281,12 +281,12 @@ Categories, HSN codes, brands, sizes and colours; GST rates are read here only a
 | `components/catalogue-screen.tsx` | The list tabs, and each list's columns and form |
 | `components/catalogue-table.tsx` | The one table pattern: filters, status, Edit, Switch off or on, Add, pages |
 | `components/catalogue-form-frame.tsx` | The frame every form shares: a heading that takes focus, the error summary, Save and Cancel |
-| `components/hsn-code-form.tsx`, `brand-form.tsx`, `size-form.tsx`, `colour-form.tsx` | The add and change forms (logic in their hooks) |
+| `components/hsn-code-form.tsx`, `gst-rate-form.tsx`, `brand-form.tsx`, `size-form.tsx`, `colour-form.tsx` | The add and change forms (logic in their hooks) |
 | `components/category-form.tsx`, `attribute-row.tsx` | The category form and one attribute (logic in `hooks/use-category-form.ts`) |
 | `components/read-only-value.tsx` | A value that cannot be changed, such as a code |
 | `hooks/use-catalogue.ts` | The call hooks: `useCatalogueList`, `useActiveGstRates`, `useActiveHsnCodes`, `useAllCategories`, `useAddCatalogueItem`, `useChangeCatalogueItem`; `catalogueKeys` |
 | `hooks/use-catalogue-save.ts` | The save steps the forms share: add or change, the toast, the backend's errors under the right fields |
-| `hooks/use-hsn-code-form.ts`, `use-brand-form.ts`, `use-size-form.ts`, `use-colour-form.ts` | One form hook per form: what it sends (a new entry: what is filled; a change: only what changed; never the code) |
+| `hooks/use-hsn-code-form.ts`, `use-gst-rate-form.ts`, `use-brand-form.ts`, `use-size-form.ts`, `use-colour-form.ts` | One form hook per form: what it sends (a new entry: what is filled; a change: only what changed; never the code, nor a GST rate's rate) |
 | `hooks/use-category-form.ts` | The category form: the parent choices, the attributes, and the backend's attribute problems |
 | `hooks/use-gst-rate-options.ts` | The GST choices: the active rates, and the current one if switched off |
 | `server/catalogue-api.ts` | Backend Area 3a, the admin lists: list, add, change |

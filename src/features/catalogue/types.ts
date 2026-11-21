@@ -118,13 +118,14 @@ export const CATALOGUE_ITEMS = {
 } as const;
 
 /**
- * The lists these screens change (Slice 2, Document 8), in the order of their tabs. GST rates are
- * only read here; their own screen is Slice 5.
+ * The lists these screens change (Slice 2 and, for GST rates, Slice 5; Document 8), in the order of
+ * their tabs.
  */
-export type EditableList = Exclude<CatalogueList, CatalogueList.GstRates>;
+export type EditableList = CatalogueList;
 export const EDITABLE_LISTS: readonly EditableList[] = [
   CatalogueList.Categories,
   CatalogueList.HsnCodes,
+  CatalogueList.GstRates,
   CatalogueList.Brands,
   CatalogueList.Sizes,
   CatalogueList.Colours,
@@ -161,6 +162,10 @@ type WithAttributes<Body> = Omit<Body, 'attributeSchema'> & { attributeSchema?: 
 
 /** What adding to and changing each list sends. */
 export interface CatalogueBodies {
+  [CatalogueList.GstRates]: {
+    add: Schemas['CreateGstRateDto'];
+    change: Schemas['UpdateGstRateDto'];
+  };
   [CatalogueList.HsnCodes]: {
     add: Schemas['CreateHsnCodeDto'];
     change: Schemas['UpdateHsnCodeDto'];
@@ -193,6 +198,21 @@ export const HsnCodeFormSchema = z.object({
 });
 export type HsnCodeFormInput = z.input<typeof HsnCodeFormSchema>;
 export type HsnCodeFormValues = z.output<typeof HsnCodeFormSchema>;
+
+/** A percentage with at most two decimals, from 0 to 100, as the backend's rate (basis points, 0 to 10000). */
+const PERCENT = /^(100(\.0{1,2})?|\d{1,2}(\.\d{1,2})?)$/;
+
+export const GstRateFormSchema = z.object({
+  rate: text.min(1, 'validation.required').regex(PERCENT, 'validation.percentShape'),
+  label: text,
+});
+export type GstRateFormInput = z.input<typeof GstRateFormSchema>;
+export type GstRateFormValues = z.output<typeof GstRateFormSchema>;
+
+/** "5" or "12.5" per cent as basis points (500, 1250). */
+export function percentToBps(percent: string): number {
+  return Math.round(Number(percent) * 100);
+}
 
 export const BrandFormSchema = z.object({ name: requiredText, slug: text });
 export type BrandFormInput = z.input<typeof BrandFormSchema>;
