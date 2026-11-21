@@ -29,6 +29,8 @@ export const stockKeys = {
   list: (query: Query) => ['stock', 'list', query] as const,
   summary: ['stock', 'summary'] as const,
   history: (variantId: string, query: Query) => ['stock', 'history', variantId, query] as const,
+  staffHistory: (variantId: string, query: Query) =>
+    ['stock', 'staff-history', variantId, query] as const,
   everyRow: ['stock', 'every-row'] as const,
 };
 
@@ -57,6 +59,18 @@ export function useStockHistory(variantId: string, query: Query) {
     queryKey: stockKeys.history(variantId, query),
     queryFn: () =>
       get<Page<StockHistoryEntry>>(withQuery(`${variantPath(variantId)}/history`, query)),
+    staleTime: 0,
+  });
+}
+
+/** Any variant's stock history, for staff, from /api/admin/inventory. */
+export function useStaffStockHistory(variantId: string, query: Query) {
+  return useQuery({
+    queryKey: stockKeys.staffHistory(variantId, query),
+    queryFn: () =>
+      get<Page<StockHistoryEntry>>(
+        withQuery(`/api/admin/inventory/variants/${encodeURIComponent(variantId)}/history`, query),
+      ),
     staleTime: 0,
   });
 }

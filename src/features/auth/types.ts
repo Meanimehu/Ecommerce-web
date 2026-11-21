@@ -48,6 +48,11 @@ export const ADMIN_ROLE = 'admin';
 /** The staff role that reviews vendors' products (api-contract.md, section 2). */
 export const MODERATOR_ROLE = 'moderator';
 
+/** The other staff roles (Document 2, section 5). */
+export const SUPPORT_ROLE = 'support';
+export const MARKETING_ROLE = 'marketing';
+export const FINANCE_ROLE = 'finance';
+
 /** Staff roles: api-contract.md, section 2. */
 export const STAFF_ROLES = ['admin', 'moderator', 'finance', 'support', 'marketing'] as const;
 

@@ -3,7 +3,7 @@
 import { History } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { Breadcrumbs } from '@/components/common/breadcrumbs';
-import { DataTable, type Column } from '@/components/common/data-table';
+import { DataTable } from '@/components/common/data-table';
 import { LoadingBlock, PartError } from '@/components/common/load-states';
 import { Pagination } from '@/components/common/pagination';
 import { StateBlock } from '@/components/common/state-block';
@@ -11,11 +11,11 @@ import { fill } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { myStockPath, stockHistoryPath, variantStockPath } from '@/lib/routes';
-import { formatDate, formatTime } from '@/utils/format';
 import { pageNumber, withQuery } from '@/utils/url';
 import { useDictionaries } from '@/features/product/hooks/use-product';
 import { useMyStock, useStockHistory } from '@/features/stock/hooks/use-stock';
-import { changeText, variantName, type StockHistoryEntry } from '@/features/stock/types';
+import { variantName } from '@/features/stock/types';
+import { historyColumns } from './history-columns';
 import { VariantNotFound } from './stock-change';
 
 /**
@@ -57,36 +57,6 @@ export function StockHistory({
   if (!row) return <VariantNotFound lang={lang} />;
   const name = variantName(row, dictionaries.data?.sizes, dictionaries.data?.colours);
 
-  const columns: Column<StockHistoryEntry>[] = [
-    {
-      key: 'date',
-      header: stockMessages.historyColumns.date,
-      lead: true,
-      cell: (entry) => (
-        <span className="whitespace-nowrap">
-          {formatDate(entry.createdAt, lang)}, {formatTime(entry.createdAt, lang)}
-        </span>
-      ),
-    },
-    {
-      key: 'change',
-      header: stockMessages.historyColumns.change,
-      lead: true,
-      cell: (entry) => changeText(entry, messages),
-    },
-    {
-      key: 'result',
-      header: stockMessages.historyColumns.result,
-      numeric: true,
-      cell: (entry) => entry.balanceAfter,
-    },
-    {
-      key: 'note',
-      header: stockMessages.historyColumns.note,
-      cell: (entry) => entry.note ?? '',
-    },
-  ];
-
   return (
     <div className="grid gap-5">
       <Breadcrumbs
@@ -120,7 +90,7 @@ export function StockHistory({
         <>
           <DataTable
             rows={history.data.items}
-            columns={columns}
+            columns={historyColumns(lang, messages)}
             rowKey={(entry) => entry.id}
             caption={fill(stockMessages.historyTitle, { variant: name })}
           />

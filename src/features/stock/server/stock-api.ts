@@ -90,3 +90,14 @@ export const bulkSetStock = (token: string, body: BulkStockBody) =>
     token,
     schema: BulkStockResultSchema,
   });
+
+/** Any variant's stock history, for admins, moderators and support (area-4-inventory.md). */
+export const staffStockHistory = (token: string, variantId: string, query: Query) =>
+  callBackend({
+    method: 'GET',
+    path: `/admin/inventory/variants/${encodeURIComponent(variantId)}/history`,
+    query,
+    kind: 'view',
+    token,
+    schema: StockHistoryPageSchema,
+  });

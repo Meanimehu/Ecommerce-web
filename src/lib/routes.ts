@@ -127,6 +127,12 @@ export const adminAuditLogPath = (
   filters?: { entityId?: string; actorId?: string },
 ) => withQuery(`/${lang}/admin/audit-log`, filters);
 
+export const adminSalesPath = (lang: Locale) => `/${lang}/admin/sales`;
+
+/** Any variant's stock history, for staff; reached by links only (Document 8, Slice 5 notes). */
+export const staffStockHistoryPath = (lang: Locale, variantId: string) =>
+  `/${lang}/admin/inventory/variants/${encodeURIComponent(variantId)}`;
+
 export const adminVendorsPath = (lang: Locale) => `/${lang}/admin/vendors`;
 
 export const adminVendorPath = (lang: Locale, id: string) =>

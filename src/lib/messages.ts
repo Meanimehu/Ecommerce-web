@@ -60,6 +60,8 @@ export const ADMIN_SCREEN_SECTIONS = {
   vendors: ['adminVendors', 'vendor'],
   catalogue: ['catalogue'],
   moderation: ['moderation', 'product', 'catalogue', 'vendor', 'adminVendors'],
+  sales: ['sales'],
+  inventory: ['stock'],
 } as const satisfies Record<string, readonly AreaSection[]>;
 
 const NOT_SHARED: readonly string[] = [...AREA_SECTIONS, ...PAGE_SECTIONS];

@@ -971,7 +971,9 @@
     "attention": {
       "low": "Low stock",
       "out": "Out of stock"
-    }
+    },
+    "staffHistoryTitle": "Stock history",
+    "staffHistoryVariant": "Variant {id}"
   },
   "sales": {
     "title": "Sales",
@@ -1016,7 +1018,25 @@
       "timesHelp": "Times are in IST. A sale lasts at most 90 days."
     },
     "create": "Create sale",
-    "noVariants": "You have no variants yet. Add a product with its sizes and colours first."
+    "noVariants": "You have no variants yet. Add a product with its sizes and colours first.",
+    "staff": {
+      "intro": "Every vendor’s sales. The backend names a sale’s variant and vendor by their ids.",
+      "vendor": "Vendor",
+      "cancelReason": "Cancel reason",
+      "stockHistory": "Stock history",
+      "viewOnly": "View only",
+      "cancelBody": "The sale price stops at once and cannot be started again. The vendor and the audit log keep your reason.",
+      "reasonLabel": "Reason",
+      "empty": "No sales yet",
+      "emptyText": "Sales appear here when vendors create them.",
+      "fixFilters": "Fix the marked filters to see the sales.",
+      "filters": {
+        "vendorId": "Vendor id",
+        "variantId": "Variant id",
+        "badId": "Enter the full id.",
+        "clear": "Clear filters"
+      }
+    }
   },
   "moderation": {
     "title": "Product moderation",
@@ -1072,7 +1092,8 @@
       "rejected": "Changes rejected",
       "proposedColumn": "Proposed",
       "livePhotos": "Live photos"
-    }
+    },
+    "stockHistory": "Stock history"
   },
   "store": {
     "home": "Home",
