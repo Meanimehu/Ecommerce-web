@@ -10,9 +10,9 @@ import { MadeStatus, vendorIn } from './support/vendors';
  * Slice 4c (Document 5, section 7.3; approved Stage 5, "Live version and revision"): an approved
  * product changes through a revision. The vendor proposes changes (details and photos), sees the
  * live version and the revision side by side, sends it for review, takes it back, and discards
- * one. A moderator's decision on a revision is not on screen until Slice 5 (Document 5, 8.3), so
- * the tests make it by calling the backend. Against the real local backend; skipped where it is
- * not running.
+ * one. The moderator decides on the moderation screen (Slice 5d, Document 5, 8.3): the revisions
+ * queue, the live version and the revision side by side, then approve, or reject with a reason.
+ * Against the real local backend; skipped where it is not running.
  */
 const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 const WIDE = { width: 1280, height: 900 };
@@ -46,15 +46,47 @@ async function approvedVendorProduct(browser: Browser, title: string) {
   return { page, moderator, productId };
 }
 
-/** A moderator's decision on the revision, made by calling the backend. */
-async function decide(moderator: Page, productId: string, decision: 'approve' | 'reject') {
-  const review = (await backend(moderator, 'GET', `/moderation/products/${productId}`)) as {
-    seenUpdatedAt: string;
-  };
-  await backend(moderator, 'POST', `/moderation/products/${productId}/${decision}`, {
-    seenUpdatedAt: review.seenUpdatedAt,
-    ...(decision === 'reject' ? { reason: 'Keep the original title, please.' } : {}),
-  });
+/**
+ * A moderator's decision on the revision, on the moderation screen: the product is in the
+ * revisions queue, its review shows the changed field marked, then approve, or reject with a
+ * reason.
+ */
+async function decide(
+  moderator: Page,
+  productId: string,
+  decision: 'approve' | 'reject',
+  changedField: string,
+) {
+  await moderator.setViewportSize(WIDE);
+  await moderator.goto('/en/admin/moderation?queue=revision');
+  await expect(moderator.getByRole('link', { name: 'Revisions' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
+  await moderator.goto(`/en/admin/moderation/${productId}`);
+  await expect(
+    moderator.getByRole('heading', { name: 'Changes waiting for review' }),
+  ).toBeVisible();
+  await expect(
+    moderator
+      .getByRole('row')
+      .filter({ has: moderator.getByRole('cell', { name: changedField, exact: true }) }),
+  ).toContainText('Changed');
+  await noAxeViolations(moderator);
+  if (decision === 'approve') {
+    // The same review in Hindi, before deciding.
+    await moderator.goto(`/hi/admin/moderation/${productId}`);
+    await expect(moderator.getByRole('heading', { name: 'समीक्षा के लिए बदलाव' })).toBeVisible();
+    await moderator.goto(`/en/admin/moderation/${productId}`);
+    await moderator.getByRole('button', { name: 'Approve changes' }).click();
+    await expect(toast(moderator, 'Changes approved')).toBeVisible();
+    return;
+  }
+  await moderator.getByRole('button', { name: 'Reject', exact: true }).click();
+  const dialog = moderator.getByRole('alertdialog', { name: 'Reject these changes?' });
+  await dialog.getByLabel(/^Reason/).fill('Keep the original title, please.');
+  await dialog.getByRole('button', { name: 'Reject changes' }).click();
+  await expect(toast(moderator, 'Changes rejected')).toBeVisible();
 }
 
 test.describe('revisions', () => {
@@ -120,7 +152,7 @@ test.describe('revisions', () => {
     // Sent again and approved: the live product now has the new title, and no revision is left.
     await panel(page).getByRole('button', { name: 'Send for review' }).click();
     await expect(panel(page).getByText('Waiting for review', { exact: true })).toBeVisible();
-    await decide(moderator, productId, 'approve');
+    await decide(moderator, productId, 'approve', 'Title');
     await page.reload();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(`${title}, relaxed fit`);
     await expect(panel(page).getByText('No changes proposed')).toBeVisible();
@@ -135,7 +167,7 @@ test.describe('revisions', () => {
       description: 'A softer cotton.',
     });
     await backend(page, 'POST', `/vendors/me/products/${productId}/revision/submit`);
-    await decide(moderator, productId, 'reject');
+    await decide(moderator, productId, 'reject', 'Description');
 
     await page.goto(`/en/vendor/products/${productId}`);
     await expect(panel(page).getByText('Rejected', { exact: true })).toBeVisible();

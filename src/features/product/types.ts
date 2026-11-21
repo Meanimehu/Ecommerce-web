@@ -186,7 +186,11 @@ export const ModerationRowSchema = z.object({
   categoryId: z.string(),
   status: z.enum(ProductStatus),
   title: z.string(),
+  /** The revision's title, in the revisions queue. */
+  proposedTitle: z.string().nullable(),
   submittedAt: z.string().nullable(),
+  /** When the revision was sent, in the revisions queue. */
+  revisionSubmittedAt: z.string().nullable(),
   updatedAt: z.string(),
 });
 export const ModerationPageSchema = pageOf(ModerationRowSchema);
@@ -205,6 +209,17 @@ export const ModerationViewSchema = z.object({
   /** listing or revision; null when nothing is waiting for a decision. */
   awaiting: z.string().nullable(),
   seenUpdatedAt: z.string(),
+  /** The revision of an approved product, when it has one: its content, what it changes and how its photos change. */
+  revision: z
+    .object({
+      status: z.string(),
+      reason: z.string().nullable(),
+      submittedAt: z.string().nullable(),
+      content: z.lazy(() => RevisionSchema.shape.content),
+      changes: z.array(z.string()),
+      photoChanges: z.lazy(() => RevisionSchema.shape.photoChanges),
+    })
+    .nullable(),
   images: z.object({
     live: z.array(ReviewPhotoSchema),
     proposed: z.array(ReviewPhotoSchema).nullable(),

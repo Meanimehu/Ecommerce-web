@@ -1040,7 +1040,30 @@
     "decisionHelp": "A rejection reason is shown to the vendor.",
     "nothingWaiting": "Nothing is waiting for a decision on this product.",
     "stale": "This product changed while you were looking at it",
-    "staleText": "The latest version is shown now. Review it again before deciding."
+    "staleText": "The latest version is shown now. Review it again before deciding.",
+    "queues": "Queues",
+    "queueNames": {
+      "listing": "New listings",
+      "revision": "Revisions"
+    },
+    "proposedTitle": "Proposed title",
+    "emptyRevisions": "Revisions appear here when vendors send changes to an approved product.",
+    "revision": {
+      "title": "Changes waiting for review",
+      "intro": "The live version stays on sale until you decide. Approving puts these changes live in one step.",
+      "liveContent": "Live version",
+      "proposedPhotos": "Proposed photos",
+      "newPhoto": "new",
+      "removedPhotos": "Live photos the revision takes away: {count}",
+      "approve": "Approve changes",
+      "rejectTitle": "Reject these changes?",
+      "rejectBody": "The live product stays exactly as it is. The vendor reads your reason and can change the revision and send it again.",
+      "rejectConfirm": "Reject changes",
+      "approved": "Changes approved",
+      "rejected": "Changes rejected",
+      "proposedColumn": "Proposed",
+      "livePhotos": "Live photos"
+    }
   },
   "store": {
     "home": "Home",
