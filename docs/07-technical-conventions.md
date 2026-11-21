@@ -213,6 +213,7 @@ These are **proposals** so the first build has numbers to start from. They are n
 | 40 | 15 Nov 2026 | In 20.4, the storefront header (`layout`) reads the category tree through `product-list`'s server call and shows `search`'s box (Slice 3c). No other decision changed |
 | 41 | 15 Nov 2026 | Slice 3d: the new `account` feature (profile, saved addresses, the account tabs, the areas); the account's text is carried only by the account pages (`PAGE_SECTIONS`); the account page's links left from step 10 are done. No decision changed |
 | 42 | 15 Nov 2026 | Slice 3e: the error, no-access and not-found pages build their home address with `homePath` (20.2). No decision changed |
+| 43 | 16 Nov 2026 | **Agreed by the owner (16 Nov 2026):** in section 16, the features follow the subject, not the area; two new features, `stock` and `sales`; `vendor` adds the business profile, the vendor home's application line and the read-only banner; `product` adds revisions. No feature for CSV imports, coupons or coupon requests while they are on hold. The Slice 4 plan is in Document 8, section 4. No other decision changed |
 
 ## 16. Names: folders and files
 
@@ -242,9 +243,11 @@ Recorded 10 Nov 2026; folders by kind of code chosen by the owner on 11 Nov 2026
 | Feature | What it owns |
 | --- | --- |
 | `auth` | Login, logout and "log out everywhere". The session: reading the login cookies, writing them after login or renewal, renewing tokens, running a call as the person, and the answer when a session fails (`fromFailure`, 20.9). When a session ends or the person logs out, `auth` starts the clean-up Document 4, section 9 requires: it deletes the login cookies and the short-lived cookies that go with them, using the shared cookie list and delete tool. Page access: the page guard, the default page after login by role, and the cookie that remembers the page to return to after login |
-| `vendor` | The vendor application, who may enter the vendor area, and the admin's vendor review |
+| `vendor` | The vendor application, who may enter the vendor area, the admin's vendor review, the vendor's business profile (details, addresses, documents), the vendor home's application line, and the one banner a vendor that is not approved sees (Document 5, section 7.5) |
 | `catalogue` | The admin lists: categories with attributes, HSN codes, GST rates, brands, sizes, colours |
-| `product` | A vendor's products and their moderation: the same backend area (3b), the same types and the same photos |
+| `product` | A vendor's products and their moderation: the same backend area (3b), the same types and the same photos. Revisions (changes to an approved product, with their own photos) are part of it |
+| `stock` | A vendor's stock (backend Area 4): the list with its summary, setting, adding or removing units, the low-stock threshold, the bulk update by SKU and each variant's history. Slice 5's staff stock history uses the same types and calls |
+| `sales` | A vendor's sale prices (backend Area 5, part 1): the list, a new sale and cancelling one. Slice 5's staff sales use the same types and calls |
 | `storefront/` (group, D7-20) | The shopping side, in four parts. The group folder holds no files of its own |
 | `storefront/product-list` | Every list of products a customer sees: the category page, the brand page, search results and New arrivals; the filters, the sort and "Load more"; the product card; the public category tree and brand list, and the map from a brand's slug to its id (Document 4, section 5) |
 | `storefront/product-page` | One product's page: photos, size and colour choice, stock message, price and the buy box (which uses `cart`'s Add to cart hook) |
@@ -256,6 +259,7 @@ Recorded 10 Nov 2026; folders by kind of code chosen by the owner on 11 Nov 2026
 
 - "Admin" is a role, not a feature. Admin pages in `src/app/[lang]/admin/` show screens from `vendor`, `catalogue` and `product`.
 - A folder is created when its first file is written.
+- **Features follow the subject, not the area** (owner, 16 Nov 2026): the vendor's and the staff's screens of one subject share a feature, as `vendor` and `product` already do, so the Vendor area is not a group folder. CSV imports, coupons and coupon requests are on hold (Document 8, Slice 4 notes), so no feature is made for them yet.
 - **A group folder (D7-20)** holds only its parts, never a file of its own, and has no group inside it. Its parts are imported by their full path (`@/features/storefront/product-list/...`). `account` is not part of `storefront`: like `cart` and `auth`, it is its own feature.
 - How names, imports and dependencies between features are handled is in section 20.
 
