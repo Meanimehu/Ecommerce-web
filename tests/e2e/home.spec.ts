@@ -30,7 +30,9 @@ test.describe('the home page and brand pages', () => {
     const people = await staff(browser);
     const { sizes, colours } = await twoSizesAndColours(people.vendor);
     const stamp = Date.now();
-    brand = await newBrand(await admin(browser), `Home brand ${stamp}`);
+    // The home page lists the first 100 brands by name, and test runs keep adding brands to the
+    // local database, so the name starts with "A" to stay among them.
+    brand = await newBrand(await admin(browser), `A home brand ${stamp}`);
     title = `Home kurta ${stamp}`;
     await approvedProduct(
       people.vendor,
