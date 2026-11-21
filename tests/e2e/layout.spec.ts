@@ -123,7 +123,14 @@ test.describe('with the local backend', () => {
     const vendor = await pageAs(browser, VENDOR_PHONE, '/en/vendor/products');
     await vendor.setViewportSize(WIDE);
     const vendorMenu = await sideMenu(vendor);
-    await expect(vendorMenu).toHaveText(['Home', 'Business profile', 'Products', 'Stock', 'Sales']);
+    await expect(vendorMenu).toHaveText([
+      'Home',
+      'Business profile',
+      'Products',
+      'Stock',
+      'Sales',
+      'Coupons',
+    ]);
     await expect(vendorMenu.nth(0)).toHaveAttribute('href', '/en/vendor');
     await expect(vendorMenu.nth(1)).toHaveAttribute('href', '/en/vendor/profile');
     await expect(vendorMenu.nth(2)).toHaveAttribute('href', '/en/vendor/products');

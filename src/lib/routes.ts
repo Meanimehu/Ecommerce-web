@@ -100,6 +100,9 @@ export const myImportsPath = (lang: Locale) => `/${lang}/vendor/imports`;
 export const myImportPath = (lang: Locale, id: string) =>
   `${myImportsPath(lang)}/${encodeURIComponent(id)}`;
 
+/** The coupons that charge the vendor. */
+export const myCouponsPath = (lang: Locale) => `/${lang}/vendor/coupons`;
+
 /** The vendor's stock, one row per variant. */
 export const myStockPath = (lang: Locale) => `/${lang}/vendor/stock`;
 
