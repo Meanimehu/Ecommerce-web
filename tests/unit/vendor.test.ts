@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { getMessages } from '@/lib/messages';
+import { vendorNav } from '@/features/layout/menus';
+import { changedProfileDetails } from '@/features/vendor/hooks/use-profile-details-form';
 import { addressBody } from '@/features/vendor/hooks/use-vendor-address-form';
 import { changedDetails, newApplication } from '@/features/vendor/hooks/use-vendor-details-form';
 import {
@@ -10,6 +13,7 @@ import {
   isSellerType,
   isVendorDecision,
   MissingItem,
+  ProfileDetailsFormSchema,
   SellerType,
   stepFor,
   VendorStatus,
@@ -95,5 +99,46 @@ describe('what the address form sends', () => {
   it('leaves out an empty second line, and keeps a filled one', () => {
     expect(addressBody(address)).not.toHaveProperty('line2');
     expect(addressBody({ ...address, line2: 'Near the metro' }).line2).toBe('Near the metro');
+  });
+});
+
+describe('the business profile (Document 5, section 8.2; Document 8, Slice 4 notes)', () => {
+  it('sends only the shop name or email the person changed', () => {
+    const values = { displayName: 'Asha Studio', contactEmail: 'shop@asha.example' };
+    expect(changedProfileDetails(values, { displayName: true })).toEqual({
+      displayName: 'Asha Studio',
+    });
+    expect(changedProfileDetails(values, { contactEmail: true })).toEqual({
+      contactEmail: 'shop@asha.example',
+    });
+    expect(changedProfileDetails(values, {})).toEqual({});
+  });
+
+  it('checks the shop name and email before sending, and nothing else', () => {
+    expect(
+      ProfileDetailsFormSchema.safeParse({ displayName: ' ', contactEmail: 'a@b.in' }).success,
+    ).toBe(false);
+    expect(Object.keys(ProfileDetailsFormSchema.shape)).toEqual(['displayName', 'contactEmail']);
+  });
+});
+
+describe('the Vendor area menu (approved screens)', () => {
+  const messages = getMessages('en');
+
+  it('a person with no vendor sees only the application', () => {
+    expect(vendorNav('en', messages, false).map((item) => item.href)).toEqual(['/en/vendor/apply']);
+  });
+
+  it('a person with a vendor sees Home, Business profile and Products, and no Application', () => {
+    expect(vendorNav('en', messages, true).map((item) => item.label)).toEqual([
+      'Home',
+      'Business profile',
+      'Products',
+    ]);
+    expect(vendorNav('hi', getMessages('hi'), true).map((item) => item.href)).toEqual([
+      '/hi/vendor',
+      '/hi/vendor/profile',
+      '/hi/vendor/products',
+    ]);
   });
 });

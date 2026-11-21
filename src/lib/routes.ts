@@ -81,6 +81,9 @@ export const vendorHomePath = (lang: Locale) => `/${lang}/vendor`;
 export const vendorApplyPath = (lang: Locale, step?: string) =>
   withStep(`/${lang}/vendor/apply`, step);
 
+/** The vendor's business profile: details, addresses and documents. */
+export const vendorProfilePath = (lang: Locale) => `/${lang}/vendor/profile`;
+
 export const myProductsPath = (lang: Locale) => `/${lang}/vendor/products`;
 
 export const addProductPath = (lang: Locale) => `/${lang}/vendor/products/add`;
