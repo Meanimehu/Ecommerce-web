@@ -202,6 +202,7 @@ test.describe('with the local backend', () => {
       'Products',
       'Stock',
       'Sales',
+      'Coupons',
     ]);
     await expect(drawer.getByRole('link', { name: 'हिन्दी' })).toBeVisible();
     await noAxeViolations(vendor);
@@ -224,6 +225,7 @@ test.describe('with the local backend', () => {
       'उत्पाद',
       'स्टॉक',
       'सेल',
+      'कूपन',
     ]);
     await expect(vendor.getByRole('banner').getByRole('link', { name: 'खाता' })).toHaveAttribute(
       'href',
