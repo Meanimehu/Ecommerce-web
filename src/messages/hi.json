@@ -1753,6 +1753,10 @@
       "rejectNote": "क्यों",
       "rejected": "अनुरोध अस्वीकार किया गया।",
       "openCoupon": "कूपन {code} खोलें"
+    },
+    "attention": {
+      "changesAsked": "बदलाव माँगे गए कूपन अनुरोध",
+      "waitingAcceptance": "आपकी स्वीकृति का इंतज़ार करते कूपन"
     }
   },
   "screenErrors": {

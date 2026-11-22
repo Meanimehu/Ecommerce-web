@@ -4,10 +4,11 @@ import { backendLog } from './support/login';
 import { MadeStatus, vendorIn } from './support/vendors';
 
 /**
- * Slice 4e (Document 5, section 3; Document 6, section 10): when a Vendor area screen's own data
- * cannot be read, it says so in place with "Try again", the menu and the banner stay, and "Try
- * again" reads it again. One vendor, every screen built in Slice 4 and the products list. The
- * empty, read-only, not-found and Hindi states are checked in each screen's own spec.
+ * Slice 4e and held item H7 (Document 5, section 3; Document 6, section 10): when a Vendor area
+ * screen's own data cannot be read, it says so in place with "Try again", the menu and the banner
+ * stay, and "Try again" reads it again. One vendor, every screen built in Slice 4, the products
+ * list, and the held items' CSV import, coupons and coupon requests. The empty, read-only,
+ * not-found and Hindi states are checked in each screen's own spec.
  */
 const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 
@@ -39,6 +40,24 @@ const SCREENS = [
     call: '**/api/vendors/me/sales?*',
     heading: 'Sales',
     after: 'No sales yet',
+  },
+  {
+    path: '/en/vendor/imports',
+    call: '**/api/vendors/me/imports?*',
+    heading: 'Import products from a CSV file',
+    after: 'No imports yet',
+  },
+  {
+    path: '/en/vendor/coupons',
+    call: '**/api/vendors/me/coupons?*',
+    heading: 'Coupons',
+    after: 'No coupons charge you yet',
+  },
+  {
+    path: '/en/vendor/coupon-requests',
+    call: '**/api/vendors/me/coupon-requests?*',
+    heading: 'Coupons',
+    after: 'No coupon requests yet',
   },
 ];
 
