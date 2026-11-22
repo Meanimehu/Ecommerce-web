@@ -19,13 +19,8 @@ import { formatDate, formatRupees, formatTime } from '@/utils/format';
 import { pageNumber, withQuery } from '@/utils/url';
 import { useStaffSaleCancel } from '@/features/sales/hooks/use-staff-sale-cancel';
 import { useStaffSales } from '@/features/sales/hooks/use-sales';
-import {
-  canCancelSale,
-  isIdShape,
-  isSaleStatus,
-  SALE_STATUSES,
-  type StaffSale,
-} from '@/features/sales/types';
+import { canCancelSale, isIdShape, isSaleStatus, SALE_STATUSES } from '@/features/sales/rules';
+import type { StaffSale } from '@/features/sales/types';
 import { SaleStatusChip } from './sale-status-chip';
 
 /**

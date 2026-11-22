@@ -34,7 +34,8 @@ import { useMyVendor } from '@/features/vendor/hooks/use-vendor';
 import { VendorStatus } from '@/features/vendor/types';
 import { useSaleCancel } from '@/features/sales/hooks/use-sale-cancel';
 import { useMySales } from '@/features/sales/hooks/use-sales';
-import { canCancelSale, isSaleStatus, SALE_STATUSES, type Sale } from '@/features/sales/types';
+import { canCancelSale, isSaleStatus, SALE_STATUSES } from '@/features/sales/rules';
+import type { Sale } from '@/features/sales/types';
 import { SaleStatusChip } from './sale-status-chip';
 
 /**
