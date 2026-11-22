@@ -10,7 +10,6 @@ import { TextField } from '@/components/form/text-field';
 import { TextareaField } from '@/components/form/textarea-field';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { resolveMessage } from '@/hooks/use-app-form';
 import { fill } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
@@ -19,6 +18,7 @@ import { useCategoryTree } from '@/features/storefront/product-list/hooks/use-pr
 import { useCouponForm } from '@/features/coupon/hooks/use-coupon-form';
 import { useStaffCoupon } from '@/features/coupon/hooks/use-coupons';
 import { DiscountType, FundedBy, FUNDED_BY, type Coupon } from '@/features/coupon/types';
+import { ChoiceList } from './choice-list';
 import { categoryPaths } from './coupon-text';
 
 /**
@@ -126,7 +126,6 @@ function CouponFormBody({ lang, coupon }: { lang: Locale; coupon?: Coupon }) {
   const categories = categoryPaths(categoryTree.data?.items ?? []);
   const discountType = form.watch('discountType');
   const fundedBy = form.watch('fundedBy');
-  const categoryError = form.formState.errors.categoryIds?.message;
   const cancelHref = coupon ? adminCouponPath(lang, coupon.id) : adminCouponsPath(lang);
 
   return (
@@ -276,32 +275,15 @@ function CouponFormBody({ lang, coupon }: { lang: Locale; coupon?: Coupon }) {
           inputProps={{ inputMode: 'decimal', autoComplete: 'off', className: 'max-w-48' }}
         />
       ) : null}
-      <fieldset
+      <ChoiceList
+        form={form}
+        name="categoryIds"
         id={FIELD_IDS.categoryIds}
-        tabIndex={-1}
-        aria-describedby="coupon-categories-help"
-        aria-invalid={categoryError ? true : undefined}
-        className="grid gap-2 outline-none"
-      >
-        <legend className="type-label text-ink">
-          {fieldMessages.categories}{' '}
-          <span className="font-normal text-muted-foreground">{messages.form.optional}</span>
-        </legend>
-        <p id="coupon-categories-help" className="type-small text-ink-2">
-          {fieldMessages.categoriesHelp}
-        </p>
-        {categoryError ? (
-          <p className="type-small text-error">{resolveMessage(categoryError, messages)}</p>
-        ) : null}
-        <div className="grid max-h-64 gap-1 overflow-y-auto rounded-1 border border-line p-3 sm:grid-cols-2">
-          {categories.map(({ id, path }) => (
-            <label key={id} className="flex min-h-11 cursor-pointer items-start gap-3 text-ink">
-              <Checkbox value={id} {...form.register('categoryIds')} />
-              <span>{path}</span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
+        legend={fieldMessages.categories}
+        help={fieldMessages.categoriesHelp}
+        choices={categories.map(({ id, path }) => ({ id, label: path }))}
+        messages={messages}
+      />
       <TextareaField
         form={form}
         name="productIds"

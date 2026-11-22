@@ -60,6 +60,7 @@ export const VENDOR_AREA_SECTIONS = [
 export const VENDOR_SCREEN_SECTIONS = {
   imports: ['imports', 'screenErrors'],
   coupons: ['coupon', 'screenErrors'],
+  'coupon-requests': ['coupon', 'screenErrors'],
 } as const satisfies Record<string, readonly AreaSection[]>;
 
 /**

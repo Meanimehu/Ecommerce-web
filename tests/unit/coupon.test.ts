@@ -6,13 +6,18 @@ import { getMessages, sectionMessages, sharedMessages } from '@/lib/messages';
 import { discountText, usedText } from '@/features/coupon/components/coupon-text';
 import {
   changedCoupon,
+  changedCouponRequest,
   CouponFormSchema,
   couponFormDefaults,
   CouponSchema,
   DiscountType,
   FundedBy,
   newCoupon,
+  newCouponRequest,
+  RequestFormSchema,
+  requestFormDefaults,
   type CouponFormInput,
+  type RequestFormInput,
 } from '@/features/coupon/types';
 
 /**
@@ -170,5 +175,58 @@ describe('the screen-only error texts', () => {
     expect(resolveMessage('validation.couponCode', screen)).toBe(
       'Enter 3 to 20 letters, digits, hyphens or underscores.',
     );
+  });
+});
+
+describe('the vendor’s coupon request form', () => {
+  const NOW = Date.parse('2026-11-22T04:10:00.000Z');
+  const typed = (changes: Partial<RequestFormInput>) =>
+    RequestFormSchema.parse({
+      ...requestFormDefaults(undefined, NOW),
+      value: '150',
+      usageLimit: '200',
+      ...changes,
+    });
+
+  it('starts an hour after the next whole hour, for a week, one use per customer', () => {
+    expect(requestFormDefaults(undefined, NOW)).toMatchObject({
+      startsAt: '2026-11-22T11:30',
+      endsAt: '2026-11-29T11:30',
+      perUserLimit: '1',
+      discountType: 'fixed',
+    });
+  });
+
+  it('sends a new draft without an empty code, note or cap', () => {
+    expect(newCouponRequest(typed({}))).toEqual({
+      discountType: 'fixed',
+      value: 15000,
+      minCartPaise: 0,
+      startsAt: '2026-11-22T06:00:00.000Z',
+      endsAt: '2026-11-29T06:00:00.000Z',
+      usageLimit: 200,
+      perUserLimit: 1,
+      excludeSaleItems: false,
+      categoryIds: [],
+      productIds: [],
+    });
+  });
+
+  it('needs a cap for a percentage', () => {
+    const percent = RequestFormSchema.safeParse({
+      ...requestFormDefaults(undefined, NOW),
+      discountType: DiscountType.Percent,
+      value: '10',
+      usageLimit: '200',
+    });
+    expect(percent.error?.issues.map((issue) => issue.path.join('.'))).toEqual(['maxDiscount']);
+  });
+
+  it('sends only what changed, and an emptied note as null', () => {
+    const values = typed({ note: '', value: '120' });
+    expect(changedCouponRequest(values, { note: true, value: true })).toEqual({
+      note: null,
+      value: 12000,
+    });
   });
 });

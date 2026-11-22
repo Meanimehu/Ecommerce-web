@@ -141,6 +141,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `[lang]/vendor/(needs-vendor)/sales/…` | Sale prices (`sales`) and a new sale (`sales/new`); the screens are in `features/sales/` |
 | `[lang]/vendor/(needs-vendor)/stock/…` | Stock (`stock`), the bulk update (`stock/bulk`), one variant (`stock/{productId}/{variantId}`) and its history (`…/history`); the screens are in `features/stock/` |
 | `[lang]/vendor/(needs-vendor)/products/…` | My products (`products`), add a product (`products/add`), one product (`products/{id}`); the screens are in `features/product/` |
+| `[lang]/vendor/(needs-vendor)/coupon-requests/…` | The vendor's coupon requests (the second tab of Coupons), a new one (`…/new`), one request with its history (`…/{id}`) and a change (`…/{id}/change`); its folder layout adds the `coupon` text; the screens are in `features/coupon/` |
 | `[lang]/vendor/(needs-vendor)/coupons` | The coupons that charge the vendor: accept, disable or decline; its folder layout adds the `coupon` text; the screen is in `features/coupon/` |
 | `[lang]/vendor/(needs-vendor)/imports/…` | CSV import (`imports`: the example file, an upload, the imports so far) and one import (`imports/{id}`: its check, confirm, each product's result); its folder layout adds the `imports` text; the screens are in `features/product/`; the menu marks Products |
 | `[lang]/error.tsx`, `forbidden.tsx`, `global-error.tsx` | Error page, "no access" page (real 403), last-resort error page |
@@ -169,6 +170,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `api/vendors/me/inventory/…` | The vendor's stock: the list, the summary, set, add or remove, the threshold, the history and the bulk update |
 | `api/vendors/me/products/…` | The vendor's products: details, variants, photos (upload, order, description, private view), submit; the revision (`…/revision`: read, change, discard, submit, withdraw, and its photos) |
 | `api/moderation/products/…` | Moderation: queue, one product, its photos, approve or reject |
+| `api/vendors/me/coupon-requests/…` | The vendor's coupon requests: list, one with its history, a new draft, a change, submit, withdraw (`coupon`) |
 | `api/vendors/me/coupons/…` | The coupons that charge the vendor: list, accept (by the terms' fingerprint), disable (`coupon`) |
 | `api/vendors/me/imports/…` | CSV import (`product`): the column guide, the example file (streamed through our server), an upload (streamed, sent once, never kept), the list, one import, confirm |
 | `api/language` | Remembers the language choice (the switch in `layout`) |
@@ -392,14 +394,22 @@ form's category list).
 | `components/coupon-form.tsx` | A new coupon (`NewCouponForm`) and a change (`ChangeCouponForm`): the discount, limits, dates in IST, who pays, the vendor and share, categories and products |
 | `components/staff-coupon-page.tsx` | One coupon for staff: its terms and usage; Change, Disable and Enable for admin and marketing |
 | `components/my-coupon-list.tsx` | The coupons that charge the vendor, each with every term; Accept (approved vendors) and Disable or Decline, each asking first; terms changed meanwhile shown anew |
+| `components/coupon-tabs.tsx` | The two tabs of the vendor's Coupons, each its own page |
+| `components/my-request-list.tsx` | The vendor's coupon requests: status filter in the address, table, numbered pages, "New request" for approved vendors |
+| `components/request-form.tsx` | A new coupon request (`NewRequestForm`) and a change (`ChangeRequestForm`), with the backend's current limits said above it, and the vendor's approved products to choose from |
+| `components/my-request-page.tsx` | One request: its status, Dhaaga's note, the coupon made from it, its terms and history; Send for review, Change, Withdraw |
+| `components/request-history.tsx`, `request-status-chip.tsx` | A request's history, who named in the reader's words; the request status chip |
+| `components/choice-list.tsx` | A ticked list of categories or products, one form field, shared by both coupon forms |
 | `components/staff-disable-coupon.tsx` | "Disable" with its reason dialog, loaded only for the roles that change |
 | `components/coupon-terms.tsx` | Every term of a coupon as a list (`CouponTerms`) and its usage (`CouponUsage`), for the staff's and the vendor's screens |
 | `components/coupon-text.ts`, `coupon-status-chip.tsx` | The terms in words (`discountText`, `usedText`, `whenText`, `categoryPaths`); the status chip |
 | `hooks/use-coupons.ts` | The call hooks, one per call; `couponKeys` |
 | `hooks/use-coupon-form.ts` | The form hook: what it sends, and where the backend's answers go (a locked term under its own field) |
 | `hooks/use-coupon-actions.ts` | Disable with a reason, and enable |
+| `hooks/use-request-form.ts`, `use-request-actions.ts` | The vendor's request form (a new draft, or only what changed), and Send for review and Withdraw |
 | `hooks/use-my-coupon-actions.ts` | A vendor accepts the terms on screen (their fingerprint) or disables; `COUPON_TERMS_CHANGED` marks the coupon and nothing is sent again |
 | `server/coupon-api.ts` | Backend Area 5, part 3: the staff's coupons, and the coupons that charge the vendor |
+| `server/coupon-request-api.ts` | Backend Area 5, part 4: a vendor's coupon requests |
 
 ### `features/users/` — users and roles, for an admin
 

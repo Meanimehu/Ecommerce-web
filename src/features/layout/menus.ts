@@ -8,6 +8,7 @@ import {
   adminUsersPath,
   adminVendorsPath,
   moderationQueuePath,
+  myCouponRequestsPath,
   myCouponsPath,
   myImportsPath,
   myProductsPath,
@@ -74,7 +75,12 @@ export function vendorNav(lang: Locale, messages: Messages, hasVendor: boolean):
     },
     { href: myStockPath(lang), label: messages.stock.title, icon: 'stock' },
     { href: mySalesPath(lang), label: messages.sales.title, icon: 'sales' },
-    { href: myCouponsPath(lang), label: messages.coupon.vendor.title, icon: 'coupons' },
+    {
+      href: myCouponsPath(lang),
+      label: messages.coupon.vendor.title,
+      icon: 'coupons',
+      alsoUnder: [myCouponRequestsPath(lang)],
+    },
   ];
 }
 
