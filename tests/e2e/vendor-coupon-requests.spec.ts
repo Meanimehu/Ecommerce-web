@@ -16,7 +16,7 @@ import { MadeStatus, vendorIn } from './support/vendors';
  */
 const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 const WIDE = { width: 1280, height: 900 };
-const REQUEST_PATH = /^\/en\/vendor\/coupon-requests\/[^/]+$/;
+const REQUEST_PATH = /\/en\/vendor\/coupon-requests\/[^/?]+$/;
 
 async function noAxeViolations(page: Page) {
   expect((await new AxeBuilder({ page }).withTags(WCAG).analyze()).violations).toEqual([]);
