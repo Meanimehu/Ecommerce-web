@@ -1,5 +1,5 @@
 import { Shield, Store, UserRound } from 'lucide-react';
-import type { ReactNode } from 'react';
+import type { ComponentProps, ComponentType, ReactNode } from 'react';
 import { NeedsScript } from '@/components/common/needs-script';
 import type { Locale } from '@/lib/i18n';
 import { getMessages, sectionMessages, type AreaSection } from '@/lib/messages';
@@ -7,12 +7,23 @@ import { MessagesProvider } from '@/lib/messages-context';
 import { accountPath } from '@/lib/routes';
 import { StaffArea } from '@/features/layout/menus';
 import type { NavItem } from '@/features/layout/nav-items';
-import { AreaMenuButton, AreaSideNav } from './area-nav';
+import type { AreaMenuButton, AreaSideNav } from './area-nav';
 import { HEADER_LINK_CLASS } from '@/features/layout/header-link';
 import { LanguageSwitch } from './language-switch';
 import { Wordmark } from './wordmark';
 
 const AREA_ICONS = { [StaffArea.Admin]: Shield, [StaffArea.Vendor]: Store };
+
+type WithoutIcons<T> = Omit<T, 'icons'>;
+
+/**
+ * An area's browser menu, which loads only that area's icons. Each area's layout passes its own
+ * (`admin-nav.tsx`, `vendor-nav.tsx`), so a page never loads the other area's menu.
+ */
+export interface AreaMenu {
+  SideNav: ComponentType<WithoutIcons<ComponentProps<typeof AreaSideNav>>>;
+  MenuButton: ComponentType<WithoutIcons<ComponentProps<typeof AreaMenuButton>>>;
+}
 
 /**
  * The frame of the Vendor and Admin areas (Document 6, 7.3; approved Stage 4 and 5): a top bar on
@@ -24,12 +35,14 @@ const AREA_ICONS = { [StaffArea.Admin]: Shield, [StaffArea.Vendor]: Store };
 export function AreaShell({
   lang,
   area,
+  menu,
   nav,
   sections,
   children,
 }: {
   lang: Locale;
   area: StaffArea;
+  menu: AreaMenu;
   nav: readonly NavItem[];
   sections: readonly AreaSection[];
   children: ReactNode;
@@ -37,13 +50,14 @@ export function AreaShell({
   const messages = getMessages(lang);
   const navMessages = messages.nav;
   const AreaIcon = AREA_ICONS[area];
+  const { SideNav, MenuButton } = menu;
   const areaLabel = area === StaffArea.Admin ? navMessages.adminArea : navMessages.vendorArea;
   return (
     <div className="flex min-h-screen flex-col">
       <header className="border-b border-line bg-surface">
         <div className="flex h-14 items-center justify-between gap-3 px-4 sm:h-16 sm:px-6">
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-            <AreaMenuButton
+            <MenuButton
               items={nav}
               label={navMessages.menu}
               openLabel={navMessages.openMenu}
@@ -68,7 +82,7 @@ export function AreaShell({
         </div>
       </header>
       <div className="flex flex-1">
-        <AreaSideNav items={nav} label={navMessages.menu} />
+        <SideNav items={nav} label={navMessages.menu} />
         <main className="grid min-w-0 flex-1 content-start gap-6 px-4 py-6 sm:px-6 lg:px-8">
           <NeedsScript messages={messages} />
           {/* The area's own text (lib/messages.ts). */}

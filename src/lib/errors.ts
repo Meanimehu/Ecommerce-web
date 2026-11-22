@@ -89,7 +89,9 @@ export function messageFor(error: AppErrorShape, messages: Messages): string {
   if (isConnectionProblem(error) && error.outcomeUnknown) return messages.errors.saveTimeout;
   if (error.code === AppErrorCode.Timeout) return messages.errors.viewTimeout;
 
-  const messageForCode = (messages.errors.codes as Record<string, string>)[error.code];
+  const messageForCode =
+    (messages.errors.codes as Record<string, string>)[error.code] ??
+    screenTextOf(messages)?.codes[error.code];
   const showBackendText = Boolean(error.backendMessage) && process.env.NODE_ENV !== 'production';
   const generalMessage = showBackendText
     ? (error.backendMessage as string)
@@ -99,6 +101,16 @@ export function messageFor(error: AppErrorShape, messages: Messages): string {
   return error.status === HttpStatus.TooManyRequests
     ? withWaitingTime(message, error, messages)
     : message;
+}
+
+/**
+ * The error texts only some staff and vendor screens need (CSV import, coupons), which only those
+ * screens carry (Document 6, section 14); other pages do not have the section at all.
+ */
+export function screenTextOf(
+  messages: Messages,
+): { codes: Record<string, string>; validation: Record<string, string> } | undefined {
+  return (messages as Partial<Messages>).screenErrors;
 }
 
 /** The backend's waiting time before trying again, in seconds, when it sends one. */

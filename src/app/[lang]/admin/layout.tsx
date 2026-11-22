@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { requireUser } from '@/features/auth/components/require-user';
 import { isStaff } from '@/features/auth/types';
+import { AdminMenuButton, AdminSideNav } from '@/features/layout/components/admin-nav';
 import { AreaShell } from '@/features/layout/components/area-shell';
 import { adminNav, StaffArea } from '@/features/layout/menus';
 import { getMessages } from '@/lib/messages';
@@ -28,6 +29,7 @@ export default async function AdminLayout({
     <AreaShell
       lang={lang}
       area={StaffArea.Admin}
+      menu={{ SideNav: AdminSideNav, MenuButton: AdminMenuButton }}
       nav={adminNav(lang, getMessages(lang), user.roles)}
       sections={[]}
     >

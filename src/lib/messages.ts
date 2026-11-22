@@ -28,6 +28,8 @@ export const AREA_SECTIONS = [
   'sales',
   'users',
   'audit',
+  'coupon',
+  'screenErrors',
 ] as const satisfies readonly (keyof Messages)[];
 
 /**
@@ -56,7 +58,7 @@ export const VENDOR_AREA_SECTIONS = [
  * under `app/[lang]/vendor/(needs-vendor)/imports/`), so the other vendor pages do not carry it.
  */
 export const VENDOR_SCREEN_SECTIONS = {
-  imports: ['imports'],
+  imports: ['imports', 'screenErrors'],
 } as const satisfies Record<string, readonly AreaSection[]>;
 
 /**
@@ -71,6 +73,7 @@ export const ADMIN_SCREEN_SECTIONS = {
   moderation: ['moderation', 'product', 'catalogue', 'vendor', 'adminVendors'],
   sales: ['sales'],
   inventory: ['stock'],
+  coupons: ['coupon', 'screenErrors'],
 } as const satisfies Record<string, readonly AreaSection[]>;
 
 const NOT_SHARED: readonly string[] = [...AREA_SECTIONS, ...PAGE_SECTIONS];

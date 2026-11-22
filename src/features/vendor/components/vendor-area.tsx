@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { AreaShell } from '@/features/layout/components/area-shell';
+import { VendorMenuButton, VendorSideNav } from '@/features/layout/components/vendor-nav';
 import { StaffArea, vendorNav } from '@/features/layout/menus';
 import { getMessages, VENDOR_AREA_SECTIONS } from '@/lib/messages';
 import { vendorApplyPath } from '@/lib/routes';
@@ -38,6 +39,7 @@ export async function VendorArea({
     <AreaShell
       lang={lang}
       area={StaffArea.Vendor}
+      menu={{ SideNav: VendorSideNav, MenuButton: VendorMenuButton }}
       nav={vendorNav(lang, messages, hasVendor)}
       sections={VENDOR_AREA_SECTIONS}
     >

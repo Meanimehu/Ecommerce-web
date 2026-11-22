@@ -130,6 +130,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `[lang]/admin/vendors/…` | Vendor review: the list, and one application (admin only); the screens are in `features/vendor/` |
 | `[lang]/admin/catalogue/[list]` | Catalogue lists: categories, HSN codes, brands, sizes, colours (admin only); the screens are in `features/catalogue/` |
 | `[lang]/admin/sales` | Every vendor's sales, for staff; the screen is in `features/sales/` |
+| `[lang]/admin/coupons/…` | Every coupon (`coupons`), a new one (`coupons/new`), one coupon (`coupons/{id}`) and a change to its terms (`coupons/{id}/change`): admin, marketing, finance and support read, admin and marketing change; its folder layout adds the `coupon` text; the screens are in `features/coupon/` |
 | `[lang]/admin/inventory/variants/[id]` | Any variant's stock history, for staff, reached by links only; the screen is in `features/stock/` |
 | `[lang]/admin/moderation/…` | Product moderation: the queue and one product (moderator, admin); the screens are in `features/product/` |
 | `[lang]/vendor/layout.tsx` | Vendor area: never indexed, always rendered for the person |
@@ -149,6 +150,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `api/vendors/…` | The person's own vendor application: details, addresses, documents (upload and view), submit |
 | `api/admin/audit-log` | The audit log: read, with its filters |
 | `api/admin/sales/…` | Every vendor's sales, and cancelling one with a reason |
+| `api/admin/coupons/…` | The staff's coupons: list, one coupon, create, change, disable with a reason, enable (`coupon`) |
 | `api/admin/inventory/variants/[id]/history` | Any variant's stock history, for staff |
 | `api/admin/users/…` | Users and roles: list, one person, block and unblock, give and remove a staff role |
 | `api/admin/vendors/…` | Vendor review: list, one vendor, its documents, and the decisions |
@@ -375,6 +377,26 @@ Backend Area 5, part 1. A sale names only its variant, so the screens take the v
 | `components/staff-cancel-sale.tsx`, `hooks/use-staff-sale-cancel.ts` | Cancelling with a reason, for admins and moderators; loaded only for them |
 | `server/sales-api.ts` | Backend Area 5, part 1: the vendor's side and the staff's |
 
+### `features/coupon/` — coupons and coupon requests
+
+Backend Area 5, parts 3 and 4. It uses `product`'s rupee helpers, `sales`' IST time helpers and
+`storefront/product-list`'s public category tree (`useCategoryTree`, for category names and the
+form's category list).
+
+| File | What it does |
+| --- | --- |
+| `types.ts` | The coupon schema (`CouponSchema`, `CouponPageSchema`); the enums `CouponStatus`, `DiscountType`, `FundedBy`; the request bodies; the staff's form (`CouponFormSchema`) and what it sends (`newCoupon`, `changedCoupon`: only the changed terms, an emptied one as null), `couponFormDefaults`; small rules: `chargesVendor`, `isCouponStatus`, `isIdShape`, `bpsToPercentText` |
+| `components/staff-coupon-list.tsx` | Every coupon for staff: filters (status, code, vendor) in the address, table, numbered pages, "New coupon" for admin and marketing, "View only" for the others |
+| `components/coupon-form.tsx` | A new coupon (`NewCouponForm`) and a change (`ChangeCouponForm`): the discount, limits, dates in IST, who pays, the vendor and share, categories and products |
+| `components/staff-coupon-page.tsx` | One coupon for staff: its terms and usage; Change, Disable and Enable for admin and marketing |
+| `components/staff-disable-coupon.tsx` | "Disable" with its reason dialog, loaded only for the roles that change |
+| `components/coupon-terms.tsx` | Every term of a coupon as a list (`CouponTerms`) and its usage (`CouponUsage`), for the staff's and the vendor's screens |
+| `components/coupon-text.ts`, `coupon-status-chip.tsx` | The terms in words (`discountText`, `usedText`, `whenText`, `categoryPaths`); the status chip |
+| `hooks/use-coupons.ts` | The call hooks, one per call; `couponKeys` |
+| `hooks/use-coupon-form.ts` | The form hook: what it sends, and where the backend's answers go (a locked term under its own field) |
+| `hooks/use-coupon-actions.ts` | Disable with a reason, and enable |
+| `server/coupon-api.ts` | Backend Area 5, part 3, the staff's coupons |
+
 ### `features/users/` — users and roles, for an admin
 
 Backend Area 1, section 4. The roles and what each may do are fixed by the backend; an admin finds people, blocks
@@ -496,12 +518,14 @@ The storefront header and the Vendor and Admin frame with their menus (Document 
 | `components/wordmark.tsx` | The Dhaaga wordmark, a link to the home page |
 | `components/area-shell.tsx` | The Vendor and Admin frame: top bar (wordmark, area label, language, account), side menu, the text the whole area needs |
 | `components/screen-text.tsx` | `ScreenText`: one Admin screen's own text, given by that screen's folder layout |
-| `components/area-nav.tsx` | The side menu, and the menu button with its drawer below 1024 px |
+| `components/area-nav.tsx` | The side menu, and the menu button with its drawer below 1024 px, drawing the icons the area gives it |
+| `components/admin-nav.tsx`, `vendor-nav.tsx` | Each area's browser menu with only that area's icons; the area's layout passes it to `AreaShell` |
 | `components/admin-home.tsx` | Admin home: links to the screens this person's roles can use |
 | `hooks/use-layout.ts` | The call hook: `useRememberLanguage` |
 | `hooks/use-language-switch.ts` | The switch: the other language, the same page in it, remember then go |
 | `menus.ts` | `StaffArea`, and what each menu lists: `vendorNav`, `adminNav`, `adminScreenLinks` (server; reads `auth`'s rule) |
-| `nav-items.ts` | `NavItem` (with `alsoUnder`, other addresses an entry covers), the icons by name and `isCurrentItem`; no Zod, for the browser menu |
+| `nav-items.ts` | `NavItem` (with `alsoUnder`, other addresses an entry covers) and `isCurrentItem`; no Zod, for the browser menu |
+| `nav-icons.ts` | Every menu icon by name, for the server (menus, Admin home); the browser menus do not load it |
 | `header-link.ts` | The look of a header link, shared by the storefront header and the staff frame |
 
 ### `features/cart/` — the cart
@@ -539,7 +563,7 @@ storefront's buy box uses its call hooks; the login endpoint asks it to run the 
 | `lib/i18n.ts` | The two languages, choosing one, and `otherLocale` (the language the switch offers) |
 | `lib/routes.ts` | Every page address, one helper per kind of page (`homePath`, `loginPath`, `categoryPath`, `productPath` with `productSlug`, `cartPath`, `myProductPath`, `adminVendorPath`, `samePageIn` for the language switch, …); no feature, server-only or Zod import, so `proxy.ts` can use it (Document 7, 20.2) |
 | `lib/global-error-text.ts` | The last-resort error page's three lines, the catalogue's words copied so the catalogue stays off every page (a unit test checks they match) |
-| `lib/messages.ts` | `getMessages` for server pages; the shared text; the staff areas' own text (`AREA_SECTIONS`): the Vendor area's (`VENDOR_AREA_SECTIONS`), a Vendor screen's own (`VENDOR_SCREEN_SECTIONS`: CSV import) and each Admin screen's (`ADMIN_SCREEN_SECTIONS`, added by that screen's folder layout with `layout`'s `ScreenText`); and the text only some pages carry (`store` on the shop's pages, `cart` on the cart page, `account` on the account pages) |
+| `lib/messages.ts` | `getMessages` for server pages; the shared text; the staff areas' own text (`AREA_SECTIONS`): the Vendor area's (`VENDOR_AREA_SECTIONS`), a Vendor screen's own (`VENDOR_SCREEN_SECTIONS`: CSV import, coupons), `screenErrors` (the error texts and form messages only the CSV import and coupon screens use; `messageFor` and `resolveMessage` look there after the shared ones) and each Admin screen's (`ADMIN_SCREEN_SECTIONS`, added by that screen's folder layout with `layout`'s `ScreenText`); and the text only some pages carry (`store` on the shop's pages, `cart` on the cart page, `account` on the account pages) |
 | `lib/messages-context.tsx` | `useMessages`: the page's text in the browser, only its language (area text only inside those areas, page-only text only on those pages) |
 | `lib/add-notice.ts` | What happened to an "Add to cart" made before login: `AddOutcome`, `AddNotice`, `keepAddNotice` (login) and `takeAddNotice` (the page returned to). Shared so `auth` and `cart` never import each other; no Zod |
 | `lib/errors.ts` | `AppError`, `toAppError`, and `messageFor`: our own message for any error |

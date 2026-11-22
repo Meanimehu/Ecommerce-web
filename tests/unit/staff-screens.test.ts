@@ -4,6 +4,7 @@ import {
   AdminScreen,
   adminScreensFor,
   canCancelSales,
+  canChangeCoupons,
   canReadStockHistory,
   canUseAdminScreen,
 } from '@/features/auth/staff-screens';
@@ -23,6 +24,7 @@ describe('the admin screens of each staff role', () => {
       AdminScreen.Catalogue,
       AdminScreen.Moderation,
       AdminScreen.Sales,
+      AdminScreen.Coupons,
     ]);
   });
 
@@ -32,11 +34,20 @@ describe('the admin screens of each staff role', () => {
     expect(canUseAdminScreen(['moderator'], AdminScreen.Catalogue)).toBe(false);
     expect(canUseAdminScreen(['moderator'], AdminScreen.Users)).toBe(false);
     expect(canUseAdminScreen(['moderator'], AdminScreen.AuditLog)).toBe(false);
+    expect(canUseAdminScreen(['moderator'], AdminScreen.Coupons)).toBe(false);
   });
 
-  it('gives support, marketing and finance only sales (coupons are on hold)', () => {
+  it('gives support, marketing and finance sales and coupons', () => {
     for (const role of ['support', 'marketing', 'finance']) {
-      expect(adminScreensFor(['customer', role])).toEqual([AdminScreen.Sales]);
+      expect(adminScreensFor(['customer', role])).toEqual([AdminScreen.Sales, AdminScreen.Coupons]);
+    }
+  });
+
+  it('lets only admins and marketing change coupons', () => {
+    expect(canChangeCoupons(['admin'])).toBe(true);
+    expect(canChangeCoupons(['marketing'])).toBe(true);
+    for (const role of ['finance', 'support', 'moderator', 'customer', 'vendor_owner']) {
+      expect(canChangeCoupons([role])).toBe(false);
     }
   });
 
@@ -61,6 +72,7 @@ describe('the admin screens of each staff role', () => {
     expect(adminScreensFor(['moderator', 'support'])).toEqual([
       AdminScreen.Moderation,
       AdminScreen.Sales,
+      AdminScreen.Coupons,
     ]);
     expect(canUseAdminScreen(['support', 'admin'], AdminScreen.Vendors)).toBe(true);
     expect(canCancelSales(['marketing', 'moderator'])).toBe(true);
@@ -80,6 +92,7 @@ describe('the admin screens of each staff role', () => {
     expect(adminNav('en', messages, ['finance']).map((item) => item.label)).toEqual([
       'Home',
       'Sales',
+      'Coupons',
     ]);
     expect(adminNav('en', messages, ['admin']).map((item) => item.label)).toEqual([
       'Home',
@@ -89,6 +102,7 @@ describe('the admin screens of each staff role', () => {
       'Catalogue lists',
       'Product moderation',
       'Sales',
+      'Coupons',
     ]);
   });
 });

@@ -11,7 +11,7 @@ import {
 } from 'react-hook-form';
 import type { z } from 'zod';
 import { BackendErrorCode, type ErrorCode } from '@/lib/error-codes';
-import { fill, messageFor, type AppError, type FieldError } from '@/lib/errors';
+import { fill, messageFor, screenTextOf, type AppError, type FieldError } from '@/lib/errors';
 import type { Messages } from '@/lib/i18n';
 
 /**
@@ -133,8 +133,9 @@ export function resolveMessage(message: string | undefined, messages: Messages):
 
   const keyPrefix = 'validation.';
   if (message.startsWith(keyPrefix)) {
+    const key = message.slice(keyPrefix.length);
     const validationMessages = messages.validation as Record<string, string>;
-    const text = validationMessages[message.slice(keyPrefix.length)];
+    const text = validationMessages[key] ?? screenTextOf(messages)?.validation[key];
     if (text) return text;
   }
   return message;

@@ -235,11 +235,7 @@
       "USER_NOT_FOUND": "This user was not found.",
       "CANNOT_BLOCK_SELF": "You cannot block your own account.",
       "ROLE_NOT_FOUND": "This person no longer has that role.",
-      "LAST_ADMIN": "The last admin cannot be removed.",
-      "IMPORT_FILE_INVALID": "This file cannot be used. Check that it is a comma-separated UTF-8 file with the right columns.",
-      "IMPORT_NOT_FOUND": "This import was not found.",
-      "IMPORT_STATE_INVALID": "This import cannot be confirmed: it is already confirmed, or no product in it is ready.",
-      "IMPORT_EXPIRED": "This check has expired. Upload the file again."
+      "LAST_ADMIN": "The last admin cannot be removed."
     }
   },
   "languageNames": {
@@ -1454,6 +1450,148 @@
         },
         "wholeRow": "Whole row"
       }
+    }
+  },
+  "coupon": {
+    "status": {
+      "active": "Active",
+      "pending_vendor": "Waiting for the vendor",
+      "disabled": "Disabled"
+    },
+    "fundedBy": {
+      "marketplace": "Dhaaga",
+      "vendor": "The vendor",
+      "split": "Shared"
+    },
+    "discount": {
+      "percent": "{value}% off",
+      "fixed": "{amount} off",
+      "capped": "{discount}, at most {cap}"
+    },
+    "staff": {
+      "title": "Coupons",
+      "intro": "Every coupon on Dhaaga. A coupon a vendor pays for, alone or shared, waits until that vendor accepts its exact terms.",
+      "viewOnly": "View only",
+      "add": "New coupon",
+      "newTitle": "New coupon",
+      "changeTitle": "Change {code}",
+      "change": "Change terms",
+      "created": "Coupon created.",
+      "saved": "Coupon saved.",
+      "disable": "Disable",
+      "disableTitle": "Disable this coupon?",
+      "disableBody": "Customers can no longer use it. Orders already placed keep their discount. The reason is kept with the coupon.",
+      "reasonLabel": "Reason",
+      "disabled": "Coupon disabled.",
+      "enable": "Enable",
+      "enabled": "Coupon enabled.",
+      "enableVendorNote": "Enabling a coupon a vendor pays for sends it back to the vendor to accept again.",
+      "filters": {
+        "status": "Status",
+        "all": "All",
+        "code": "Code",
+        "vendorId": "Vendor id",
+        "show": "Show",
+        "clear": "Clear filters",
+        "badId": "Enter a full vendor id."
+      },
+      "fixFilters": "Fix the marked filter to see the coupons.",
+      "empty": "No coupons yet",
+      "emptyFiltered": "No coupons match these filters",
+      "emptyText": "Coupons made here, or approved from a vendor's request, appear in this list.",
+      "columns": {
+        "code": "Code",
+        "status": "Status",
+        "discount": "Discount",
+        "fundedBy": "Who pays",
+        "dates": "When",
+        "used": "Used"
+      },
+      "usedOf": "{used} of {limit}",
+      "usedNoLimit": "{used}, no limit",
+      "dates": "{start} to {end}"
+    },
+    "terms": {
+      "title": "Terms",
+      "usageTitle": "Use so far",
+      "discount": "Discount",
+      "maxDiscount": "Most one order can save",
+      "minCart": "Minimum of the eligible items",
+      "starts": "Starts",
+      "ends": "Ends",
+      "usageLimit": "Total uses",
+      "perUserLimit": "Uses per customer",
+      "excludeSaleItems": "Items on a vendor sale",
+      "excluded": "Left out",
+      "included": "Included",
+      "fundedBy": "Who pays",
+      "vendor": "Vendor",
+      "marketplaceShare": "Dhaaga's share",
+      "categories": "Categories",
+      "products": "Products",
+      "maxExposure": "Most the vendor can pay",
+      "acceptedAt": "Vendor accepted",
+      "notAccepted": "Not yet",
+      "request": "Made from a request",
+      "digest": "Terms fingerprint",
+      "created": "Created",
+      "used": "Used",
+      "remaining": "Left",
+      "reclaims": "Uses taken back over the limit",
+      "none": "None",
+      "noLimit": "No limit",
+      "atOnce": "At once",
+      "noEnd": "No end",
+      "everyCategory": "Every category",
+      "everyProduct": "Every product"
+    },
+    "fields": {
+      "code": "Code",
+      "codeHelp": "3 to 20 letters, digits, hyphens or underscores. Saved in capitals; it cannot change later.",
+      "codeFixed": "The code cannot change.",
+      "discountType": "Kind of discount",
+      "percent": "A percentage",
+      "fixed": "An amount in rupees",
+      "valuePercent": "Discount (%)",
+      "valueRupees": "Discount (₹)",
+      "maxDiscount": "Most one order can save (₹)",
+      "minCart": "Minimum of the eligible items (₹)",
+      "startsAt": "Starts",
+      "endsAt": "Ends",
+      "timesHelp": "Times are in IST. Leave the start empty to start at once, and the end empty for no end.",
+      "usageLimit": "Total uses",
+      "perUserLimit": "Uses per customer",
+      "limitsHelp": "Leave empty for no limit. A 100% coupon needs a total.",
+      "excludeSaleItems": "Leave out items on a vendor sale",
+      "fundedBy": "Who pays",
+      "vendorId": "Vendor id",
+      "vendorHelp": "Needed when the vendor pays, alone or shared. When Dhaaga pays, a vendor id limits the coupon to that vendor's items.",
+      "marketplaceShare": "Dhaaga's share (%)",
+      "marketplaceShareHelp": "Dhaaga's part of each discount; the vendor pays the rest.",
+      "categories": "Only these categories",
+      "categoriesHelp": "Leave all unticked for every category. A category includes its sub-categories. Up to 50.",
+      "products": "Only these products",
+      "productsHelp": "Product ids, one per line. Leave empty for every product. Up to 50.",
+      "create": "Create coupon",
+      "save": "Save changes",
+      "nothingChanged": "Nothing has changed yet."
+    }
+  },
+  "screenErrors": {
+    "codes": {
+      "COUPON_CODE_TAKEN": "Another coupon already uses this code.",
+      "COUPON_INVALID": "These terms do not fit together. Check them and try again.",
+      "COUPON_LIMIT_BELOW_USAGE": "This limit is lower than the uses already made.",
+      "COUPON_LOCKED": "This term can no longer change, because the coupon has been used or the vendor has agreed to it.",
+      "COUPON_NOT_FOUND": "This coupon was not found.",
+      "IMPORT_EXPIRED": "This check has expired. Upload the file again.",
+      "IMPORT_FILE_INVALID": "This file cannot be used. Check that it is a comma-separated UTF-8 file with the right columns.",
+      "IMPORT_NOT_FOUND": "This import was not found.",
+      "IMPORT_STATE_INVALID": "This import cannot be confirmed: it is already confirmed, or no product in it is ready."
+    },
+    "validation": {
+      "couponCode": "Enter 3 to 20 letters, digits, hyphens or underscores.",
+      "idShape": "Enter a full id, like 01a1a153-ffcb-740b-aceb-16884d91de35."
     }
   }
 }
