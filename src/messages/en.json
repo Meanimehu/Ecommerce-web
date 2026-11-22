@@ -235,16 +235,7 @@
       "USER_NOT_FOUND": "This user was not found.",
       "CANNOT_BLOCK_SELF": "You cannot block your own account.",
       "ROLE_NOT_FOUND": "This person no longer has that role.",
-      "LAST_ADMIN": "The last admin cannot be removed.",
-      "IMPORT_FILE_INVALID": "This file cannot be used. Check that it is a comma-separated UTF-8 file with the right columns.",
-      "IMPORT_NOT_FOUND": "This import was not found.",
-      "IMPORT_STATE_INVALID": "This import cannot be confirmed: it is already confirmed, or no product in it is ready.",
-      "IMPORT_EXPIRED": "This check has expired. Upload the file again.",
-      "COUPON_NOT_FOUND": "This coupon was not found.",
-      "COUPON_CODE_TAKEN": "Another coupon already uses this code.",
-      "COUPON_INVALID": "These terms do not fit together. Check them and try again.",
-      "COUPON_LOCKED": "This term can no longer change, because the coupon has been used or the vendor has agreed to it.",
-      "COUPON_LIMIT_BELOW_USAGE": "This limit is lower than the uses already made."
+      "LAST_ADMIN": "The last admin cannot be removed."
     }
   },
   "languageNames": {
@@ -274,9 +265,7 @@
     "number": "Enter a number.",
     "moneyShape": "Enter an amount in rupees, for example 1499 or 1499.50.",
     "emailShape": "Enter an email address like name@example.com.",
-    "percentShape": "Enter a percentage from 0 to 100, with at most two decimals, for example 5 or 12.5.",
-    "couponCode": "Enter 3 to 20 letters, digits, hyphens or underscores.",
-    "idShape": "Enter a full id, like 01a1a153-ffcb-740b-aceb-16884d91de35."
+    "percentShape": "Enter a percentage from 0 to 100, with at most two decimals, for example 5 or 12.5."
   },
   "noScript": {
     "interactive": "This page needs JavaScript. Turn it on in your browser settings, or use a newer browser."
@@ -1586,6 +1575,23 @@
       "create": "Create coupon",
       "save": "Save changes",
       "nothingChanged": "Nothing has changed yet."
+    }
+  },
+  "screenErrors": {
+    "codes": {
+      "COUPON_CODE_TAKEN": "Another coupon already uses this code.",
+      "COUPON_INVALID": "These terms do not fit together. Check them and try again.",
+      "COUPON_LIMIT_BELOW_USAGE": "This limit is lower than the uses already made.",
+      "COUPON_LOCKED": "This term can no longer change, because the coupon has been used or the vendor has agreed to it.",
+      "COUPON_NOT_FOUND": "This coupon was not found.",
+      "IMPORT_EXPIRED": "This check has expired. Upload the file again.",
+      "IMPORT_FILE_INVALID": "This file cannot be used. Check that it is a comma-separated UTF-8 file with the right columns.",
+      "IMPORT_NOT_FOUND": "This import was not found.",
+      "IMPORT_STATE_INVALID": "This import cannot be confirmed: it is already confirmed, or no product in it is ready."
+    },
+    "validation": {
+      "couponCode": "Enter 3 to 20 letters, digits, hyphens or underscores.",
+      "idShape": "Enter a full id, like 01a1a153-ffcb-740b-aceb-16884d91de35."
     }
   }
 }

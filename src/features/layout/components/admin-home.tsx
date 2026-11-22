@@ -5,7 +5,7 @@ import type { Locale } from '@/lib/i18n';
 import { getMessages } from '@/lib/messages';
 import { homePath } from '@/lib/routes';
 import { adminScreenLinks } from '@/features/layout/menus';
-import { NAV_ICONS } from '@/features/layout/nav-items';
+import { NAV_ICONS } from '@/features/layout/nav-icons';
 
 /**
  * Admin home (Document 5, section 8.3; approved Stage 5): links to the screens this person's roles

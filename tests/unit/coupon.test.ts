@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { getMessages } from '@/lib/messages';
+import { resolveMessage } from '@/hooks/use-app-form';
+import { messageFor } from '@/lib/errors';
+import type { Messages } from '@/lib/i18n';
+import { getMessages, sectionMessages, sharedMessages } from '@/lib/messages';
 import { discountText, usedText } from '@/features/coupon/components/coupon-text';
 import {
   changedCoupon,
@@ -145,5 +148,27 @@ describe('the staff’s coupon form', () => {
     expect(discountText(FESTIVE, messages)).toBe('10% off, at most ₹500');
     expect(usedText(FESTIVE, messages)).toBe('12 of 1000');
     expect(usedText({ ...FESTIVE, usageLimit: null }, messages)).toBe('12, no limit');
+  });
+});
+
+describe('the screen-only error texts', () => {
+  const taken = { code: 'COUPON_CODE_TAKEN', status: 409 };
+
+  it('are not in the text every page carries', () => {
+    const shared = sharedMessages('en');
+    expect(shared.screenErrors).toBeUndefined();
+    expect(shared.errors?.codes).not.toHaveProperty('COUPON_CODE_TAKEN');
+    expect(shared.errors?.codes).not.toHaveProperty('IMPORT_FILE_INVALID');
+  });
+
+  it('are found on a screen that adds them, for an answer and for a form message', () => {
+    const screen = {
+      ...sharedMessages('en'),
+      ...sectionMessages('en', ['coupon', 'screenErrors']),
+    } as Messages;
+    expect(messageFor(taken, screen)).toBe('Another coupon already uses this code.');
+    expect(resolveMessage('validation.couponCode', screen)).toBe(
+      'Enter 3 to 20 letters, digits, hyphens or underscores.',
+    );
   });
 });

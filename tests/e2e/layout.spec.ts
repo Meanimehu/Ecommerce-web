@@ -156,6 +156,7 @@ test.describe('with the local backend', () => {
       'Catalogue lists',
       'Product moderation',
       'Sales',
+      'Coupons',
     ]);
     await expect((await sideMenu(adminPage)).first()).toHaveAttribute('aria-current', 'page');
     const adminHome = adminPage.getByRole('main').getByRole('link');
@@ -166,6 +167,7 @@ test.describe('with the local backend', () => {
       'Catalogue lists',
       'Product moderation',
       'Sales',
+      'Coupons',
     ]);
     await expect(adminHome.nth(0)).toHaveAttribute('href', '/en/admin/users');
     await expect(adminHome.nth(1)).toHaveAttribute('href', '/en/admin/audit-log');
@@ -173,6 +175,7 @@ test.describe('with the local backend', () => {
     await expect(adminHome.nth(3)).toHaveAttribute('href', '/en/admin/catalogue');
     await expect(adminHome.nth(4)).toHaveAttribute('href', '/en/admin/moderation');
     await expect(adminHome.nth(5)).toHaveAttribute('href', '/en/admin/sales');
+    await expect(adminHome.nth(6)).toHaveAttribute('href', '/en/admin/coupons');
     await expect(adminPage.getByRole('heading', { name: 'Admin home', level: 1 })).toBeVisible();
     await noAxeViolations(adminPage);
   });
