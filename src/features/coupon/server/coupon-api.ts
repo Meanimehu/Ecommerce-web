@@ -4,6 +4,7 @@ import type { Query } from '@/utils/url';
 import {
   CouponPageSchema,
   CouponSchema,
+  type AcceptCouponBody,
   type ChangeCouponBody,
   type CouponReasonBody,
   type CreateCouponBody,
@@ -73,5 +74,43 @@ export const enableCoupon = (token: string, id: string) =>
     path: `${adminCouponPath(id)}/enable`,
     kind: 'save',
     token,
+    schema: CouponSchema,
+  });
+
+// ---- The coupons that charge the vendor (Area 5, part 3, vendor sections) ----
+
+const MY_COUPONS_PATH = '/vendors/me/coupons';
+const myCouponPath = (id: string) => `${MY_COUPONS_PATH}/${encodeURIComponent(id)}`;
+
+/** Reading works in any vendor status. */
+export const listMyCoupons = (token: string, query: Query) =>
+  callBackend({
+    method: 'GET',
+    path: MY_COUPONS_PATH,
+    query,
+    kind: 'view',
+    token,
+    schema: CouponPageSchema,
+  });
+
+/** Accepting the exact terms shown (their digest) needs an approved vendor. */
+export const acceptMyCoupon = (token: string, id: string, body: AcceptCouponBody) =>
+  callBackend({
+    method: 'POST',
+    path: `${myCouponPath(id)}/accept`,
+    kind: 'save',
+    token,
+    body,
+    schema: CouponSchema,
+  });
+
+/** Disabling, which declines a pending coupon, works in any vendor status. */
+export const disableMyCoupon = (token: string, id: string) =>
+  callBackend({
+    method: 'POST',
+    path: `${myCouponPath(id)}/disable`,
+    kind: 'save',
+    token,
+    body: {},
     schema: CouponSchema,
   });

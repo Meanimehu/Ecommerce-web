@@ -55,10 +55,11 @@ export const VENDOR_AREA_SECTIONS = [
 
 /**
  * Text of a Vendor area screen that no other vendor screen uses, added by that screen's folder layout (CSV import
- * under `app/[lang]/vendor/(needs-vendor)/imports/`), so the other vendor pages do not carry it.
+ * under `app/[lang]/vendor/(needs-vendor)/imports/`, coupons under `…/coupons/`), so the other vendor pages do not carry it.
  */
 export const VENDOR_SCREEN_SECTIONS = {
   imports: ['imports', 'screenErrors'],
+  coupons: ['coupon', 'screenErrors'],
 } as const satisfies Record<string, readonly AreaSection[]>;
 
 /**

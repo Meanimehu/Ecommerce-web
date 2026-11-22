@@ -7,8 +7,8 @@ import { withQuery, type Query } from '@/utils/url';
 import type { ChangeCouponBody, Coupon, CreateCouponBody } from '@/features/coupon/types';
 
 /**
- * The calls of `coupon`, one hook per call, to our own /api/admin/coupons endpoints, never to the
- * backend (D3-03). After any change every coupon read is read again, so the screens show the
+ * The calls of `coupon`, one hook per call, to our own /api/admin/coupons and
+ * /api/vendors/me/coupons endpoints, never to the backend (D3-03). After any change every coupon read is read again, so the screens show the
  * backend's own status and usage.
  */
 const ADMIN_COUPONS_PATH = '/api/admin/coupons';
@@ -18,7 +18,11 @@ export const couponKeys = {
   all: ['coupon'] as const,
   staffList: (query: Query) => ['coupon', 'staff', 'list', query] as const,
   staffOne: (id: string) => ['coupon', 'staff', id] as const,
+  mine: (query: Query) => ['coupon', 'mine', query] as const,
 };
+
+const MY_COUPONS_PATH = '/api/vendors/me/coupons';
+const myCouponPath = (id: string) => `${MY_COUPONS_PATH}/${encodeURIComponent(id)}`;
 
 export const useStaffCoupons = (query: Query, enabled = true) =>
   useQuery({
@@ -66,6 +70,36 @@ export function useEnableCoupon(id: string) {
   const reloadCoupons = useReloadCoupons();
   return useMutation({
     mutationFn: () => send<Coupon>(`${adminCouponPath(id)}/enable`),
+    onSettled: reloadCoupons,
+  });
+}
+
+// ---- The coupons that charge the vendor ----
+
+/**
+ * Not read again when the window regains focus: the vendor accepts the exact terms on screen, so
+ * they never change under the vendor's eyes. They are read again after every change.
+ */
+export const useMyCoupons = (query: Query) =>
+  useQuery({
+    queryKey: couponKeys.mine(query),
+    queryFn: () => get<Page<Coupon>>(withQuery(MY_COUPONS_PATH, query)),
+    refetchOnWindowFocus: false,
+  });
+
+export function useAcceptMyCoupon() {
+  const reloadCoupons = useReloadCoupons();
+  return useMutation({
+    mutationFn: ({ id, termsDigest }: { id: string; termsDigest: string }) =>
+      send<Coupon>(`${myCouponPath(id)}/accept`, { termsDigest }),
+    onSettled: reloadCoupons,
+  });
+}
+
+export function useDisableMyCoupon() {
+  const reloadCoupons = useReloadCoupons();
+  return useMutation({
+    mutationFn: (id: string) => send<Coupon>(`${myCouponPath(id)}/disable`),
     onSettled: reloadCoupons,
   });
 }

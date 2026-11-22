@@ -1575,6 +1575,32 @@
       "create": "Create coupon",
       "save": "Save changes",
       "nothingChanged": "Nothing has changed yet."
+    },
+    "vendor": {
+      "title": "Coupons",
+      "intro": "Coupons you pay for, alone or shared with Dhaaga. A coupon waiting for you cannot be used until you accept its exact terms.",
+      "filters": {
+        "status": "Status",
+        "all": "All",
+        "show": "Show"
+      },
+      "empty": "No coupons charge you yet",
+      "emptyFiltered": "No coupons in this status",
+      "emptyText": "When Dhaaga offers a coupon you pay for, it appears here for you to accept or decline.",
+      "accept": "Accept terms",
+      "acceptTitle": "Accept the terms of {code}?",
+      "acceptBody": "Customers can use it from its start. You pay for its discounts as shown, at most {exposure} in all.",
+      "acceptBodyNoLimit": "Customers can use it from its start. You pay for its discounts as shown; these terms set no most you can pay.",
+      "accepted": "Terms accepted.",
+      "decline": "Decline",
+      "disable": "Disable",
+      "declineTitle": "Decline {code}?",
+      "declineBody": "It will not be used. Only Dhaaga can offer it to you again.",
+      "disableTitle": "Disable {code}?",
+      "disableBody": "Customers can no longer use it. Orders already placed keep their discount. Only Dhaaga can enable it again, and then you accept it again.",
+      "disabled": "Coupon stopped.",
+      "termsChanged": "These terms changed while you were looking. Read the new terms below, and accept again if you agree.",
+      "waitingNote": "Waiting for you to accept or decline."
     }
   },
   "screenErrors": {
@@ -1584,6 +1610,8 @@
       "COUPON_LIMIT_BELOW_USAGE": "This limit is lower than the uses already made.",
       "COUPON_LOCKED": "This term can no longer change, because the coupon has been used or the vendor has agreed to it.",
       "COUPON_NOT_FOUND": "This coupon was not found.",
+      "COUPON_STATE_INVALID": "This coupon is not waiting for your acceptance any more. Reload the page.",
+      "COUPON_TERMS_CHANGED": "The terms changed since you read them. Read them again before accepting.",
       "IMPORT_EXPIRED": "This check has expired. Upload the file again.",
       "IMPORT_FILE_INVALID": "This file cannot be used. Check that it is a comma-separated UTF-8 file with the right columns.",
       "IMPORT_NOT_FOUND": "This import was not found.",

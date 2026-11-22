@@ -88,6 +88,7 @@ export const CouponPageSchema = pageOf(CouponSchema);
 export type CreateCouponBody = components['schemas']['CreateCouponDto'];
 export type ChangeCouponBody = components['schemas']['UpdateCouponDto'];
 export type CouponReasonBody = components['schemas']['ReasonDto'];
+export type AcceptCouponBody = components['schemas']['AcceptCouponDto'];
 
 /** The longest reason the backend takes for disabling a coupon. */
 export const COUPON_REASON_MAX_LENGTH = 500;
