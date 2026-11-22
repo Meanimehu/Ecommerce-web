@@ -39,6 +39,7 @@ test.describe('the business profile and the read-only banner', () => {
       'Products',
       'Stock',
       'Sales',
+      'Coupons',
     ]);
     await expect(sideMenu(page).nth(1)).toHaveAttribute('aria-current', 'page');
     // An approved vendor sees no read-only banner.
