@@ -371,7 +371,8 @@ Backend Area 5, part 1. A sale names only its variant, so the screens take the v
 
 | File | What it does |
 | --- | --- |
-| `types.ts` | The sale schema, `SaleStatus`, the request bodies, the new-sale form; small rules: `canCancelSale`, `istToIso`, `isoToIst`, `newSale` |
+| `types.ts` | The sale schema, the request bodies, the new-sale form, `istToIso`, `isoToIst`, `newSale`; brings Zod |
+| `rules.ts` | No Zod, for the screens: `SaleStatus`, `SALE_STATUSES`, `isSaleStatus`, `canCancelSale`, `STAFF_CANCEL_REASON_MAX_LENGTH`, `isIdShape` |
 | `components/sale-list.tsx` | The sales: status filter, table, numbered pages, "Cancel sale" with a confirmation |
 | `components/sale-form.tsx` | A new sale: the variant, its normal price, the sale price, the start and end in IST |
 | `components/sale-status-chip.tsx` | Upcoming, active, ended, cancelled |

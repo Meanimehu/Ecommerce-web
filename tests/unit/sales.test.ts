@@ -1,13 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { saleDefaults } from '@/features/sales/hooks/use-sale-form';
-import {
-  canCancelSale,
-  isoToIst,
-  istToIso,
-  newSale,
-  SaleFormSchema,
-  SaleStatus,
-} from '@/features/sales/types';
+import { canCancelSale, SaleStatus } from '@/features/sales/rules';
+import { isoToIst, istToIso, newSale, SaleFormSchema } from '@/features/sales/types';
 
 describe('sale prices (Document 5, section 8.2; area-5-sales-cart-coupons.md, part 1)', () => {
   it('reads a time typed in IST and gives it back the same', () => {

@@ -4,7 +4,7 @@ import { ReasonDialog } from '@/components/common/reason-dialog';
 import { Button } from '@/components/ui/button';
 import { useMessages } from '@/lib/messages-context';
 import type { ReasonOutcome } from '@/hooks/use-reason-dialog';
-import { STAFF_CANCEL_REASON_MAX_LENGTH } from '@/features/sales/types';
+import { STAFF_CANCEL_REASON_MAX_LENGTH } from '@/features/sales/rules';
 
 /**
  * "Cancel sale" with its reason dialog, for admins and moderators only. The list loads it only

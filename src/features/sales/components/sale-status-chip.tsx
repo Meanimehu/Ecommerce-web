@@ -1,6 +1,6 @@
 import { StatusChip, type ChipTone } from '@/components/common/status-chip';
 import type { Messages } from '@/lib/i18n';
-import { SaleStatus } from '@/features/sales/types';
+import { SaleStatus } from '@/features/sales/rules';
 
 /** A sale's status as the approved screens show it: words as well as colour (Document 6, section 9). */
 const STATUS_TONES: Record<SaleStatus, ChipTone> = {
