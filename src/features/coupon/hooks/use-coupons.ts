@@ -5,6 +5,7 @@ import { get, patch, send } from '@/lib/http';
 import type { Page } from '@/types/common';
 import { withQuery, type Query } from '@/utils/url';
 import type {
+  RequestDecision,
   ChangeCouponBody,
   ChangeCouponRequestBody,
   Coupon,
@@ -173,6 +174,44 @@ export function useWithdrawCouponRequest(id: string) {
   const reloadRequests = useReloadRequests();
   return useMutation({
     mutationFn: () => send<CouponRequest>(`${myRequestPath(id)}/withdraw`),
+    onSettled: reloadRequests,
+  });
+}
+
+// ---- The staff's review of coupon requests ----
+
+const ADMIN_REQUESTS_PATH = '/api/admin/coupon-requests';
+const adminRequestPath = (id: string) => `${ADMIN_REQUESTS_PATH}/${encodeURIComponent(id)}`;
+
+export const staffRequestKeys = {
+  list: (query: Query) => ['coupon-request', 'staff', 'list', query] as const,
+  one: (id: string) => ['coupon-request', 'staff', id] as const,
+};
+
+export const useStaffCouponRequests = (query: Query, enabled = true) =>
+  useQuery({
+    queryKey: staffRequestKeys.list(query),
+    queryFn: () => get<Page<CouponRequest>>(withQuery(ADMIN_REQUESTS_PATH, query)),
+    enabled,
+  });
+
+export const useStaffCouponRequest = (id: string) =>
+  useQuery({
+    queryKey: staffRequestKeys.one(id),
+    queryFn: () => get<CouponRequestView>(adminRequestPath(id)),
+  });
+
+export interface RequestDecisionInput {
+  decision: RequestDecision;
+  body: { code?: string; note?: string };
+}
+
+/** Approve, ask for changes or reject; the request and the coupons are read again after. */
+export function useDecideCouponRequest(id: string) {
+  const reloadRequests = useReloadRequests();
+  return useMutation({
+    mutationFn: ({ decision, body }: RequestDecisionInput) =>
+      send<CouponRequest>(`${adminRequestPath(id)}/${decision}`, body),
     onSettled: reloadRequests,
   });
 }

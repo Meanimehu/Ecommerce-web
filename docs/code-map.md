@@ -130,6 +130,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `[lang]/admin/vendors/…` | Vendor review: the list, and one application (admin only); the screens are in `features/vendor/` |
 | `[lang]/admin/catalogue/[list]` | Catalogue lists: categories, HSN codes, brands, sizes, colours (admin only); the screens are in `features/catalogue/` |
 | `[lang]/admin/sales` | Every vendor's sales, for staff; the screen is in `features/sales/` |
+| `[lang]/admin/coupon-requests/…` | Every vendor's coupon requests (`coupon-requests`) and one with its history and the decisions (`coupon-requests/{id}`): admin, marketing, finance and support read, admin and marketing decide; its folder layout adds the `coupon` text; the screens are in `features/coupon/` |
 | `[lang]/admin/coupons/…` | Every coupon (`coupons`), a new one (`coupons/new`), one coupon (`coupons/{id}`) and a change to its terms (`coupons/{id}/change`): admin, marketing, finance and support read, admin and marketing change; its folder layout adds the `coupon` text; the screens are in `features/coupon/` |
 | `[lang]/admin/inventory/variants/[id]` | Any variant's stock history, for staff, reached by links only; the screen is in `features/stock/` |
 | `[lang]/admin/moderation/…` | Product moderation: the queue and one product (moderator, admin); the screens are in `features/product/` |
@@ -152,6 +153,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `api/vendors/…` | The person's own vendor application: details, addresses, documents (upload and view), submit |
 | `api/admin/audit-log` | The audit log: read, with its filters |
 | `api/admin/sales/…` | Every vendor's sales, and cancelling one with a reason |
+| `api/admin/coupon-requests/…` | The staff's coupon requests: list, one with its history, and approve, request-changes or reject (`coupon`) |
 | `api/admin/coupons/…` | The staff's coupons: list, one coupon, create, change, disable with a reason, enable (`coupon`) |
 | `api/admin/inventory/variants/[id]/history` | Any variant's stock history, for staff |
 | `api/admin/users/…` | Users and roles: list, one person, block and unblock, give and remove a staff role |
@@ -395,6 +397,9 @@ form's category list).
 | `components/coupon-form.tsx` | A new coupon (`NewCouponForm`) and a change (`ChangeCouponForm`): the discount, limits, dates in IST, who pays, the vendor and share, categories and products |
 | `components/staff-coupon-page.tsx` | One coupon for staff: its terms and usage; Change, Disable and Enable for admin and marketing |
 | `components/my-coupon-list.tsx` | The coupons that charge the vendor, each with every term; Accept (approved vendors) and Disable or Decline, each asking first; terms changed meanwhile shown anew |
+| `components/staff-request-list.tsx`, `staff-request-page.tsx` | Every vendor's coupon requests for staff (filters by status and vendor in the address), and one request with its vendor, notes, terms, coupon and history; the decisions for admin and marketing on a submitted request they did not make |
+| `components/staff-request-decisions.tsx` | Approve (the final code and a note), Ask for changes and Reject (each with a note), loaded only for the roles that decide |
+| `components/staff-request-status-chip.tsx` | The request status chip in the staff's words |
 | `components/coupon-tabs.tsx` | The two tabs of the vendor's Coupons, each its own page |
 | `components/my-request-list.tsx` | The vendor's coupon requests: status filter in the address, table, numbered pages, "New request" for approved vendors |
 | `components/request-form.tsx` | A new coupon request (`NewRequestForm`) and a change (`ChangeRequestForm`), with the backend's current limits said above it, and the vendor's approved products to choose from |
@@ -408,9 +413,10 @@ form's category list).
 | `hooks/use-coupon-form.ts` | The form hook: what it sends, and where the backend's answers go (a locked term under its own field) |
 | `hooks/use-coupon-actions.ts` | Disable with a reason, and enable |
 | `hooks/use-request-form.ts`, `use-request-actions.ts` | The vendor's request form (a new draft, or only what changed), and Send for review and Withdraw |
+| `hooks/use-request-decision.ts` | The staff's decisions, and the approve form (`useApproveForm`: a code already used goes under the code) |
 | `hooks/use-my-coupon-actions.ts` | A vendor accepts the terms on screen (their fingerprint) or disables; `COUPON_TERMS_CHANGED` marks the coupon and nothing is sent again |
 | `server/coupon-api.ts` | Backend Area 5, part 3: the staff's coupons, and the coupons that charge the vendor |
-| `server/coupon-request-api.ts` | Backend Area 5, part 4: a vendor's coupon requests |
+| `server/coupon-request-api.ts` | Backend Area 5, part 4: a vendor's coupon requests, and the staff's review |
 
 ### `features/users/` — users and roles, for an admin
 

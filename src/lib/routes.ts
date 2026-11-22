@@ -164,6 +164,15 @@ export const adminCouponPath = (lang: Locale, id: string) =>
 export const changeAdminCouponPath = (lang: Locale, id: string) =>
   `${adminCouponPath(lang, id)}/change`;
 
+/** Every coupon request, filtered by these values when given (only those set go in the address). */
+export const adminCouponRequestsPath = (
+  lang: Locale,
+  filters?: { status?: string; vendorId?: string },
+) => withQuery(`/${lang}/admin/coupon-requests`, filters);
+
+export const adminCouponRequestPath = (lang: Locale, id: string) =>
+  `/${lang}/admin/coupon-requests/${encodeURIComponent(id)}`;
+
 /** Any variant's stock history, for staff; reached by links only (Document 8, Slice 5 notes). */
 export const staffStockHistoryPath = (lang: Locale, variantId: string) =>
   `/${lang}/admin/inventory/variants/${encodeURIComponent(variantId)}`;

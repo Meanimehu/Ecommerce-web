@@ -1691,6 +1691,68 @@
         "saveChanges": "Save changes",
         "timesHelp": "Times are in IST. The start can be at most 5 minutes in the past when you send it."
       }
+    },
+    "staffRequests": {
+      "title": "Coupon requests",
+      "intro": "Coupons vendors propose and pay for. Staff approve the terms as sent, ask for changes, or reject; nobody decides a request they made.",
+      "viewOnly": "View only",
+      "status": {
+        "draft": "Draft",
+        "submitted": "Waiting for review",
+        "changes_requested": "Changes asked for",
+        "approved": "Approved, waiting for the vendor",
+        "rejected": "Rejected",
+        "withdrawn": "Withdrawn",
+        "declined": "Declined by the vendor"
+      },
+      "filters": {
+        "status": "Status",
+        "all": "All",
+        "vendorId": "Vendor id",
+        "show": "Show",
+        "clear": "Clear filters",
+        "badId": "Enter a full vendor id."
+      },
+      "fixFilters": "Fix the marked filter to see the requests.",
+      "empty": "No coupon requests yet",
+      "emptyFiltered": "No requests match these filters",
+      "emptyText": "Requests vendors send for review appear here.",
+      "columns": {
+        "code": "Code",
+        "status": "Status",
+        "vendor": "Vendor",
+        "discount": "Discount",
+        "sent": "Sent"
+      },
+      "vendor": "Vendor",
+      "vendorNote": "The vendor's note",
+      "feedback": "Latest note to the vendor",
+      "termsTitle": "Terms proposed",
+      "actors": {
+        "vendor": "The vendor",
+        "staff": "Staff",
+        "system": "Dhaaga"
+      },
+      "ownRequest": "You made this request, so someone else decides it.",
+      "decideTitle": "Decision",
+      "approve": "Approve",
+      "approveTitle": "Approve this request?",
+      "approveBody": "A coupon is made with exactly these terms, paid for by the vendor. It waits for the vendor to accept them.",
+      "finalCode": "Final code",
+      "finalCodeHelp": "Leave as it is to use the code the vendor proposed.",
+      "approveNote": "Note for the vendor",
+      "approved": "Request approved. The coupon waits for the vendor.",
+      "requestChanges": "Ask for changes",
+      "requestChangesTitle": "Ask the vendor for changes?",
+      "requestChangesBody": "The vendor sees your note, changes the request and sends it again.",
+      "changesNote": "What to change",
+      "changesAsked": "Changes asked for.",
+      "reject": "Reject",
+      "rejectTitle": "Reject this request?",
+      "rejectBody": "This is final. The vendor sees your note and may make a new request.",
+      "rejectNote": "Why",
+      "rejected": "Request rejected.",
+      "openCoupon": "Open coupon {code}"
     }
   },
   "screenErrors": {
@@ -1704,6 +1766,7 @@
       "COUPON_REQUEST_LIMIT": "You already have 10 open requests. Send, withdraw or wait for one before making another.",
       "COUPON_REQUEST_NOT_FOUND": "This coupon request was not found.",
       "COUPON_REQUEST_PRODUCT_INVALID": "One of the chosen products is not yours.",
+      "COUPON_REQUEST_SELF_REVIEW": "You made this request, so someone else must decide it.",
       "COUPON_REQUEST_STATE_INVALID": "This cannot be done in the request's current status. Reload the page.",
       "COUPON_STATE_INVALID": "This coupon is not waiting for your acceptance any more. Reload the page.",
       "COUPON_TERMS_CHANGED": "The terms changed since you read them. Read them again before accepting.",

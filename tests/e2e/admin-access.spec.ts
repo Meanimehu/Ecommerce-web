@@ -4,11 +4,11 @@ import { backendLog } from './support/login';
 import { StaffRole, staffWith } from './support/staff';
 
 /**
- * Slice 5a and 5f, and held item H2 (Document 5, sections 4 and 8.3; Document 8, Slice 5 notes):
- * one Admin area for every staff role. Each person sees only the screens their roles allow, in the
- * menu and on the Admin home; any other admin screen answers with a real 403 page. Support,
- * marketing and finance have Sales and Coupons. Against the real local backend; skipped where it
- * is not running.
+ * Slice 5a and 5f, and held items H2 and H6 (Document 5, sections 4 and 8.3; Document 8, Slice 5
+ * notes): one Admin area for every staff role. Each person sees only the screens their roles
+ * allow, in the menu and on the Admin home; any other admin screen answers with a real 403 page.
+ * Support, marketing and finance have Sales, Coupons and Coupon requests. Against the real local
+ * backend; skipped where it is not running.
  */
 const WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 const WIDE = { width: 1280, height: 900 };
@@ -40,14 +40,18 @@ test.describe('the Admin area for each staff role', () => {
   test.setTimeout(150_000);
 
   for (const role of [StaffRole.Support, StaffRole.Marketing, StaffRole.Finance]) {
-    test(`${role}: the Admin home and menu offer Sales and Coupons, and every other screen answers 403`, async ({
+    test(`${role}: the Admin home and menu offer Sales, Coupons and Coupon requests, and every other screen answers 403`, async ({
       browser,
     }) => {
       const { page } = await staffWith(browser, [role]);
       await page.setViewportSize(WIDE);
       await expect(page.getByRole('heading', { name: 'Admin home', level: 1 })).toBeVisible();
-      await expect(sideMenu(page)).toHaveText(['Home', 'Sales', 'Coupons']);
-      await expect(page.getByRole('main').getByRole('link')).toHaveText(['Sales', 'Coupons']);
+      await expect(sideMenu(page)).toHaveText(['Home', 'Sales', 'Coupons', 'Coupon requests']);
+      await expect(page.getByRole('main').getByRole('link')).toHaveText([
+        'Sales',
+        'Coupons',
+        'Coupon requests',
+      ]);
       await noAxeViolations(page);
       for (const path of SCREENS) await expectNoAccess(page, path);
     });
@@ -62,17 +66,25 @@ test.describe('the Admin area for each staff role', () => {
     await expectNoAccess(page, '/en/admin/vendors');
     await expectNoAccess(page, '/en/admin/catalogue/categories');
     await expectNoAccess(page, '/en/admin/coupons');
+    await expectNoAccess(page, '/en/admin/coupon-requests');
     await noAxeViolations(page);
   });
 
   test('a person with two roles sees what either allows', async ({ browser }) => {
     const { page } = await staffWith(browser, [StaffRole.Support, StaffRole.Moderator]);
     await page.setViewportSize(WIDE);
-    await expect(sideMenu(page)).toHaveText(['Home', 'Product moderation', 'Sales', 'Coupons']);
+    await expect(sideMenu(page)).toHaveText([
+      'Home',
+      'Product moderation',
+      'Sales',
+      'Coupons',
+      'Coupon requests',
+    ]);
     await expect(page.getByRole('main').getByRole('link')).toHaveText([
       'Product moderation',
       'Sales',
       'Coupons',
+      'Coupon requests',
     ]);
   });
 
@@ -85,7 +97,11 @@ test.describe('the Admin area for each staff role', () => {
     const { page } = await staffWith(browser, [StaffRole.Finance], '/hi/admin');
     await page.setViewportSize(WIDE);
     await expect(page.getByRole('heading', { name: 'एडमिन होम', level: 1 })).toBeVisible();
-    await expect(page.getByRole('main').getByRole('link')).toHaveText(['सेल', 'कूपन']);
+    await expect(page.getByRole('main').getByRole('link')).toHaveText([
+      'सेल',
+      'कूपन',
+      'कूपन अनुरोध',
+    ]);
     await noAxeViolations(page);
     const answer = await page.goto('/hi/admin/vendors');
     expect(answer?.status()).toBe(403);

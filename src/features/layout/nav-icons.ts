@@ -1,5 +1,6 @@
 import {
   ClipboardCheck,
+  ClipboardList,
   Eye,
   House,
   Layers,
@@ -31,6 +32,7 @@ export const NAV_ICONS = {
   catalogue: Tags,
   moderation: Eye,
   coupons: Ticket,
+  couponRequests: ClipboardList,
 } satisfies Record<string, LucideIcon>;
 export type NavIcon = keyof typeof NAV_ICONS;
 
