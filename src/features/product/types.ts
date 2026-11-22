@@ -550,3 +550,126 @@ export interface PhotoUpload {
   state: UploadState;
   error?: AppError;
 }
+
+// ---- CSV import (area-3b-products.md, section 7) ----
+
+export enum ImportStatus {
+  /** Uploaded and checked; nothing created yet. */
+  Previewed = 'previewed',
+  /** Confirmed once; the valid products were created as drafts. */
+  Confirmed = 'confirmed',
+}
+
+/** Whether a column is read from a product's first row or from every row. */
+export enum ImportColumnLevel {
+  Product = 'product',
+  Variant = 'variant',
+}
+
+/** The prefix of an attribute column, `attr.<key>`. */
+export const IMPORT_ATTRIBUTE_PREFIX = 'attr.';
+
+/** One problem in a row or a product: the file's column (null for the whole row), a code, words. */
+export const ImportIssueSchema = z.object({
+  column: z.string().nullable(),
+  code: z.string(),
+  message: z.string(),
+});
+
+export const ImportOutcomeSchema = z.object({
+  created: z.boolean(),
+  productId: z.string().nullable(),
+  variantCount: z.number().int(),
+  code: z.string().nullable(),
+  message: z.string().nullable(),
+});
+
+export const ImportSummarySchema = z.object({
+  id: z.string(),
+  status: z.enum(ImportStatus),
+  fileName: z.string(),
+  fileSizeBytes: z.number().int(),
+  createdAt: z.string(),
+  expiresAt: z.string(),
+  expired: z.boolean(),
+  confirmedAt: z.string().nullable(),
+  totals: z.object({
+    rows: z.number().int(),
+    validRows: z.number().int(),
+    products: z.number().int(),
+    validProducts: z.number().int(),
+    createdProducts: z.number().int(),
+  }),
+});
+
+export const ImportSchema = ImportSummarySchema.extend({
+  products: z.array(
+    z.object({
+      productRef: z.string(),
+      title: z.string(),
+      lines: z.array(z.number().int()),
+      valid: z.boolean(),
+      errors: z.array(ImportIssueSchema),
+      outcome: ImportOutcomeSchema.nullable(),
+    }),
+  ),
+  rows: z.array(
+    z.object({
+      line: z.number().int(),
+      productRef: z.string(),
+      sku: z.string(),
+      valid: z.boolean(),
+      errors: z.array(ImportIssueSchema),
+    }),
+  ),
+});
+
+export const ImportPageSchema = pageOf(ImportSummarySchema);
+
+export const ImportColumnsSchema = z.object({
+  category: z.object({ id: z.string(), slug: z.string(), name: z.string() }).nullable(),
+  columns: z.array(
+    z.object({
+      name: z.string(),
+      required: z.boolean(),
+      level: z.enum(ImportColumnLevel),
+      format: z.string(),
+      example: z.string(),
+      rules: z.string(),
+    }),
+  ),
+  limits: z.object({
+    maxRows: z.number().int(),
+    maxBytes: z.number().int(),
+    uploadsPerHour: z.number().int(),
+    previewValidHours: z.number().int(),
+    maxVariantsPerProduct: z.number().int(),
+  }),
+});
+
+export type ImportIssue = z.infer<typeof ImportIssueSchema>;
+export type ImportSummary = z.infer<typeof ImportSummarySchema>;
+export type Import = z.infer<typeof ImportSchema>;
+export type ImportProduct = Import['products'][number];
+export type ImportRow = Import['rows'][number];
+export type ImportColumns = z.infer<typeof ImportColumnsSchema>;
+export type ImportColumn = ImportColumns['columns'][number];
+
+/** Where an import stands, as the screens name it. */
+export enum ImportState {
+  /** Checked, nothing created; can still be confirmed. */
+  Waiting = 'waiting',
+  /** Checked, nothing created, and too old to confirm. */
+  Expired = 'expired',
+  Confirmed = 'confirmed',
+}
+
+export function importStateOf(summary: Pick<ImportSummary, 'status' | 'expired'>): ImportState {
+  if (summary.status === ImportStatus.Confirmed) return ImportState.Confirmed;
+  return summary.expired ? ImportState.Expired : ImportState.Waiting;
+}
+
+/** Only a checked import that has not expired and has a valid product can be confirmed. */
+export function canConfirmImport(summary: ImportSummary): boolean {
+  return importStateOf(summary) === ImportState.Waiting && summary.totals.validProducts > 0;
+}

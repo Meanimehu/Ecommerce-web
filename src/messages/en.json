@@ -235,7 +235,11 @@
       "USER_NOT_FOUND": "This user was not found.",
       "CANNOT_BLOCK_SELF": "You cannot block your own account.",
       "ROLE_NOT_FOUND": "This person no longer has that role.",
-      "LAST_ADMIN": "The last admin cannot be removed."
+      "LAST_ADMIN": "The last admin cannot be removed.",
+      "IMPORT_FILE_INVALID": "This file cannot be used. Check that it is a comma-separated UTF-8 file with the right columns.",
+      "IMPORT_NOT_FOUND": "This import was not found.",
+      "IMPORT_STATE_INVALID": "This import cannot be confirmed: it is already confirmed, or no product in it is ready.",
+      "IMPORT_EXPIRED": "This check has expired. Upload the file again."
     }
   },
   "languageNames": {
@@ -644,6 +648,7 @@
     "title": "Products",
     "product": "Product",
     "add": "Add product",
+    "importCsv": "Import from a CSV file",
     "saved": "Saved",
     "saveContinue": "Save and continue",
     "continue": "Continue",
@@ -1355,6 +1360,100 @@
       "variant_sale_price": "Sale price",
       "coupon": "Coupon",
       "coupon_request": "Coupon request"
+    }
+  },
+  "imports": {
+    "title": "Import products from a CSV file",
+    "shortTitle": "CSV import",
+    "intro": "Add many draft products at once: get the example file, fill it in, upload it and check the result. Nothing is created until you confirm. Add photos and stock to each draft afterwards.",
+    "limits": "At most {rows} rows and {size} per file, {variants} variants per product and {uploads} uploads an hour. A checked file can be confirmed for {hours} hours.",
+    "template": {
+      "title": "Get the example file",
+      "category": "Category for the example",
+      "categoryNone": "No category",
+      "categoryHelp": "With a category, the example uses it and has one column for each of its attributes.",
+      "download": "Download the example file",
+      "columns": "Columns of the file",
+      "englishNote": "These are the rules the file check uses.",
+      "headers": {
+        "name": "Column",
+        "required": "Needed",
+        "level": "Read from",
+        "example": "Example",
+        "rules": "Rules"
+      },
+      "required": "Required",
+      "optional": "Optional",
+      "level": {
+        "product": "The product's first row",
+        "variant": "Every row"
+      }
+    },
+    "upload": {
+      "title": "Upload your file",
+      "choose": "Choose a CSV file",
+      "help": "A comma-separated UTF-8 file with a header row, up to {size}. The file itself is not kept.",
+      "uploading": "Uploading and checking… {percent}%",
+      "unknown": "We could not tell whether your file arrived. Your imports have been read again: if the file is there, open it; if not, upload it again.",
+      "fileProblems": "What is wrong with the file:"
+    },
+    "history": {
+      "title": "Your imports",
+      "empty": "No imports yet",
+      "emptyText": "Files you upload appear here, so you can open a check again until it expires.",
+      "columns": {
+        "file": "File",
+        "uploaded": "Uploaded",
+        "state": "Status",
+        "products": "Products ready",
+        "created": "Created"
+      },
+      "productsReady": "{valid} of {total}",
+      "state": {
+        "waiting": "Waiting to be confirmed",
+        "expired": "Expired",
+        "confirmed": "Confirmed"
+      }
+    },
+    "view": {
+      "uploaded": "Uploaded {date} · {size}",
+      "waiting": "Nothing has been created yet. {valid} of {total} products are ready. Confirm before {date} to create them as drafts; products with problems are left out.",
+      "waitingNone": "Nothing has been created. No product in this file is ready: fix the problems below and upload the file again.",
+      "expired": "Nothing was created, and this check has expired. Upload the file again to create these products.",
+      "confirmed": "Confirmed {date}. {created} of {total} products were created as drafts. Add photos to each draft before sending it for review.",
+      "confirmOne": "Create 1 product as a draft",
+      "confirmMany": "Create {count} products as drafts",
+      "confirmedToast": "Import confirmed.",
+      "confirmUnknown": "We could not tell whether the products were created. The import has been read again and is shown below as it is now. Nothing is sent again by itself.",
+      "uploadAnother": "Upload another file",
+      "products": {
+        "title": "Products in the file",
+        "columns": {
+          "ref": "Product ref",
+          "title": "Title",
+          "lines": "Lines",
+          "result": "Result"
+        },
+        "ready": "Ready",
+        "hasProblems": "Has problems",
+        "created": "Created",
+        "notCreated": "Not created",
+        "openDraft": "Open the draft",
+        "variantsOne": "1 variant",
+        "variantsMany": "{count} variants",
+        "noTitle": "No title"
+      },
+      "rows": {
+        "title": "Rows with problems",
+        "none": "Every row passed the check.",
+        "columns": {
+          "line": "Line",
+          "ref": "Product ref",
+          "sku": "SKU",
+          "problems": "Problems"
+        },
+        "wholeRow": "Whole row"
+      }
     }
   }
 }

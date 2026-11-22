@@ -251,6 +251,8 @@ function errorFrom(response: Response, json: unknown, changesData: boolean): App
  */
 export async function openBackendFile(options: {
   path: string;
+  /** Query values; empty values are left out. */
+  query?: Query;
   token: string;
   fetchImpl?: typeof fetch;
 }): Promise<Response> {
@@ -258,6 +260,7 @@ export async function openBackendFile(options: {
     {
       method: 'GET',
       path: options.path,
+      query: options.query,
       kind: 'upload',
       token: options.token,
       schema: null,

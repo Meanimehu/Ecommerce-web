@@ -22,6 +22,7 @@ export const AREA_SECTIONS = [
   'adminVendors',
   'catalogue',
   'product',
+  'imports',
   'moderation',
   'stock',
   'sales',
@@ -49,6 +50,14 @@ export const VENDOR_AREA_SECTIONS = [
   'stock',
   'sales',
 ] as const satisfies readonly AreaSection[];
+
+/**
+ * Text of a Vendor area screen that no other vendor screen uses, added by that screen's folder layout (CSV import
+ * under `app/[lang]/vendor/(needs-vendor)/imports/`), so the other vendor pages do not carry it.
+ */
+export const VENDOR_SCREEN_SECTIONS = {
+  imports: ['imports'],
+} as const satisfies Record<string, readonly AreaSection[]>;
 
 /**
  * Each Admin screen's text, by its folder under `app/[lang]/admin/`: that folder's layout adds it, so one admin page

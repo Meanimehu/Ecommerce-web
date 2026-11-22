@@ -140,6 +140,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `[lang]/vendor/(needs-vendor)/sales/…` | Sale prices (`sales`) and a new sale (`sales/new`); the screens are in `features/sales/` |
 | `[lang]/vendor/(needs-vendor)/stock/…` | Stock (`stock`), the bulk update (`stock/bulk`), one variant (`stock/{productId}/{variantId}`) and its history (`…/history`); the screens are in `features/stock/` |
 | `[lang]/vendor/(needs-vendor)/products/…` | My products (`products`), add a product (`products/add`), one product (`products/{id}`); the screens are in `features/product/` |
+| `[lang]/vendor/(needs-vendor)/imports/…` | CSV import (`imports`: the example file, an upload, the imports so far) and one import (`imports/{id}`: its check, confirm, each product's result); its folder layout adds the `imports` text; the screens are in `features/product/`; the menu marks Products |
 | `[lang]/error.tsx`, `forbidden.tsx`, `global-error.tsx` | Error page, "no access" page (real 403), last-resort error page |
 | `global-not-found.tsx` | "Not found" with a real 404, in English and Hindi together (the pages sit under a language segment, so Next.js uses one global page) |
 | `api/auth/code`, `api/auth/verify` | Ask for a login code; check it and log in |
@@ -165,6 +166,7 @@ the session, a failure is logged with `logServerEvent`, and `clearSessionCookies
 | `api/vendors/me/inventory/…` | The vendor's stock: the list, the summary, set, add or remove, the threshold, the history and the bulk update |
 | `api/vendors/me/products/…` | The vendor's products: details, variants, photos (upload, order, description, private view), submit; the revision (`…/revision`: read, change, discard, submit, withdraw, and its photos) |
 | `api/moderation/products/…` | Moderation: queue, one product, its photos, approve or reject |
+| `api/vendors/me/imports/…` | CSV import (`product`): the column guide, the example file (streamed through our server), an upload (streamed, sent once, never kept), the list, one import, confirm |
 | `api/language` | Remembers the language choice (the switch in `layout`) |
 | `api/health` | Health check for the hosting |
 | `globals.css` | The Document 6 design tokens: colours, type scale (with the Hindi rules), radius, focus ring, reduced motion, hover only where a device can hover |
@@ -303,7 +305,7 @@ Backend Area 3b: products, variants, photos, the form guide (`/catalogue/diction
 
 | File | What it does |
 | --- | --- |
-| `types.ts` | The answer schemas; the enums `ProductStatus`, `VariantStatus`, `TaxSource`, `ReviewKind`, `ProductDecision`, `PhotoSize`, `ProductStep`, `MissingItem`, `UploadState`, `RevisionStatus`, `RevisionPhotoState`, `RevisionField`; the revision schemas; the request bodies; the forms (`BasicsFormSchema`, `attributesFormSchema`, `VariantFormSchema`, which turns rupees into paise); small rules: `canEditRevision`, `changesPhotos`, `productStepFor`, `productStepToShow`, `canEditProduct`, `sortedPhotos`, `flattenCategories`, `findCategoryChoice`, `dictionaryLabel`, `rupeesToPaise`, `paiseToRupees`, `photoSizeOf`, `MAX_PHOTOS` |
+| `types.ts` | The answer schemas; the enums `ProductStatus`, `VariantStatus`, `TaxSource`, `ReviewKind`, `ProductDecision`, `PhotoSize`, `ProductStep`, `MissingItem`, `UploadState`, `RevisionStatus`, `RevisionPhotoState`, `RevisionField`; the revision schemas; the request bodies; the forms (`BasicsFormSchema`, `attributesFormSchema`, `VariantFormSchema`, which turns rupees into paise); small rules: `canEditRevision`, `changesPhotos`, `productStepFor`, `productStepToShow`, `canEditProduct`, `sortedPhotos`, `flattenCategories`, `findCategoryChoice`, `dictionaryLabel`, `rupeesToPaise`, `paiseToRupees`, `photoSizeOf`, `MAX_PHOTOS`; CSV import: `ImportSchema`, `ImportPageSchema`, `ImportColumnsSchema`, `ImportStatus`, `ImportColumnLevel`, `ImportState`, `importStateOf`, `canConfirmImport` |
 | `components/product-list.tsx` | My products: filters, table, numbered pages |
 | `components/product-editor.tsx` | One product: the five steps while it can change, otherwise its summary; the notices above it; for an approved product, the revision panel above the summary |
 | `components/basics-fields.tsx`, `attribute-fields.tsx` | The basics fields and the attribute fields, drawn by a product's steps and by a revision's editor |
@@ -328,6 +330,13 @@ Backend Area 3b: products, variants, photos, the form guide (`/catalogue/diction
 | `hooks/use-revision-actions.ts`, `use-revision-photos.ts` | A revision's actions (send for review, withdraw, discard) and its photo actions |
 | `server/product-api.ts` | Backend Area 3b, the vendor's side: the form guide, products, variants, photos and revisions |
 | `server/moderation-api.ts` | Backend Area 3b, moderation: the queue, one product, the decision, its photos |
+| `components/import-list.tsx` | CSV import: the example file for a category or none, its columns and limits; the upload (approved vendors only); the imports, numbered pages |
+| `components/import-view.tsx` | One import: "nothing has been created" and until when, Confirm, each product with its lines and result (created, with a link to the draft, or not and why), each row with a problem by line and column |
+| `components/import-state-chip.tsx` | Waiting to be confirmed, Expired, Confirmed |
+| `hooks/use-imports.ts` | The CSV import call hooks, one per call; `importKeys`, the example file's address |
+| `hooks/use-import-upload.ts` | Uploading one file: the quick check, progress and Cancel, opening the checked import; a lost answer reads the imports again and sends nothing again; `fileProblemsOf` |
+| `hooks/use-import-confirm.ts` | Confirming: after any answer the import is read again; a lost answer is said, never sent again by itself |
+| `server/import-api.ts` | Backend Area 3b, CSV import: the column guide, the example file, upload, list, one import, confirm |
 
 ### `features/stock/` — a vendor's stock
 
@@ -492,7 +501,7 @@ The storefront header and the Vendor and Admin frame with their menus (Document 
 | `hooks/use-layout.ts` | The call hook: `useRememberLanguage` |
 | `hooks/use-language-switch.ts` | The switch: the other language, the same page in it, remember then go |
 | `menus.ts` | `StaffArea`, and what each menu lists: `vendorNav`, `adminNav`, `adminScreenLinks` (server; reads `auth`'s rule) |
-| `nav-items.ts` | `NavItem`, the icons by name and `isCurrentItem`; no Zod, for the browser menu |
+| `nav-items.ts` | `NavItem` (with `alsoUnder`, other addresses an entry covers), the icons by name and `isCurrentItem`; no Zod, for the browser menu |
 | `header-link.ts` | The look of a header link, shared by the storefront header and the staff frame |
 
 ### `features/cart/` — the cart
@@ -526,11 +535,11 @@ storefront's buy box uses its call hooks; the login endpoint asks it to run the 
 | `lib/http.ts` | Browser calls to our endpoints: `get`, `send`, `patch`, `put`, `remove` and `upload` (with progress and Cancel), with the time limit and the forgery label; every failure is an `AppError` |
 | `lib/http-status.ts` | `HttpStatus` and the range checks (`isSuccess`, `isClientError`, `isServerError`) |
 | `lib/server-log.ts` | `logServerEvent`: the only way our server writes a log, one plain-text line per event (Document 7, 20.10); `errorTypeOf` for an unexpected error's kind. Server only |
-| `lib/uploads.ts` | Upload limits copied from the backend, for a quick check before sending |
+| `lib/uploads.ts` | Upload limits copied from the backend (documents, photos, the CSV import file), for a quick check before sending |
 | `lib/i18n.ts` | The two languages, choosing one, and `otherLocale` (the language the switch offers) |
 | `lib/routes.ts` | Every page address, one helper per kind of page (`homePath`, `loginPath`, `categoryPath`, `productPath` with `productSlug`, `cartPath`, `myProductPath`, `adminVendorPath`, `samePageIn` for the language switch, …); no feature, server-only or Zod import, so `proxy.ts` can use it (Document 7, 20.2) |
 | `lib/global-error-text.ts` | The last-resort error page's three lines, the catalogue's words copied so the catalogue stays off every page (a unit test checks they match) |
-| `lib/messages.ts` | `getMessages` for server pages; the shared text; the staff areas' own text (`AREA_SECTIONS`): the Vendor area's (`VENDOR_AREA_SECTIONS`) and each Admin screen's (`ADMIN_SCREEN_SECTIONS`, added by that screen's folder layout with `layout`'s `ScreenText`); and the text only some pages carry (`store` on the shop's pages, `cart` on the cart page, `account` on the account pages) |
+| `lib/messages.ts` | `getMessages` for server pages; the shared text; the staff areas' own text (`AREA_SECTIONS`): the Vendor area's (`VENDOR_AREA_SECTIONS`), a Vendor screen's own (`VENDOR_SCREEN_SECTIONS`: CSV import) and each Admin screen's (`ADMIN_SCREEN_SECTIONS`, added by that screen's folder layout with `layout`'s `ScreenText`); and the text only some pages carry (`store` on the shop's pages, `cart` on the cart page, `account` on the account pages) |
 | `lib/messages-context.tsx` | `useMessages`: the page's text in the browser, only its language (area text only inside those areas, page-only text only on those pages) |
 | `lib/add-notice.ts` | What happened to an "Add to cart" made before login: `AddOutcome`, `AddNotice`, `keepAddNotice` (login) and `takeAddNotice` (the page returned to). Shared so `auth` and `cart` never import each other; no Zod |
 | `lib/errors.ts` | `AppError`, `toAppError`, and `messageFor`: our own message for any error |
@@ -551,7 +560,7 @@ storefront's buy box uses its call hooks; the login endpoint asks it to run the 
 | `scripts/` | `gen-types`, `gen-error-codes` (the code list and its enum), `check-messages` (also checks the enum) with `message-checks.ts`, what it checks, and copying files after a build |
 | `.prettierrc.json`, `eslint.config.mjs` | Formatting (100-character lines) and lint; the files already following Document 7, section 20 are listed in the lint settings |
 | `tests/unit/` | Fast tests of the helpers (Vitest) |
-| `tests/e2e/` | Browser tests against the real backend (Playwright), one spec per feature; `support/` holds the shared steps (`login.ts`, `flows.ts`, `products.ts`: approved products with stock for the storefront and cart specs), `staff.ts` (`staffWith`: a new person with the staff roles a test needs), `requests.ts` (`nextRequestBody`: what a click really sent) and `page-size.ts` (the first-load budget, Document 6, section 14); `fixtures/` holds the garment illustrations used as test photos |
+| `tests/e2e/` | Browser tests against the real backend (Playwright), one spec per feature; `support/` holds the shared steps (`login.ts`, `flows.ts`, `products.ts`: approved products with stock for the storefront and cart specs), `staff.ts` (`staffWith`: a new person with the staff roles a test needs), `requests.ts` (`nextRequestBody`: what a click really sent) and `page-size.ts` (the first-load budget, Document 6, section 14; `reportFirstLoad` for a staff page that is only measured); `fixtures/` holds the garment illustrations used as test photos |
 
 ## To change something, look here
 

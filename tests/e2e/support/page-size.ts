@@ -54,14 +54,23 @@ export function countFirstLoad(page: Page, lang: 'en' | 'hi'): () => Promise<Fir
   };
 }
 
-/** Checks one page against the budget, and logs its figures so a change in size is seen. */
-export function expectWithinBudget(path: string, lang: 'en' | 'hi', load: FirstLoad) {
+/**
+ * Logs one page's figures so a change in size is seen. A staff page without a limit check (staff
+ * pages may grow, Document 6, section 14, item 2) is only reported this way.
+ */
+export function reportFirstLoad(path: string, load: FirstLoad) {
   const total = load.withoutFonts + load.fonts;
   const inKb = (bytes: number) => (bytes / KB).toFixed(1);
   console.log(
     `${path} first load: ${inKb(total)} KB (without fonts ${inKb(load.withoutFonts)} KB, fonts ${inKb(load.fonts)} KB); ` +
       `Hindi font on demand: ${inKb(load.onDemandFont)} KB`,
   );
+}
+
+/** Checks one page against the budget, and logs its figures so a change in size is seen. */
+export function expectWithinBudget(path: string, lang: 'en' | 'hi', load: FirstLoad) {
+  const total = load.withoutFonts + load.fonts;
+  reportFirstLoad(path, load);
   expect(load.withoutFonts, `${path}: everything except fonts`).toBeLessThanOrEqual(
     WITHOUT_FONTS_LIMIT_KB * KB,
   );

@@ -7,6 +7,7 @@ import {
   adminUsersPath,
   adminVendorsPath,
   moderationQueuePath,
+  myImportsPath,
   myProductsPath,
   mySalesPath,
   myStockPath,
@@ -61,7 +62,12 @@ export function vendorNav(lang: Locale, messages: Messages, hasVendor: boolean):
   return [
     { href: vendorHomePath(lang), label: messages.nav.vendorHome, icon: 'home', isExact: true },
     { href: vendorProfilePath(lang), label: messages.vendor.profile.title, icon: 'profile' },
-    { href: myProductsPath(lang), label: messages.nav.products, icon: 'products' },
+    {
+      href: myProductsPath(lang),
+      label: messages.nav.products,
+      icon: 'products',
+      alsoUnder: [myImportsPath(lang)],
+    },
     { href: myStockPath(lang), label: messages.stock.title, icon: 'stock' },
     { href: mySalesPath(lang), label: messages.sales.title, icon: 'sales' },
   ];
