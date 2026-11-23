@@ -492,6 +492,28 @@ test.describe('accessibility of the five customer journeys', () => {
     await expectFocusKept(page);
   });
 
+  test('the checks find what they look for: a too-wide block, a missing label, a lost ring', async ({
+    page,
+  }) => {
+    // So a passing run means the pages are right, not that the checks cannot see.
+    await page.goto('/en');
+    await page.waitForLoadState('networkidle');
+    await page.evaluate(() => {
+      const wide = document.createElement('div');
+      wide.style.width = '900px';
+      wide.style.height = '10px';
+      const unnamed = document.createElement('input');
+      unnamed.id = 'check-unnamed';
+      document.querySelector('main')?.append(wide, unnamed);
+    });
+    const problems = await checkScreen(page, 'home, broken on purpose');
+    expect(problems.some((problem) => problem.includes('at 320 px'))).toBe(true);
+    expect(problems.some((problem) => problem.includes('axe label'))).toBe(true);
+    await page.addStyleTag({ content: '#check-unnamed:focus-visible { box-shadow: none; }' });
+    await page.locator('#check-unnamed').focus();
+    expect((await focusNow(page)).ring).toBe(false);
+  });
+
   test('under reduced motion nothing slides, fades or spins', async ({ browser }) => {
     const context = await newVisitor(browser);
     const page = await context.newPage();
