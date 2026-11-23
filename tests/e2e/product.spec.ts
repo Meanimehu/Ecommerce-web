@@ -82,6 +82,8 @@ test.describe('vendor products and moderation', () => {
       vendor.getByText('₹899', { exact: true }).filter({ visible: true }).first(),
     ).toBeVisible();
     await vendor.getByRole('button', { name: new RegExp(`^Edit\\s*: .*T${stamp}-E$`) }).click();
+    // The form opens where the button was, so focus goes to the form's heading.
+    await expect(vendor.locator('form h3')).toBeFocused();
     await vendor.getByRole('textbox', { name: 'Selling price (₹)' }).fill('799');
     const sentPrice = nextRequestBody(
       vendor,

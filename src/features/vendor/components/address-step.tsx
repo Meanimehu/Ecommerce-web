@@ -2,9 +2,10 @@
 
 import { MapPin } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { StateBlock } from '@/components/common/state-block';
 import { Button } from '@/components/ui/button';
+import { useInPlaceFormFocus } from '@/hooks/use-in-place-form-focus';
 import { type Locale } from '@/lib/i18n';
 import { useMessages } from '@/lib/messages-context';
 import { vendorApplyPath } from '@/lib/routes';
@@ -25,6 +26,8 @@ export function AddressStep({ lang, vendor }: { lang: Locale; vendor: Vendor }) 
   const [isAdding, setIsAdding] = useState(!hasAddresses);
   const [editingId, setEditingId] = useState<string | null>(null);
   const isEditingNothing = !isAdding && editingId === null;
+  const section = useRef<HTMLElement>(null);
+  useInPlaceFormFocus(isAdding ? 'new' : editingId, section);
 
   function startAdding() {
     setEditingId(null);
@@ -43,6 +46,7 @@ export function AddressStep({ lang, vendor }: { lang: Locale; vendor: Vendor }) 
 
   return (
     <section
+      ref={section}
       aria-labelledby="address-heading"
       className="grid gap-5 rounded-1 border border-line bg-surface p-5 sm:p-6"
     >

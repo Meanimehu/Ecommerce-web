@@ -6,6 +6,7 @@ import { ErrorSummary } from '@/components/form/error-summary';
 import { Form } from '@/components/form/form';
 import { TextField } from '@/components/form/text-field';
 import { Button } from '@/components/ui/button';
+import { useInPlaceFormFocus } from '@/hooks/use-in-place-form-focus';
 import { useMessages } from '@/lib/messages-context';
 import { useProfileDetailsForm } from '@/features/vendor/hooks/use-profile-details-form';
 import { useMyVendor } from '@/features/vendor/hooks/use-vendor';
@@ -62,11 +63,11 @@ function DetailsSection({ vendor, canChange }: { vendor: Vendor; canChange: bool
   const profileMessages = messages.vendor.profile;
   const fields = messages.vendor.fields;
   const [isEditing, setIsEditing] = useState(false);
-  const heading = useRef<HTMLHeadingElement>(null);
+  const section = useRef<HTMLElement>(null);
+  useInPlaceFormFocus(isEditing, section);
 
   function stopEditing() {
     setIsEditing(false);
-    heading.current?.focus();
   }
 
   const sellerType =
@@ -82,8 +83,8 @@ function DetailsSection({ vendor, canChange }: { vendor: Vendor; canChange: bool
   ];
 
   return (
-    <section aria-labelledby="profile-details-heading" className={SECTION_CLASS}>
-      <h2 id="profile-details-heading" ref={heading} tabIndex={-1} className="type-h3 text-ink">
+    <section ref={section} aria-labelledby="profile-details-heading" className={SECTION_CLASS}>
+      <h2 id="profile-details-heading" tabIndex={-1} className="type-h3 text-ink">
         {profileMessages.details}
       </h2>
       {isEditing ? (
@@ -170,17 +171,17 @@ function AddressesSection({ vendor, canChange }: { vendor: Vendor; canChange: bo
   // One address form at a time: a new one, or the one being changed.
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const heading = useRef<HTMLHeadingElement>(null);
+  const section = useRef<HTMLElement>(null);
+  useInPlaceFormFocus(isAdding ? 'new' : editingId, section);
 
   function stopEditing() {
     setIsAdding(false);
     setEditingId(null);
-    heading.current?.focus();
   }
 
   return (
-    <section aria-labelledby="profile-addresses-heading" className={SECTION_CLASS}>
-      <h2 id="profile-addresses-heading" ref={heading} tabIndex={-1} className="type-h3 text-ink">
+    <section ref={section} aria-labelledby="profile-addresses-heading" className={SECTION_CLASS}>
+      <h2 id="profile-addresses-heading" tabIndex={-1} className="type-h3 text-ink">
         {addressMessages.heading}
       </h2>
       {vendor.addresses.length === 0 ? <p className="text-ink-2">{addressMessages.none}</p> : null}

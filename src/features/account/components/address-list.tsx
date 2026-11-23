@@ -14,6 +14,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { useInPlaceFormFocus } from '@/hooks/use-in-place-form-focus';
 import { fill, messageFor } from '@/lib/errors';
 import { useMessages } from '@/lib/messages-context';
 import { formatPhone } from '@/utils/format';
@@ -29,7 +30,8 @@ const NEW_ADDRESS = 'new';
  * Saved addresses (Document 5, section 6.5; approved Stage 5 screens): default first, each with
  * its label, "Default", the name and phone and the address on one line, and "Edit", "Delete" (with
  * a confirmation) and "Make default". "Add a new address" opens the form in place, up to 10
- * addresses. When a form closes, focus goes back to the list's heading.
+ * addresses. When a form opens, focus goes to its heading; when it closes, back to the list's
+ * heading (`use-in-place-form-focus.ts`).
  */
 export function AddressList({ drawn }: { drawn: Address[] }) {
   const messages = useMessages();
@@ -37,17 +39,17 @@ export function AddressList({ drawn }: { drawn: Address[] }) {
   const addresses = useAddresses(drawn).data;
   const actions = useAddressActions();
   const [editing, setEditing] = useState<string | null>(null);
-  const heading = useRef<HTMLHeadingElement>(null);
+  const section = useRef<HTMLElement>(null);
   const isFull = addresses.length >= MAX_ADDRESSES;
+  useInPlaceFormFocus(editing, section);
 
   function closeForm() {
     setEditing(null);
-    heading.current?.focus();
   }
 
   return (
-    <section aria-labelledby="addresses-heading" className="grid gap-4">
-      <h2 id="addresses-heading" ref={heading} tabIndex={-1} className="type-h3 text-ink">
+    <section ref={section} aria-labelledby="addresses-heading" className="grid gap-4">
+      <h2 id="addresses-heading" tabIndex={-1} className="type-h3 text-ink">
         {addressMessages.heading}
       </h2>
       {actions.error ? (

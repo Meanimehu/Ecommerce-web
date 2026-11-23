@@ -96,8 +96,10 @@ test.describe('the account', () => {
     await page.setViewportSize(WIDE);
     await expect(page.getByText('No saved addresses yet')).toBeVisible();
 
-    // A pin code that is not six digits is caught before sending.
+    // A pin code that is not six digits is caught before sending. The form opens where the button
+    // was, so focus goes to its heading.
     await page.getByRole('button', { name: 'Add a new address' }).click();
+    await expect(page.getByRole('heading', { name: 'Add an address' })).toBeFocused();
     let form = await fillAddress(page, {
       label: 'Home',
       name: 'Meera Nair',
@@ -141,6 +143,7 @@ test.describe('the account', () => {
 
     // Changing the office's pin code sends only the pin code.
     await office.getByRole('button', { name: 'Edit' }).click();
+    await expect(page.getByRole('heading', { name: 'Edit address' })).toBeFocused();
     form = page.locator('form').filter({ has: page.getByLabel('Address line 1') });
     await form.getByLabel('Pin code').fill('700092');
     sent = nextRequestBody(page, 'PATCH', /^\/api\/me\/addresses\/[^/]+$/);
