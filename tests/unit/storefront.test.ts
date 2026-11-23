@@ -4,6 +4,8 @@ import type { CategoryNode } from '@/features/storefront/product-list/types';
 import {
   categoryTrail,
   chosenVariant,
+  firstColourCode,
+  isAnyInStock,
   isAvailable,
   MissingChoice,
   missingChoiceOf,
@@ -67,6 +69,22 @@ describe('choosing a variant (Document 5, section 6.2)', () => {
       MissingChoice.Colour,
     );
     expect(missingChoiceOf(variants, { sizeCode: 'S', colourCode: 'BLACK' })).toBeNull();
+  });
+
+  it('the page opens with the first colour in stock chosen, never a size (owner, 23 Nov 2026)', () => {
+    expect(firstColourCode(variants)).toBe('BLACK');
+    const blackSoldOut = [variant('s-black', 'S', 'BLACK', false), variant('s-red', 'S', 'RED')];
+    expect(firstColourCode(blackSoldOut)).toBe('RED');
+    expect(firstColourCode([variant('only', 'S', 'BLUE', false)])).toBe('BLUE');
+    expect(
+      firstColourCode([variant('a', 'S', 'BLUE', false), variant('b', 'S', 'RED', false)]),
+    ).toBeNull();
+    expect(firstColourCode([variant('no-colour', 'S', null)])).toBeNull();
+  });
+
+  it('"Add to cart" is off only when nothing is in stock', () => {
+    expect(isAnyInStock(variants)).toBe(true);
+    expect(isAnyInStock([variant('gone', 'S', 'BLACK', false)])).toBe(false);
   });
 
   it('tells in stock, low and out of stock apart', () => {

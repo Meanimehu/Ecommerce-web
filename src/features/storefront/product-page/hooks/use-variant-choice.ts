@@ -4,6 +4,7 @@ import { useState } from 'react';
 import {
   chosenVariant,
   coloursOf,
+  firstColourCode,
   isAvailable,
   missingChoiceOf,
   sizesOf,
@@ -11,8 +12,9 @@ import {
 import type { PublicVariant } from '@/features/storefront/product-page/types';
 
 /**
- * Choosing a size and a colour (Document 5, section 6.2; Document 6, 8.5). When there is only one
- * size or one colour it is chosen from the start. A size or colour with no variant in stock for the
+ * Choosing a size and a colour (Document 5, section 6.2; Document 6, 8.5). The first colour in
+ * stock is chosen from the start, and a size only when there is just one (owner, 23 Nov 2026), so
+ * nobody gets a size they did not choose. A size or colour with no variant in stock for the
  * other choice made is not available and cannot be chosen. The screens, `size-choice.tsx` and
  * `colour-choice.tsx`, only draw.
  */
@@ -22,9 +24,7 @@ export function useVariantChoice(variants: readonly PublicVariant[]) {
   const [sizeCode, setSizeCode] = useState<string | null>(
     sizes.length === 1 ? (sizes[0]?.code ?? null) : null,
   );
-  const [colourCode, setColourCode] = useState<string | null>(
-    colours.length === 1 ? (colours[0]?.code ?? null) : null,
-  );
+  const [colourCode, setColourCode] = useState<string | null>(() => firstColourCode(variants));
   const choice = { sizeCode, colourCode };
   const isSizeAvailable = (code: string) => isAvailable(variants, { sizeCode: code, colourCode });
   const isColourAvailable = (code: string) => isAvailable(variants, { sizeCode, colourCode: code });

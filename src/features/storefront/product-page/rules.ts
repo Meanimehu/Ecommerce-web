@@ -91,6 +91,24 @@ export function isAvailable(
   );
 }
 
+/** Whether any variant of the product can be bought now; if none, "Add to cart" is off. */
+export function isAnyInStock(variants: readonly PublicVariant[]) {
+  return variants.some((variant) => variant.inStock);
+}
+
+/**
+ * The colour chosen when the page opens (owner, 23 Nov 2026): the only colour, or else the first
+ * colour with a variant in stock. The size is never chosen for the person, unless there is only one.
+ */
+export function firstColourCode(variants: readonly PublicVariant[]): string | null {
+  const colours = coloursOf(variants);
+  if (colours.length === 1) return colours[0]?.code ?? null;
+  const inStock = colours.find((colour) =>
+    isAvailable(variants, { sizeCode: null, colourCode: colour.code }),
+  );
+  return inStock?.code ?? null;
+}
+
 /** What the person still has to choose before adding to the cart. */
 export enum MissingChoice {
   SizeAndColour = 'sizeAndColour',
