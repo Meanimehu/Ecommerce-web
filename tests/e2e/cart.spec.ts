@@ -145,6 +145,8 @@ test.describe('the cart', () => {
 
     // With the keyboard: the box is busy while the change is on its way, and keeps focus.
     const quantity = customer.getByLabel('Quantity');
+    // The change to 3 is done (the box is no longer busy) before the next one.
+    await expect(quantity).not.toHaveAttribute('aria-busy', 'true');
     await quantity.focus();
     await customer.keyboard.press('ArrowUp');
     await expect(customer.getByText('Items (2)')).toBeVisible();
