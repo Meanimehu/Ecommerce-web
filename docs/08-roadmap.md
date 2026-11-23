@@ -128,6 +128,7 @@ Each slice ends with something that can be tried by a person, not just a list of
 - **H7 notes (22 Nov 2026):** the menus were brought forward into H2, H3, H5 and H6, so H7 adds the vendor home's two coupon counts (coupon requests whose changes were asked for, and coupons waiting for the vendor's acceptance, each a link to its filtered list) and the error states of every held-item screen in both areas.
 - **Page weight on the way (22 Nov 2026):** two parts pushed the staff Sales page over its approved 307 KB total; the limit was kept both times. In H2 the screen-only error texts left the text every page carries, and each area's menu loads only its own icons. Before H6, its own pull request (#90) took Zod off the staff Sales page, which had loaded all of it for a few plain values: 306.9 KB down to 270.5 KB.
 - **Held items status (22 Nov 2026):** every part is built and open for review, none merged: #85 (plan), #86 (H1), #87 (H2), #88 (H3), #89 (H5), #90 (the Sales page fix), #91 (H6) and the H7 pull request. H4 needed nothing. When they are merged, Slices 4 and 5 are complete.
+- **Held items merged (22 Nov 2026, owner):** #85 to #92 are merged. Slices 4 and 5 are complete.
 
 Slices 3, 4 and 5 do not depend on each other, so they can follow in any order or be worked on at the same time. The owner chose the order: Slice 3, then Slice 4, then Slice 5 (Q8-2), then the held items, then Slice 6.
 
@@ -149,14 +150,18 @@ Slices 3, 4 and 5 do not depend on each other, so they can follow in any order o
 
 Nothing below has been done. Each is a check, not a promise.
 
-- **Figures validated** on the real backend, on the agreed budget-device and slow-connection profiles (Document 7, T7-1; Document 6 performance figures, T7-2).
-- **Accessibility:** automated checks and the manual keyboard, screen reader, contrast and focus tests for the five core customer journeys (D7-08, T7-6). Contrast of every combination on the approved screens (D6-50).
-- **Browsers:** the manual real-browser and real-device checks in D7-11 (the current Chrome, Safari, Firefox and Edge on Android, iPhone and desktop), recorded for each browser and device. The automated tests alone do not count (D7-09, D7-11).
-- **Real vendor photos** in the 4:5 complete-photo frames (D6-62, T7-7).
-- **Request ID** reaching the browser, before the "Copy" button is kept (V5-5, T7-4): confirmed in the first build on 11 Nov 2026; checked again on staging.
-- **Sitemap size and splitting** (T7-5); the **OpenAPI source** matches production (T7-3).
-- **Hindi wording** reviewed by someone who writes Hindi.
-- **Backend items B1 to B6** closed or accepted by the owner.
+**The Slice 6 plan (owner, 23 Nov 2026): local only.** For now Slice 6 is only the work done on the developer's own machine against the real local backend. Nothing about launching is planned now: no staging, no real devices, no launch checklist. The launch checks in the list below stay as they are and wait until the owner raises launching. Slice 6 adds no new customer, vendor or staff screens. No approved decision changes.
+
+- **Six parts, one pull request each, in this order.** Each is left open until the owner says "merge".
+  - **This plan.**
+  - **6a Accessibility, automated (D7-08, D6-50).** axe on every screen of the five core customer journeys in both languages, on desktop and phone; moving through each journey with the keyboard only, with focus always visible and never lost; the pages at 320 px wide and at 200% zoom with no sideways scrolling; reduced motion respected; a unit test that checks the contrast of every text and background pair in the colour tokens.
+  - **6b Speed, measured locally (T7-1, T7-2).** The figures measured in Chromium on the emulated budget phone and slow network agreed in Document 7 (Q7-7), for the home, a category, a product, search and the cart, in both languages. The page size of every indexed page, in both languages, against the page-size budget (Document 6, section 14: 265 KB without fonts, fonts at most 150 KB). A page over a limit is reported to the owner with the measurements and a proposal; no limit is changed without the owner.
+  - **6c Sitemap, robots and the API description (D7-03, T7-5, T7-3).** There is no sitemap and no robots file yet. They are built as Document 7, section 6 says: only indexed pages, in both languages, split into several files with an index file when they grow. A test checks the split with many products. The API description is checked against the local backend.
+  - **6d Error texts (Document 7, section 19; D7-15).** Every code the backend can send needs a text in both languages. 14 have none: COUPON_EXPIRED, COUPON_MIN_NOT_MET, COUPON_NOT_ACTIVE, COUPON_NOT_APPLICABLE, COUPON_NOT_STARTED, COUPON_NO_DISCOUNT, COUPON_PENDING_VENDOR, COUPON_RECLAIM_LIMIT_REACHED, COUPON_REDEMPTION_CONFLICT, COUPON_USAGE_LIMIT_REACHED, COUPON_USER_LIMIT_REACHED, RESERVATION_CONFLICT, RESERVATION_NOT_FOUND and RESERVATION_STATE_INVALID. Each gets its text where its screen needs it, and a unit test fails when a backend code has no text.
+  - **6e Backend items B1 to B6, tried locally.** Each is tried on the local backend, and what the frontend does about it is written down (for example, B1: the frontend never shows `details.constraint`). The backend itself is not changed here.
+- **Testing:** as before. Each part runs every earlier spec again on desktop and phone against the real backend, and reports page sizes, the checks run and what is still open. The page-size checks for Users, Audit log and Sales stay as they are.
+- **Bugs found on the way** are fixed in their own pull request before the next part.
+- **Status:** when these parts are merged, the local part of Slice 6 is done. Slice 6 as a whole stays open until the launch checks are done, later.
 
 ## 7. Open questions
 
@@ -205,3 +210,4 @@ Nothing below has been done. Each is a check, not a promise.
 | 17 | 21 Nov 2026 | Slice 5 status: every part built and open for review, none merged; what is built, not built and open, with the staff page limit for the owner. No approved decision changed |
 | 18 | 22 Nov 2026 | Slice 5 status: the staff page limit settled (owner): staff pages may grow; still measured and reported (Document 6, section 14, item 2) |
 | 19 | 22 Nov 2026 | The held items (owner, 22 Nov 2026): CSV import, coupons and coupon requests built before Slice 6; menus; who may do what; the cart code; CSV rules; folders; eight parts; testing. No approved decision changed |
+| 20 | 23 Nov 2026 | The held items merged; Slices 4 and 5 complete. The Slice 6 plan (owner, 23 Nov 2026): local only, nothing about launching; six parts (this plan, automated accessibility, speed measured locally, sitemap and the API description, error texts, backend items B1 to B6 tried locally); testing. No approved decision changed |
