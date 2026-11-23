@@ -11,16 +11,19 @@ const COUPON_CODE_MAX_LENGTH = 40;
 
 /**
  * The coupon field (Document 5, section 6.3): apply a code, see what the backend says about it,
- * remove it. A code that does not apply is a note, never an error. It only draws; the code is
- * kept in `use-coupon.ts`.
+ * remove it. A code that does not apply is a note, never an error. While a code is checked, the
+ * cart stays drawn and focus stays in the field. It only draws; the code is kept in `use-coupon.ts`.
  */
 export function CouponForm({
   coupon,
   cartCoupon,
+  isChecking,
   messages,
 }: {
   coupon: ReturnType<typeof useCoupon>;
   cartCoupon: CartCoupon | null;
+  /** A code is being checked: the cart shown is the one before it, and Apply is busy. */
+  isChecking: boolean;
   messages: Messages;
 }) {
   const cartMessages = messages.cart;
@@ -43,7 +46,7 @@ export function CouponForm({
           onChange={(event) => coupon.setTypedCode(event.target.value)}
           className="min-w-0 flex-1 uppercase"
         />
-        <Button type="submit" variant="secondary">
+        <Button type="submit" variant="secondary" loading={isChecking}>
           {cartMessages.apply}
         </Button>
       </div>

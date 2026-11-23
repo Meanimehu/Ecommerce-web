@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { get, patch, remove, send } from '@/lib/http';
 import type { Locale } from '@/lib/i18n';
 import { withQuery } from '@/utils/url';
@@ -30,11 +30,16 @@ export const cartKeys = {
   view: (couponCode: string) => ['cart', couponCode] as const,
 };
 
-/** The person's cart, with a coupon previewed when a code is given. Always read again when shown. */
+/**
+ * The person's cart, with a coupon previewed when a code is given. Always read again when shown.
+ * While a new code is checked the cart shown stays (`isPlaceholderData`), so the page is not
+ * redrawn from a loading state and focus stays in the coupon field.
+ */
 export const useCart = (couponCode = '', enabled = true) =>
   useQuery({
     queryKey: cartKeys.view(couponCode),
     queryFn: () => get<Cart>(withCoupon(CART_PATH, couponCode)),
+    placeholderData: keepPreviousData,
     staleTime: 0,
     enabled,
     refetchOnWindowFocus: true,

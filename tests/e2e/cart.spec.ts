@@ -191,9 +191,11 @@ test.describe('the cart', () => {
     );
     // The field shows capitals; the backend ignores case when it matches a code.
     await customer.getByLabel('Coupon code').fill('nosuchcode');
-    await customer.getByRole('button', { name: 'Apply' }).click();
+    await customer.getByLabel('Coupon code').press('Enter');
     await asked;
     await expect(customer.getByText('This coupon code does not exist.')).toBeVisible();
+    // The cart stays drawn while the code is checked, so focus stays in the field.
+    await expect(customer.getByLabel('Coupon code')).toBeFocused();
     await customer.getByRole('button', { name: 'Remove coupon' }).click();
     await expect(customer.getByText('This coupon code does not exist.')).toHaveCount(0);
     await expect(customer.getByLabel('Coupon code')).toHaveValue('');
