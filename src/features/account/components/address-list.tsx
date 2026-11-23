@@ -137,12 +137,12 @@ function AddressCard({
         <p className="text-ink-2">{oneLine}</p>
       </div>
       <div className="flex flex-wrap gap-2">
-        <Button type="button" variant="secondary" size="small" disabled={isBusy} onClick={onEdit}>
+        <Button type="button" variant="secondary" size="small" busy={isBusy} onClick={onEdit}>
           {addressMessages.edit}
         </Button>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button type="button" variant="destructive" size="small" disabled={isBusy}>
+            <Button type="button" variant="destructive" size="small" busy={isBusy}>
               {addressMessages.remove}
             </Button>
           </AlertDialogTrigger>

@@ -117,7 +117,7 @@ export function AddressForm({ address, onDone }: { address?: Address; onDone: ()
         />
       </div>
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        <Button type="button" variant="quiet" disabled={isSaving} onClick={onDone}>
+        <Button type="button" variant="quiet" busy={isSaving} onClick={onDone}>
           {messages.common.cancel}
         </Button>
         <Button type="submit" loading={isSaving}>

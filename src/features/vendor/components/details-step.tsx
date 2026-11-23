@@ -108,13 +108,7 @@ export function DetailsStep({ lang, vendor }: { lang: Locale; vendor: Vendor | n
         inputProps={{ type: 'email', autoComplete: 'email', maxLength: 254 }}
       />
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Button
-          type="submit"
-          name="after"
-          value={AfterSave.Later}
-          variant="quiet"
-          disabled={isSaving}
-        >
+        <Button type="submit" name="after" value={AfterSave.Later} variant="quiet" busy={isSaving}>
           {messages.vendor.saveLater}
         </Button>
         <Button
@@ -122,7 +116,7 @@ export function DetailsStep({ lang, vendor }: { lang: Locale; vendor: Vendor | n
           name="after"
           value={AfterSave.Continue}
           loading={isSaving && details.afterSave === AfterSave.Continue}
-          disabled={isSaving}
+          busy={isSaving}
         >
           {messages.vendor.saveContinue}
         </Button>

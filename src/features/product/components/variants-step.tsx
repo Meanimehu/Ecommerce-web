@@ -132,7 +132,7 @@ export function VariantsStep({
             type="button"
             variant="secondary"
             size="small"
-            disabled={variantActions.isSwitching}
+            busy={variantActions.isSwitching}
             onClick={() => variantActions.switchVariant(variant)}
           >
             {variant.status === VariantStatus.Active
@@ -146,7 +146,7 @@ export function VariantsStep({
                 type="button"
                 variant="destructive"
                 size="small"
-                disabled={variantActions.isRemoving}
+                busy={variantActions.isRemoving}
               >
                 {variantMessages.remove}
                 <span className="sr-only">: {variantName(variant)}</span>

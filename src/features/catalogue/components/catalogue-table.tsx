@@ -123,7 +123,7 @@ export function CatalogueTable<Item extends CatalogueItem>({
           type="button"
           variant="secondary"
           size="small"
-          disabled={changeCatalogueItem.isPending}
+          busy={changeCatalogueItem.isPending}
           onClick={() => switchItem(item)}
         >
           {item.isActive ? catalogueMessages.switchOff : catalogueMessages.switchOn}

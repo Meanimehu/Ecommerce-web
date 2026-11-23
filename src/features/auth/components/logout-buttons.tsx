@@ -45,7 +45,7 @@ export function LogoutButtons({ lang }: { lang: Locale }) {
           type="button"
           variant="secondary"
           loading={busy && logOut.variables === false}
-          disabled={busy}
+          busy={busy}
           onClick={() => logOut.mutate(false)}
         >
           {busy && logOut.variables === false
@@ -59,7 +59,7 @@ export function LogoutButtons({ lang }: { lang: Locale }) {
         <div className="pt-1">
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button type="button" variant="destructive" disabled={busy}>
+              <Button type="button" variant="destructive" busy={busy}>
                 <LogOut aria-hidden="true" />
                 {messages.account.logOutEverywhere}
               </Button>

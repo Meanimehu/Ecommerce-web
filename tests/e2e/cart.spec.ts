@@ -143,9 +143,16 @@ test.describe('the cart', () => {
     await expect(customer.getByText('Items (3)')).toBeVisible();
     await expect(customer.getByRole('link', { name: /^Cart\s*3\s*items$/ })).toBeVisible();
 
+    // With the keyboard: the box is busy while the change is on its way, and keeps focus.
+    const quantity = customer.getByLabel('Quantity');
+    await quantity.focus();
+    await customer.keyboard.press('ArrowUp');
+    await expect(customer.getByText('Items (2)')).toBeVisible();
+    await expect(quantity).toBeFocused();
+
     await customer.reload();
-    await expect(customer.getByLabel('Quantity')).toHaveValue('3');
-    await expect(customer.getByText('Items (3)')).toBeVisible();
+    await expect(customer.getByLabel('Quantity')).toHaveValue('2');
+    await expect(customer.getByText('Items (2)')).toBeVisible();
   });
 
   test('removing a line leaves the empty cart, with a way back to the shop', async ({

@@ -157,7 +157,7 @@ function DetailsForm({ vendor, onDone }: { vendor: Vendor; onDone: () => void })
         <Button type="submit" loading={isSaving}>
           {profileMessages.save}
         </Button>
-        <Button type="button" variant="quiet" disabled={isSaving} onClick={onDone}>
+        <Button type="button" variant="quiet" busy={isSaving} onClick={onDone}>
           {messages.common.cancel}
         </Button>
       </div>

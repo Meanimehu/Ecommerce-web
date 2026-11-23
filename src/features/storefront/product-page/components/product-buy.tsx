@@ -86,7 +86,8 @@ export function ProductBuy({
           type="button"
           size="large"
           className="w-full sm:w-auto sm:justify-self-start"
-          disabled={!chosen || !chosen.inStock || productAdd.isAdding}
+          disabled={!chosen || !chosen.inStock}
+          busy={productAdd.isAdding}
           loading={productAdd.isAdding}
           onClick={productAdd.addChosen}
         >

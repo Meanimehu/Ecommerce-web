@@ -87,7 +87,8 @@ export function CartLineItem({
               <Select
                 id={quantityId}
                 value={String(line.quantity)}
-                disabled={cartLine.isChanging}
+                aria-disabled={cartLine.isChanging || undefined}
+                aria-busy={cartLine.isChanging || undefined}
                 className="w-24 lg:h-10"
                 onChange={(event) => cartLine.chooseQuantity(event.target.value)}
               >
@@ -103,7 +104,7 @@ export function CartLineItem({
             type="button"
             variant="quiet"
             size="small"
-            disabled={cartLine.isRemoving}
+            busy={cartLine.isRemoving}
             onClick={cartLine.removeThisLine}
           >
             {cartMessages.remove}
