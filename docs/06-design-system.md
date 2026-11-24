@@ -468,6 +468,7 @@ This section sets how each component family looks, sizes itself and responds in 
 
 - **Size:** squares of at least 48 × 48 px with the size code in 16 / 500, `control` border; selected = `ink` fill; **unavailable** = struck through in text, dotted border, and the words "Unavailable" in the accessible name and shown on tap or hover. Never greyed out alone (Document 5, section 6.2).
 - **Colour:** 40 px round swatch inside a 48 px target, a 1 px `control` outline on every swatch so a pale colour stays visible on `surface` and `page` (4.7), a 2 px `ink` ring when selected, and the colour **name written next to the choice** ("Colour: Indigo"). An unavailable colour has a diagonal strike and the word "Unavailable".
+- **At the start (owner, 23 Nov 2026; Document 5, section 6.2):** the first colour in stock is selected; no size is, unless there is only one. "Add to cart" stays a normal Primary button while anything is in stock; with a size still to choose, the hint under it is its description, and pressing it moves focus to the first size that can be chosen.
 - The catalogue's names for sizes and colours are shown as the backend sends them (D-09).
 - A message under the pickers explains: "Unavailable sizes and colours are crossed out and cannot be picked." (sample wording).
 - **Low stock** (a warning chip with its icon and the words "Low stock") appears near the pickers when the chosen variant is low, using the backend's per-variant flag and never a count.
@@ -1019,3 +1020,4 @@ Approved decisions in Documents 1 to 5 are not changed by this document. It appl
 | 36 | Section 14, item 2 made exact (owner, 22 Nov 2026): the existing checks on Users and roles, Audit log and Sales stay and keep failing over the approved limit; no limit changes without the owner seeing the measurements and a proposal first | Owner decision, 22 Nov 2026 | Done |
 | 37 | 8.2, Loading: a busy control keeps focus (`aria-disabled`, not `disabled`); found by the Slice 6 keyboard checks | Owner decision, 23 Nov 2026 | Done |
 | 38 | 4.7: the `control` contrast figures corrected (4.12 / 3.80 / 3.47) and the sale tag figure placed; checked by a unit test from Slice 6a. No colour or rule changed | Correction, no decision | Done |
+| 39 | 8.5: what is selected at the start, and "Add to cart" always pressable while anything is in stock | Owner decision, 23 Nov 2026 | Done |

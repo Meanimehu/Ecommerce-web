@@ -378,17 +378,16 @@ test.describe('accessibility of the five customer journeys', () => {
     await expect(page.getByRole('heading', { name: product.title, level: 1 })).toBeVisible();
     await page.waitForLoadState('networkidle');
 
-    // Journey 2: a size and "Add to cart"; logged out, it goes to log in.
+    // Journey 2: the first colour is already chosen. "Add to cart" before a size adds nothing and
+    // takes focus to the sizes; Enter chooses one; then "Add to cart" (logged out) goes to log in.
+    const colour = page.getByRole('button', { name: product.colour, exact: true });
+    await expect(colour).toHaveAttribute('aria-pressed', 'true');
     const size = page.getByRole('button', { name: product.small, exact: true });
-    await tabTo(page, size);
+    await tabTo(page, page.getByRole('button', { name: words.addToCart }));
+    await page.keyboard.press('Enter');
+    await expect(size).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(size).toHaveAttribute('aria-pressed', 'true');
-    await expectFocusKept(page);
-    // S comes in two colours, so a colour is chosen too.
-    const colour = page.getByRole('button', { name: product.colour, exact: true });
-    await tabTo(page, colour);
-    await page.keyboard.press('Enter');
-    await expect(colour).toHaveAttribute('aria-pressed', 'true');
     await expectFocusKept(page);
     await tabTo(page, page.getByRole('button', { name: words.addToCart }));
     await page.keyboard.press('Enter');

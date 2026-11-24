@@ -103,11 +103,25 @@ test.describe('the storefront', () => {
     const customer = await pageAs(browser, freshPhone(), '/en/account');
     await customer.goto(`/en/product/${id}`);
     await expect(customer.getByRole('heading', { name: title, level: 1 })).toBeVisible();
+    // The first colour in stock is chosen; a size never is (owner, 23 Nov 2026).
     const addButton = customer.getByRole('button', { name: 'Add to cart' });
-    await expect(addButton).toBeDisabled();
-    await expect(
-      customer.getByText('Choose a size and a colour to add this to your cart.'),
-    ).toBeVisible();
+    await expect(customer.getByRole('button', { name: first.label, exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    await expect(customer.getByText('Choose a size to add this to your cart.')).toBeVisible();
+
+    // "Add to cart" can be pressed: with no size it adds nothing, and focus goes to the first size
+    // that can be chosen.
+    let cartAdds = 0;
+    customer.on('request', (request) => {
+      if (request.method() === 'POST' && request.url().endsWith('/api/cart/items')) cartAdds += 1;
+    });
+    await expect(addButton).toBeEnabled();
+    await expect(addButton).toHaveAccessibleDescription('Choose a size to add this to your cart.');
+    await addButton.click();
+    await expect(customer.getByRole('button', { name: small.label, exact: true })).toBeFocused();
+    expect(cartAdds).toBe(0);
 
     // A size: the colours that size has no stock in are crossed out and cannot be chosen.
     await customer.getByRole('button', { name: small.label, exact: true }).click();
@@ -118,7 +132,6 @@ test.describe('the storefront', () => {
     await expect(
       customer.getByRole('button', { name: `${second.label}, Unavailable` }),
     ).toHaveAttribute('aria-disabled', 'true');
-    await expect(customer.getByText('Choose a colour to add this to your cart.')).toBeVisible();
     await customer
       .getByRole('button', { name: `${second.label}, Unavailable` })
       .click({ force: true });
@@ -126,7 +139,7 @@ test.describe('the storefront', () => {
       customer.getByRole('button', { name: `${second.label}, Unavailable` }),
     ).toHaveAttribute('aria-pressed', 'false');
 
-    // Both chosen: the button is on, and the price is that variant's.
+    // Both chosen: the price is that variant's.
     await customer.getByRole('button', { name: first.label, exact: true }).click();
     await expect(addButton).toBeEnabled();
     await expect(customer.getByText('₹999', { exact: true })).toBeVisible();

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRef } from 'react';
 import { Banner } from '@/components/ui/banner';
 import { Button } from '@/components/ui/button';
 import { ErrorMessage } from '@/components/common/error-message';
@@ -12,7 +13,12 @@ import { formatDate } from '@/utils/format';
 import { useProductAdd } from '@/features/storefront/product-page/hooks/use-product-add';
 import { useProductNow } from '@/features/storefront/product-page/hooks/use-product-page';
 import { useVariantChoice } from '@/features/storefront/product-page/hooks/use-variant-choice';
-import { MissingChoice, StockLevel, stockLevelOf } from '@/features/storefront/product-page/rules';
+import {
+  isAnyInStock,
+  MissingChoice,
+  StockLevel,
+  stockLevelOf,
+} from '@/features/storefront/product-page/rules';
 import type { ProductDetail } from '@/features/storefront/product-page/types';
 import { ColourChoice } from './colour-choice';
 import { Price } from '@/components/common/price';
@@ -21,8 +27,10 @@ import { SizeChoice } from './size-choice';
 /**
  * Choosing a variant and adding it to the cart (Document 5, section 6.2; Document 6, 8.5). The page
  * may have been kept for a while (Document 4, section 7), so the product is read again here, and
- * that answer gives the price and stock. The button stays off until one variant is chosen, with a
- * message saying what to choose. It only draws; the choice is in `use-variant-choice.ts` and the
+ * that answer gives the price and stock. "Add to cart" can always be pressed while anything is in
+ * stock (owner, 23 Nov 2026): with a choice still to make it adds nothing, says what to choose and
+ * moves focus to that choice. It is off only when nothing, or the chosen variant, is in stock. It
+ * only draws; the choice is in `use-variant-choice.ts` and the
  * add in `use-product-add.ts`.
  */
 export function ProductBuy({
@@ -40,6 +48,21 @@ export function ProductBuy({
   const productAdd = useProductAdd({ lang, chosen });
   const shown = chosen ?? product;
   const hasChoices = variantChoice.sizes.length > 0 || variantChoice.colours.length > 0;
+  const canAdd = isAnyInStock(product.variants) && (!chosen || chosen.inStock);
+  const sizeArea = useRef<HTMLDivElement>(null);
+  const colourArea = useRef<HTMLDivElement>(null);
+  const hintId = 'add-to-cart-hint';
+
+  // With a choice still to make, the press goes to that choice instead of the cart.
+  function pressAdd() {
+    if (chosen) {
+      productAdd.addChosen();
+      return;
+    }
+    const needsSize = variantChoice.missingChoice !== MissingChoice.Colour;
+    const area = needsSize ? sizeArea.current : colourArea.current;
+    area?.querySelector<HTMLButtonElement>('button:not([aria-disabled])')?.focus();
+  }
 
   return (
     <div className="grid content-start gap-5">
@@ -58,22 +81,26 @@ export function ProductBuy({
       ) : null}
 
       {variantChoice.sizes.length ? (
-        <SizeChoice
-          sizes={variantChoice.sizes}
-          sizeCode={variantChoice.sizeCode}
-          isAvailable={variantChoice.isSizeAvailable}
-          onChoose={variantChoice.chooseSize}
-          messages={messages}
-        />
+        <div ref={sizeArea}>
+          <SizeChoice
+            sizes={variantChoice.sizes}
+            sizeCode={variantChoice.sizeCode}
+            isAvailable={variantChoice.isSizeAvailable}
+            onChoose={variantChoice.chooseSize}
+            messages={messages}
+          />
+        </div>
       ) : null}
       {variantChoice.colours.length ? (
-        <ColourChoice
-          colours={variantChoice.colours}
-          colourCode={variantChoice.colourCode}
-          isAvailable={variantChoice.isColourAvailable}
-          onChoose={variantChoice.chooseColour}
-          messages={messages}
-        />
+        <div ref={colourArea}>
+          <ColourChoice
+            colours={variantChoice.colours}
+            colourCode={variantChoice.colourCode}
+            isAvailable={variantChoice.isColourAvailable}
+            onChoose={variantChoice.chooseColour}
+            messages={messages}
+          />
+        </div>
       ) : null}
       {hasChoices ? (
         <p className="type-small text-muted-foreground">{storeMessages.unavailableHelp}</p>
@@ -86,15 +113,15 @@ export function ProductBuy({
           type="button"
           size="large"
           className="w-full sm:w-auto sm:justify-self-start"
-          disabled={!chosen || !chosen.inStock}
-          busy={productAdd.isAdding}
+          disabled={!canAdd}
           loading={productAdd.isAdding}
-          onClick={productAdd.addChosen}
+          aria-describedby={variantChoice.missingChoice && canAdd ? hintId : undefined}
+          onClick={pressAdd}
         >
           {storeMessages.addToCart}
         </Button>
-        {variantChoice.missingChoice ? (
-          <p className="type-small text-ink-2">
+        {variantChoice.missingChoice && canAdd ? (
+          <p id={hintId} className="type-small text-ink-2">
             {missingChoiceText(variantChoice.missingChoice, messages)}
           </p>
         ) : null}
