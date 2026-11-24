@@ -228,7 +228,8 @@ function Review({ lang, view }: { lang: Locale; view: ModerationView }) {
               <Button
                 type="button"
                 loading={productDecision.isApproving}
-                disabled={productDecision.isDeciding || !productDecision.canApprove}
+                disabled={!productDecision.canApprove}
+                busy={productDecision.isDeciding}
                 onClick={productDecision.approveProduct}
               >
                 <Check aria-hidden="true" />
@@ -237,7 +238,7 @@ function Review({ lang, view }: { lang: Locale; view: ModerationView }) {
               <ReasonDialog
                 messages={messages}
                 trigger={
-                  <Button type="button" variant="destructive" disabled={productDecision.isDeciding}>
+                  <Button type="button" variant="destructive" busy={productDecision.isDeciding}>
                     {moderationMessages.reject}
                   </Button>
                 }

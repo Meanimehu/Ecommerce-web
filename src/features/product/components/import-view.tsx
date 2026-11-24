@@ -117,11 +117,7 @@ export function ImportView({ lang, id }: { lang: Locale; id: string }) {
       </div>
       <div className="flex flex-wrap gap-3">
         {showsConfirm ? (
-          <Button
-            type="button"
-            disabled={importConfirm.isConfirming}
-            onClick={importConfirm.confirm}
-          >
+          <Button type="button" busy={importConfirm.isConfirming} onClick={importConfirm.confirm}>
             {isSingular(validProducts)
               ? importMessages.view.confirmOne
               : fill(importMessages.view.confirmMany, { count: validProducts })}

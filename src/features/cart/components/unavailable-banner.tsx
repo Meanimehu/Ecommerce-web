@@ -41,7 +41,7 @@ export function UnavailableBanner({
                 type="button"
                 variant="secondary"
                 size="small"
-                disabled={unavailableLines.isRemoving}
+                busy={unavailableLines.isRemoving}
               >
                 {cartMessages.removeUnavailable}
               </Button>

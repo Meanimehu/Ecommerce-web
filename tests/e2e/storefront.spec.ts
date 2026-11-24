@@ -136,10 +136,12 @@ test.describe('the storefront', () => {
     ).toHaveAttribute('aria-disabled', 'true');
     await noAxeViolations(customer);
 
-    // Logged in: the add happens here, with a link to the cart.
-    await addButton.click();
+    // Logged in: the add happens here, with a link to the cart; the button keeps focus meanwhile.
+    await addButton.focus();
+    await customer.keyboard.press('Enter');
     const added = customer.getByRole('status').filter({ hasText: 'Added to cart' });
     await expect(added).toBeVisible();
+    await expect(addButton).toBeFocused();
     await expect(added.getByRole('link', { name: 'View cart' })).toHaveAttribute(
       'href',
       '/en/cart',

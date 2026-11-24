@@ -93,7 +93,7 @@ function PhoneStep({ phoneStep }: { phoneStep: PhoneStepState }) {
         messages={messages}
         inputProps={{ type: 'tel', inputMode: 'numeric', autoComplete: 'tel-national' }}
       />
-      <Button type="submit" className="w-full" loading={isSending} disabled={isSending}>
+      <Button type="submit" className="w-full" loading={isSending}>
         {isSending ? messages.login.sending : messages.login.sendCode}
       </Button>
     </Form>
@@ -175,14 +175,15 @@ function CodeStep({
       <div role="status">{notice ? <Banner tone="info">{notice}</Banner> : null}</div>
 
       <div className="grid gap-3">
-        <Button type="submit" className="w-full" loading={isVerifying} disabled={isBusy}>
+        <Button type="submit" className="w-full" loading={isVerifying} busy={isBusy}>
           {isVerifying ? messages.login.verifying : messages.login.verify}
         </Button>
         <Button
           type="button"
           variant="secondary"
           className="w-full"
-          disabled={isBusy || mustWaitToResend}
+          disabled={mustWaitToResend}
+          busy={isBusy}
           onClick={resendCode}
         >
           {messages.login.resend}

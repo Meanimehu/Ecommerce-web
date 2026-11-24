@@ -22,7 +22,9 @@ export function useCartLine({ line, couponCode }: { line: CartLine; couponCode: 
   const error = changeQuantity.error ?? removeLine.error;
   const hasLineProblem = hasProblem(line);
 
+  // While a change is on its way the box is busy (it keeps focus), so another choice is ignored.
   function chooseQuantity(quantity: string) {
+    if (changeQuantity.isPending) return;
     changeQuantity.mutate({ variantId: line.variantId, quantity: Number(quantity) });
   }
 

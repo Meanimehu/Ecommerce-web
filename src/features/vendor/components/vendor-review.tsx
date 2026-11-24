@@ -252,7 +252,7 @@ function DocumentReviewRow({
               type="button"
               variant="secondary"
               size="small"
-              disabled={decisions.isDeciding}
+              busy={decisions.isDeciding}
               onClick={() => decisions.approveDocument(vendorDocument.id)}
             >
               {reviewMessages.approveDoc}
@@ -265,7 +265,7 @@ function DocumentReviewRow({
                   type="button"
                   variant="destructive"
                   size="small"
-                  disabled={decisions.isDeciding}
+                  busy={decisions.isDeciding}
                 >
                   {reviewMessages.rejectDoc}
                   <span className="sr-only">: {label}</span>
@@ -327,7 +327,7 @@ function VendorDecisionButtons({
           <Button
             type="button"
             loading={decisions.isApprovingVendor}
-            disabled={decisions.isDeciding}
+            busy={decisions.isDeciding}
             onClick={decisions.approveVendor}
           >
             <Check aria-hidden="true" />
@@ -336,7 +336,7 @@ function VendorDecisionButtons({
           <ReasonDialog
             messages={messages}
             trigger={
-              <Button type="button" variant="destructive" disabled={decisions.isDeciding}>
+              <Button type="button" variant="destructive" busy={decisions.isDeciding}>
                 {reviewMessages.reject}
               </Button>
             }
@@ -354,7 +354,7 @@ function VendorDecisionButtons({
         <ReasonDialog
           messages={messages}
           trigger={
-            <Button type="button" variant="destructive" disabled={decisions.isDeciding}>
+            <Button type="button" variant="destructive" busy={decisions.isDeciding}>
               {reviewMessages.suspend}
             </Button>
           }

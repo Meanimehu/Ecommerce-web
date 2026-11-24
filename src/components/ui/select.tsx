@@ -15,6 +15,8 @@ function Select({ className, children, ...props }: React.ComponentProps<'select'
           'h-12 w-full min-w-0 appearance-none rounded-2 border border-control bg-surface ps-3.5 pe-10 text-base text-ink outline-none lg:h-11',
           'transition-colors duration-100 hover:border-ink aria-invalid:border-2 aria-invalid:border-error aria-invalid:ps-[13px] aria-invalid:hover:border-error',
           'disabled:cursor-not-allowed disabled:border-transparent disabled:bg-sunken disabled:text-muted-foreground',
+          // Busy (a change is on its way): looks disabled but keeps focus (see `button.tsx`).
+          'aria-disabled:cursor-not-allowed aria-disabled:border-transparent aria-disabled:bg-sunken aria-disabled:text-muted-foreground',
           className,
         )}
         {...props}

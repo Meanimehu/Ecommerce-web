@@ -244,7 +244,7 @@ function UploadPart({ lang }: { lang: Locale }) {
         />
         <Button
           type="button"
-          disabled={importUpload.isUploading}
+          busy={importUpload.isUploading}
           aria-describedby="import-upload-help"
           onClick={() => fileInput.current?.click()}
         >

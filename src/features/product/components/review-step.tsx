@@ -123,7 +123,7 @@ export function ReviewStep({ lang, product }: { lang: Locale; product: ProductVi
         {canDelete ? (
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button type="button" variant="destructive" disabled={productSubmit.isDeleting}>
+              <Button type="button" variant="destructive" busy={productSubmit.isDeleting}>
                 {reviewMessages.delete}
               </Button>
             </AlertDialogTrigger>
@@ -148,7 +148,8 @@ export function ReviewStep({ lang, product }: { lang: Locale; product: ProductVi
         <Button
           type="button"
           loading={productSubmit.isSubmitting}
-          disabled={missing.length > 0 || productSubmit.isSubmitting}
+          disabled={missing.length > 0}
+          busy={productSubmit.isSubmitting}
           onClick={productSubmit.sendForReview}
         >
           {reviewMessages.submit}

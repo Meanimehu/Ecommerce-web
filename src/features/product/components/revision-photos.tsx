@@ -90,7 +90,8 @@ export function RevisionPhotos({
                   type="button"
                   variant="secondary"
                   size="small"
-                  disabled={photos.isBusy || isFull}
+                  disabled={isFull}
+                  busy={photos.isBusy}
                   onClick={() => photos.restorePhoto(photo.id)}
                 >
                   {revisionMessages.restore}
@@ -122,7 +123,7 @@ export function RevisionPhotos({
               type="button"
               variant="secondary"
               loading={photos.progress !== null}
-              disabled={photos.isBusy}
+              busy={photos.isBusy}
               onClick={() => fileInput.current?.click()}
             >
               <Upload aria-hidden="true" />
@@ -210,7 +211,8 @@ function RevisionPhotoRow({
               type="submit"
               variant="secondary"
               size="small"
-              disabled={photos.isBusy || altText === savedAltText}
+              disabled={altText === savedAltText}
+              busy={photos.isBusy}
             >
               {photoMessages.saveAlt}
               <span className="sr-only">: {label}</span>
@@ -223,7 +225,8 @@ function RevisionPhotoRow({
           type="button"
           variant="secondary"
           size="small"
-          disabled={photos.isBusy || index === 0}
+          disabled={index === 0}
+          busy={photos.isBusy}
           onClick={() => photos.movePhoto(index, index - 1)}
         >
           <ArrowUp aria-hidden="true" />
@@ -235,7 +238,8 @@ function RevisionPhotoRow({
           type="button"
           variant="secondary"
           size="small"
-          disabled={photos.isBusy || index === count - 1}
+          disabled={index === count - 1}
+          busy={photos.isBusy}
           onClick={() => photos.movePhoto(index, index + 1)}
         >
           <ArrowDown aria-hidden="true" />
@@ -247,7 +251,7 @@ function RevisionPhotoRow({
           type="button"
           variant="destructive"
           size="small"
-          disabled={photos.isBusy}
+          busy={photos.isBusy}
           onClick={() => photos.removePhoto(photo.id)}
         >
           {photoMessages.remove}

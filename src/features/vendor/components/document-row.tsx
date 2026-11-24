@@ -148,7 +148,7 @@ export function DocumentRow({
                 type="button"
                 variant="secondary"
                 size="small"
-                disabled={documentUpload.isUploading}
+                busy={documentUpload.isUploading}
                 onClick={() => fileInput.current?.click()}
               >
                 <Upload aria-hidden="true" />
@@ -243,7 +243,7 @@ function RemoveDocument({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button type="button" variant="destructive" size="small" disabled={isRemoving}>
+        <Button type="button" variant="destructive" size="small" busy={isRemoving}>
           {documentMessages.remove}
           <span className="sr-only">: {label}</span>
         </Button>

@@ -50,7 +50,7 @@ export function CatalogueFormFrame<TValues extends FieldValues>({
       />
       {children}
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        <Button type="button" variant="quiet" disabled={isSaving} onClick={onCancel}>
+        <Button type="button" variant="quiet" busy={isSaving} onClick={onCancel}>
           {messages.common.cancel}
         </Button>
         <Button type="submit" loading={isSaving}>

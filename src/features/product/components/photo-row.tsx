@@ -124,7 +124,8 @@ export function PhotoRow({
           type="button"
           variant="secondary"
           size="small"
-          disabled={isMoving || index === 0}
+          disabled={index === 0}
+          busy={isMoving}
           onClick={() => onMove(index, index - 1)}
         >
           <ArrowUp aria-hidden="true" />
@@ -136,7 +137,8 @@ export function PhotoRow({
           type="button"
           variant="secondary"
           size="small"
-          disabled={isMoving || index === count - 1}
+          disabled={index === count - 1}
+          busy={isMoving}
           onClick={() => onMove(index, index + 1)}
         >
           <ArrowDown aria-hidden="true" />
@@ -146,12 +148,7 @@ export function PhotoRow({
         </Button>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button
-              type="button"
-              variant="destructive"
-              size="small"
-              disabled={photoActions.isRemoving}
-            >
+            <Button type="button" variant="destructive" size="small" busy={photoActions.isRemoving}>
               {photoMessages.remove}
               <span className="sr-only">: {label}</span>
             </Button>

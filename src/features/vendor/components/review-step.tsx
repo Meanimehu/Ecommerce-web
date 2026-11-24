@@ -111,7 +111,8 @@ export function ReviewStep({ lang, vendor }: { lang: Locale; vendor: Vendor }) {
         <Button
           type="button"
           loading={isSubmitting}
-          disabled={!isReady || !vendorSubmit.termsAccepted || isSubmitting}
+          disabled={!isReady || !vendorSubmit.termsAccepted}
+          busy={isSubmitting}
           onClick={vendorSubmit.submitApplication}
         >
           {isSubmitting ? reviewMessages.submitting : reviewMessages.submit}

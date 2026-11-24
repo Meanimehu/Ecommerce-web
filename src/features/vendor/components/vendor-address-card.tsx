@@ -71,7 +71,7 @@ export function VendorAddressCard({
                 type="button"
                 variant="destructive"
                 size="small"
-                disabled={removeVendorAddress.isPending}
+                busy={removeVendorAddress.isPending}
               >
                 {messages.vendor.address.remove}
               </Button>

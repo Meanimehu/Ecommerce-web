@@ -210,7 +210,7 @@ function RevisionActions({
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button type="button" variant="destructive" disabled={actions.isBusy}>
+              <Button type="button" variant="destructive" busy={actions.isBusy}>
                 {revisionMessages.discard}
               </Button>
             </AlertDialogTrigger>
