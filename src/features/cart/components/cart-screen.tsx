@@ -40,7 +40,15 @@ export function CartScreen({ lang }: { lang: Locale }) {
       );
     }
     if (cart.data.sellers.length === 0) return <EmptyCart lang={lang} messages={messages} />;
-    return <CartContents lang={lang} cart={cart.data} coupon={coupon} messages={messages} />;
+    return (
+      <CartContents
+        lang={lang}
+        cart={cart.data}
+        coupon={coupon}
+        isCheckingCoupon={cart.isPlaceholderData}
+        messages={messages}
+      />
+    );
   }
 
   return (
@@ -68,11 +76,13 @@ function CartContents({
   lang,
   cart,
   coupon,
+  isCheckingCoupon,
   messages,
 }: {
   lang: Locale;
   cart: Cart;
   coupon: ReturnType<typeof useCoupon>;
+  isCheckingCoupon: boolean;
   messages: Messages;
 }) {
   const hasUnbuyableLines = cart.sellers.some((seller) => seller.lines.some(isUnbuyable));
@@ -94,7 +104,12 @@ function CartContents({
       </div>
       <aside className="grid gap-4">
         <CartTotals cart={cart} messages={messages} />
-        <CouponForm coupon={coupon} cartCoupon={cart.coupon} messages={messages} />
+        <CouponForm
+          coupon={coupon}
+          cartCoupon={isCheckingCoupon ? null : cart.coupon}
+          isChecking={isCheckingCoupon}
+          messages={messages}
+        />
         <Banner tone="info">{messages.cart.checkoutSoon}</Banner>
       </aside>
     </div>
