@@ -68,6 +68,8 @@ test.describe('the business profile and the read-only banner', () => {
     // Addresses: add a return address, then remove it; the only pickup address must stay.
     const addresses = page.getByRole('region', { name: 'Pickup and return addresses' });
     await addresses.getByRole('button', { name: 'Add an address' }).click();
+    // The form takes the button's place, so focus goes to the form's heading, and back after.
+    await expect(addresses.locator('form h3')).toBeFocused();
     await addresses.getByLabel('Address type').selectOption('return');
     await addresses.getByLabel('Address line 1').fill('7 Station Road');
     await addresses.getByLabel('City').fill('Jaipur');
@@ -76,6 +78,9 @@ test.describe('the business profile and the read-only banner', () => {
     await addresses.getByLabel('Contact phone').fill('9876543210');
     await addresses.getByRole('button', { name: 'Save address' }).click();
     await expect(addresses.getByText('7 Station Road, Jaipur, Rajasthan, 302006')).toBeVisible();
+    await expect(
+      addresses.getByRole('heading', { name: 'Pickup and return addresses' }),
+    ).toBeFocused();
     const returnCard = addresses.getByRole('listitem').filter({ hasText: '7 Station Road' });
     await returnCard.getByRole('button', { name: 'Remove' }).click();
     await page

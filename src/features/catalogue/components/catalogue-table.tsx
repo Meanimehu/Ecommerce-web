@@ -2,7 +2,7 @@
 
 import { Tags } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { DataTable, type Column } from '@/components/common/data-table';
 import { ErrorMessage } from '@/components/common/error-message';
 import { LoadingBlock, PartError } from '@/components/common/load-states';
@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { fill, messageFor } from '@/lib/errors';
 import { type Locale, type Messages } from '@/lib/i18n';
+import { useInPlaceFormFocus } from '@/hooks/use-in-place-form-focus';
 import { useMessages } from '@/lib/messages-context';
 import { adminCataloguePath } from '@/lib/routes';
 import { pageNumber, withQuery } from '@/utils/url';
@@ -25,7 +26,8 @@ import type { EditableList } from '@/features/catalogue/types';
 /**
  * One catalogue list (Document 5, section 8.3): a table with each entry's status, Edit, and Switch
  * off or on (nothing is ever deleted, and codes never change: area-3a-catalogue.md, "Rules for the
- * admin lists"); "Add" opens the form above the table, and its heading takes focus.
+ * admin lists"); "Add" opens the form above the table, and its heading takes focus; when it
+ * closes, focus goes to the page's heading (`use-in-place-form-focus.ts`).
  */
 const PAGE_SIZE = 20;
 
@@ -82,13 +84,11 @@ export function CatalogueTable<Item extends CatalogueItem>({
   const [isAdding, setIsAdding] = useState(false);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   const isFormOpen = isAdding || editingItem !== null;
-  const formPanel = useRef<HTMLDivElement>(null);
+  const area = useRef<HTMLDivElement>(null);
   const listPage = adminCataloguePath(lang, list);
   const switchError = changeCatalogueItem.error;
 
-  useEffect(() => {
-    if (isFormOpen) formPanel.current?.querySelector<HTMLElement>('h2')?.focus();
-  }, [isFormOpen, editingItem]);
+  useInPlaceFormFocus(isAdding ? 'new' : (editingItem?.id ?? null), area);
 
   function startEditing(item: Item) {
     setIsAdding(false);
@@ -145,7 +145,7 @@ export function CatalogueTable<Item extends CatalogueItem>({
     });
 
   return (
-    <div className="grid gap-4">
+    <div ref={area} className="grid gap-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         {paged ? (
           <form method="get" action={listPage} className="flex flex-wrap items-end gap-3">
@@ -181,7 +181,7 @@ export function CatalogueTable<Item extends CatalogueItem>({
         )}
       </div>
 
-      {isFormOpen ? <div ref={formPanel}>{form(editingItem ?? undefined, closeForm)}</div> : null}
+      {isFormOpen ? <div>{form(editingItem ?? undefined, closeForm)}</div> : null}
 
       {switchError ? (
         <ErrorMessage

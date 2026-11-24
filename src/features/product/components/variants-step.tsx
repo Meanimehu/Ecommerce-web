@@ -2,7 +2,7 @@
 
 import { Layers, Plus } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,6 +21,7 @@ import { StateBlock } from '@/components/common/state-block';
 import { StatusChip } from '@/components/common/status-chip';
 import { fill, messageFor } from '@/lib/errors';
 import type { Locale } from '@/lib/i18n';
+import { useInPlaceFormFocus } from '@/hooks/use-in-place-form-focus';
 import { useMessages } from '@/lib/messages-context';
 import { myProductPath } from '@/lib/routes';
 import { useVariantActions } from '@/features/product/hooks/use-variant-actions';
@@ -66,6 +67,11 @@ export function VariantsStep({
     isFormOpen: openForm !== null,
   });
   const { actionError } = variantActions;
+  const section = useRef<HTMLElement>(null);
+  useInPlaceFormFocus(
+    openForm === null || openForm === NEW_VARIANT ? openForm : openForm.id,
+    section,
+  );
   const variantName = (variant: Variant) =>
     [
       dictionaryLabel(dictionaries.sizes, variant.sizeCode),
@@ -171,6 +177,7 @@ export function VariantsStep({
 
   return (
     <section
+      ref={section}
       aria-labelledby="variants-heading"
       className="grid gap-4 rounded-1 border border-line bg-surface p-5 sm:p-6"
     >
