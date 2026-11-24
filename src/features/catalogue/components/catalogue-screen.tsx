@@ -112,6 +112,7 @@ function GstRates({ lang }: { lang: Locale }) {
     <CatalogueTable<GstRate>
       lang={lang}
       list={CatalogueList.GstRates}
+      searchable={false}
       nameOf={(item) => item.label}
       columns={[
         {

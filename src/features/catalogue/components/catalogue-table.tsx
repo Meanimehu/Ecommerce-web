@@ -58,6 +58,7 @@ export function CatalogueTable<Item extends CatalogueItem>({
   form,
   note,
   paged = true,
+  searchable = true,
   order,
 }: {
   lang: Locale;
@@ -67,6 +68,8 @@ export function CatalogueTable<Item extends CatalogueItem>({
   form: (item: Item | undefined, onDone: () => void) => ReactNode;
   note?: string;
   paged?: boolean;
+  /** Whether the backend searches this list by text; it does not for GST rates (`q` has no effect). */
+  searchable?: boolean;
   /** The order to show rows in, when it is not the backend's. */
   order?: (items: Item[]) => Item[];
 }) {
@@ -74,7 +77,7 @@ export function CatalogueTable<Item extends CatalogueItem>({
   const catalogueMessages = messages.catalogue;
   const toast = useToast();
   const searchParams = useSearchParams();
-  const searchText = searchParams.get('q') ?? '';
+  const searchText = searchable ? (searchParams.get('q') ?? '') : '';
   const isActive = searchParams.get('isActive') ?? '';
   const page = pageNumber(searchParams.get('page'));
   const query = paged ? { q: searchText, isActive, page, limit: PAGE_SIZE } : {};
@@ -157,16 +160,18 @@ export function CatalogueTable<Item extends CatalogueItem>({
                 <option value="false">{catalogueMessages.switchedOff}</option>
               </Select>
             </label>
-            <label className="grid gap-1.5">
-              <span className="type-label text-ink">{catalogueMessages.filters.search}</span>
-              <Input
-                type="search"
-                name="q"
-                defaultValue={searchText}
-                maxLength={100}
-                className="lg:h-10"
-              />
-            </label>
+            {searchable ? (
+              <label className="grid gap-1.5">
+                <span className="type-label text-ink">{catalogueMessages.filters.search}</span>
+                <Input
+                  type="search"
+                  name="q"
+                  defaultValue={searchText}
+                  maxLength={100}
+                  className="lg:h-10"
+                />
+              </label>
+            ) : null}
             <Button type="submit" variant="secondary">
               {catalogueMessages.filters.show}
             </Button>

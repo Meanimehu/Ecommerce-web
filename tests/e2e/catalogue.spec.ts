@@ -27,6 +27,27 @@ async function addEntry(admin: Page, list: string, addLabel: string, fields: [st
 }
 
 /**
+ * Opens the page of a list that shows this entry. Lists are searched by text, so the entry is on
+ * the first page of a long list (the category list has no pages); GST rates cannot be searched (the
+ * backend ignores the text), so their pages are gone through in order. Test data piles up, so the
+ * entry may be on any page.
+ */
+async function openPageWith(admin: Page, list: string, entry: string) {
+  const editButton = admin.getByRole('button', { name: new RegExp(`^Edit\\s*: ${entry}$`) });
+  if (list !== 'gst-rates') {
+    await admin.goto(`/en/admin/catalogue/${list}?q=${encodeURIComponent(entry)}`);
+    return;
+  }
+  for (let page = 1; page <= 20; page += 1) {
+    await admin.goto(`/en/admin/catalogue/${list}?page=${page}`);
+    // The list has loaded (a phone shows its rows as cards, not a table).
+    await expect(admin.getByRole('button', { name: /^Switch (on|off)/ }).first()).toBeVisible();
+    if ((await editButton.count()) > 0) return;
+  }
+  throw new Error(`${entry} is on none of the first 20 pages of ${list}`);
+}
+
+/**
  * Edits one field of an entry and checks that exactly that field is sent, and that the list shows the new value after
  * a reload (Document 7, 20.12, item 8).
  */
@@ -38,8 +59,7 @@ async function editOneField(
   value: string,
   field: string,
 ) {
-  // Searched for, so the entry is on the first page of a long list (the category list has no pages).
-  await admin.goto(`/en/admin/catalogue/${list}?q=${encodeURIComponent(entry)}`);
+  await openPageWith(admin, list, entry);
   await admin.getByRole('button', { name: new RegExp(`^Edit\\s*: ${entry}$`) }).click();
   await admin.getByRole('textbox', { name: label, exact: true }).fill(value);
   const sent = nextRequestBody(admin, 'PATCH', new RegExp(`^/api/admin/catalogue/${list}/[^/]+$`));
@@ -233,6 +253,8 @@ test.describe('catalogue lists', () => {
       'page',
     );
     await expect(admin.getByText('Rates never change.', { exact: false })).toBeVisible();
+    // The backend does not search GST rates by text, so no search box is offered.
+    await expect(admin.getByRole('searchbox')).toHaveCount(0);
     await noAxeViolations(admin);
 
     // Only a percentage is accepted, and a rate that exists is refused under the rate.
@@ -260,9 +282,7 @@ test.describe('catalogue lists', () => {
 
     // Its label changes; the rate itself is shown, not offered for change.
     await editOneField(admin, 'gst-rates', `${percent}%`, 'Label', `Test rate ${rateBps}`, 'label');
-    await admin.goto(
-      `/en/admin/catalogue/gst-rates?q=${encodeURIComponent(`Test rate ${rateBps}`)}`,
-    );
+    await openPageWith(admin, 'gst-rates', `Test rate ${rateBps}`);
     await admin
       .getByRole('button', { name: new RegExp(`^Edit\\s*: Test rate ${rateBps}$`) })
       .click();
