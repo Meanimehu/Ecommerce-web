@@ -98,6 +98,7 @@ A cookie that outlives its backend token is harmless, because the backend reject
 - **Automated:** an accessibility checker runs in the end-to-end tests on every screen of those journeys, and a lint rule runs on the code.
 - **Manual, before release of those journeys:** keyboard-only use of every journey; screen reader use of every journey (at least one on Android and one on iPhone, and one on desktop); contrast checked on real combinations (D6-50); focus order and visible focus; zoom to 200 % and text spacing changes; reduced motion.
 - A failure found in testing is recorded and fixed or accepted by the owner. No result is claimed before testing is done.
+- **What is automated (Slice 6a, 23 Nov 2026), in `tests/e2e/accessibility.spec.ts`, on Chromium desktop and phone against the real backend:** axe (WCAG 2.2 AA tags) on every screen of journeys 1 to 5 in English and Hindi, with the states met on the way (search suggestions, the filter sheet, a size chosen, a login error summary, the code step, a wrong code, the empty cart, a refused coupon, a line out of stock, the address form and its errors); no sideways scrolling at 320 px wide (WCAG 1.4.10) or at 640 px (a 1280 px window at 200 % zoom), and none with the WCAG 1.4.12 text spacing; journeys 1 to 5 with the keyboard only, where every stop shows the focus ring, focus never falls to the page after an action on it, and the phone filter sheet keeps focus inside until Escape returns it; under reduced motion nothing animates or transitions. `tests/unit/contrast.test.ts` checks every token pair in Document 6, 4.7. **Still manual** (not planned now, owner, 23 Nov 2026): screen readers, real devices, and a person's review of focus order.
 
 ## 11. Browser support (D7-09)
 
@@ -590,3 +591,4 @@ The steps:
     Then Slice 3 starts. The tests that need the backend in CI (section 11) are postponed until the whole application is built (owner, 15 Nov 2026).
 
 Steps 3 to 6 and 8 to 10 each start with a move-only commit, and each one also splits or renames the slice-based specs for its feature (20.12, item 8).
+| 48 | 23 Nov 2026 | Section 10: what Slice 6a automates, and what stays manual |

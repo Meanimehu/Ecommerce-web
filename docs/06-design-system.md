@@ -183,8 +183,8 @@ Ratios are WCAG 2.x relative-luminance contrast, calculated for these exact valu
 | `ink` on `surface` / `page` / `sunken` | 13.36 / 12.33 / 11.26 | 4.5 | Pass |
 | `ink-2` on `surface` / `page` / `sunken` | 8.76 / 8.08 / 7.38 | 4.5 | Pass |
 | `muted` on `surface` / `page` / `sunken` | 6.02 / 5.56 / 5.08 | 4.5 | Pass |
-| `control` border on `surface` / `page` | 3.49 / 3.22 | 3 | Pass |
-| `control` border on `sunken` | 2.94 | 3 | Not used there (rule 6) |
+| `control` border on `surface` / `page` | 4.12 / 3.80 | 3 | Pass |
+| `control` border on `sunken` | 3.47 | 3 | Not used there (rule 6) |
 | White on `madder` / `madder-hover` / `madder-press` | 7.47 / 9.29 / 11.23 | 4.5 | Pass |
 | `madder` text on `surface` / `page` / `sunken` | 7.16 / 6.60 / 6.03 | 4.5 | Pass |
 | Success text on its fill / on `surface` | 5.60 / 6.44 | 4.5 | Pass |
@@ -197,15 +197,17 @@ Ratios are WCAG 2.x relative-luminance contrast, calculated for these exact valu
 | White on `ink` (selected fill) | 13.95 | 4.5 | Pass |
 | `ink` focus ring on `surface` / `page` | 13.36 / 12.33 | 3 | Pass |
 
-**Semantic edges** (success 2.05, warning 2.23, error 2.50, information 2.17 on `surface`) and the **sale tag against the page** (2.13) are below 3 to 1. The semantic edges are decorative outlines: the meaning of a banner or chip is carried by its icon and its words, which pass. **The sale tag has no icon.** Its meaning is carried by the readable word "Sale" (`ink` on `sale`, 6.28, which passes); the ochre shape is decoration and is not needed to understand it. No control's boundary uses these edges. **A field in error uses the error text colour (5.46) as its border.**
+**Semantic edges** (success 2.05, warning 2.23, error 2.50, information 2.17 on `surface`) and the **sale tag** (2.13 on `surface`, 1.97 on `page`) are below 3 to 1. The semantic edges are decorative outlines: the meaning of a banner or chip is carried by its icon and its words, which pass. **The sale tag has no icon.** Its meaning is carried by the readable word "Sale" (`ink` on `sale`, 6.28, which passes); the ochre shape is decoration and is not needed to understand it. No control's boundary uses these edges. **A field in error uses the error text colour (5.46) as its border.**
+
+**Checked by a unit test (Slice 6a, 23 Nov 2026).** `tests/unit/contrast.test.ts` calculates every pair in this section from the colour values in `globals.css` and fails if a pair misses its ratio or no longer matches the figure recorded here. It found the `control` figures wrong: for `#7E7A6C` they are 4.12 on `surface`, 3.80 on `page` and 3.47 on `sunken`, not 3.49, 3.22 and 2.94. Every pair still passes, and `control` on `sunken` passes too, but rule 6 and the hover rule in 8.1 are kept as approved. The sale tag figure was for `surface`; on `page` it is 1.97. No colour and no rule changes.
 
 **Rechecked on 9 Nov 2026 (D6-34).** The kept colours, including madder as the brand accent, were calculated again for the states that components use. **Three combinations fell below the required ratio and are corrected.** Every other combination calculated passes. These are calculated ratios for design targets, not a claim of conformance.
 
 | Combination found below its ratio | Ratio | Needs | Correction |
 | --- | --- | --- | --- |
-| `control` border on `sunken`: an outlined control hovered with a `sunken` fill | 2.94 | 3 | An outlined control takes no `sunken` fill on hover; its border changes to `ink` (8.1). A `control` border still never sits on `sunken` (4.6 rule 6) |
+| `control` border on `sunken`: an outlined control hovered with a `sunken` fill | 3.47 (first recorded as 2.94, corrected 23 Nov 2026) | 3 | An outlined control takes no `sunken` fill on hover; its border changes to `ink` (8.1). A `control` border still never sits on `sunken` (4.6 rule 6) |
 | Error edge `#E08A73` as the border of the destructive button | 2.50 on `surface` | 3 | The border is the error text colour `#C0310F` (5.46 on `surface`, 5.04 on `page`) (8.2). The error edge stays decorative |
-| Colour swatch boundary: a pale product colour on `surface` or `page` | Depends on the product colour | 3 | Every swatch carries a 1 px `control` outline (3.49 on `surface`, 3.22 on `page`) (8.5) |
+| Colour swatch boundary: a pale product colour on `surface` or `page` | Depends on the product colour | 3 | Every swatch carries a 1 px `control` outline (4.12 on `surface`, 3.80 on `page`) (8.5) |
 
 | Other state combinations calculated | Ratio | Needs | Result |
 | --- | --- | --- | --- |
@@ -1016,3 +1018,4 @@ Approved decisions in Documents 1 to 5 are not changed by this document. It appl
 | 35 | Section 14, item 2 settled: staff pages may grow; the limits stay for the storefront and login pages; staff pages are still measured and reported | Owner decision, 22 Nov 2026 | Done |
 | 36 | Section 14, item 2 made exact (owner, 22 Nov 2026): the existing checks on Users and roles, Audit log and Sales stay and keep failing over the approved limit; no limit changes without the owner seeing the measurements and a proposal first | Owner decision, 22 Nov 2026 | Done |
 | 37 | 8.2, Loading: a busy control keeps focus (`aria-disabled`, not `disabled`); found by the Slice 6 keyboard checks | Owner decision, 23 Nov 2026 | Done |
+| 38 | 4.7: the `control` contrast figures corrected (4.12 / 3.80 / 3.47) and the sale tag figure placed; checked by a unit test from Slice 6a. No colour or rule changed | Correction, no decision | Done |
